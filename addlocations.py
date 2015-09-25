@@ -3,7 +3,7 @@ from geektalentdb import *
 
 gtdb = GeekTalentDB(url=conf.WRITE_DB_URL)
 
-gtdb.add_location('London, UK')
+gtdb.add_location('London, United Kingdom')
 
 # country = 'United Kingdom'
 # statefiles = {'England' : 'england.dat'}

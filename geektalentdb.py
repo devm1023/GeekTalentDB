@@ -61,8 +61,6 @@ class LIProfile(SQLBase):
     id = Column(BigInteger, primary_key=True)
     parent_id = Column(String(1024))
     name = Column(UTF8String(255))
-    country = Column(UTF8String(255))
-    city = Column(UTF8String(255))
     location_id = Column(BigInteger, ForeignKey('location.id'))
     url = Column(String(1024))
     
@@ -72,14 +70,13 @@ class LIProfile(SQLBase):
 
 class Location(SQLBase):
     __tablename__ = 'location'
-    id = Column(BigInteger, primary_key=True)    
+    id = Column(BigInteger, primary_key=True)
+    name = Column(UTF8String(255))
     geo = Column(Geometry('POINT'))
 
 class LocationName(SQLBase):
     __tablename__ = 'location_name'
     nname = Column(UTF8String(255), primary_key=True)
-    name = Column(UTF8String(255))
-    count = Column(BigInteger)
     location_id = Column(BigInteger, ForeignKey('location.id'))
 
 class Skill(SQLBase):
@@ -302,6 +299,7 @@ class GeekTalentDB:
                 return Location()
             lat = r['results'][0]['geometry']['location']['lat']
             lon = r['results'][0]['geometry']['location']['lng']
+            address = r['results'][0]['formatted_address']
             lat = round(lat, conf.LATLON_DIGITS)
             lon = round(lon, conf.LATLON_DIGITS)
             lon1 = lon-conf.LATLON_DELTA
@@ -315,20 +313,17 @@ class GeekTalentDB:
                            .filter(func.ST_contains(polystr, Location.geo)) \
                            .first()
             if not location:
-                location = Location(geo=pointstr)
+                location = Location(geo=pointstr, name=address)
                 self.session.add(location)
                 self.flush()
                 
-            locationname = LocationName(name=name, nname=nname,
-                                        location_id=location.id, count=1)
+            locationname = LocationName(nname=nname, location_id=location.id)
             self.session.add(locationname)
             self.flush()
         else:
             location = self.query(Location) \
                            .filter(Location.id == locationname.location_id) \
                            .one()
-            locationname.count += 1
-            self.flush()
 
         return location
 
@@ -389,17 +384,20 @@ class GeekTalentDB:
 
         return experience
 
-    def add_liprofile(self, parent_id, name, country, city, url,
-                      skills, experiences):
+    def add_liprofile(self, parent_id, name, locationname, url,
+                      skills, experiencedicts):
+        # add location
+        location = self.add_location(locationname)
+
+        # add profile
         liprofile = LIProfile(parent_id=parent_id,
                               name=name,
-                              country=country,
-                              city=city,
+                              location_id=location.id,
                               url=url)
-
         self.session.add(liprofile)
         self.flush()
 
+        # add skills
         liprofileskills = []
         skillids = set()
         for skillname in skills:
@@ -413,12 +411,13 @@ class GeekTalentDB:
         liprofile.skills = liprofileskills
         self.flush()
 
-        for experience in experiences:
-            self.add_experience(liprofile.id,
-                                experience['company'],
-                                experience['startdate'],
-                                experience['enddate'],
-                                experience['title'],
-                                experience['description'])
+        # add experiences
+        experiences = [self.add_experience(liprofile.id,
+                                           experience['company'],
+                                           experience['startdate'],
+                                           experience['enddate'],
+                                           experience['title'],
+                                           experience['description']) \
+                       for experience in experiencedicts]
 
         return liprofile

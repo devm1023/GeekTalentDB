@@ -53,6 +53,20 @@ for profile in datoin.query(params={'sid' : 'linkedin',
     if name == ' ':
         continue
 
+    # get location
+    country = profile.get('country', '')
+    if type(country) is not str:
+        continue
+    city = profile.get('city', '')
+    if type(city) is not str:
+        continue
+    if country and city:
+        location = ', '.join([city, country])
+    elif not country and not city:
+        location = None
+    else:
+        location = city + country
+
     # get skills
     skills = profile.get('categories', [])
     if type(skills) is not list:
@@ -104,12 +118,12 @@ for profile in datoin.query(params={'sid' : 'linkedin',
 
     
     # add profile
-    gtdb.add_liprofile(parent_id, name, None, None, url,
+    gtdb.add_liprofile(parent_id, name, location, url,
                        skills, experiences)
 
     # commit
+    logger.log('{0:d} profiles processed.\n'.format(profilecount))
     if profilecount % 100 == 0:
         gtdb.commit()
-        logger.log('{0:d} profiles processed.\n'.format(profilecount))
 
 

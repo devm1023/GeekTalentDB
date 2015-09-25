@@ -32,6 +32,8 @@ def query(params={},
         logger.log('Requesting data...')
         r = requests.get(url, params=curr_params).json()
         logger.log('done.\n')
+        if 'results' not in r:
+            raise RuntimeError('Invalid reply: '+repr(r))
         if not r['results']:
             break
         else:
