@@ -20,7 +20,6 @@ __all__ = [
 import conf
 from phrasematch import stem, tokenize
 from datetime import datetime
-import dateutil.parser as dateparser
 import re
 
 from sqlalchemy import \
@@ -77,9 +76,9 @@ class Location(SQLBase):
     __tablename__ = 'location'
     id = Column(BigInteger, primary_key=True)
     name = Column(UTF8String(255))
-    region_id = Column(Integer, ForeignKey('region.id'))
-    state_id = Column(Integer, ForeignKey('state.id'))
-    country_id = Column(Integer, ForeignKey('country.id'))
+    region_id = Column(BigInteger, ForeignKey('region.id'))
+    state_id = Column(BigInteger, ForeignKey('state.id'))
+    country_id = Column(BigInteger, ForeignKey('country.id'))
     if conf.USE_SPATIALDATA:
         geo = Column(Geometry('POINT'))
     else:
@@ -88,20 +87,20 @@ class Location(SQLBase):
 
 class Region(SQLBase):
     __tablename__ = 'region'
-    id = Column(Integer, primary_key=True)
-    state_id = Column(Integer, ForeignKey('state.id'))
-    country_id = Column(Integer, ForeignKey('country.id'))
+    id = Column(BigInteger, primary_key=True)
+    state_id = Column(BigInteger, ForeignKey('state.id'))
+    country_id = Column(BigInteger, ForeignKey('country.id'))
     name = Column(UTF8String(255))
 
 class State(SQLBase):
     __tablename__ = 'state'
-    id = Column(Integer, primary_key=True)
-    country_id = Column(Integer, ForeignKey('country.id'))
+    id = Column(BigInteger, primary_key=True)
+    country_id = Column(BigInteger, ForeignKey('country.id'))
     name = Column(UTF8String(255))
 
 class Country(SQLBase):
     __tablename__ = 'country'
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     name = Column(UTF8String(255))
 
 class Skill(SQLBase):
@@ -313,6 +312,71 @@ class GeekTalentDB:
             
         return company
 
+    def add_country(self, name):
+        name = name.strip()
+        if not name:
+            raise ValueError('Country name cannot be blank.')
+        country = self.query(Country).filter(Country.name == name).first()
+        if not country:
+            country = Country(name=name)
+            self.session.add(country)
+            self.flush()
+        return country
+
+    def add_state(self, name, countryname):
+        if name is not None:
+            name = name.strip()
+        if not name:
+            return State()
+        country = self.add_country(countryname)
+        state = self.query(State).filter(State.country_id == country.id,
+                                         State.name == name).first()
+        if not state:
+            state = State(country_id=country.id, name=name)
+            self.session.add(state)
+            self.flush()
+        return state
+
+    def add_region(self, name, statename, countryname):
+        if name is not None:
+            name = name.strip()
+        if not name:
+            return Region()
+        country = self.add_country(countryname)
+        state = self.add_state(statename, countryname)
+        region = self.query(Region).filter(Region.country_id == country.id,
+                                           Region.state_id == state.id,
+                                           Region.name == name).first()
+        if not region:
+            region = Region(country_id=country.id,
+                            state_id=state.id,
+                            name=name)
+            self.session.add(region)
+            self.flush()
+        return region
+
+    def add_location(self, name, regionname, statename, countryname):
+        if name is not None:
+            name = name.strip()
+        if not name:
+            raise ValueError('Location name cannot be blank.')
+        country = self.add_country(countryname)
+        state = self.add_state(statename, countryname)
+        region = self.add_region(regionname, statename, countryname)
+        location = self.query(Location).filter(
+            Location.country_id == country.id,
+            Location.state_id == state.id,
+            Location.region_id == region.id,
+            Location.name == name).first()
+        if not location:
+            location = Location(country_id=country.id,
+                                state_id=state.id,
+                                region_id=region.id,
+                                name=name)
+            self.session.add(location)
+            self.flush()
+        return location
+    
     def delete_experienceskills(self, experience_ids):
         if hasattr(experience_ids, '__len__'):
             ids = tuple(experience_ids)
