@@ -1,0 +1,65 @@
+Installation on Ubuntu 15.04
+----------------------------
+
+sudo apt-get install postgresql postgresql-contrib postgis postgresql-9.4-postgis-2.1 pgadmin3
+
+
+Set up user and database
+------------------------
+
+$ sudo su -
+# sudo -u postgres createdb geektalent
+# sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis;"
+# sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis_topology;"
+# sudo -u postgres createuser -P -s -e geektalent
+
+Ta2tqaltuaatri42
+
+# sudo -u postgres psql -c "grant all privileges on database geektalent to geektalent;"
+# exit
+
+
+Set up config files
+-------------------
+
+Edit /etc/postgresql/9.4/main/pg_hba.conf and change
+
+local   all             all                                     peer
+
+to
+
+local   all             all                                     md5
+host    geektalent      geektalent     0.0.0.0/0                md5
+
+Edit /etc/postgresql/9.4/main/postgresql.conf and change
+
+#listen_addresses = 'localhost'
+
+to
+
+#listen_addresses = '*'
+
+Then do
+
+$ sudo service postgresql restart
+
+Try logging in with
+
+$ psql -h <host_ip> -d geektalent -U geektalent -W
+
+
+Creating and restoring dumps
+----------------------------
+
+Create dump:
+
+$ sudo su -
+# sudo -u postgres pg_dump geektalent > filename.sql
+# exit
+
+Restore from dump:
+
+$ sudo su -
+# sudo -u postgres psql geektalent < filename.sql
+# exit
+

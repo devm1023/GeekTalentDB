@@ -1,6 +1,14 @@
 GeekTalentDB -- Experimental SQL database for user profiles
 ===========================================================
 
+To tear down the DB and build it from scratch do
+
+    python3 cleardb.py
+    python3 addlinkedin.py <start-date> <end-date>
+
+See postgres-setup.txt for instructions to set up the PostgreSQL DB.
+
+
 Files:
 
 geektalentdb.py
