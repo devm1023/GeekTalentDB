@@ -6,9 +6,7 @@ __all__ = [
     'Skill',
     'Jobtitle',
     'Location',
-    'Region',
-    'State',
-    'Country',
+    'LocationName',
     'Experience',
     'ExperienceSkill',
     'ExperienceJobtitle',
@@ -34,23 +32,23 @@ from sqlalchemy import \
     String, \
     Text, \
     Date, \
-    Float
+    Float, \
+    func
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from geoalchemy2 import Geometry
 
+import requests
 
 def UTF8String(*args, **kwargs):
-    if conf.USE_MYSQL:
-        return Unicode(*args, collation='utf8_bin', **kwargs)
-    else:
-        return Unicode(*args, **kwargs)
+    # if conf.USE_MYSQL:
+    #     return Unicode(*args, collation='utf8_bin', **kwargs)
+    return Unicode(*args, **kwargs)
 
 def UTF8Text(*args, **kwargs):
-    if conf.USE_MYSQL:
-        return UnicodeText(*args, collation='utf8_bin', **kwargs)
-    else:
-        return UnicodeText(*args, **kwargs)
+    # if conf.USE_MYSQL:
+    #     return UnicodeText(*args, collation='utf8_bin', **kwargs)
+    return UnicodeText(*args, **kwargs)
 
 
 SQLBase = declarative_base()
@@ -74,34 +72,15 @@ class LIProfile(SQLBase):
 
 class Location(SQLBase):
     __tablename__ = 'location'
-    id = Column(BigInteger, primary_key=True)
-    name = Column(UTF8String(255))
-    region_id = Column(BigInteger, ForeignKey('region.id'))
-    state_id = Column(BigInteger, ForeignKey('state.id'))
-    country_id = Column(BigInteger, ForeignKey('country.id'))
-    if conf.USE_SPATIALDATA:
-        geo = Column(Geometry('POINT'))
-    else:
-        latitude = Column(Float)
-        longitude = Column(Float)
+    id = Column(BigInteger, primary_key=True)    
+    geo = Column(Geometry('POINT'))
 
-class Region(SQLBase):
-    __tablename__ = 'region'
-    id = Column(BigInteger, primary_key=True)
-    state_id = Column(BigInteger, ForeignKey('state.id'))
-    country_id = Column(BigInteger, ForeignKey('country.id'))
+class LocationName(SQLBase):
+    __tablename__ = 'location_name'
+    nname = Column(UTF8String(255), primary_key=True)
     name = Column(UTF8String(255))
-
-class State(SQLBase):
-    __tablename__ = 'state'
-    id = Column(BigInteger, primary_key=True)
-    country_id = Column(BigInteger, ForeignKey('country.id'))
-    name = Column(UTF8String(255))
-
-class Country(SQLBase):
-    __tablename__ = 'country'
-    id = Column(BigInteger, primary_key=True)
-    name = Column(UTF8String(255))
+    count = Column(BigInteger)
+    location_id = Column(BigInteger, ForeignKey('location.id'))
 
 class Skill(SQLBase):
     __tablename__ = 'skill'
@@ -312,70 +291,47 @@ class GeekTalentDB:
             
         return company
 
-    def add_country(self, name):
-        name = name.strip()
-        if not name:
-            raise ValueError('Country name cannot be blank.')
-        country = self.query(Country).filter(Country.name == name).first()
-        if not country:
-            country = Country(name=name)
-            self.session.add(country)
+    def add_location(self, name):
+        nname = ' '.join(name.lower().split())
+        locationname = self.query(LocationName) \
+                           .filter(LocationName.nname == nname).first()
+        if not locationname:
+            r = requests.get(conf.MAPS_API,
+                             params={'address' : nname}).json()
+            if len(r['results']) != 1:
+                return Location()
+            lat = r['results'][0]['geometry']['location']['lat']
+            lon = r['results'][0]['geometry']['location']['lng']
+            lat = round(lat, conf.LATLON_DIGITS)
+            lon = round(lon, conf.LATLON_DIGITS)
+            lon1 = lon-conf.LATLON_DELTA
+            lon2 = lon+conf.LATLON_DELTA
+            lat1 = lat+conf.LATLON_DELTA
+            lat2 = lat-conf.LATLON_DELTA
+            pointstr = 'POINT({0:f} {1:f})'.format(lon, lat)
+            polystr = 'POLYGON(({0:f} {1:f},{2:f} {1:f},{2:f} {3:f},{0:f} {3:f},{0:f} {1:f}))' \
+                      .format(lon1, lat1, lon2, lat2)
+            location = self.query(Location) \
+                           .filter(func.ST_contains(polystr, Location.geo)) \
+                           .first()
+            if not location:
+                location = Location(geo=pointstr)
+                self.session.add(location)
+                self.flush()
+                
+            locationname = LocationName(name=name, nname=nname,
+                                        location_id=location.id, count=1)
+            self.session.add(locationname)
             self.flush()
-        return country
+        else:
+            location = self.query(Location) \
+                           .filter(Location.id == locationname.location_id) \
+                           .one()
+            locationname.count += 1
+            self.flush()
 
-    def add_state(self, name, countryname):
-        if name is not None:
-            name = name.strip()
-        if not name:
-            return State()
-        country = self.add_country(countryname)
-        state = self.query(State).filter(State.country_id == country.id,
-                                         State.name == name).first()
-        if not state:
-            state = State(country_id=country.id, name=name)
-            self.session.add(state)
-            self.flush()
-        return state
-
-    def add_region(self, name, statename, countryname):
-        if name is not None:
-            name = name.strip()
-        if not name:
-            return Region()
-        country = self.add_country(countryname)
-        state = self.add_state(statename, countryname)
-        region = self.query(Region).filter(Region.country_id == country.id,
-                                           Region.state_id == state.id,
-                                           Region.name == name).first()
-        if not region:
-            region = Region(country_id=country.id,
-                            state_id=state.id,
-                            name=name)
-            self.session.add(region)
-            self.flush()
-        return region
-
-    def add_location(self, name, regionname, statename, countryname):
-        if name is not None:
-            name = name.strip()
-        if not name:
-            raise ValueError('Location name cannot be blank.')
-        country = self.add_country(countryname)
-        state = self.add_state(statename, countryname)
-        region = self.add_region(regionname, statename, countryname)
-        location = self.query(Location).filter(
-            Location.country_id == country.id,
-            Location.state_id == state.id,
-            Location.region_id == region.id,
-            Location.name == name).first()
-        if not location:
-            location = Location(country_id=country.id,
-                                state_id=state.id,
-                                region_id=region.id,
-                                name=name)
-            self.session.add(location)
-            self.flush()
         return location
+
     
     def delete_experienceskills(self, experience_ids):
         if hasattr(experience_ids, '__len__'):

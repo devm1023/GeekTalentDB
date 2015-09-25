@@ -7,6 +7,7 @@ To tear down the DB and build it from scratch do
     python3 addlinkedin.py <start-date> <end-date>
 
 See postgres-setup.txt for instructions to set up the PostgreSQL DB.
+See python-setup.txt for instructions on installing python dependencies.
 
 
 Files:
