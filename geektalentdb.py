@@ -16,9 +16,10 @@ __all__ = [
     ]
 
 import conf
-from phrasematch import stem, tokenize
+from phrasematch import stem, tokenize, matchStems
 from datetime import datetime
 import re
+import numpy as np
 
 from sqlalchemy import \
     create_engine, \
@@ -300,6 +301,16 @@ class GeekTalentDB:
             lat = r['results'][0]['geometry']['location']['lat']
             lon = r['results'][0]['geometry']['location']['lng']
             address = r['results'][0]['formatted_address']
+
+            # format address
+            address = address.split(', ')
+            if address:
+                for i, s in enumerate(address[:-1]):
+                    while len(address) > i+1 and address[i+1] == s:
+                        del address[i+1]
+            address = ', '.join(address)
+
+            # find location
             lat = round(lat, conf.LATLON_DIGITS)
             lon = round(lon, conf.LATLON_DIGITS)
             lon1 = lon-conf.LATLON_DELTA
@@ -420,4 +431,30 @@ class GeekTalentDB:
                                            experience['description']) \
                        for experience in experiencedicts]
 
+        # compute skill ranks
+        skills = [
+            self.query(Skill).filter(Skill.id == ps.skill_id) \
+                             .one() for ps in liprofileskills]
+        descriptions = [' '.join([e.title, e.description]) for e in experiences]
+        descriptionstems = list(map(stem, descriptions))
+        skillstems = [s.nname.split() for s in skills]
+        matches = (matchStems(skillstems, descriptionstems) > \
+                   conf.SKILL_MATCHING_THRESHOLD)
+        ranks = np.zeros(len(skills))
+        for iexperience, experience in enumerate(experiences):
+            experienceskills = []
+            for iskill, skill in enumerate(skills):
+                if matches[iskill, iexperience]:
+                    if experience.duration:
+                        duration = experience.duration
+                    else:
+                        duration = 365
+                    ranks[iskill] += duration/365.0
+                    experienceskills.append(
+                        ExperienceSkill(experience_id=experience.id,
+                                        skill_id=skill.id))
+            experience.skills = experienceskills
+        for liprofileskill, rank in zip(liprofileskills, ranks):
+            liprofileskill.rank = rank
+        
         return liprofile

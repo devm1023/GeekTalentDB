@@ -80,12 +80,12 @@ def _ratio(nmatch, ntext, nphrase, pw):
     return (nmatch/ntext)**pw * (nmatch/nphrase)
 
 
-def matchPhrases(phrases, texts, proximity_weight=0.25):
-    """Determine whether phrases appear in a list of texts.
+def matchStems(phrasestems, textstems, proximity_weight=0.25):
+    """Determine whether phrase stems appear in a list of text stems.
 
     Args:
-      phrases (list of str): The phrases to look for.
-      texts (list of str): The texts to search.
+      phrasestems (list of list of str): The phrase stems to look for.
+      textstems (list of list of str): The text stems to search.
       proximity_weight (float, optional): A positive number (typically less
         than 1) indicating how the proximity of matching words is weighted.
 
@@ -102,11 +102,9 @@ def matchPhrases(phrases, texts, proximity_weight=0.25):
         consecutive words from the text. The maxumum is taken over all possible
         window sizes and positions.
         
-    """
+    """    
     pw = proximity_weight
-    phrasestems = list(map(stem, phrases))
-    textstems = list(map(stem, texts))
-    result = np.zeros((len(phrases), len(texts)))
+    result = np.zeros((len(phrasestems), len(textstems)))
     for iphrase, phrasetokens in enumerate(phrasestems):
         for itext, texttokens in enumerate(textstems):
             nphrase = len(phrasetokens)
@@ -135,6 +133,34 @@ def matchPhrases(phrases, texts, proximity_weight=0.25):
             result[iphrase, itext] = maxratio
 
     return result
+
+
+def matchPhrases(phrases, texts, proximity_weight=0.25):
+    """Determine whether phrases appear in a list of texts.
+
+    Args:
+      phrases (list of str): The phrases to look for.
+      texts (list of str): The texts to search.
+      proximity_weight (float, optional): A positive number (typically less
+        than 1) indicating how the proximity of matching words is weighted.
+
+    Returns:
+      numpy array: An array of shape ``(len(phrases), len(texts))`` holding
+        numbers between 0 and 1 indicating the quality of the match of each
+        phrase with each text. If a phrase consists of `n` words and only `m`
+        of them appear in `text` the match score is at most ``m/n``. The match
+        score is reduced if the words are far apart. The full formula is::
+
+          max((m/w)**proximity_weight * m/n)
+
+        where `m` is the number of matching words in a "window" of `w`
+        consecutive words from the text. The maxumum is taken over all possible
+        window sizes and positions.
+        
+    """
+    phrasestems = list(map(stem, phrases))
+    textstems = list(map(stem, texts))
+    return matchStems(phrasestems, textstems, proximity_weight=proximity_weight)
 
 
 def matchPhrase(phrase, text):
