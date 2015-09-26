@@ -1,17 +1,32 @@
 # SQL DB URLs
-# local db:        'postgresql://geektalent:geektalent@localhost/geektalent'
-# internal server: 'postgresql://geektalent:geektalent@10.140.18.98/geektalent'
-# cloud SQL:       'mysql+mysqldb://geektalent:geektalent@173.194.248.106/geektalent'
-# cloud PostgreSQL 'postgresql://geektalent:Ta2tqaltuaatri42@104.155.42.1/geektalent'
+#
+# Format:
+# postgresql://<username>:<password>@<host>/<database>
+#
+# <username> is always 'geektalent'
+# <database> is either 'geektalent' or 'datoin'
+#
+# host description   host name/IP      geektalent passwd    datoin passwd
+# ---------------------------------------------------------------------------
+# Martin's Laptop    localhost         geektalent           geektalent
+# internal server    10.140.18.98      geektalent           geektalent
+# cloud SQL server   173.194.248.106   geektalent           geektalent
+# cloud PostgreSQL   104.155.42.1      Ta2tqaltuaatri42     Ta2tqaltuaatri42
 
-# SQL Database used by scripts which write data
-WRITE_DB_URL    = 'postgresql://geektalent:geektalent@localhost/geektalent'
+# GeekTalent Database used by scripts which write data
+GT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/geektalent'
 
-# SQL Database used by scripts which only read data
-READ_DB_URL     = 'postgresql://geektalent:Ta2tqaltuaatri42@104.155.42.1/geektalent'
+# GeekTalent Database used by scripts which only read data
+GT_READ_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@104.155.42.1/geektalent'
+
+# Datoin Database used by scripts which write data
+DT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/datoin'
+
+# Datoin Database used by scripts which only read data
+DT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 
 
-# DATOIN endpoints:
+# Datoin SOLR endpoints:
 # public domains: gt.datoin.com, gt1.datoin.com
 # private IP: ???
 # port: 8765

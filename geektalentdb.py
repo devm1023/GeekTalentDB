@@ -1,7 +1,4 @@
 __all__ = [
-    'create_engine',
-    'sessionmaker',
-    'SQLBase',
     'LIProfile',
     'Skill',
     'Jobtitle',
@@ -21,8 +18,8 @@ from datetime import datetime
 import re
 import numpy as np
 
+from sqldb import *
 from sqlalchemy import \
-    create_engine, \
     Column, \
     UniqueConstraint, \
     ForeignKey, \
@@ -35,8 +32,7 @@ from sqlalchemy import \
     Date, \
     Float, \
     func
-from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
 import requests
@@ -50,9 +46,6 @@ def UTF8Text(*args, **kwargs):
     # if conf.USE_MYSQL:
     #     return UnicodeText(*args, collation='utf8_bin', **kwargs)
     return UnicodeText(*args, **kwargs)
-
-
-SQLBase = declarative_base()
 
 
 # entities
@@ -184,33 +177,9 @@ class LIProfileJobtitle(SQLBase):
                          ForeignKey('jobtitle.id'),
                          primary_key=True,
                          index=True)
-    
-    
-
-impossibleyear = 3000
-defaultstartdate = datetime(year=impossibleyear, month=1, day=1)
-defaultenddate = datetime(year=impossibleyear, month=12, day=31)
 
 
-class GeekTalentDB:
-    def __init__(self, url=None, session=None, engine=None):
-        if session is None and engine is None and url is None:
-            raise ValueError('One of url, session, or engine must be specified')
-        if session is None:
-            if engine is None:
-                engine = create_engine(url)
-            session = sessionmaker(bind=engine)()
-        self.session = session
-        self.query = session.query
-        self.flush = session.flush
-        self.commit = session.commit
-
-    def drop_all(self):
-        SQLBase.metadata.drop_all(self.session.bind)
-
-    def create_all(self):
-        SQLBase.metadata.create_all(self.session.bind)
-
+class GeekTalentDB(SQLDatabase):
     def add_skill(self, name):
         nname = stem(name)
         nname.sort()
@@ -219,7 +188,7 @@ class GeekTalentDB:
         skill = self.query(Skill).filter(Skill.nname == nname).first()
         if not skill:
             skill = Skill(nname=nname)
-            self.session.add(skill)
+            self.add(skill)
             self.flush()
 
         skillname = self.query(SkillName) \
@@ -228,7 +197,7 @@ class GeekTalentDB:
                         .first()
         if not skillname:
             skillname = SkillName(skill_id=skill.id, name=name, count=1)
-            self.session.add(skillname)
+            self.add(skillname)
         else:
             skillname.count += 1
         self.flush()
@@ -245,7 +214,7 @@ class GeekTalentDB:
                        .filter(Jobtitle.nname == nname).first()
         if not jobtitle:
             jobtitle = Jobtitle(nname=nname)
-            self.session.add(jobtitle)
+            self.add(jobtitle)
             self.flush()
 
         jobtitlename = self.query(JobtitleName) \
@@ -255,7 +224,7 @@ class GeekTalentDB:
         if not jobtitlename:
             jobtitlename = JobtitleName(jobtitle_id=jobtitle.id,
                                         name=name, count=1)
-            self.session.add(jobtitlename)
+            self.add(jobtitlename)
         else:
             jobtitlename.count += 1
         self.flush()
@@ -272,7 +241,7 @@ class GeekTalentDB:
                       .filter(Company.nname == nname).first()
         if not company:
             company = Company(nname=nname)
-            self.session.add(company)
+            self.add(company)
             self.flush()
 
         companyname = self.query(CompanyName) \
@@ -282,7 +251,7 @@ class GeekTalentDB:
         if not companyname:
             companyname = CompanyName(company_id=company.id,
                                       name=name, count=1)
-            self.session.add(companyname)
+            self.add(companyname)
         else:
             companyname.count += 1
         self.flush()
@@ -325,11 +294,11 @@ class GeekTalentDB:
                            .first()
             if not location:
                 location = Location(geo=pointstr, name=address)
-                self.session.add(location)
+                self.add(location)
                 self.flush()
                 
             locationname = LocationName(nname=nname, location_id=location.id)
-            self.session.add(locationname)
+            self.add(locationname)
             self.flush()
         else:
             location = self.query(Location) \
@@ -369,7 +338,7 @@ class GeekTalentDB:
                                 duration=duration,
                                 title=jobtitlename,
                                 description=description)
-        self.session.add(experience)
+        self.add(experience)
         self.flush()
 
         # parse and add job title(s)
@@ -405,7 +374,7 @@ class GeekTalentDB:
                               name=name,
                               location_id=location.id,
                               url=url)
-        self.session.add(liprofile)
+        self.add(liprofile)
         self.flush()
 
         # add skills
@@ -456,5 +425,8 @@ class GeekTalentDB:
             experience.skills = experienceskills
         for liprofileskill, rank in zip(liprofileskills, ranks):
             liprofileskill.rank = rank
-        
+
+        self.flush()
         return liprofile
+
+

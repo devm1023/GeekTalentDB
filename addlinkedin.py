@@ -11,8 +11,8 @@ logger = Logger(sys.stdout)
 
 
 # connect to database
-        
-gtdb = GeekTalentDB(url=conf.WRITE_DB_URL)
+
+gtdb = GeekTalentDB(url=conf.GT_WRITE_DB)
 
 fromdate = datetime.strptime(sys.argv[1], '%Y-%m-%d')
 if len(sys.argv) > 2:
