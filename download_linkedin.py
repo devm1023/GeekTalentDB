@@ -209,9 +209,71 @@ def add_profile(dtdb, profile):
             'dateTo'      : dateTo,
             'description' : description,
             'indexedOn'   : indexedOn})
-    
+
+    # get educations
+    educations = []
+    for education in datoin.query(
+            url=conf.DATOIN_PROFILES+'/'+profile_id+'/educations',
+            params={}):
+        # get id
+        if 'id' not in education:
+            return False
+        education_id = education['id']
+        if type(education_id) is not str:
+            return False
+
+        # get parent id
+        if 'parentId' not in education:
+            return False
+        parentId = education['parentId']
+        if parentId != liprofile['id']:
+            return False
+        
+        # get institute
+        institute = education.get('name', None)
+        if institute is not None and type(institute) is not str:
+            return False
+
+        # get degree
+        degree = education.get('degree', None)
+        if degree is not None and type(degree) is not str:
+            return False
+
+        # get area
+        area = education.get('area', None)
+        if area is not None and type(area) is not str:
+            return False
+        
+        # get start date
+        dateFrom = education.get('dateFrom', None)
+        if dateFrom is not None and type(dateFrom) is not int:
+            return False
+
+        # get end date
+        dateTo = education.get('dateTo', None)
+        if dateTo is not None and type(dateTo) is not int:
+            return False
+
+        # get timestamp
+        if 'indexedOn' not in education:
+            return False
+        indexedOn = education['indexedOn']
+        if type(indexedOn) is not int:
+            return False
+
+        educations.append({
+            'id'          : education_id,
+            'parentId'    : parentId,
+            'institute'   : institute,
+            'degree'      : degree,
+            'area'        : area,
+            'dateFrom'    : dateFrom,
+            'dateTo'      : dateTo,
+            'indexedOn'   : indexedOn})
+
+
     # add profile
-    dtdb.add_liprofile(liprofile, experiences)
+    dtdb.add_liprofile(liprofile, experiences, educations)
     return True
 
     

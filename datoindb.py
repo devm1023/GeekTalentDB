@@ -50,8 +50,21 @@ class Experience(SQLBase):
     description = Column(Unicode(STR_MAX))
     indexedOn   = Column(BigInteger)
 
+class Education(SQLBase):
+    __tablename__ = 'education'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX))
+    institute   = Column(Unicode(STR_MAX))
+    degree      = Column(Unicode(STR_MAX))
+    area        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    indexedOn   = Column(BigInteger)
+
+    
 class DatoinDB(SQLDatabase):
-    def add_liprofile(self, profile, experiences):
+    def add_liprofile(self, profile, experiences, educations):
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
                         .filter(LIProfile.id == profile['id']) \
@@ -63,10 +76,18 @@ class DatoinDB(SQLDatabase):
             self.flush()
         else:
             new_profile = False
-            for key in profile:
-                if key == 'id':
-                    continue
-                liprofile[key] = profile[key]
+            liprofile.parentId          = profile['parentId']
+            liprofile.lastName          = profile['lastName']
+            liprofile.firstName         = profile['firstName']
+            liprofile.name              = profile['name']
+            liprofile.country           = profile['country']
+            liprofile.city              = profile['city']
+            liprofile.title             = profile['title']
+            liprofile.profileUrl        = profile['profileUrl']
+            liprofile.profilePictureUrl = profile['profilePictureUrl']
+            liprofile.indexedOn         = profile['indexedOn']
+            liprofile.connections       = profile['connections']
+            liprofile.categories        = profile['categories']
 
         # add experiences
         if not new_profile:
@@ -75,6 +96,14 @@ class DatoinDB(SQLDatabase):
                 .delete(synchronize_session='fetch')
         for experience in experiences:
             self.add(Experience(**experience))
-        self.flush()
 
+        # add educations
+        if not new_profile:
+            self.query(Education) \
+                .filter(Education.parentId == liprofile.id) \
+                .delete(synchronize_session='fetch')
+        for education in educations:
+            self.add(Education(**education))
+
+        self.flush()
         return liprofile
