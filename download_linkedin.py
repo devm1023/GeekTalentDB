@@ -4,24 +4,25 @@ import datoin
 import sys
 from logger import Logger
 from datetime import datetime, timedelta
+import numpy as np
+from parallelize import ParallelFunction
+import dill
+dill.settings['recurse'] = True
 
-logger = Logger(sys.stdout)
-
-# connect to database
-dtdb = DatoinDB(url=conf.DT_WRITE_DB)
 
 # calculate timestamps
 timestamp0 = datetime(year=1970, month=1, day=1)
-fromdate = datetime.strptime(sys.argv[1], '%Y-%m-%d')
-if len(sys.argv) > 2:
-    todate = datetime.strptime(sys.argv[2], '%Y-%m-%d')
+njobs = int(sys.argv[1])
+fromdate = datetime.strptime(sys.argv[2], '%Y-%m-%d')
+if len(sys.argv) > 3:
+    todate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
 else:
     todate = datetime.now()
 fromTs = int((fromdate - timestamp0).total_seconds())
 toTs   = int((todate   - timestamp0).total_seconds())
 
 
-def add_profile(dtdb, profile):
+def add_profile(dtdb, profile, logger):
     # get id
     if 'id' not in profile:
         logger.log('invalid profile id\n')
@@ -276,20 +277,78 @@ def add_profile(dtdb, profile):
     dtdb.add_liprofile(liprofile, experiences, educations)
     return True
 
-    
-current_offset = 0
-failed_offsets = []
-for profile in datoin.query(params={'sid' : 'linkedin',
-                                    'fromTs' : fromTs,
-                                    'toTs'   : toTs},
-                            rows=conf.MAX_PROFILES):
-    if not add_profile(dtdb, profile):
-        failed_offsets.append(current_offset)
-    current_offset += 1
 
-    # commit
-    logger.log('{0:d} profiles processed.\n'.format(current_offset))
-    if current_offset % 100 == 0:
+def download_linkedin(tsrange):
+    logger = Logger(sys.stdout)
+    MAX_ATTEMPTS = 10
+    BATCH_SIZE = 10
+    dtdb = DatoinDB(url=conf.DT_WRITE_DB)
+    
+    ts1, ts2 = tsrange
+    ts2 -= 1
+    total_profiles = datoin.count(params={'sid'    : 'linkedin',
+                                          'fromTs' : ts1,
+                                          'toTs'   : ts2})
+    logger.log('{0:d} profiles found.\n'.format(total_profiles))
+
+    failed_offsets = []
+    count = 0
+    for profile in datoin.query(params={'sid'    : 'linkedin',
+                                        'fromTs' : ts1,
+                                        'toTs'   : ts2},
+                                rows=conf.MAX_PROFILES):
+        if not add_profile(dtdb, profile, logger):
+            failed_offsets.append(count)
+        count += 1
+
+        # commit
+        if count % BATCH_SIZE == 0:
+            logger.log('{0:d} profiles processed.\n'.format(count))
+            dtdb.commit()
+    dtdb.commit()
+
+    for attempt in range(MAX_ATTEMPTS):
+        if not failed_offsets:
+            break
+        logger.log('Re-processing {0:d} profiles.\n'.format(len(failed_offsets)))
+        new_failed_offsets = []
+        count = 0
+        for offset in failed_offsets:
+            count += 1
+            try:
+                profile = next(datoin.query(params={'sid'    : 'linkedin',
+                                                    'fromTs' : ts1,
+                                                    'toTs'   : ts2},
+                                            rows=1,
+                                            offset=offset))
+            except StopIteration:
+                new_failed_offsets.append(offset)
+                continue
+            if not add_profile(dtdb, profile, logger):
+                new_failed_offsets.append(offset)
+
+            if count % BATCH_SIZE == 0:
+                logger.log('{0:d} profiles processed.\n'.format(count))
+                dtdb.commit()
         dtdb.commit()
 
-logger.log('failed offsets: {0:s}\n'.format(str(failed_offsets)))
+        failed_offsets = new_failed_offsets
+
+    logger.log('failed offsets: {0:s}\n'.format(str(failed_offsets)))
+    return failed_offsets
+
+
+timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
+args = list(zip(timestamps[:-1], timestamps[1:]))
+results = ParallelFunction(download_linkedin,
+                           njobs=njobs,
+                           workdir='jobs',
+                           prefix='lidownload',
+                           tries=1,
+                           autocancel=False,
+                           log=sys.stdout)(args)
+sys.stdout.write('Failed offsets:\n')
+for i, r in enumerate(results):
+    sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))
+sys.stdout.flush()
+

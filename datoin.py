@@ -7,6 +7,16 @@ from logger import Logger
 logger = Logger(None)
 
 
+def count(params={},
+          url=conf.DATOIN_SEARCH):
+    params['rows'] = 0
+    params['start'] = 0
+    r = requests.get(url, params=params).json()
+    if 'totalResults' not in r:
+        raise RuntimeError('Invalid reply: '+repr(r))
+    return r['totalResults']
+
+
 def query(params={},
           url=conf.DATOIN_SEARCH,
           rows=None,
@@ -42,7 +52,3 @@ def query(params={},
 
         curr_offset += batchsize
 
-
-    
-    
-    
