@@ -307,6 +307,7 @@ fout.close()
                                 log.write('Lost job '+str(i)+ \
                                           ' (PID '+str(runners[i].pid)+ \
                                           '). Tries exhausted. Giving up.\n')
+                                log.flush()
                             if autocancel:
                                 cancel = True
                                 break
@@ -320,6 +321,7 @@ fout.close()
                                 log.write('Lost Job '+str(i)+' (PID '+ \
                                           str(runners[i].pid)+ \
                                           '). Restarting.\n')
+                                log.flush()
                             runners[i].cancel()
                             runners[i] = runner(prefix, i, workdir, prefix+'.py',
                                                 [prefix+'.fn',
@@ -342,6 +344,7 @@ fout.close()
             if log is not None:
                 log.write('Pending: '+str(npending)+ \
                           ', Running: '+str(nrunning)+'\n')
+                log.flush()
         oldnrunning = nrunning
         oldnpending = npending
 
