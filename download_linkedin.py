@@ -344,7 +344,6 @@ sys.stdout.flush()
 
 
 if njobs > 1:
-    print(njobs)
     offsets = np.linspace(0, nprofiles, njobs+1, dtype=int)
     args = [(fromTs, toTs, os1, os2-os1) \
             for os1, os2 in zip(offsets[:-1], offsets[1:])]

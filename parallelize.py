@@ -116,8 +116,8 @@ class LocalRunner(BasicRunner):
         self.outfile.write(' '.join([self.pyexec, self.script]+self.args)+'\n')
         self.outfile.flush()
         self._proc = subprocess.Popen([self.pyexec, self.script]+self.args,
-                                     stdout=self.outfile, stderr=self.errfile,
-                                     cwd=self.workdir)
+                                      stdout=self.outfile, stderr=self.errfile,
+                                      cwd=self.workdir)
         self.running = True
         self.pid = self._proc.pid
 
