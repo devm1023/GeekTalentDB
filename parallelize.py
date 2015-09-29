@@ -114,6 +114,7 @@ class LocalRunner(BasicRunner):
         self.outfile = open(os.path.join(self.workdir, self.stdout), 'w')
         self.errfile = open(os.path.join(self.workdir, self.stderr), 'w')
         self.outfile.write(' '.join([self.pyexec, self.script]+self.args)+'\n')
+        self.outfile.flush()
         self._proc = subprocess.Popen([self.pyexec, self.script]+self.args,
                                      stdout=self.outfile, stderr=self.errfile,
                                      cwd=self.workdir)

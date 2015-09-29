@@ -278,27 +278,25 @@ def add_profile(dtdb, profile, logger):
     return True
 
 
-def download_linkedin(ts1, ts2):
-    ts2 -= 1
-
+def download_linkedin(fromTs, toTs, offset, rows):
+    if conf.MAX_PROFILES is not None:
+        rows = min(rows, conf.MAX_PROFILES)
+    
     logger = Logger(sys.stdout)
     MAX_ATTEMPTS = 10
     BATCH_SIZE = 10
     dtdb = DatoinDB(url=conf.DT_WRITE_DB)
-    
-    total_profiles = datoin.count(params={'sid'    : 'linkedin',
-                                          'fromTs' : ts1,
-                                          'toTs'   : ts2})
-    logger.log('{0:d} profiles found.\n'.format(total_profiles))
 
+    logger.log('Downloading {0:d} profiles.\n'.format(rows))
     failed_offsets = []
     count = 0
     for profile in datoin.query(params={'sid'    : 'linkedin',
-                                        'fromTs' : ts1,
-                                        'toTs'   : ts2},
-                                rows=conf.MAX_PROFILES):
+                                        'fromTs' : fromTs,
+                                        'toTs'   : toTs},
+                                rows=rows,
+                                offset=offset):
         if not add_profile(dtdb, profile, logger):
-            failed_offsets.append(count)
+            failed_offsets.append(offset+count)
         count += 1
 
         # commit
@@ -317,8 +315,8 @@ def download_linkedin(ts1, ts2):
             count += 1
             try:
                 profile = next(datoin.query(params={'sid'    : 'linkedin',
-                                                    'fromTs' : ts1,
-                                                    'toTs'   : ts2},
+                                                    'fromTs' : fromTs,
+                                                    'toTs'   : toTs},
                                             rows=1,
                                             offset=offset))
             except StopIteration:
@@ -338,9 +336,18 @@ def download_linkedin(ts1, ts2):
     return failed_offsets
 
 
+nprofiles = datoin.count(params={'sid'    : 'linkedin',
+                                 'fromTs' : fromTs,
+                                 'toTs'   : toTs})
+sys.stdout.write('{0:d} profiles found.\n'.format(nprofiles))
+sys.stdout.flush()
+
+
 if njobs > 1:
-    timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
-    args = list(zip(timestamps[:-1], timestamps[1:]))
+    print(njobs)
+    offsets = np.linspace(0, nprofiles, njobs+1, dtype=int)
+    args = [(fromTs, toTs, os1, os2-os1) \
+            for os1, os2 in zip(offsets[:-1], offsets[1:])]
     results = ParallelFunction(download_linkedin,
                                njobs=njobs,
                                workdir='jobs',
@@ -353,7 +360,4 @@ if njobs > 1:
         sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))
     sys.stdout.flush()
 else:
-    result = download_linkedin(fromTs, toTs)
-    sys.stdout.write('Failed offsets:\n')
-    sys.stdout.write(str(result)+'\n')
-    sys.stdout.flush()
+    download_linkedin(fromTs, toTs, 0, nprofiles)
