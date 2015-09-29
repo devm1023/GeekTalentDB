@@ -252,7 +252,7 @@ fin = open(sys.argv[2], 'rb')
 xvals = load(fin)
 fin.close()
 
-fvals = [f(x) for x in xvals]
+fvals = [f(*x) for x in xvals]
 
 fout = open(sys.argv[3], 'wb')
 xvals = dump(fvals, fout)

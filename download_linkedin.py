@@ -278,14 +278,14 @@ def add_profile(dtdb, profile, logger):
     return True
 
 
-def download_linkedin(tsrange):
+def download_linkedin(ts1, ts2):
+    ts2 -= 1
+
     logger = Logger(sys.stdout)
     MAX_ATTEMPTS = 10
     BATCH_SIZE = 10
     dtdb = DatoinDB(url=conf.DT_WRITE_DB)
     
-    ts1, ts2 = tsrange
-    ts2 -= 1
     total_profiles = datoin.count(params={'sid'    : 'linkedin',
                                           'fromTs' : ts1,
                                           'toTs'   : ts2})
@@ -338,17 +338,22 @@ def download_linkedin(tsrange):
     return failed_offsets
 
 
-timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
-args = list(zip(timestamps[:-1], timestamps[1:]))
-results = ParallelFunction(download_linkedin,
-                           njobs=njobs,
-                           workdir='jobs',
-                           prefix='lidownload',
-                           tries=1,
-                           autocancel=False,
-                           log=sys.stdout)(args)
-sys.stdout.write('Failed offsets:\n')
-for i, r in enumerate(results):
-    sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))
-sys.stdout.flush()
-
+if njobs > 1:
+    timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
+    args = list(zip(timestamps[:-1], timestamps[1:]))
+    results = ParallelFunction(download_linkedin,
+                               njobs=njobs,
+                               workdir='jobs',
+                               prefix='lidownload',
+                               tries=1,
+                               autocancel=False,
+                               log=sys.stdout)(args)
+    sys.stdout.write('Failed offsets:\n')
+    for i, r in enumerate(results):
+        sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))
+    sys.stdout.flush()
+else:
+    result = download_linkedin(fromTs, toTs)
+    sys.stdout.write('Failed offsets:\n')
+    sys.stdout.write(str(result)+'\n')
+    sys.stdout.flush()
