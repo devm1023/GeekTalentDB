@@ -3,6 +3,7 @@ import requests
 from requests.exceptions import ConnectionError
 import sys
 from logger import Logger
+import time
 
 
 logger = Logger(None)
