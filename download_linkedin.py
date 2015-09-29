@@ -23,6 +23,16 @@ toTs   = int((todate   - timestamp0).total_seconds())
 
 
 def add_profile(dtdb, profile, logger):
+    # check sourceId
+    if profile.get('sourceId', '') != 'linkedin':
+        logger.log('invalid profile sourceId\n')
+        return False
+
+    # check type
+    if profile.get('type', '') != 'profile':
+        logger.log('invalid profile type\n')
+        return False
+    
     # get id
     if 'id' not in profile:
         logger.log('invalid profile id\n')
