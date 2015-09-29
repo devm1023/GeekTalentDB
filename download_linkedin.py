@@ -306,6 +306,7 @@ def download_linkedin(fromTs, toTs, offset, rows):
                                 rows=rows,
                                 offset=offset):
         if not add_profile(dtdb, profile, logger):
+            logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
         count += 1
 
