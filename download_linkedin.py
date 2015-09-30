@@ -39,6 +39,7 @@ def add_profile(dtdb, profile, logger):
         return False
     profile_id = profile['id']
 
+    # get parentId
     if 'parentId' not in profile:
         logger.log('invalid profile parentId\n')
         return False
@@ -88,6 +89,12 @@ def add_profile(dtdb, profile, logger):
     if title is not None and type(title) is not str:
         logger.log('invalid profile title\n')
         return False    
+
+    # get description
+    description = profile.get('description', None)
+    if description is not None and type(description) is not str:
+        logger.log('invalid profile description\n')
+        return False
     
     # get profile url
     if 'profileUrl' not in profile:
@@ -153,6 +160,7 @@ def add_profile(dtdb, profile, logger):
         'country'           : country,
         'city'              : city,
         'title'             : title,
+        'description'       : description,
         'profileUrl'        : profileUrl,
         'profilePictureUrl' : profilePictureUrl,
         'indexedOn'         : indexedOn,

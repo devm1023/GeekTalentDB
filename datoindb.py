@@ -33,6 +33,7 @@ class LIProfile(SQLBase):
     country           = Column(Unicode(STR_MAX))
     city              = Column(Unicode(STR_MAX))
     title             = Column(Unicode(STR_MAX))
+    description       = Column(Unicode(STR_MAX))
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(BigInteger)
@@ -83,6 +84,7 @@ class DatoinDB(SQLDatabase):
             liprofile.country           = profile['country']
             liprofile.city              = profile['city']
             liprofile.title             = profile['title']
+            liprofile.description       = profile['description']
             liprofile.profileUrl        = profile['profileUrl']
             liprofile.profilePictureUrl = profile['profilePictureUrl']
             liprofile.indexedOn         = profile['indexedOn']
