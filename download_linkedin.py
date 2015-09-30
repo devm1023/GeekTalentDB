@@ -364,7 +364,8 @@ if njobs > 1:
                                prefix='lidownload',
                                tries=1,
                                autocancel=False,
-                               log=sys.stdout)(args)
+                               log=sys.stdout,
+                               cleanup=1)(args)
     sys.stdout.write('Failed offsets:\n')
     for i, r in enumerate(results):
         sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))

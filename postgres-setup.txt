@@ -63,3 +63,28 @@ $ sudo su -
 # sudo -u postgres psql geektalent < filename.sql
 # exit
 
+
+Moving the data directory
+-------------------------
+
+$ sudo su -
+# service postgresql stop
+# cd /var/lib/postgreql/9.4
+# cp -aRv main <new-directory>
+# mv main main.bak
+# ln -s <new-directory>/main main
+# chown -h postgres:postgres main
+# service postgresql start
+# exit
+
+
+Problems when shutting down the service
+---------------------------------------
+
+If you encounter the error message
+
+"Insecure directory in $ENV{PATH} while running with -T switch at
+  /usr/bin/pg_ctlcluster line 277."
+
+when shutting down the posgresql service (sudo service postgresql stop) make
+sure that /usr/local/bin, /usr/bin, and /bin have permissions rwxr-xr-x.
