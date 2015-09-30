@@ -31,14 +31,21 @@ DT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 # private IP: ???
 # port: 8765
 # endpoints: search, profiles
+# See http://gt.datoin.com:8765/docs/api-specs.html for specs
 
 # search endpoint from DATOIN
-DATOIN_SEARCH   = 'http://gt.datoin.com:8765/search'
+DATOIN_SEARCH   = 'http://gt1.datoin.com:8765/search'
 # profiles endpoint from DATOIN
-DATOIN_PROFILES = 'http://gt.datoin.com:8765/profiles'
+DATOIN_PROFILES = 'http://gt1.datoin.com:8765/profiles'
 
-# URL for Google Maps API
-MAPS_API = 'https://maps.googleapis.com/maps/api/geocode/json'
+# URL for Google Geocoding API
+GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json'
+
+# URL for Google Places API
+PLACES_API = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
+
+# Key for Google Places API
+PLACES_KEY = 'AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI'
 
 # maximum number of profiles which get added to the DB
 MAX_PROFILES    = 100
