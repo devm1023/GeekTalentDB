@@ -22,6 +22,7 @@ from sqlalchemy.dialects.postgresql import ARRAY as Array
 
 STR_MAX = 100000
 
+SQLBase = sqlbase()
 
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
@@ -65,7 +66,11 @@ class Education(SQLBase):
 
     
 class DatoinDB(SQLDatabase):
-    def add_liprofile(self, profile, experiences, educations):
+    def __init__(self, url=None, session=None, engine=None):
+        SQLDatabase.__init__(self, SQLBase.metadata,
+                             url=url, session=session, engine=engine)
+
+def addLIProfile(self, profile, experiences, educations):
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
                         .filter(LIProfile.id == profile['id']) \

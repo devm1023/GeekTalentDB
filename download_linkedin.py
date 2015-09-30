@@ -22,7 +22,7 @@ fromTs = int((fromdate - timestamp0).total_seconds())
 toTs   = int((todate   - timestamp0).total_seconds())
 
 
-def add_profile(dtdb, profile, logger):
+def addProfile(dtdb, profile, logger):
     # check sourceId
     if profile.get('sourceId', '') != 'linkedin':
         logger.log('invalid profile sourceId\n')
@@ -292,11 +292,11 @@ def add_profile(dtdb, profile, logger):
 
 
     # add profile
-    dtdb.add_liprofile(liprofile, experiences, educations)
+    dtdb.addLIProfile(liprofile, experiences, educations)
     return True
 
 
-def download_linkedin(fromTs, toTs, offset, rows):
+def downloadLinkedin(fromTs, toTs, offset, rows):
     if conf.MAX_PROFILES is not None:
         rows = min(rows, conf.MAX_PROFILES)
     
@@ -313,7 +313,7 @@ def download_linkedin(fromTs, toTs, offset, rows):
                                         'toTs'   : toTs},
                                 rows=rows,
                                 offset=offset):
-        if not add_profile(dtdb, profile, logger):
+        if not addProfile(dtdb, profile, logger):
             logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
         count += 1
@@ -341,7 +341,7 @@ def download_linkedin(fromTs, toTs, offset, rows):
             except StopIteration:
                 new_failed_offsets.append(offset)
                 continue
-            if not add_profile(dtdb, profile, logger):
+            if not addProfile(dtdb, profile, logger):
                 new_failed_offsets.append(offset)
 
             if count % BATCH_SIZE == 0:
@@ -366,7 +366,7 @@ if njobs > 1:
     offsets = np.linspace(0, nprofiles, njobs+1, dtype=int)
     args = [(fromTs, toTs, os1, os2-os1) \
             for os1, os2 in zip(offsets[:-1], offsets[1:])]
-    results = ParallelFunction(download_linkedin,
+    results = ParallelFunction(downloadLinkedin,
                                njobs=njobs,
                                workdir='jobs',
                                prefix='lidownload',
@@ -379,4 +379,4 @@ if njobs > 1:
         sys.stdout.write('job {0:03d}: {1:s}\n'.format(i, str(r)))
     sys.stdout.flush()
 else:
-    download_linkedin(fromTs, toTs, 0, nprofiles)
+    downloadLinkedin(fromTs, toTs, 0, nprofiles)

@@ -15,26 +15,7 @@ _particles = set([
     'with',
     ])
 
-
-def tokenize(s, removebrackets=False):
-    """Break text into words, remove puncutation and convert to lowercase.
-
-    Args:
-      s (str): The input string.
-
-    Returns:
-      list of str: The list of words.
-
-    """
-    s = s.strip().lower()
-    s = s.replace("'", '')
-    s = s.replace('.net', 'dotnet')
-    s = s.replace('c++', 'cplusplus')
-    s = s.replace('c#', 'csharp')
-    s = s.replace('f#', 'fsharp')
-    s = s.replace('tcp/ip', 'tcpip')
-    s = s.replace('co-ordin', 'coordin')
-
+def clean(s, removebrackets=False, keep=''):
     l = []
     plvl = 0
     blvl = 0
@@ -58,14 +39,40 @@ def tokenize(s, removebrackets=False):
                 c = ' '
             elif c == '}':
                 clvl -= 1
-                c = ' '            
-        if not ((ord(c) >= 97 and ord(c) <= 122) or \
-                (ord(c) >= 48 and ord(c) <= 57)):
+                c = ' '
+        oc = ord(c)
+        if not ((oc >= 65 and oc <= 90) or \
+                (oc >= 97 and oc <= 122) or \
+                (oc >= 48 and oc <= 57) or \
+                c in keep):
             c = ' '
         if not removebrackets or (plvl <= 0 and blvl <= 0 and clvl <= 0):
             l.append(c)
             
     s = ''.join(l)
+    return ' '.join(s.split())
+    
+
+def tokenize(s, removebrackets=False):
+    """Break text into words, remove puncutation and convert to lowercase.
+
+    Args:
+      s (str): The input string.
+
+    Returns:
+      list of str: The list of words.
+
+    """
+    s = s.strip().lower()
+    s = s.replace("'", '')
+    s = s.replace('.net', ' dotnet')
+    s = s.replace('c++', 'cplusplus')
+    s = s.replace('c#', 'csharp')
+    s = s.replace('f#', 'fsharp')
+    s = s.replace('tcp/ip', 'tcpip')
+    s = s.replace('co-ordin', 'coordin')
+
+    s = clean(s, removebrackets=removebrackets)
     stems = [stem for stem in s.split() if stem not in _particles]
     return stems
 
