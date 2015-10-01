@@ -70,7 +70,7 @@ class DatoinDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
-def addLIProfile(self, profile, experiences, educations):
+    def addLIProfile(self, profile, experiences, educations):
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
                         .filter(LIProfile.id == profile['id']) \
