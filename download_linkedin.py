@@ -22,7 +22,7 @@ fromTs = int((fromdate - timestamp0).total_seconds())
 toTs   = int((todate   - timestamp0).total_seconds())
 
 
-def addProfile(dtdb, profile, logger):
+def addProfile(dtdb, profile, dtsession, logger):
     # check sourceId
     if profile.get('sourceId', '') != 'linkedin':
         logger.log('invalid profile sourceId\n')
@@ -170,7 +170,7 @@ def addProfile(dtdb, profile, logger):
         
     # get experiences
     experiences = []
-    for experience in datoin.query(
+    for experience in dtsession.query(
             url=conf.DATOIN_PROFILES+'/'+profile_id+'/experiences',
             params={}):
         # get id
@@ -231,7 +231,7 @@ def addProfile(dtdb, profile, logger):
 
     # get educations
     educations = []
-    for education in datoin.query(
+    for education in dtsession.query(
             url=conf.DATOIN_PROFILES+'/'+profile_id+'/educations',
             params={}):
         # get id
@@ -304,16 +304,17 @@ def downloadLinkedin(fromTs, toTs, offset, rows):
     MAX_ATTEMPTS = 10
     BATCH_SIZE = 10
     dtdb = DatoinDB(url=conf.DT_WRITE_DB)
+    dtsession = datoin.Session()
 
     logger.log('Downloading {0:d} profiles.\n'.format(rows))
     failed_offsets = []
     count = 0
-    for profile in datoin.query(params={'sid'    : 'linkedin',
-                                        'fromTs' : fromTs,
-                                        'toTs'   : toTs},
-                                rows=rows,
-                                offset=offset):
-        if not addProfile(dtdb, profile, logger):
+    for profile in dtsession.query(params={'sid'    : 'linkedin',
+                                           'fromTs' : fromTs,
+                                           'toTs'   : toTs},
+                                   rows=rows,
+                                   offset=offset):
+        if not addProfile(dtdb, profile, dtsession, logger):
             logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
         count += 1
@@ -333,15 +334,15 @@ def downloadLinkedin(fromTs, toTs, offset, rows):
         for offset in failed_offsets:
             count += 1
             try:
-                profile = next(datoin.query(params={'sid'    : 'linkedin',
-                                                    'fromTs' : fromTs,
-                                                    'toTs'   : toTs},
-                                            rows=1,
-                                            offset=offset))
+                profile = next(dtsession.query(params={'sid'    : 'linkedin',
+                                                       'fromTs' : fromTs,
+                                                       'toTs'   : toTs},
+                                               rows=1,
+                                               offset=offset))
             except StopIteration:
                 new_failed_offsets.append(offset)
                 continue
-            if not addProfile(dtdb, profile, logger):
+            if not addProfile(dtdb, profile, dtsession, logger):
                 new_failed_offsets.append(offset)
 
             if count % BATCH_SIZE == 0:
