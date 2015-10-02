@@ -136,7 +136,7 @@ def matchStems(phrasestems, textstems, proximity_weight=0.25, threshold=0.0):
                 continue
             maxratio = _ratio(maxmatch, ntext, nphrase, pw)
             for width in range(1, ntext):
-                if _ratio(maxmatch, width, nphrase, pw) <= \
+                if _ratio(maxmatch, width, nphrase, pw) < \
                    max(maxratio, threshold):
                     break
                 for offset in range(ntext-width+1):
