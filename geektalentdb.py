@@ -365,6 +365,53 @@ class GeekTalentDB(SQLDatabase):
 
         return experience
 
+    def addLIProfileSkills(self, liprofile, skills):
+        liprofileskills = []
+        skillids = set()
+        for skillname in skills:
+            skill = self.addSkill(skillname)
+            if skill.id and skill.id not in skillids:
+                skillids.add(skill.id)
+                liprofileskills.append(
+                    LIProfileSkill(liprofileId=liprofile.id,
+                                   skillId=skill.id,
+                                   rank=0.0))
+        liprofile.skills = liprofileskills
+        self.flush()
+        return liprofileskills
+
+    def rankSkills(self, liprofileskills, experiences):
+        skills = [
+            self.query(Skill).filter(Skill.id == ps.skillId) \
+                             .one() for ps in liprofileskills]
+        descriptions = [' '.join([e.title if e.title else '',
+                                  e.description if e.description else '']) \
+                        for e in experiences]
+        descriptionstems = list(map(stem, descriptions))
+        skillstems = [s.nname.split() for s in skills]
+        matches = (matchStems(skillstems, descriptionstems,
+                              threshold=conf.SKILL_MATCHING_THRESHOLD) > \
+                   conf.SKILL_MATCHING_THRESHOLD)
+        ranks = np.zeros(len(skills))
+        for iexperience, experience in enumerate(experiences):
+            experienceskills = []
+            for iskill, skill in enumerate(skills):
+                if matches[iskill, iexperience]:
+                    if experience.duration:
+                        duration = experience.duration
+                    else:
+                        duration = 365
+                    ranks[iskill] += duration/365.0
+                    experienceskills.append(
+                        ExperienceSkill(experienceId=experience.id,
+                                        skillId=skill.id))
+            experience.skills = experienceskills
+        for liprofileskill, rank in zip(liprofileskills, ranks):
+            liprofileskill.rank = rank
+
+        self.flush()
+        return liprofileskills
+
     def addLIProfile(self, parentId, name, title, description,
                      locationname, url, pictureUrl,
                      skills, experiencedicts):
@@ -401,18 +448,7 @@ class GeekTalentDB(SQLDatabase):
         self.flush()
 
         # add skills
-        liprofileskills = []
-        skillids = set()
-        for skillname in skills:
-            skill = self.addSkill(skillname)
-            if skill.id and skill.id not in skillids:
-                skillids.add(skill.id)
-                liprofileskills.append(
-                    LIProfileSkill(liprofileId=liprofile.id,
-                                   skillId=skill.id,
-                                   rank=0.0))
-        liprofile.skills = liprofileskills
-        self.flush()
+        liprofileskills = self.addLIProfileSkills(liprofile, skills)
 
         # add experiences
         experiences = [self.addExperience(liprofile.id,
@@ -424,34 +460,7 @@ class GeekTalentDB(SQLDatabase):
                        for experience in experiencedicts]
 
         # compute skill ranks
-        skills = [
-            self.query(Skill).filter(Skill.id == ps.skillId) \
-                             .one() for ps in liprofileskills]
-        descriptions = [' '.join([e.title if e.title else '',
-                                  e.description if e.description else '']) \
-                        for e in experiences]
-        descriptionstems = list(map(stem, descriptions))
-        skillstems = [s.nname.split() for s in skills]
-        matches = (matchStems(skillstems, descriptionstems) > \
-                   conf.SKILL_MATCHING_THRESHOLD)
-        ranks = np.zeros(len(skills))
-        for iexperience, experience in enumerate(experiences):
-            experienceskills = []
-            for iskill, skill in enumerate(skills):
-                if matches[iskill, iexperience]:
-                    if experience.duration:
-                        duration = experience.duration
-                    else:
-                        duration = 365
-                    ranks[iskill] += duration/365.0
-                    experienceskills.append(
-                        ExperienceSkill(experienceId=experience.id,
-                                        skillId=skill.id))
-            experience.skills = experienceskills
-        for liprofileskill, rank in zip(liprofileskills, ranks):
-            liprofileskill.rank = rank
-
-        self.flush()
+        self.rankSkills(liprofileskills, experiences)
+        
         return liprofile
-
 

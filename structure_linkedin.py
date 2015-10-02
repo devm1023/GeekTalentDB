@@ -4,10 +4,14 @@ import datoindb as dt
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
+from windowquery import windowQuery
 
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 logger = Logger(sys.stdout)
+
+windowsize = 100
+maxprofiles = 500
 
 
 # connect to databases
@@ -29,9 +33,12 @@ toTs   = int((todate   - timestamp0).total_seconds())*1000
 
 
 profilecount = 0
-for dtprofile in dtdb.query(dt.LIProfile) \
-                     .filter(dt.LIProfile.indexedOn >= fromTs,
-                             dt.LIProfile.indexedOn < toTs):
+for dtprofile in windowQuery(
+        dtdb.query(dt.LIProfile) \
+            .filter(dt.LIProfile.indexedOn >= fromTs,
+                    dt.LIProfile.indexedOn < toTs),
+        dt.LIProfile.id,
+        windowsize):
     profilecount += 1
 
     # get location
@@ -82,10 +89,10 @@ for dtprofile in dtdb.query(dt.LIProfile) \
 
     # commit
     logger.log('{0:d} profiles processed.\n'.format(profilecount))
-    if profilecount % 100 == 0:
+    if profilecount % windowsize == 0:
         gtdb.commit()
 
-    if profilecount >= 500:
+    if profilecount >= maxprofiles:
         break
 gtdb.commit()
 

@@ -87,7 +87,7 @@ def _ratio(nmatch, ntext, nphrase, pw):
     return (nmatch/ntext)**pw * (nmatch/nphrase)
 
 
-def matchStems(phrasestems, textstems, proximity_weight=0.25):
+def matchStems(phrasestems, textstems, proximity_weight=0.25, threshold=0.0):
     """Determine whether phrase stems appear in a list of text stems.
 
     Args:
@@ -95,6 +95,11 @@ def matchStems(phrasestems, textstems, proximity_weight=0.25):
       textstems (list of list of str): The text stems to search.
       proximity_weight (float, optional): A positive number (typically less
         than 1) indicating how the proximity of matching words is weighted.
+      threshold (float, optional): Treshold value for the returned match
+        qualities (see below). If you only want to know if the match quality
+        is above a certain value pass that value to the `threshold` argument.
+        This will speed up the computation, but some match qualities which
+        are below the threshold might be returned as zero.
 
     Returns:
       numpy array: An array of shape ``(len(phrases), len(texts))`` holding
@@ -126,9 +131,13 @@ def matchStems(phrasestems, textstems, proximity_weight=0.25):
                         break
 
             maxmatch = np.count_nonzero(np.logical_or.reduce(matches))
+            if maxmatch == 0 or maxmatch/nphrase < threshold:
+                result[iphrase, itext] = 0.0
+                continue
             maxratio = _ratio(maxmatch, ntext, nphrase, pw)
             for width in range(1, ntext):
-                if _ratio(maxmatch, width, nphrase, pw) <= maxratio:
+                if _ratio(maxmatch, width, nphrase, pw) <= \
+                   max(maxratio, threshold):
                     break
                 for offset in range(ntext-width+1):
                     nmatch = np.count_nonzero(
@@ -142,7 +151,7 @@ def matchStems(phrasestems, textstems, proximity_weight=0.25):
     return result
 
 
-def matchPhrases(phrases, texts, proximity_weight=0.25):
+def matchPhrases(phrases, texts, proximity_weight=0.25, threshold=0.0):
     """Determine whether phrases appear in a list of texts.
 
     Args:
@@ -150,6 +159,11 @@ def matchPhrases(phrases, texts, proximity_weight=0.25):
       texts (list of str): The texts to search.
       proximity_weight (float, optional): A positive number (typically less
         than 1) indicating how the proximity of matching words is weighted.
+      threshold (float, optional): Treshold value for the returned match
+        qualities (see below). If you only want to know if the match quality
+        is above a certain value pass that value to the `threshold` argument.
+        This will speed up the computation, but some match qualities which
+        are below the threshold might be returned as zero.
 
     Returns:
       numpy array: An array of shape ``(len(phrases), len(texts))`` holding
@@ -167,24 +181,35 @@ def matchPhrases(phrases, texts, proximity_weight=0.25):
     """
     phrasestems = list(map(stem, phrases))
     textstems = list(map(stem, texts))
-    return matchStems(phrasestems, textstems, proximity_weight=proximity_weight)
+    return matchStems(phrasestems, textstems,
+                      proximity_weight=proximity_weight,
+                      threshold=threshold)
 
 
-def matchPhrase(phrase, text):
-    return matchPhrases([phrase], [text])[0,0]
+def matchPhrase(phrase, text, proximity_weight=0.25, threshold=0.0):
+    return matchPhrases([phrase], [text],
+                        proximity_weight=proximity_weight,
+                        threshold=threshold)[0,0]
 
 
 if __name__ == '__main__':
     phrase = 'Python development'
+    threshold = 0.75
     texts = [
         'developing python programs, and stuff',
         'Development of Python programs',
         'developing programs in python',
         'I keep a python snake as a pet and I come from a developing country.',
+        'I am a project manager and don\'t know Python',
+        'I am a project manager and can\'t code.',
     ]
     print('matching "'+phrase+'" in')
     for text in texts:
-        print('"'+text+'":', matchPhrases([phrase], [text])[0,0])
+        print('"'+text+'":', matchPhrase(phrase, text))
+    print('\nmatching "'+phrase+'" with threshold '+str(threshold)+' in')
+    for text in texts:
+        print('"'+text+'":', matchPhrase(phrase, text, threshold=threshold))
+        
 
     if matchPhrase('', 'blah blah'):
         print('ERROR!!')
