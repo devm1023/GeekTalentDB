@@ -301,7 +301,6 @@ def downloadLinkedin(fromTs, toTs, offset, rows):
         rows = min(rows, conf.MAX_PROFILES)
     
     logger = Logger(sys.stdout)
-    MAX_ATTEMPTS = 10
     BATCH_SIZE = 10
     dtdb = DatoinDB(url=conf.DT_WRITE_DB)
     dtsession = datoin.Session()
@@ -325,7 +324,7 @@ def downloadLinkedin(fromTs, toTs, offset, rows):
             dtdb.commit()
     dtdb.commit()
 
-    for attempt in range(MAX_ATTEMPTS):
+    for attempt in range(conf.MAX_ATTEMPTS):
         if not failed_offsets:
             break
         logger.log('Re-processing {0:d} profiles.\n'.format(len(failed_offsets)))

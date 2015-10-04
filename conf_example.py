@@ -53,9 +53,6 @@ MAX_PROFILES    = 100
 # minimum return value of phraseMatch for which constitutes match
 SKILL_MATCHING_THRESHOLD = 0.75
 
-# Number of digits to keep on Latitude/Longitude values
-LATLON_DIGITS = 3
-
-# Error margin for Latitude/Longitude lookups
-LATLON_DELTA = 0.5*10**(-LATLON_DIGITS)
+# Number of attempts at downloading corrupt profiles
+MAX_ATTEMPTS = 3
 
