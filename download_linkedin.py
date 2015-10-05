@@ -21,6 +21,10 @@ else:
 fromTs = int((fromdate - timestamp0).total_seconds())
 toTs   = int((todate   - timestamp0).total_seconds())
 
+sys.stdout.write('fromTs: {0:d}\ntoTs:   {1:d}\n' \
+                 .format(fromTs*1000, toTs*1000))
+sys.stdout.flush()
+
 
 def addProfile(dtdb, profile, dtsession, logger):
     # check sourceId

@@ -1,86 +1,43 @@
 import sqlalchemy
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, text
 
-def column_windows(session, column, windowsize):
-    """Return a series of WHERE clauses against 
-    a given column that break it into windows.
-
-    Result is an iterable of tuples, consisting of
-    ((start, end), whereclause), where (start, end) are the ids.
-
-    Requires a database that supports window functions, 
-    i.e. Postgresql, SQL Server, Oracle.
-
-    Enhance this yourself !  Add a "where" argument
-    so that windows of just a subset of rows can
-    be computed.
+def windows(q, column, windowsize):
+    """Generate a series of WHERE clauses which break a given column into windows.
 
     """
-    def int_for_range(start_id, end_id):
-        if end_id:
-            return and_(
-                column>=start_id,
-                column<end_id
-            )
-        else:
-            return column>=start_id
-
-    q = session.query(
-                column, 
-                func.row_number().\
-                        over(order_by=column).\
-                        label('rownum')
-                ).\
-                from_self(column)
+    q = q.from_self(column).distinct() \
+         .add_columns(func.row_number().over(order_by=column) \
+                      .label('__rownum__')) \
+         .from_self(column, '__rownum__')
     if windowsize > 1:
-        q = q.filter(sqlalchemy.text("rownum %% %d=1" % windowsize))
+        q = q.filter(text('__rownum__ %% %d=1' % windowsize))
+    q = q.order_by('__rownum__')
 
-    intervals = [id for id, in q]
+    intervals = [id for id, row in q]
+    if intervals:
+        for start_id, end_id in zip(intervals[:-1], intervals[1:]):
+            yield and_(column >= start_id, column < end_id)
+        yield column >= intervals[-1]
 
-    while intervals:
-        start = intervals.pop(0)
-        if intervals:
-            end = intervals[0]
-        else:
-            end = None
-        yield int_for_range(start, end)
+def windowQuery(q, column, windowsize=1000, values=None):
+    """"Break a query into windows on a given column.
 
-def windowQuery(q, column, windowsize):
-    """"Break a Query into windows on a given column."""
+    Args:
+      q (query object): The query to split into windows.
+      column (Column object): The column on which to split.
+      windowsize (int, optional): The number of distinct values of `column` in
+        one window. Defaults to 1000.
+      values (query object or None, optional): Auxiliary query for obtaining
+        the values for `column` on which to construct the windows. To improve
+        performance you can use a simpler query than `q` here, e.g. by removing
+        joins. `values` must return the same values for `column` as `q`. Defaults
+        to ``None``, in which case the values are obtained from `q`.
+        
+    """
 
-    for whereclause in column_windows(
-                                        q.session, 
-                                        column, windowsize):
+    if values is None:
+        values = q
+    for whereclause in windows(values, column, windowsize):
         for row in q.filter(whereclause).order_by(column):
             yield row
-
-
-if __name__ == '__main__':
-    from sqlalchemy import Column, Integer, create_engine
-    from sqlalchemy.orm import Session
-    from sqlalchemy.ext.declarative import declarative_base
-    import random
-
-    Base = declarative_base()
-
-    class Widget(Base):
-        __tablename__ = 'widget'
-        id = Column(Integer, primary_key=True)
-        data = Column(Integer)
-
-    e = create_engine('postgresql://scott:tiger@localhost/test', echo='debug')
-
-    Base.metadata.drop_all(e)
-    Base.metadata.create_all(e)
-
-    # get some random list of unique values
-    data = set([random.randint(1, 1000000) for i in xrange(10000)])
-
-    s = Session(e)
-    s.add_all([Widget(id=i, data=j) for i, j in enumerate(data)])
-    s.commit()
-
-    q = s.query(Widget)
-
-    for widget in windowed_query(q, Widget.data, 1000):
-        print("data:", widget.data)
+            

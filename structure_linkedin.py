@@ -10,8 +10,8 @@ from windowquery import windowQuery
 timestamp0 = datetime(year=1970, month=1, day=1)
 logger = Logger(sys.stdout)
 
-windowsize = 100
-maxprofiles = 500
+maxprofiles = 10
+windowsize = 5
 
 
 # connect to databases
@@ -31,6 +31,7 @@ else:
 fromTs = int((fromdate - timestamp0).total_seconds())*1000
 toTs   = int((todate   - timestamp0).total_seconds())*1000
 
+logger.log('fromTs: {0:d}\ntoTs:   {1:d}\n'.format(fromTs, toTs))
 
 profilecount = 0
 for dtprofile in windowQuery(
@@ -38,7 +39,7 @@ for dtprofile in windowQuery(
             .filter(dt.LIProfile.indexedOn >= fromTs,
                     dt.LIProfile.indexedOn < toTs),
         dt.LIProfile.id,
-        windowsize):
+        windowsize=windowsize):
     profilecount += 1
 
     # get location
@@ -88,8 +89,8 @@ for dtprofile in windowQuery(
                       experiences)
 
     # commit
-    logger.log('{0:d} profiles processed.\n'.format(profilecount))
     if profilecount % windowsize == 0:
+        logger.log('{0:d} profiles processed.\n'.format(profilecount))
         gtdb.commit()
 
     if profilecount >= maxprofiles:
