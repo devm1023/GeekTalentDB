@@ -7,24 +7,6 @@ from datetime import datetime, timedelta
 import numpy as np
 from parallelize import ParallelFunction
 import itertools
-import dill
-dill.settings['recurse'] = True
-
-
-# calculate timestamps
-timestamp0 = datetime(year=1970, month=1, day=1)
-njobs = int(sys.argv[1])
-fromdate = datetime.strptime(sys.argv[2], '%Y-%m-%d')
-if len(sys.argv) > 3:
-    todate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-else:
-    todate = datetime.now()
-deltat = timedelta(days=float(sys.argv[4]))
-if deltat <= timedelta():
-    deltat = timedelta(days=1)
-    
-fromTs = int((fromdate - timestamp0).total_seconds())
-toTs   = int((todate   - timestamp0).total_seconds())
 
 
 def addProfile(dtdb, profile, dtsession, logger):
@@ -360,53 +342,66 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     return failed_offsets
 
 
-def downloadRange(tfrom, tto, njobs):
+def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0):
     logger = Logger(sys.stdout)
     fromTs = int((tfrom - timestamp0).total_seconds())
     toTs   = int((tto   - timestamp0).total_seconds())
     nprofiles = datoin.count(params={'sid'    : 'linkedin',
                                      'fromTs' : fromTs,
                                      'toTs'   : toTs})
-
-    dlstart = datetime.now()
     logger.log(
         'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
         .format(tfrom.strftime('%Y-%m-%d'), fromTs,
                 tto.strftime('%Y-%m-%d'), toTs,
                 nprofiles))
-    if nprofiles <= 0:
+    if nprofiles <= offset:
         return
-    
-    logger.log(dlstart.strftime('Starting download %Y-%m-%d %H:%M:%S%z.\n'))
-    sys.stdout.flush()
 
-    if njobs > 1:
-        offsets = np.linspace(0, nprofiles, njobs+1, dtype=int)
-        args = [(fromTs, toTs, os1, os2-os1) \
-                for os1, os2 in zip(offsets[:-1], offsets[1:])]
-        results = ParallelFunction(downloadProfiles,
-                                   njobs=njobs,
-                                   workdir='jobs',
-                                   prefix='lidownload',
-                                   tries=1)(args)
-        failedoffsets = list(itertools.chain(*results))
+    offsets = list(range(offset, nprofiles, maxprofiles))
+    offsets.append(nprofiles)
+    for offset1, offset2 in zip(offsets[:-1], offsets[1:]):
+        dlstart = datetime.now()    
+        logger.log('Starting download for offsets {0:d} to {1:d} at {2:s}.\n' \
+                   .format(offset1, offset2-1,
+                           dlstart.strftime('%Y-%m-%d %H:%M:%S%z')))
+
+        ncurrentjobs = min(njobs, offset2-offset1)
+        if ncurrentjobs > 1:
+            poffsets = np.linspace(offset1, offset2, ncurrentjobs+1, dtype=int)
+            args = [(fromTs, toTs, a, b-a) \
+                    for a, b in zip(poffsets[:-1], poffsets[1:])]
+            results = ParallelFunction(downloadProfiles,
+                                       batchsize=1,
+                                       workdir='jobs',
+                                       prefix='lidownload',
+                                       tries=1)(args)
+            failedoffsets = list(itertools.chain(*results))
+        else:
+            failedoffsets = downloadProfiles(fromTs, toTs, offset1, offset2)
+
+        dlend = datetime.now()
+        dltime = (dlend-dlstart).total_seconds()
+        logger.log(dlend.strftime('Finished download %Y-%m-%d %H:%M:%S%z'))
+        if dltime > 0:
+            logger.log(' at {0:f} profiles/sec.\n'.format(nprofiles/dltime))
+        else:
+            logger.log('.\n')
+
+        if failedoffsets:
+            logger.log('Failed offsets: {0:s}.\n'.format(repr(failedoffsets)))
+
+
+if __name__ == '__main__':
+    # parse arguments
+    timestamp0 = datetime(year=1970, month=1, day=1)
+    njobs = int(sys.argv[1])
+    maxprofiles = int(sys.argv[2])
+    fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
+    todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
+    if len(sys.argv) > 5:
+        offset = int(sys.argv[5])
     else:
-        failedoffsets = downloadProfiles(fromTs, toTs, 0, nprofiles)
+        offset = 0
 
-    dlend = datetime.now()
-    dltime = (dlend-dlstart).total_seconds()
-    logger.log(dlend.strftime('Finished download %Y-%m-%d %H:%M:%S%z'))
-    if dltime > 0:
-        logger.log(' at {0:f} profiles/sec.\n'.format(nprofiles/dltime))
-    else:
-        logger.log('.\n')
-        
-    if failedoffsets:
-        logger.log('Failed offsets: {0:s}.\n'.format(repr(failedoffsets)))
-
-
-t = fromdate
-while t < todate:
-    downloadRange(t, min(t+deltat, todate), njobs)
-    t += deltat
+    downloadRange(fromdate, todate, njobs, maxprofiles, offset=offset)
 

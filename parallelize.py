@@ -1,4 +1,4 @@
-from dill import dump, load
+from cloudpickle import dump, load
 import sys
 import os
 import errno
