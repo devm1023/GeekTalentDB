@@ -279,6 +279,7 @@ def addProfile(dtdb, profile, dtsession, logger):
 
 
     # add profile
+
     dtdb.addLIProfile(liprofile, experiences, educations)
     return True
 
@@ -379,7 +380,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
                                        tries=1)(args)
             failedoffsets = list(itertools.chain(*results))
         else:
-            failedoffsets = downloadProfiles(fromTs, toTs, offset1, offset2)
+            failedoffsets = downloadProfiles(fromTs, toTs, offset1,
+                                             offset2-offset1)
 
         dlend = datetime.now()
         dltime = (dlend-dlstart).total_seconds()
