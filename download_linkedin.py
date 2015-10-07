@@ -342,7 +342,7 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     return failed_offsets
 
 
-def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0):
+def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
     logger = Logger(sys.stdout)
     fromTs = int((tfrom - timestamp0).total_seconds())
     toTs   = int((tto   - timestamp0).total_seconds())
@@ -356,6 +356,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0):
                 nprofiles))
     if nprofiles <= offset:
         return
+    if maxoffset is not None:
+        nprofiles = min(nprofiles, maxoffset)
 
     offsets = list(range(offset, nprofiles, maxprofiles))
     offsets.append(nprofiles)
@@ -383,7 +385,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0):
         dltime = (dlend-dlstart).total_seconds()
         logger.log(dlend.strftime('Finished download %Y-%m-%d %H:%M:%S%z'))
         if dltime > 0:
-            logger.log(' at {0:f} profiles/sec.\n'.format(nprofiles/dltime))
+            logger.log(' at {0:f} profiles/sec.\n' \
+                       .format((offset2-offset1)/dltime))
         else:
             logger.log('.\n')
 
@@ -402,6 +405,11 @@ if __name__ == '__main__':
         offset = int(sys.argv[5])
     else:
         offset = 0
+    if len(sys.argv) > 6:
+        maxoffset = int(sys.argv[6])
+    else:
+        maxoffset = None
 
-    downloadRange(fromdate, todate, njobs, maxprofiles, offset=offset)
+    downloadRange(fromdate, todate, njobs, maxprofiles,
+                  offset=offset, maxoffset=maxoffset)
 
