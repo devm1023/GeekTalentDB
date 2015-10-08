@@ -83,8 +83,8 @@ class Skill(SQLBase):
 class SkillName(SQLBase):
     __tablename__ = 'skill_name'
     skillId = Column(BigInteger,
-                      ForeignKey('skill.id'),
-                      primary_key=True)
+                     ForeignKey('skill.id'),
+                     primary_key=True)
     id = Column(BigInteger,
                 primary_key=True)
     name = Column(Unicode(STR_MAX))
@@ -98,8 +98,8 @@ class Role(SQLBase):
 class RoleName(SQLBase):
     __tablename__ = 'role_name'
     roleId = Column(BigInteger,
-                         ForeignKey('role.id'),
-                         primary_key=True)
+                    ForeignKey('role.id'),
+                    primary_key=True)
     id = Column(BigInteger,
                 primary_key=True)
     name = Column(Unicode(STR_MAX))
@@ -113,8 +113,8 @@ class Company(SQLBase):
 class CompanyName(SQLBase):
     __tablename__ = 'company_name'
     companyId = Column(BigInteger,
-                        ForeignKey('company.id'),
-                        primary_key=True)
+                       ForeignKey('company.id'),
+                       primary_key=True)
     id = Column(BigInteger,
                 primary_key=True)
     name = Column(Unicode(STR_MAX))
@@ -142,22 +142,22 @@ class Experience(SQLBase):
 class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
     experienceId = Column(BigInteger,
-                           ForeignKey('experience.id'),
-                           primary_key=True)
+                          ForeignKey('experience.id'),
+                          primary_key=True)
     skillId = Column(BigInteger,
-                      ForeignKey('skill.id'),
-                      primary_key=True)
+                     ForeignKey('skill.id'),
+                     primary_key=True)
 
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
     liprofileId = Column(BigInteger,
-                          ForeignKey('liprofile.id'),
-                          primary_key=True,
-                        index=True)
+                         ForeignKey('liprofile.id'),
+                         primary_key=True,
+                         index=True)
     skillId = Column(BigInteger,
-                      ForeignKey('skill.id'),
-                      primary_key=True,
-                      index=True)
+                     ForeignKey('skill.id'),
+                     primary_key=True,
+                     index=True)
     rank = Column(Float)
 
 
