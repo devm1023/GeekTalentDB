@@ -4,28 +4,14 @@ import datoindb as dt
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
-from windowquery import windowQuery, partitions
-from parallelize import ParallelFunction
-from logger import Logger
-
+from windowquery import windowQuery
+from sqlalchemy import and_
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 
 
-# process arguments
-
-njobs = int(sys.argv[1])
-fromdate = datetime.strptime(sys.argv[2], '%Y-%m-%d')
-if len(sys.argv) > 2:
-    todate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-else:
-    todate = datetime.now()
-
-fromTs = int((fromdate - timestamp0).total_seconds())*1000
-toTs   = int((todate   - timestamp0).total_seconds())*1000
-
-def structureProfiles(fromTs, toTs, id1, id2):
-    windowsize = 100
+def structureProfiles(fromTs, toTs, fromid, toid):
+    batchsize = 100
     logger = Logger(sys.stdout)
     
     jobstart = datetime.now()
@@ -35,17 +21,19 @@ def structureProfiles(fromTs, toTs, id1, id2):
     gtdb = GeekTalentDB(url=conf.GT_WRITE_DB)
     dtdb = dt.DatoinDB(url=conf.DT_READ_DB)
 
-    q = dtdb.query(dt.LIProfile) \
-            .filter(dt.LIProfile.indexedOn >= fromTs, \
-                    dt.LIProfile.indexedOn < toTs)
-    if id1 is not None:
-        if id2 is not None:
-            q = q.filter(dt.LIProfile.id >= id1, dt.LIProfile.id < id2)
+    q = dtdb.query(dt.LIProfile)
+    filter = and_(dt.LIProfile.indexedOn >= fromTs, \
+                  dt.LIProfile.indexedOn < toTs)
+    if fromid is not None:
+        if toid is not None:
+            filter = and_(filter,
+                          dt.LIProfile.id >= fromid,
+                          dt.LIProfile.id < toid)
         else:
-            q = q.filter(dt.LIProfile.id >= id1)
+            filter = and_(filter, dt.LIProfile.id >= fromid)
         
     profilecount = 0
-    for dtprofile in windowQuery(q, dt.LIProfile.id, windowsize=windowsize):
+    for dtprofile in windowQuery(q, dt.LIProfile.id, filter=filter):
         profilecount += 1
 
         # get location
@@ -98,36 +86,35 @@ def structureProfiles(fromTs, toTs, id1, id2):
                           experiences)
 
         # commit
-        if profilecount % windowsize == 0:
+        if profilecount % batchsize == 0:
             gtdb.commit()
             now = datetime.now()
             deltat = (now-jobstart).total_seconds()
             logger.log('{0:d} profiles processed at {1:f} profiles/sec.\n' \
                        .format(profilecount, profilecount/deltat))
+            logger.log('Last profile: {0:s}\n'.format(dtprofile.id))
     gtdb.commit()
     now = datetime.now()
     deltat = (now-jobstart).total_seconds()
     logger.log('{0:d} profiles processed at {1:f} profiles/sec.\n' \
                .format(profilecount, profilecount/deltat))
+    logger.log('Last profile: {0:s}\n'.format(dtprofile.id))
 
 
-# make batches
+# process arguments
 
-dtdb = dt.DatoinDB(url=conf.DT_READ_DB)
-batchsize = 10
-q = dtdb.query(dt.LIProfile.id) \
-        .filter(dt.LIProfile.indexedOn >= fromTs, \
-                dt.LIProfile.indexedOn < toTs)
+fromdate = datetime.strptime(sys.argv[1], '%Y-%m-%d')
+todate = datetime.strptime(sys.argv[2], '%Y-%m-%d')
+fromid = None
+toid = None
+if len(sys.argv) > 3:
+    fromid = sys.argv[3]
+if len(sys.argv) > 4:
+    toid = sys.argv[4]
 
+fromTs = int((fromdate - timestamp0).total_seconds())*1000
+toTs   = int((todate   - timestamp0).total_seconds())*1000
 
-if njobs > 1:
-    args = [(fromTs, toTs)+p for p in partitions(q, dt.LIProfile.id, njobs)]
-    ParallelFunction(structureProfiles,
-                     batchsize=1,
-                     workdir='sjobs',
-                     prefix='listructure',
-                     log=sys.stdout,
-                     tries=1)(args)
-else:
-    structureProfiles(fromTs, toTs, None, None)
+    
+structureProfiles(fromTs, toTs, fromid, toid)
 

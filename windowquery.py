@@ -2,23 +2,26 @@ import sqlalchemy
 from sqlalchemy import and_, func, text
 import numpy as np
 
-def windows(q, column, windowsize):
+def windows(session, column, windowsize, filter=None):
     """Generate a series of WHERE clauses which break a given column into windows.
 
     """
-    q = q.from_self(column).distinct() \
-         .add_columns(func.row_number().over(order_by=column) \
-                      .label('__rownum__')) \
-         .from_self(column, '__rownum__')
-    if windowsize > 1:
-        q = q.filter(text('__rownum__ %% %d=1' % windowsize))
-    q = q.order_by('__rownum__')
+    subq = session.query(column.label('col'))
+    if filter is not None:
+        subq = subq.filter(filter)
+    subq = subq.distinct().subquery()
 
-    intervals = [id for id, row in q]
-    if intervals:
-        for start_id, end_id in zip(intervals[:-1], intervals[1:]):
-            yield and_(column >= start_id, column < end_id)
-        yield column >= intervals[-1]
+    q = session.query(subq.c.col,
+                      func.row_number().over(order_by='col').label('rownum')) \
+               .from_self(subq.c.col) \
+               .filter(text('rownum %% %d=1' % windowsize)) \
+               .order_by(subq.c.col)
+    a = None
+    for b, in q:
+        if a is not None:
+            yield and_(column >= a, column < b)
+        a = b
+    yield column >= a
 
 
 def partitions(q, column, nbatches):
@@ -52,28 +55,25 @@ def partitions(q, column, nbatches):
     yield (columnvals[-2][0], None)
     
 
-def windowQuery(q, column, windowsize=1000, values=None):
+def windowQuery(q, column, windowsize=10000, filter=None):
     """"Break a query into windows on a given column.
 
     Args:
       q (query object): The query to split into windows.
       column (Column object): The column on which to split.
       windowsize (int, optional): The number of distinct values of `column` in
-        one window. Defaults to 1000.
-      values (query object or None, optional): Auxiliary query for obtaining
-        the values for `column` on which to construct the windows. To improve
-        performance you can use a simpler query than `q` here, e.g. by removing
-        joins. `values` must return the same values for `column` as `q`. Defaults
-        to ``None``, in which case the values are obtained from `q`.
+        one window. Defaults to 10000.
+      filter (filter object or None, optional): Filter to apply to `q` as well
+        as the query which determines the possible values of `column`.
     
     Yields:
       The same rows that `q` would yield.
 
     """
 
-    if values is None:
-        values = q
-    for whereclause in windows(values, column, windowsize):
+    if filter is not None:
+        q = q.filter(filter)
+    for whereclause in windows(q.session, column, windowsize, filter=filter):
         for row in q.filter(whereclause).order_by(column):
             yield row
             

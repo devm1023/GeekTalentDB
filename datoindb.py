@@ -37,7 +37,7 @@ class LIProfile(SQLBase):
     description       = Column(Unicode(STR_MAX))
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
-    indexedOn         = Column(BigInteger)
+    indexedOn         = Column(BigInteger, index=True)
     connections       = Column(String(STR_MAX))
     categories        = Column(Array(Unicode(STR_MAX)))
 
