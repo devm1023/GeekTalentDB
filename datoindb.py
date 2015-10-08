@@ -84,22 +84,7 @@ class DatoinDB(SQLDatabase):
             liprofile = LIProfile(**profile)
             self.add(liprofile)
             self.flush()
-        elif liprofile.parentId          == profile['parentId'] and \
-             liprofile.lastName          == profile['lastName'] and \
-             liprofile.firstName         == profile['firstName'] and \
-             liprofile.name              == profile['name'] and \
-             liprofile.country           == profile['country'] and \
-             liprofile.city              == profile['city'] and \
-             liprofile.title             == profile['title'] and \
-             liprofile.description       == profile['description'] and \
-             liprofile.profileUrl        == profile['profileUrl'] and \
-             liprofile.profilePictureUrl == profile['profilePictureUrl'] and \
-             liprofile.indexedOn         == profile['indexedOn'] and \
-             liprofile.connections       == profile['connections'] and \
-             liprofile.categories        == profile['categories']:
-            return liprofile
         else:
-            print('Updating profile', profile['id'])
             new_profile = False
             liprofile.parentId          = profile['parentId']
             liprofile.lastName          = profile['lastName']
