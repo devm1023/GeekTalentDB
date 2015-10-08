@@ -44,7 +44,9 @@ class LIProfile(SQLBase):
 class Experience(SQLBase):
     __tablename__ = 'experience'
     id          = Column(String(STR_MAX), primary_key=True)
-    parentId    = Column(String(STR_MAX))
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('liprofile.id'),
+                         index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
     dateFrom    = Column(BigInteger)
@@ -55,7 +57,9 @@ class Experience(SQLBase):
 class Education(SQLBase):
     __tablename__ = 'education'
     id          = Column(String(STR_MAX), primary_key=True)
-    parentId    = Column(String(STR_MAX))
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('liprofile.id'),
+                         index=True)
     institute   = Column(Unicode(STR_MAX))
     degree      = Column(Unicode(STR_MAX))
     area        = Column(Unicode(STR_MAX))
