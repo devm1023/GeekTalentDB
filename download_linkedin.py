@@ -416,7 +416,8 @@ if __name__ == '__main__':
         deltat = timedelta(days=1)
         t = fromdate
         while t < todate:
-            downloadRange(t, t+deltat, njobs, maxprofiles)
+            downloadRange(t, min(t+deltat, todate), njobs, maxprofiles)
+            t += deltat
     else:
         downloadRange(fromdate, todate, njobs, maxprofiles,
                       offset=offset, maxoffset=maxoffset)
