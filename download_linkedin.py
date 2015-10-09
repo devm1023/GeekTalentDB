@@ -412,6 +412,11 @@ if __name__ == '__main__':
     else:
         maxoffset = None
 
-    downloadRange(fromdate, todate, njobs, maxprofiles,
-                  offset=offset, maxoffset=maxoffset)
-
+    if offset == 0 and maxoffset is None:
+        deltat = timedelta(days=1)
+        t = fromdate
+        while t < todate:
+            downloadRange(t, t+deltat, njobs, maxprofiles)
+    else:
+        downloadRange(fromdate, todate, njobs, maxprofiles,
+                      offset=offset, maxoffset=maxoffset)
