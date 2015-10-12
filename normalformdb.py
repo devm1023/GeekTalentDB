@@ -2,13 +2,16 @@ __all__ = [
     'LIProfile',
     'Experience',
     'Education',
-    'DatoinDB',
+    'NormalFormDB',
     ]
 
+import conf
+import numpy as np
 from sqldb import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
+    UniqueConstraint, \
     Integer, \
     BigInteger, \
     Unicode, \
@@ -35,7 +38,6 @@ class LIProfile(SQLBase):
     title             = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX))
     description       = Column(Unicode(STR_MAX))
-    nrmDescription    = Column(Unicode(STR_MAX))
     totalExperience   = Column(Integer)
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
@@ -55,10 +57,9 @@ class Experience(SQLBase):
     company        = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX))
     start          = Column(Date)
-    end            = Column(BigInteger)
+    end            = Column(Date)
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
-    nrmDescription = Column(Unicode(STR_MAX))
     indexedOn      = Column(Date)
 
 class Education(SQLBase):
@@ -77,7 +78,6 @@ class Education(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    nrmDescription = Column(Unicode(STR_MAX))
     indexedOn      = Column(Date)
 
 class Skill(SQLBase):
@@ -88,7 +88,7 @@ class Skill(SQLBase):
     nrmName   = Column(Unicode(STR_MAX))
 
 class ExperienceSkill(SQLBase):
-    __tablename__ = 'skill'
+    __tablename__ = 'experience_skill'
     experienceId = Column(BigInteger, ForeignKey('experience.id'),
                           primary_key=True)
     skillId      = Column(BigInteger, ForeignKey('skill.id'),
@@ -156,9 +156,9 @@ class NormalFormDB(SQLDatabase):
         duration = None        
         if experience.start is not None and experience.end is not None:
             if experience.start < experience.end:
-                duration = (enddate - startdate).days
+                duration = (experience.end - experience.start).days
         elif experience.start is not None:
-            duration = (now - startdate).days
+            duration = (now - experience.start).days
         experience.duration = duration
         
         self.add(experience)
@@ -193,7 +193,8 @@ class NormalFormDB(SQLDatabase):
     def rankSkills(self, skills, experiences, liprofile):
         descriptionstems = [stem(experience.description) \
                             for experience in experiences]
-        skillstems = [skill.nrmName.split() for skill in skills]
+        skillstems = [skill.nrmName.split() if skill.nrmName else [] \
+                      for skill in skills]
 
         # match experience descriptions
         matches = (matchStems(skillstems, descriptionstems,
@@ -231,7 +232,7 @@ class NormalFormDB(SQLDatabase):
             skill.rank = ranks[iskill]
         
     
-    def addLIProfile(self, profile, experiencedicts, educationdicts):
+    def addLIProfile(self, profile, experiencedicts, educationdicts, now):
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
                         .filter(LIProfile.datoinId == profile['datoinId']) \
@@ -248,7 +249,6 @@ class NormalFormDB(SQLDatabase):
         liprofile.title           = profile['title']
         liprofile.nrmTitle        = normalizedTitle(profile['title'])
         liprofile.description     = profile['description']
-        liprofile.nrmDescription  = normalizedDescription(profile['description'])
         liprofile.totalexperience = 0
         liprofile.url             = profile['url']
         liprofile.pictureUrl      = profile['pictureUrl']
@@ -260,10 +260,13 @@ class NormalFormDB(SQLDatabase):
 
         # add experiences
         if not isnew:
-            self.query(Experience) \
-                .filter(Experience.profileId == liprofile.id) \
-                .delete(synchronize_session='fetch')
-        experiences = [self.addExperience(liprofile.id, e) \
+            for experience in self.query(Experience) \
+                                  .filter(Experience.profileId == liprofile.id) :
+                self.query(ExperienceSkill) \
+                    .filter(ExperienceSkill.experienceId == experience.id) \
+                    .delete(synchronize_session='fetch')
+                self.session.delete(experience)
+        experiences = [self.addExperience(liprofile.id, e, now) \
                        for e in experiencedicts]
         liprofile.totalExperience = sum([e.duration for e in experiences \
                                          if e.duration is not None])
