@@ -36,7 +36,7 @@ class LIProfile(SQLBase):
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX))
     title             = Column(Unicode(STR_MAX))
-    nrmTitle          = Column(Unicode(STR_MAX))
+    nrmTitle          = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     totalExperience   = Column(Integer)
     profileUrl        = Column(String(STR_MAX))
@@ -53,9 +53,9 @@ class Experience(SQLBase):
                             ForeignKey('liprofile.id'),
                             index=True)
     title          = Column(Unicode(STR_MAX))
-    nrmTitle       = Column(Unicode(STR_MAX))
+    nrmTitle       = Column(Unicode(STR_MAX), index=True)
     company        = Column(Unicode(STR_MAX))
-    nrmCompany     = Column(Unicode(STR_MAX))
+    nrmCompany     = Column(Unicode(STR_MAX), index=True)
     start          = Column(Date)
     end            = Column(Date)
     duration       = Column(Integer)
@@ -85,7 +85,8 @@ class Skill(SQLBase):
     id        = Column(BigInteger, primary_key=True)
     profileId = Column(BigInteger, ForeignKey('liprofile.id'))
     name      = Column(Unicode(STR_MAX))
-    nrmName   = Column(Unicode(STR_MAX))
+    nrmName   = Column(Unicode(STR_MAX), index=True)
+    rank      = Column(Float)
 
 class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
@@ -127,11 +128,8 @@ def normalizedCompany(name):
 def normalizedLocation(name):
     return ' '.join(name.lower().split())
 
-def _getStartDate(experience):
-    startdate = experience.get('startdate', DATE0)
-    if startdate is None:
-        return DATE0
-    return startdate
+def _joinfields(*args):
+    return ' '.join([a for a in args if a])
 
     
 class NormalFormDB(SQLDatabase):
@@ -191,7 +189,8 @@ class NormalFormDB(SQLDatabase):
         return skill
 
     def rankSkills(self, skills, experiences, liprofile):
-        descriptionstems = [stem(experience.description) \
+        descriptionstems = [stem(_joinfields(experience.title,
+                                             experience.description)) \
                             for experience in experiences]
         skillstems = [skill.nrmName.split() if skill.nrmName else [] \
                       for skill in skills]
@@ -213,11 +212,7 @@ class NormalFormDB(SQLDatabase):
                                              skillId=skill.id))
 
         # match profile text
-        profiletext = ''
-        if liprofile.title is not None:
-            profiletext += liprofile.title
-        if liprofile.description is not None:
-            profiletext += ' '+liprofile.description
+        profiletext = _joinfields(liprofile.title, liprofile.description)
         matches = (matchStems(skillstems, [stem(profiletext)],
                               threshold=conf.SKILL_MATCHING_THRESHOLD) > \
                    conf.SKILL_MATCHING_THRESHOLD)
