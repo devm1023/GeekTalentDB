@@ -19,41 +19,10 @@ def windows(session, column, windowsize, filter=None):
     a = None
     for b, in q:
         if a is not None:
-            yield and_(column >= a, column < b)
+            yield a, b
         a = b
-    yield column >= a
+    yield a, None
 
-
-def partitions(q, column, nbatches):
-    """Break a query into even-sized batches according to values in one column.
-
-    Args:
-      q (query object): The query to split.
-      column (Column object): The column on which to split.
-      nbatches (int): The number of batches.
-
-    Yields:
-      A tuples holding the lower (inclusive) and upper (exclusive)
-      bounds for the values of `column`. For the last tuple the upper bound
-      will be ``None``.
-
-    """
-    nbatches = max(1, nbatches)
-    q = q.from_self(column).distinct()
-    ntotal = q.count()
-    rows = np.linspace(1, ntotal, nbatches+1, dtype=int)
-    rows = list(map(repr, rows))
-    columnvals = q.add_columns(func.row_number().over(order_by=column) \
-                               .label('__rownum__')) \
-                  .from_self(column, '__rownum__') \
-                  .filter(text('__rownum__ IN ({0:s})' \
-                               .format(', '.join(rows)))) \
-                  .order_by('__rownum__') \
-                  .all()
-    for a, b in zip(columnvals[:-2], columnvals[1:-1]):
-        yield a[0], b[0]
-    yield (columnvals[-2][0], None)
-    
 
 def windowQuery(q, column, windowsize=10000, filter=None):
     """"Break a query into windows on a given column.
@@ -73,7 +42,11 @@ def windowQuery(q, column, windowsize=10000, filter=None):
 
     if filter is not None:
         q = q.filter(filter)
-    for whereclause in windows(q.session, column, windowsize, filter=filter):
+    for a, b in windows(q.session, column, windowsize, filter=filter):
+        if b is not None:
+            whereclause = and_(column >= a, column < b)
+        else:
+            whereclause = column >= a
         for row in q.filter(whereclause).order_by(column):
             yield row
             
