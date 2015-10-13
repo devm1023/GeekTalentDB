@@ -13,7 +13,7 @@ now = datetime.now()
 
 
 def normalizeProfiles(fromid, toid, fromTs, toTs):
-    batchsize = 100
+    batchsize = 10
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DT_READ_DB)
     nfdb = nf.NormalFormDB(url=conf.NF_WRITE_DB)

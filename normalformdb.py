@@ -85,7 +85,9 @@ class Education(SQLBase):
 class Skill(SQLBase):
     __tablename__ = 'skill'
     id        = Column(BigInteger, primary_key=True)
-    profileId = Column(BigInteger, ForeignKey('liprofile.id'))
+    profileId = Column(BigInteger,
+                       ForeignKey('liprofile.id'),
+                       index=True)
     name      = Column(Unicode(STR_MAX))
     nrmName   = Column(Unicode(STR_MAX), index=True)
     rank      = Column(Float)
