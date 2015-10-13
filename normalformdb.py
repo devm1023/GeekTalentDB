@@ -36,7 +36,7 @@ class LIProfile(SQLBase):
     datoinId          = Column(String(STR_MAX), index=True)
     name              = Column(Unicode(STR_MAX))
     location          = Column(Unicode(STR_MAX))
-    nrmLocation       = Column(Unicode(STR_MAX))
+    nrmLocation       = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))

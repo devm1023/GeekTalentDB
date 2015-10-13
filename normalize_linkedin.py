@@ -6,13 +6,13 @@ import conf
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
-from parallelize import ParallelFunction
+from processtable import processTable
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 
 
-def parseProfiles(fromTs, toTs, fromid, toid, offset):
+def normalizeProfiles(fromid, toid, fromTs, toTs):
     batchsize = 100
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DT_READ_DB)
@@ -101,15 +101,14 @@ def parseProfiles(fromTs, toTs, fromid, toid, offset):
 
         if profilecount % batchsize == 0:
             nfdb.commit()
-            logger.log('{0:d} profiles processed.\n' \
-                       .format(profilecount+offset))
-            logger.log('Last profile id: {0:s}\n'.format(liprofile.id))
+            logger.log('Batch: {0:d} profiles processed.\n' \
+                       .format(profilecount))
 
     # final commit
     if profilecount % batchsize != 0:
         nfdb.commit()
-        logger.log('{0:d} profiles processed.\n' \
-                   .format(profilecount+offset))
+        logger.log('Batch: {0:d} profiles processed.\n' \
+                   .format(profilecount))
 
     return profilecount, liprofile.id
 
@@ -135,50 +134,10 @@ if fromid is not None:
 dtdb = DatoinDB(url=conf.DT_READ_DB)
 logger = Logger(sys.stdout)
 
-if njobs <= 1:
-    profilecount = 0
-    for fromid, toid in windows(dtdb.session, LIProfile.id, batchsize, filter):
-        nprofiles, lastid = parseProfiles(fromTs, toTs, fromid, toid,
-                                          profilecount)
-        logger.log('Last profile id: {0:s}\n'.format(lastid))
-        profilecount += nprofiles
-else:
-    args = []
-    parallelParse = ParallelFunction(parseProfiles,
-                                     batchsize=1,
-                                     workdir='parsejobs',
-                                     prefix='linormalize',
-                                     tries=1)
-    profilecount = 0
-    for fromid, toid in windows(dtdb.session, LIProfile.id, batchsize, filter):
-        args.append((fromTs, toTs, fromid, toid, 0))
-        if len(args) == njobs:
-            starttime = datetime.now()
-            logger.log('Starting batch at {0:s}.\n' \
-                       .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
-            results = parallelParse(args)
-            endtime = datetime.now()
-            args = []
-            nprofiles = sum([r[0] for r in results])
-            lastid = max([r[1] for r in results])
-            profilecount += nprofiles
-            logger.log('Completed batch {0:s} at {1:f} profiles/sec.\n' \
-                       .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                               nprofiles/(endtime-starttime).total_seconds()))
-            logger.log('{0:d} profiles processed.\n'.format(profilecount))
-            logger.log('Last profile id: {0:s}\n'.format(lastid))
-    if args:
-        starttime = datetime.now()
-        logger.log('Starting batch at {0:s}.\n' \
-                   .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
-        results = parallelParse(args)
-        endtime = datetime.now()
-        args = []
-        nprofiles = sum([r[0] for r in results])
-        profilecount += nprofiles
-        lastid = max([r[1] for r in results])
-        logger.log('Completed batch {0:s} at {1:f} profiles/sec.\n' \
-                   .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                           nprofiles/(endtime-starttime).total_seconds()))
-        logger.log('{0:d} profiles processed.\n'.format(profilecount))
-        logger.log('Last profile id: {0:s}\n'.format(lastid))
+totalrecords = dtdb.query(LIProfile.id).filter(filter).count()
+logger.log('{0:d} records found.\n'.format(totalrecords))
+
+processTable(dtdb.session, LIProfile.id, normalizeProfiles, batchsize,
+             njobs=njobs, args=[fromTs, toTs],
+             filter = filter, logger=logger,
+             workdir='normalizejobs', prefix='linormalize')
