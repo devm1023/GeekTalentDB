@@ -179,6 +179,6 @@ else:
         lastid = max([r[1] for r in results])
         logger.log('Completed batch {0:s} at {1:f} profiles/sec.\n' \
                    .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                           nprofiles/(endtime-starttime).total_sections()))
+                           nprofiles/(endtime-starttime).total_seconds()))
         logger.log('{0:d} profiles processed.\n'.format(profilecount))
         logger.log('Last profile id: {0:s}\n'.format(lastid))

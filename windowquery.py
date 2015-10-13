@@ -2,8 +2,39 @@ import sqlalchemy
 from sqlalchemy import and_, func, text
 import numpy as np
 
+def count(session, column, filter=None):
+    """Count the number of distinct values in a column.
+
+    Args: 
+      session (sqlalchemy session object): The database session to use.
+      column (sqlalchemy Column object): The table column to count.
+      filter (filter object or None, optional): Filter to apply to the table
+        containing `column` before selecting distinct values of `column`.
+
+    Returns:
+      int: The number of distinct values in `column`.
+
+    """
+    q = session.query(column)
+    if filter is not None:
+        q = q.filter(filter)
+    return q.distinct().count()
+
 def windows(session, column, windowsize, filter=None):
-    """Generate a series of WHERE clauses which break a given column into windows.
+    """Generate a series of intervals break a given column into windows.
+
+    Args:
+      session (sqlalchemy session object): The database session to use.
+      column (sqlalchemy Column object): The table column to split on.
+      windowsize (int): The number of distinct values of `column` in each
+        interval.
+      filter (filter object or None, optional): Filter to apply to the table
+        containing `column` before selecting distinct values of `column`.
+
+    Yields:
+      a: The lower (inclusive) bound of the interval.
+      b: The upper (exclusive) bound of the interval. May be ``None``, which
+        means no upper bound.
 
     """
     subq = session.query(column.label('col'))

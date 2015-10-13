@@ -7,6 +7,7 @@ __all__ = [
 
 import conf
 import numpy as np
+import requests
 from sqldb import *
 from sqlalchemy import \
     Column, \
@@ -21,6 +22,7 @@ from sqlalchemy import \
     Date, \
     Float, \
     func
+from geoalchemy2 import Geometry
 from phrasematch import clean, stem, tokenize, matchStems
 
 
@@ -94,6 +96,13 @@ class ExperienceSkill(SQLBase):
                           primary_key=True)
     skillId      = Column(BigInteger, ForeignKey('skill.id'),
                           primary_key=True)
+
+class Location(SQLBase):
+    __tablename__ = 'location'
+    nrmName   = Column(Unicode(STR_MAX), primary_key=True)
+    name      = Column(Unicode(STR_MAX))
+    placeId   = Column(String(STR_MAX))
+    geo       = Column(Geometry('POINT'))
 
 
 def normalizedSkill(name):
@@ -289,3 +298,43 @@ class NormalFormDB(SQLDatabase):
         self.rankSkills(skills, experiences, liprofile)
         
         return liprofile
+
+    def addLocation(self, nrmName):
+        location = self.query(Location) \
+                       .filter(Location.nrmName == nrmName) \
+                       .first()
+        if location is not None:
+            return location
+
+        # query Google Places API
+        r = requests.get(conf.PLACES_API,
+                         params={'key' : conf.PLACES_KEY,
+                                 'query' : nrmName}).json()
+        if len(r['results']) != 1:
+            location = Location(nrmName=nrmName)
+            self.add(location)
+            return location
+
+        # parse result
+        lat = r['results'][0]['geometry']['location']['lat']
+        lon = r['results'][0]['geometry']['location']['lng']
+        pointstr = 'POINT({0:f} {1:f})'.format(lon, lat)
+        address = r['results'][0]['formatted_address']
+        placeId = r['results'][0]['place_id']
+
+        # format address
+        address = address.split(', ')
+        if address:
+            for i, s in enumerate(address[:-1]):
+                while len(address) > i+1 and address[i+1] == s:
+                    del address[i+1]
+        address = ', '.join(address)
+
+        # add record
+        location = Location(nrmName=nrmName,
+                            name=address,
+                            placeId=placeId,
+                            geo=pointstr)
+        self.add(location)
+
+        return location
