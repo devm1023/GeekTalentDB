@@ -54,13 +54,27 @@ Creating and restoring dumps
 Create dump:
 
 $ sudo su -
-# sudo -u postgres pg_dump geektalent > filename.sql
+# sudo -u postgres pg_dump mydatabase > filename.sql
 # exit
 
 Restore from dump:
+(mydatabase must exist and be empty)
 
 $ sudo su -
-# sudo -u postgres psql geektalent < filename.sql
+# sudo -u postgres psql mydatabase < filename.sql
+# exit
+
+Dump table:
+
+$ sudo su -
+# sudo -u postgres pg_dump --table mytable mydatabase > filename.sql
+# exit
+
+Restore table:
+(mytable should not exist in mydatabase)
+
+$ sudo su -
+# sudo -u postgres psql mydatabase < filename.sql
 # exit
 
 

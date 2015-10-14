@@ -38,7 +38,10 @@ class LIProfile(SQLBase):
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
+    parsedTitle       = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
+    company           = Column(Unicode(STR_MAX))
+    nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     totalExperience   = Column(Integer)
     profileUrl        = Column(String(STR_MAX))
@@ -55,6 +58,7 @@ class Experience(SQLBase):
                             ForeignKey('liprofile.id'),
                             index=True)
     title          = Column(Unicode(STR_MAX))
+    parsedTitle    = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX), index=True)
     company        = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
@@ -116,15 +120,22 @@ def normalizedSkill(name):
     nname.sort()
     return ' '.join(nname)
 
-def normalizedTitle(name):
+def parsedTitle(name):
     if not name:
         return None
-    name = clean(name, keep='&/-,', removebrackets=True)
+    name = clean(name, keep='&/-,\'', removebrackets=True)
     name = name.split(' - ')[0]
+    name = name.split(' / ')[0]
     name = name.split(' at ')[0]
     name = name.split(' for ')[0]
     name = name.split(',')[0]
-    nname = stem(name, removebrackets=True)
+    return name
+    
+def normalizedTitle(name):
+    name = parsedTitle(name)
+    if not name:
+        return None
+    nname = stem(name)
     if not nname:
         return None
     return ' '.join(nname)
@@ -132,10 +143,16 @@ def normalizedTitle(name):
 def normalizedCompany(name):
     if not name:
         return None
-    nname = tokenize(name, removebrackets=True)
+    nname = clean(name, keep=',-/&', nospace='\'', removebrackets=True).lower()
+    nname = nname.split(',')[0]
+    nname = nname.split(' - ')[0]
+    nname = nname.split(' / ')[0]
+    nname = nname.split(' & ')[0]
+    nname = nname.replace(' limited', ' ltd')
+    nname = clean(nname)
     if not nname:
         return None
-    return ' '.join(nname)
+    return nname
 
 def normalizedLocation(name):
     return ' '.join(name.lower().split())
@@ -154,6 +171,7 @@ class NormalFormDB(SQLDatabase):
         experience.datoinId       = edict['datoinId']
         experience.profileId      = profileId
         experience.title          = edict['title']
+        experience.parsedTitle    = parsedTitle(edict['title'])
         experience.nrmTitle       = normalizedTitle(edict['title'])
         experience.company        = edict['company']
         experience.nrmCompany     = normalizedCompany(edict['company'])
@@ -240,6 +258,13 @@ class NormalFormDB(SQLDatabase):
         
     
     def addLIProfile(self, profile, experiencedicts, educationdicts, now):
+        # determine current company
+        company = None
+        currentexperiences = [e for e in experiencedicts \
+                              if e['start'] is not None and e['end'] is None]
+        if len(currentexperiences) == 1:
+            company = currentexperiences[0]['company']            
+
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
                         .filter(LIProfile.datoinId == profile['datoinId']) \
@@ -254,7 +279,10 @@ class NormalFormDB(SQLDatabase):
         liprofile.name            = profile['name']
         liprofile.nrmLocation     = normalizedLocation(profile['location'])
         liprofile.title           = profile['title']
+        liprofile.parsedTitle     = parsedTitle(profile['title'])
         liprofile.nrmTitle        = normalizedTitle(profile['title'])
+        liprofile.company         = company
+        liprofile.nrmCompany      = normalizedCompany(company)
         liprofile.description     = profile['description']
         liprofile.totalexperience = 0
         liprofile.url             = profile['url']

@@ -15,7 +15,7 @@ _particles = set([
     'with',
     ])
 
-def clean(s, removebrackets=False, keep=''):
+def clean(s, removebrackets=False, keep='', nospace=''):
     l = []
     plvl = 0
     blvl = 0
@@ -46,6 +46,8 @@ def clean(s, removebrackets=False, keep=''):
                 (oc >= 48 and oc <= 57) or \
                 c in keep):
             c = ' '
+        elif c in nospace:
+            c = ''
         if not removebrackets or (plvl <= 0 and blvl <= 0 and clvl <= 0):
             l.append(c)
             
@@ -73,8 +75,8 @@ def tokenize(s, removebrackets=False):
     s = s.replace('co-ordin', 'coordin')
 
     s = clean(s, removebrackets=removebrackets)
-    stems = [stem for stem in s.split() if stem not in _particles]
-    return stems
+    tokens = [token for token in s.split() if token not in _particles]
+    return tokens
 
 
 def stem(s, removebrackets=False):
