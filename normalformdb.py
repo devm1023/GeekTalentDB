@@ -119,9 +119,10 @@ def normalizedSkill(name):
 def normalizedTitle(name):
     if not name:
         return None
-    name = clean(name, keep='&/-', removebrackets=True)
+    name = clean(name, keep='&/-,', removebrackets=True)
     name = name.split(' - ')[0]
     name = name.split(' at ')[0]
+    name = name.split(' for ')[0]
     name = name.split(',')[0]
     nname = stem(name, removebrackets=True)
     if not nname:
