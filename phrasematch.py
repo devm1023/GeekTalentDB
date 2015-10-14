@@ -41,13 +41,13 @@ def clean(s, removebrackets=False, keep='', nospace=''):
                 clvl -= 1
                 c = ' '
         oc = ord(c)
-        if not ((oc >= 65 and oc <= 90) or \
-                (oc >= 97 and oc <= 122) or \
-                (oc >= 48 and oc <= 57) or \
-                c in keep):
-            c = ' '
-        elif c in nospace:
+        if c in nospace:
             c = ''
+        elif not ((oc >= 65 and oc <= 90) or \
+                  (oc >= 97 and oc <= 122) or \
+                  (oc >= 48 and oc <= 57) or \
+                  c in keep):
+            c = ' '
         if not removebrackets or (plvl <= 0 and blvl <= 0 and clvl <= 0):
             l.append(c)
             
