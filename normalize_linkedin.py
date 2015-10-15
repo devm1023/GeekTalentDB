@@ -1,19 +1,18 @@
 from datoindb import *
 import normalformdb as nf
-from windowquery import windowQuery, windows
+from windowquery import splitProcess
 from sqlalchemy import and_
 import conf
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
-from processtable import processTable
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 
 
 def normalizeProfiles(fromid, toid, fromTs, toTs):
-    batchsize = 10
+    batchsize = 50
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DT_READ_DB)
     nfdb = nf.NormalFormDB(url=conf.NF_WRITE_DB)
@@ -137,7 +136,7 @@ logger = Logger(sys.stdout)
 totalrecords = dtdb.query(LIProfile.id).filter(filter).count()
 logger.log('{0:d} records found.\n'.format(totalrecords))
 
-processTable(dtdb.session, LIProfile.id, normalizeProfiles, batchsize,
-             njobs=njobs, args=[fromTs, toTs],
-             filter = filter, logger=logger,
-             workdir='normalizejobs', prefix='linormalize')
+query = dtdb.query(LIProfile.id).filter(filter)
+splitProcess(query, normalizeProfiles, batchsize,
+             njobs=njobs, args=[fromTs, toTs], logger=logger,
+             workdir='jobs', prefix='normalize_linkedin')

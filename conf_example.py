@@ -17,13 +17,25 @@
 GT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/geektalent'
 
 # GeekTalent Database used by scripts which only read data
-GT_READ_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@104.155.42.1/geektalent'
+GT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/geektalent'
 
 # Datoin Database used by scripts which write data
 DT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/datoin'
 
 # Datoin Database used by scripts which only read data
 DT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
+
+# Datoin Database used by scripts which write data
+NF_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/normalform'
+
+# Datoin Database used by scripts which only read data
+NF_READ_DB     = 'postgresql://geektalent:geektalent@localhost/normalform'
+
+# Datoin Database used by scripts which write data
+GM_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/geekmaps'
+
+# Datoin Database used by scripts which only read data
+GM_READ_DB     = 'postgresql://geektalent:geektalent@localhost/geekmaps'
 
 
 # Datoin SOLR endpoints:
@@ -48,11 +60,10 @@ PLACES_API = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 PLACES_KEY = 'AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI'
 
 # maximum number of profiles which get added to the DB
-MAX_PROFILES    = 100
+MAX_PROFILES    = None
 
 # minimum return value of phraseMatch for which constitutes match
 SKILL_MATCHING_THRESHOLD = 0.75
 
 # Number of attempts at downloading corrupt profiles
 MAX_ATTEMPTS = 3
-

@@ -1,14 +1,16 @@
 import conf
 import sys
 
-if len(sys.argv) < 2 or sys.argv[1] not in \
-   ['geektalent', 'datoin', 'normalform']:
-    print('usage: python3 cleardb.py (geektalent | datoin | normalform) [--no-create]')
-    exit(1)
+def usageAbort():
+    print('usage: python3 cleardb.py (geektalent | datoin | normalform | geekmaps) [--no-create]')
+    exit(1)    
 
 nocreate = False
-if len(sys.argv) >= 3:
-    nocreate = sys.argv[2] == '--no-create'
+if len(sys.argv) > 2:
+    if sys.argv[2] == '--no-create':
+        nocreate = True
+    else:
+        usageAbort()
     
 if sys.argv[1] == 'geektalent':
     from geektalentdb import GeekTalentDB
@@ -28,3 +30,11 @@ elif sys.argv[1] == 'normalform':
     nfdb.drop_all()
     if not nocreate:
         nfdb.create_all()
+elif sys.argv[1] == 'geekmaps':
+    from geekmapsdb import GeekMapsDB
+    gmdb = GeekMapsDB(url=conf.GM_WRITE_DB)
+    gmdb.drop_all()
+    if not nocreate:
+        gmdb.create_all()
+else:
+    usageAbort()

@@ -4,7 +4,7 @@ import sys
 from datetime import datetime, timedelta
 from logger import Logger
 from sqlalchemy import and_
-from processtable import processTable
+from windowquery import splitProcess
 
 
 def processLocations(fromlocation, tolocation, fromdate, todate):
@@ -54,8 +54,8 @@ logger = Logger(sys.stdout)
 totalrecords = nfdb.query(LIProfile.id).filter(filter).count()
 logger.log('{0:d} records found.\n'.format(totalrecords))
 
-processTable(nfdb.session, LIProfile.nrmLocation, processLocations, batchsize,
-             njobs=njobs, args=[fromdate, todate],
-             filter = filter, logger=logger,
-             workdir='geojobs', prefix='geoupdate')
+query = nfdb.query(LIProfile.nrmLocation).filter(filter)
+splitProcess(query, processLocations, batchsize,
+             njobs=njobs, args=[fromdate, todate], logger=logger,
+             workdir='jobs', prefix='geoupdate_linkedin')
 

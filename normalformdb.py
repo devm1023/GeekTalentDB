@@ -2,6 +2,9 @@ __all__ = [
     'LIProfile',
     'Experience',
     'Education',
+    'Skill',
+    'ExperienceSkill',
+    'Location',
     'NormalFormDB',
     ]
 
