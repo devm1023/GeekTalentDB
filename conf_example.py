@@ -4,38 +4,26 @@
 # postgresql://<username>:<password>@<host>/<database>
 #
 # <username> is always 'geektalent'
-# <database> is either 'geektalent' or 'datoin'
+# <database> is 'geektalent', 'datoin', 'canonical', or 'geekmaps'
 #
-# host description   host name/IP      geektalent passwd    datoin passwd
-# ---------------------------------------------------------------------------
-# Martin's Laptop    localhost         geektalent           geektalent
-# internal server    10.140.18.98      geektalent           geektalent
-# cloud SQL server   173.194.248.106   geektalent           geektalent
-# cloud PostgreSQL   104.155.42.1      Ta2tqaltuaatri42     Ta2tqaltuaatri42
+# host description   host name/IP      password 
+# -----------------------------------------------------
+# Martin's Laptop    localhost         Ta2tqaltuaatri42
+# internal server    10.140.18.98      geektalent      
+# cloud SQL server   173.194.248.106   geektalent      
+# cloud PostgreSQL   104.155.42.1      Ta2tqaltuaatri42
 
-# GeekTalent Database used by scripts which write data
-GT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/geektalent'
+# GeekTalent Database
+GEEKTALENT_DB = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geektalent'
 
-# GeekTalent Database used by scripts which only read data
-GT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/geektalent'
+# Datoin Database 
+DATOIN_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin'
 
-# Datoin Database used by scripts which write data
-DT_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/datoin'
+# Canonical Database
+CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/normalform'
 
-# Datoin Database used by scripts which only read data
-DT_READ_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
-
-# Datoin Database used by scripts which write data
-NF_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/normalform'
-
-# Datoin Database used by scripts which only read data
-NF_READ_DB     = 'postgresql://geektalent:geektalent@localhost/normalform'
-
-# Datoin Database used by scripts which write data
-GM_WRITE_DB    = 'postgresql://geektalent:geektalent@localhost/geekmaps'
-
-# Datoin Database used by scripts which only read data
-GM_READ_DB     = 'postgresql://geektalent:geektalent@localhost/geekmaps'
+# GeekMaps Database
+GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'
 
 
 # Datoin SOLR endpoints:
@@ -66,4 +54,4 @@ MAX_PROFILES    = None
 SKILL_MATCHING_THRESHOLD = 0.75
 
 # Number of attempts at downloading corrupt profiles
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 2

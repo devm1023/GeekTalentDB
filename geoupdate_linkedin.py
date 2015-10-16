@@ -1,5 +1,5 @@
 import conf
-from normalformdb import *
+from canonicaldb import *
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
@@ -8,10 +8,10 @@ from windowquery import splitProcess
 
 
 def processLocations(fromlocation, tolocation, fromdate, todate):
-    nfdb = NormalFormDB(url=conf.NF_WRITE_DB)
+    cndb = CanonicalDB(url=conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
     batchsize = 10
-    q = nfdb.query(LIProfile.nrmLocation) \
+    q = cndb.query(LIProfile.nrmLocation) \
             .filter(LIProfile.indexedOn >= fromdate,
                     LIProfile.indexedOn < todate,
                     LIProfile.nrmLocation >= fromlocation)
@@ -23,12 +23,12 @@ def processLocations(fromlocation, tolocation, fromdate, todate):
     for nrmLocation, in q:
         recordcount += 1
         lastname = nrmLocation
-        nfdb.addLocation(nrmLocation)
+        cndb.addLocation(nrmLocation)
         if recordcount % batchsize == 0:
-            nfdb.commit()
+            cndb.commit()
             logger.log('Batch: {0:d} records processed.\n'.format(recordcount))
     if recordcount % batchsize != 0:
-        nfdb.commit()
+        cndb.commit()
         logger.log('Batch: {0:d} records processed.\n'.format(recordcount))
 
     return recordcount, lastname
@@ -48,13 +48,13 @@ filter = and_(LIProfile.indexedOn >= fromdate,
 if fromlocation is not None:
     filter = and_(filter, LIProfile.nrmLocation > fromlocation)
 
-nfdb = NormalFormDB(url=conf.NF_WRITE_DB)
+cndb = CanonicalDB(url=conf.CANONICAL_DB)
 logger = Logger(sys.stdout)
 
-totalrecords = nfdb.query(LIProfile.id).filter(filter).count()
+totalrecords = cndb.query(LIProfile.id).filter(filter).count()
 logger.log('{0:d} records found.\n'.format(totalrecords))
 
-query = nfdb.query(LIProfile.nrmLocation).filter(filter)
+query = cndb.query(LIProfile.nrmLocation).filter(filter)
 splitProcess(query, processLocations, batchsize,
              njobs=njobs, args=[fromdate, todate], logger=logger,
              workdir='jobs', prefix='geoupdate_linkedin')

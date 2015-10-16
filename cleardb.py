@@ -14,25 +14,25 @@ if len(sys.argv) > 2:
     
 if sys.argv[1] == 'geektalent':
     from geektalentdb import GeekTalentDB
-    gtdb = GeekTalentDB(url=conf.GT_WRITE_DB)
+    gtdb = GeekTalentDB(url=conf.GEEKTALENT_DB)
     gtdb.drop_all()
     if not nocreate:
         gtdb.create_all()
 elif sys.argv[1] == 'datoin':
     from datoindb import DatoinDB
-    dtdb = DatoinDB(url=conf.DT_WRITE_DB)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtdb.drop_all()
     if not nocreate:
         dtdb.create_all()
-elif sys.argv[1] == 'normalform':
-    from normalformdb import NormalFormDB
-    nfdb = NormalFormDB(url=conf.NF_WRITE_DB)
-    nfdb.drop_all()
+elif sys.argv[1] == 'canonical':
+    from canonicaldb import CanonicalDB
+    cndb = CanonicalDB(url=conf.CANONICAL_DB)
+    cndb.drop_all()
     if not nocreate:
-        nfdb.create_all()
+        cndb.create_all()
 elif sys.argv[1] == 'geekmaps':
     from geekmapsdb import GeekMapsDB
-    gmdb = GeekMapsDB(url=conf.GM_WRITE_DB)
+    gmdb = GeekMapsDB(url=conf.GEEKMAPS_DB)
     gmdb.drop_all()
     if not nocreate:
         gmdb.create_all()

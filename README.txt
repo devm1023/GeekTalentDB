@@ -1,46 +1,86 @@
 GeekTalentDB -- Experimental SQL database for user profiles
 ===========================================================
 
-The scripts operate on two PostgreSQL databases:
+The scripts operate on three PostgreSQL databases:
 
   datoin
     The raw (LinkedIn) data from DATOIN
 
-  geektalent
-    The processed data holding catalogues of skills, jobtitles, and locations
-    (and eventually companies), and the skill ranks.
+  canonical
+    Contains additional columns where short text elements like skills,
+    job titles, companies and locations have been put in canonical form. This
+    typically involves removal of 'funny' characters, lowercasing and sometimes
+    stemming. Skills, job titles etc. are considered identical if their
+    canonical form is identical.
 
-To clear all tables in one of the databases do
+    When building the 'canonical' DB the skill reinforcement is done and the
+    ranks are stored in the table 'skill'. Latitudes and Longitudes are
+    retreived from the Google Places API and stored in the table 'location'.
 
-    pyton3 cleardb.py (datoin | geektalent)
-
-To download LinkedIn data from DATOIN do
-
-    python3 linkedin_download.py <njobs> <from-date> [<to-date>]
-
-wher <njobs> is the number of parallel jobs to use, and <from-date> and
-<to-date> specify the range of timestamps to download. The should be in the
-format YYYY-MM-DD. If <to-date> is omitted the current date is used.
-
-To populate the geektalent DB directly from DATOIN do
-
-    python3 addlinkedin.py <start-date> <end-date>
+  geekmaps
+    Holds the data in a form suitable for visualisation with GeekMaps. This
+    database holds catalogues with skills, job titles, and companies found in
+    the (LinkedIn) data and pre-computed NUTS IDs for each profile.
 
 See postgres-setup.txt for instructions to set up the PostgreSQL DB.
 See python-setup.txt for instructions on installing python dependencies.
 
+* To clear all tables in one of the databases do
 
-Files:
+    pyton3 cleardb.py <database> [--no-create]
 
-geektalentdb.py
-  Contains SQLAlchemy classes describing the tables in the geektalent DB. Also
-  provides the class GeekTalentDB to interact with the database. Data should
-  only be added to the DB via one of the add_* methods of GeekTalentDB.
+where <database> is datoin, canonical, or geekmaps. If the --no-create
+flag is given the database is left completely blank (i.e. no empty tables are
+created).
 
-datoindb.py
-  Contains SQLAlchemy classes describing the tables in the datoin DB. Also
-  provides the class DatoinDB to interact with the database. Data should
-  only be added to the DB via the add_liprofile method of DatoinDB.
+* To download LinkedIn data from DATOIN do
+
+    python3 download_linkedin.py <njobs> <batchsize> <from-date> <to-date> \
+        [<from-offset> [<to-offset>]]
+
+where <njobs> is the number of parallel jobs to use, <batchsize> is the number
+of profiles per job and iteration to download, and <from-date> and
+<to-date> specify the range of timestamps to process. They should be in the
+format YYYY-MM-DD. Optionally the range of offsets to download can be specified
+with <from-offset> and <to-offset>. Example:
+
+    python3 download_linkedin.py 20 100 2015-09-22 2015-09-23 0 10000
+
+* To populate the 'canonical' DB from the 'datoin' DB do
+
+    python3 parse_linkedin.py <njobs> <batchsize> <from-date> <to-date> \
+        [<from-id>]
+
+The first four arguments are identical to download_linkedin.py. If the optional
+argument <from-id> is given only profiles with a datoin ID of strictly larger
+than <from-id> will be processed. This can be used for crash recovery, since
+parse_linkedin.py writes the datoin ID of recently processed profiles to
+STDOUT. Example:
+
+    python3 parse_linkedin.py 4 200 2015-09-22 2015-09-23
+
+* parse_linkedin.py does not populate the 'location' table in the 'canonical' DB.
+This needs to be done separately with
+
+    python3 geoupdate_linkedin.py <njobs> <batchsize> <from-date> <to-date> \
+        [<from-location>]
+
+The first four arguments are identical to download_linkedin.py. (The range of
+timestamps now restricts the set of profiles whose locations are included
+in the update.) The optional argument <from-location> can be used for crash
+recovery in the same way as <from-id>. Example:
+
+    python3 geoupdate_linkedin.py 4 100 2015-09-22 2015-09-23
+
+
+Additional files
+----------------
+
+datoindb.py, canonicaldb.py, geekmapsdb.py
+  Contain SQLAlchemy classes describing the tables in the respective database.
+  Also provide the classes DatoinDB, CanonicalDB, and GeekMapsDB to interact
+  with the databases. Data should only be added to the databases via the
+  correspoding add... methods.
 
 conf.py, conf_example.py
   Global configurations such as URLs for database servers. The file
@@ -48,22 +88,11 @@ conf.py, conf_example.py
   must be put in conf.py. The file conf.py is NOT INDEXED by git, since it
   differs between installations.
 
-cleardb.py
-  Drops all tables and then re-constructs them. Does not add any data. Useful
-  for starting with a clean slate.
-
-download_linkedin.py
-  Downloads LinkedIn profiles from DATOIN and adds them to the datoin DB.
-
-addlinkedin.py
-  Downloads LinkedIn profiles from DATOIN and adds them directly to the
-  geektalent DB.
-
 datoin.py
   Module for querying the DATOIN server(s).
 
 sqldb.py
-  Provides the base class (SQLDatabase) for DatoinDB and GeekTalentDB.
+  Provides the base class (SQLDatabase) for DatoinDB, CanonicalDB and GeekMapsDB.
 
 logger.py
   Provides a simple class for writing log messages.
@@ -74,7 +103,12 @@ phrasematch.py
   'normalizing' skills keywords.
 
 parallelize.py
-  Parallelisation module.
+  Basic parallelisation module.
+
+windowquery.py
+  Module for performing windowed SQL queries. Also provides the function
+  splitProcess which takes care of the parallelisation in parse_linkedin.py,
+  geoupdate_linkedin.py etc.
 
 postgres-setup.txt
   Instructions for setting up the PostgreSQL databases.

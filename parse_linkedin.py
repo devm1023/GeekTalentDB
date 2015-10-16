@@ -1,5 +1,5 @@
 from datoindb import *
-import normalformdb as nf
+import canonicaldb as nf
 from windowquery import splitProcess
 from sqlalchemy import and_
 import conf
@@ -11,11 +11,11 @@ timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 
 
-def normalizeProfiles(fromid, toid, fromTs, toTs):
+def parseProfiles(fromid, toid, fromTs, toTs):
     batchsize = 50
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DT_READ_DB)
-    nfdb = nf.NormalFormDB(url=conf.NF_WRITE_DB)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(LIProfile).filter(LIProfile.indexedOn >= fromTs,
                                      LIProfile.indexedOn < toTs,
@@ -96,16 +96,16 @@ def normalizeProfiles(fromid, toid, fromTs, toTs):
                 }
             experiencedicts.append(experiencedict)
 
-        nfdb.addLIProfile(profiledict, experiencedicts, [], now)
+        cndb.addLIProfile(profiledict, experiencedicts, [], now)
 
         if profilecount % batchsize == 0:
-            nfdb.commit()
+            cndb.commit()
             logger.log('Batch: {0:d} profiles processed.\n' \
                        .format(profilecount))
 
     # final commit
     if profilecount % batchsize != 0:
-        nfdb.commit()
+        cndb.commit()
         logger.log('Batch: {0:d} profiles processed.\n' \
                    .format(profilecount))
 
@@ -130,13 +130,13 @@ filter = and_(LIProfile.indexedOn >= fromTs, LIProfile.indexedOn < toTs)
 if fromid is not None:
     filter = and_(filter, LIProfile.id > fromid)
 
-dtdb = DatoinDB(url=conf.DT_READ_DB)
+dtdb = DatoinDB(url=conf.DATOIN_DB)
 logger = Logger(sys.stdout)
 
 totalrecords = dtdb.query(LIProfile.id).filter(filter).count()
 logger.log('{0:d} records found.\n'.format(totalrecords))
 
 query = dtdb.query(LIProfile.id).filter(filter)
-splitProcess(query, normalizeProfiles, batchsize,
+splitProcess(query, parseProfiles, batchsize,
              njobs=njobs, args=[fromTs, toTs], logger=logger,
-             workdir='jobs', prefix='normalize_linkedin')
+             workdir='jobs', prefix='parse_linkedin')

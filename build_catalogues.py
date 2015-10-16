@@ -1,6 +1,6 @@
 import conf
 import geekmapsdb
-from normalformdb import *
+from canonicaldb import *
 from sqlalchemy import func
 from logger import Logger
 import sys
@@ -10,12 +10,12 @@ from windowquery import splitProcess, windows
 def addSkills(fromskill, toskill):
     batchsize = 1000
 
-    nfdb = NormalFormDB(conf.NF_READ_DB)
-    gmdb = geekmapsdb.GeekMapsDB(conf.GM_WRITE_DB)
+    cndb = NormalFormDB(conf.CANONICAL_DB)
+    gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
     logger = Logger(sys.stdout)
 
     
-    q = nfdb.query(Skill.nrmName, Skill.name, func.count(Skill.profileId)) \
+    q = cndb.query(Skill.nrmName, Skill.name, func.count(Skill.profileId)) \
             .filter(Skill.nrmName >= fromskill)
     if toskill is not None:
         q = q.filter(Skill.nrmName < toskill)
@@ -58,13 +58,13 @@ def addSkills(fromskill, toskill):
 
 
 
-nfdb = NormalFormDB(conf.NF_READ_DB)
+cndb = NormalFormDB(conf.CANONICAL_DB)
 logger = Logger(sys.stdout)
 
 njobs = int(sys.argv[1])
 batchsize = int(sys.argv[2])
 
-q = nfdb.query(Skill.nrmName).filter(Skill.nrmName != None)
+q = cndb.query(Skill.nrmName).filter(Skill.nrmName != None)
 
 splitProcess(q, addSkills, batchsize,
              njobs=njobs, logger=logger,

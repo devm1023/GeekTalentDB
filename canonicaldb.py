@@ -5,7 +5,7 @@ __all__ = [
     'Skill',
     'ExperienceSkill',
     'Location',
-    'NormalFormDB',
+    'CanonicalDB',
     ]
 
 import conf
@@ -164,7 +164,7 @@ def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
     
-class NormalFormDB(SQLDatabase):
+class CanonicalDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)

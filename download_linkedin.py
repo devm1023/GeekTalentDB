@@ -290,7 +290,7 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     
     logger = Logger(sys.stdout)
     BATCH_SIZE = 10
-    dtdb = DatoinDB(url=conf.DT_WRITE_DB)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session()
 
     logger.log('Downloading {0:d} profiles.\n'.format(rows))
@@ -399,8 +399,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
 if __name__ == '__main__':
     # parse arguments
     timestamp0 = datetime(year=1970, month=1, day=1)
-    njobs = int(sys.argv[1])
-    maxprofiles = int(sys.argv[2])
+    njobs = max(int(sys.argv[1]), 1)
+    batchsize = int(sys.argv[2])
     fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
     todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
     if len(sys.argv) > 5:
@@ -416,8 +416,8 @@ if __name__ == '__main__':
         deltat = timedelta(days=1)
         t = fromdate
         while t < todate:
-            downloadRange(t, min(t+deltat, todate), njobs, maxprofiles)
+            downloadRange(t, min(t+deltat, todate), njobs, njobs*batchsize)
             t += deltat
     else:
-        downloadRange(fromdate, todate, njobs, maxprofiles,
+        downloadRange(fromdate, todate, njobs, njobs*batchsize,
                       offset=offset, maxoffset=maxoffset)
