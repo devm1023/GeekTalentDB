@@ -1,0 +1,13 @@
+Install pip3 on ubuntu:
+-----------------------
+
+sudo apt-get install python3-pip
+
+
+Install required python packages:
+---------------------------------
+
+sudo apt-get install postgresql-server-dev-X.Y
+sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 dill
+
+Where X.Y is the PostgreSQL version number.
