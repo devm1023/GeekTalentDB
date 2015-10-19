@@ -35,7 +35,6 @@ def addSkills(fromskill, toskill):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
     logger = Logger(sys.stdout)
-
     
     q = cndb.query(Skill.nrmName, Skill.name, func.count(Skill.profileId)) \
             .filter(Skill.nrmName >= fromskill)
@@ -67,7 +66,6 @@ def addTitles(fromtitle, totitle):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
     logger = Logger(sys.stdout)
-
     
     q = cndb.query(LIProfile.nrmTitle, LIProfile.parsedTitle,
                    func.count(LIProfile.id)) \
@@ -81,7 +79,7 @@ def addTitles(fromtitle, totitle):
     lasttitle = None
     for nrmName, bestname, profilecount in entities(q):
         lasttitle = nrmName
-        gmdb.addSkill(nrmName, bestname, profilecount)
+        gmdb.addTitle(nrmName, bestname, profilecount)
         titlecount += 1
         if titlecount % batchsize == 0:
             gmdb.commit()
@@ -95,6 +93,38 @@ def addTitles(fromtitle, totitle):
     return titlecount, lasttitle
 
 
+def addCompanies(fromcompany, tocompany):
+    batchsize = 1000
+
+    cndb = CanonicalDB(conf.CANONICAL_DB)
+    gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = cndb.query(LIProfile.nrmCompany, LIProfile.company,
+                   func.count(LIProfile.id)) \
+            .filter(LIProfile.nrmCompany >= fromcompany)
+    if tocompany is not None:
+        q = q.filter(LIProfile.nrmCompany < tocompany)
+    q = q.group_by(LIProfile.nrmCompany, LIProfile.company) \
+         .order_by(LIProfile.nrmCompany)
+
+    companycount = 0
+    lastcompany = None
+    for nrmName, bestname, profilecount in entities(q):
+        lastcompany = nrmName
+        gmdb.addCompany(nrmName, bestname, profilecount)
+        companycount += 1
+        if companycount % batchsize == 0:
+            gmdb.commit()
+            logger.log('Batch: {0:d} companies processed.\n' \
+                       .format(companycount))
+    if companycount % batchsize != 0:
+        gmdb.commit()
+        logger.log('Batch: {0:d} companies processed.\n' \
+                   .format(companycount))
+
+    return companycount, lastcompany
+
 
 
 cndb = CanonicalDB(conf.CANONICAL_DB)
@@ -107,7 +137,7 @@ try:
     startval = None
     if len(sys.argv) > 3:
         catalog = sys.argv[3]
-        if catalog not in ['skills', 'titles']:
+        if catalog not in ['skills', 'titles', 'companies']:
             raise ValueError('Invalid catalog string')
     if len(sys.argv) > 4:
         startval = sys.argv[4]
@@ -136,3 +166,14 @@ if catalog is None or catalog == 'titles':
     splitProcess(q, addTitles, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_titles')
+
+if catalog is None or catalog == 'companies':
+    logger.log('\nBuilding companies catalog.\n')
+    q = cndb.query(LIProfile.nrmCompany).filter(LIProfile.nrmCompany != None)
+    if startval:
+        q = q.filter(LIProfile.nrmCompany > startval)
+    count = q.count()
+    logger.log('{0:d} companies found.\n'.format(count))
+    splitProcess(q, addCompanies, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='build_companys')

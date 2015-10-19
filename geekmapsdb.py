@@ -42,6 +42,13 @@ class Title(SQLBase):
     name             = Column(Unicode(STR_MAX))
     count            = Column(BigInteger, index=True)
 
+class Company(SQLBase):
+    __tablename__ = 'company'
+    nrmName          = Column(Unicode(STR_MAX), primary_key=True)
+    name             = Column(Unicode(STR_MAX))
+    count            = Column(BigInteger, index=True)
+
+
     
 class GeekMapsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
@@ -67,3 +74,13 @@ class GeekMapsDB(SQLDatabase):
         title.name = name
         title.count = count
         return title
+
+    def addCompany(self, nrmName, name, count):
+        company = self.query(Company).filter(Company.nrmName == nrmName) \
+                                     .first()
+        if not company:
+            company = Company(nrmName=nrmName)
+            self.add(company)
+        company.name = name
+        company.count = count
+        return company
