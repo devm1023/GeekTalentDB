@@ -72,6 +72,21 @@ class NutsRegions:
         for item in self._yieldregions(level-idlevel, id, regiondict):
             yield item
 
+    def find(self, point, level=3):
+        currentlevel = 0
+        currentid = None
+        while currentlevel <= level:
+            newid = None
+            for id, shape in self.level(currentlevel, id=currentid):
+                if shape.contains(point):
+                    newid = id
+                    break
+            if not newid:
+                return currentid
+            currentid = newid
+            currentlevel += 1
+        return currentid
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt

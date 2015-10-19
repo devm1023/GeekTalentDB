@@ -214,9 +214,12 @@ class CanonicalDB(SQLDatabase):
 
     def addSkill(self, profileId, skillname):
         skill = Skill()
+        nrmName = normalizedSkill(skillname)
+        if not nrmName:
+            return skill
         skill.profileId = profileId
         skill.name      = skillname
-        skill.nrmName   = normalizedSkill(skillname)
+        skill.nrmName   = nrmName
         skill.rank      = 0.0
         self.add(skill)
         return skill
