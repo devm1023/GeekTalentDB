@@ -24,26 +24,32 @@ def windows(query, windowsize):
       a: The lower (inclusive) bound of the interval.
       b: The upper (exclusive) bound of the interval. May be ``None``, which
         means no upper bound.
+      ra: The row number of record `a`
+      rb: The row number of record `b`
+      nr: The total number of records.
 
     """
     columns = list(query.statement.inner_columns)
     if len(columns) != 1:
         raise ValueError('Query must have exactly one column.')
     column = columns[0]
-    
+
+    nrows = query.distinct().count()
     subq = query.order_by(column).distinct().subquery()
     q = query.session.query(subq,
                             func.row_number().over() \
                             .label('__rownum__')) \
-                     .from_self(column) \
+                     .from_self(column, '__rownum__') \
                      .filter(text('__rownum__ %% %d=1' % windowsize))
 
     a = None
-    for b, in q:
+    ra = None
+    for b, rb in q:
         if a is not None:
-            yield a, b
+            yield a, b, ra, rb, nrows
         a = b
-    yield a, None
+        ra = rb
+    yield a, None, ra, nrows+1, nrows
 
 
 def windowQuery(q, column, windowsize=10000, values=None):
@@ -68,7 +74,7 @@ def windowQuery(q, column, windowsize=10000, values=None):
     else:
         wq = values
     
-    for a, b in windows(wq, windowsize):
+    for a, b, ra, rb, nr in windows(wq, windowsize):
         if b is not None:
             whereclause = and_(column >= a, column < b)
         else:
@@ -77,6 +83,25 @@ def windowQuery(q, column, windowsize=10000, values=None):
             yield row
 
 
+def _log_batchstart(logger, starttime, fromid):
+    logger.log('Starting batch at {0:s}.\n' \
+               .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
+    logger.log('First record: {0:s}\n'.format(repr(fromid)))
+
+def _log_batchend(logger, starttime, endtime, firststart,
+                  fromrow, torow, nrows):
+    logger.log('Completed batch {0:s} at {1:f} records/sec.\n' \
+               .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
+                       (torow-fromrow)/ \
+                       (endtime-starttime).total_seconds()))
+    x = (torow-1)/nrows
+    etf = firststart + (endtime-firststart)/x
+    logger.log('{0:d} of {1:d} records processed ({2:d}%).\n'\
+               .format(torow-1, nrows, round(x*100)))
+    logger.log('Estimated finish: {0:s}.\n' \
+               .format(etf.strftime('%Y-%m-%d %H:%M:%S%z')))
+    
+            
 def splitProcess(query, f, batchsize, njobs=1, args=[], 
                  logger=Logger(None), workdir='.', prefix=None):
     """Apply a function to ranges of distinct values returned by a query.
@@ -104,56 +129,54 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
         Defaults to ``None``, in which case a UUID is used.
 
     """    
+    firststart = datetime.now()
     if njobs <= 1:
-        recordcount = 0
-        for fromrec, torec in windows(query, batchsize):
+        for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
             starttime = datetime.now()
-            logger.log('Starting batch at {0:s}.\n' \
-                       .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
-            nrecords, lastrec = f(*([fromrec, torec]+args))
+            _log_batchstart(logger, starttime, fromid)
+            f(*([fromid, toid]+args))
             endtime = datetime.now()
-            recordcount += nrecords
-            logger.log('Completed batch {0:s} at {1:f} profiles/sec.\n' \
-                       .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                               nrecords/(endtime-starttime).total_seconds()))
-            logger.log('{0:d} records processed.\n'.format(recordcount))
-            logger.log('Last record: {0:s}\n'.format(repr(lastrec)))
+            _log_batchend(logger, starttime, endtime, firststart,
+                          fromrow, torow, nrows)
     else:
         pargs = []
+        fromid_batch = None
+        toid_batch = None
+        fromrow_batch = None
+        torow_batch = None
         parallelProcess = ParallelFunction(f,
                                            batchsize=1,
                                            workdir=workdir,
                                            prefix=prefix,
                                            tries=1)
-        recordcount = 0
-        for fromrec, torec in windows(query, batchsize):
-            pargs.append([fromrec, torec]+args)
+        for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
+            pargs.append([fromid, toid]+args)
+            if fromid_batch is None or fromid < fromid_batch:
+                fromid_batch = fromid
+            if toid is not None and (toid_batch is None or toid > toid_batch):
+                toid_batch = toid
+            if fromrow_batch is None or fromrow < fromrow_batch:
+                fromrow_batch = fromrow
+            if torow_batch is None or torow > torow_batch:
+                torow_batch = torow
+                
             if len(pargs) == njobs:
                 starttime = datetime.now()
-                logger.log('Starting batch at {0:s}.\n' \
-                           .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
-                results = parallelProcess(pargs)
+                _log_batchstart(logger, starttime, fromid_batch)
+                parallelProcess(pargs)
                 endtime = datetime.now()
+                _log_batchend(logger, starttime, endtime, firststart,
+                              fromrow_batch, torow_batch, nrows)
+                
                 pargs = []
-                nrecords = sum([r[0] for r in results])
-                lastrec = max([r[1] for r in results])
-                recordcount += nrecords
-                logger.log('Completed batch {0:s} at {1:f} records/sec.\n' \
-                           .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                                   nrecords/(endtime-starttime).total_seconds()))
-                logger.log('{0:d} records processed.\n'.format(recordcount))
-                logger.log('Last record: {0:s}\n'.format(repr(lastrec)))
+                fromid_batch = None
+                toid_batch = None
+                fromrow_batch = None
+                torow_batch = None
         if pargs:
             starttime = datetime.now()
-            logger.log('Starting batch at {0:s}.\n' \
-                       .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
-            results = parallelProcess(pargs)
+            _log_batchstart(logger, starttime, fromid_batch)
+            parallelProcess(pargs)
             endtime = datetime.now()
-            nrecords = sum([r[0] for r in results])
-            recordcount += nrecords
-            lastrec = max([r[1] for r in results])
-            logger.log('Completed batch {0:s} at {1:f} records/sec.\n' \
-                       .format(endtime.strftime('%Y-%m-%d %H:%M:%S%z'),
-                               nrecords/(endtime-starttime).total_seconds()))
-            logger.log('{0:d} records processed.\n'.format(recordcount))
-            logger.log('Last record: {0:s}\n'.format(repr(lastrec)))
+            _log_batchend(logger, starttime, endtime, firststart,
+                          fromrow_batch, nrows+1, nrows)

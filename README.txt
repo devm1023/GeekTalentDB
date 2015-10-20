@@ -72,6 +72,26 @@ recovery in the same way as <from-id>. Example:
 
     python3 geoupdate_linkedin.py 4 100 2015-09-22 2015-09-23
 
+* To create catalogues of skills, job titles and companies in the geekmaps DB do
+
+    python3 build_catalogs.py <njobs> <batchsize> \
+        [(skills | titles | companies) [<start-value>]]
+
+If the third argument is not specified all catalogues are built. The optional
+argument <start-value> can be used for crash recovery. Example:
+
+    python3 build_catalogs.py 4 100
+
+* To populate the geekmaps DB with pre-computed NUTS codes do
+
+    python3 compute_nuts.py <njobs> <batchsize> <from-date> <to-date> \
+        [<from-id>]
+
+where <from-date> and <to-date> specify the range of timestamps of the profiles
+to process. The optional last argument is for crash recovery as usual. Example:
+
+    python compute_nuts.py 4 200 2015-09-22 2015-09-23
+
 
 Additional files
 ----------------

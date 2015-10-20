@@ -19,10 +19,8 @@ def processLocations(fromlocation, tolocation, fromdate, todate):
         q = q.filter(LIProfile.nrmLocation < tolocation)
 
     recordcount = 0
-    lastname = None
     for nrmLocation, in q:
         recordcount += 1
-        lastname = nrmLocation
         cndb.addLocation(nrmLocation)
         if recordcount % batchsize == 0:
             cndb.commit()
@@ -30,8 +28,6 @@ def processLocations(fromlocation, tolocation, fromdate, todate):
     if recordcount % batchsize != 0:
         cndb.commit()
         logger.log('Batch: {0:d} records processed.\n'.format(recordcount))
-
-    return recordcount, lastname
             
         
 
@@ -46,13 +42,10 @@ if len(sys.argv) > 5:
 filter = and_(LIProfile.indexedOn >= fromdate,
               LIProfile.indexedOn < todate)
 if fromlocation is not None:
-    filter = and_(filter, LIProfile.nrmLocation > fromlocation)
+    filter = and_(filter, LIProfile.nrmLocation >= fromlocation)
 
 cndb = CanonicalDB(url=conf.CANONICAL_DB)
 logger = Logger(sys.stdout)
-
-totalrecords = cndb.query(LIProfile.id).filter(filter).count()
-logger.log('{0:d} records found.\n'.format(totalrecords))
 
 query = cndb.query(LIProfile.nrmLocation).filter(filter)
 splitProcess(query, processLocations, batchsize,

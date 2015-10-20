@@ -43,9 +43,7 @@ def addSkills(fromskill, toskill):
     q = q.group_by(Skill.nrmName, Skill.name).order_by(Skill.nrmName)
 
     skillcount = 0
-    lastskill = None
     for nrmName, bestname, profilecount in entities(q):
-        lastskill = nrmName
         gmdb.addSkill(nrmName, bestname, profilecount)
         skillcount += 1
         if skillcount % batchsize == 0:
@@ -56,8 +54,6 @@ def addSkills(fromskill, toskill):
         gmdb.commit()
         logger.log('Batch: {0:d} skills processed.\n' \
                    .format(skillcount))
-
-    return skillcount, lastskill
 
 
 def addTitles(fromtitle, totitle):
@@ -76,9 +72,7 @@ def addTitles(fromtitle, totitle):
          .order_by(LIProfile.nrmTitle)
 
     titlecount = 0
-    lasttitle = None
     for nrmName, bestname, profilecount in entities(q):
-        lasttitle = nrmName
         gmdb.addTitle(nrmName, bestname, profilecount)
         titlecount += 1
         if titlecount % batchsize == 0:
@@ -89,8 +83,6 @@ def addTitles(fromtitle, totitle):
         gmdb.commit()
         logger.log('Batch: {0:d} titles processed.\n' \
                    .format(titlecount))
-
-    return titlecount, lasttitle
 
 
 def addCompanies(fromcompany, tocompany):
@@ -109,9 +101,7 @@ def addCompanies(fromcompany, tocompany):
          .order_by(LIProfile.nrmCompany)
 
     companycount = 0
-    lastcompany = None
     for nrmName, bestname, profilecount in entities(q):
-        lastcompany = nrmName
         gmdb.addCompany(nrmName, bestname, profilecount)
         companycount += 1
         if companycount % batchsize == 0:
@@ -122,8 +112,6 @@ def addCompanies(fromcompany, tocompany):
         gmdb.commit()
         logger.log('Batch: {0:d} companies processed.\n' \
                    .format(companycount))
-
-    return companycount, lastcompany
 
 
 
@@ -149,9 +137,7 @@ if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')
     q = cndb.query(Skill.nrmName).filter(Skill.nrmName != None)
     if startval:
-        q = q.filter(Skill.nrmName > startval)
-    count = q.count()
-    logger.log('{0:d} skills found.\n'.format(count))
+        q = q.filter(Skill.nrmName >= startval)
     splitProcess(q, addSkills, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_skills')
@@ -160,9 +146,7 @@ if catalog is None or catalog == 'titles':
     logger.log('\nBuilding titles catalog.\n')
     q = cndb.query(LIProfile.nrmTitle).filter(LIProfile.nrmTitle != None)
     if startval:
-        q = q.filter(LIProfile.nrmTitle > startval)
-    count = q.count()
-    logger.log('{0:d} titles found.\n'.format(count))
+        q = q.filter(LIProfile.nrmTitle >= startval)
     splitProcess(q, addTitles, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_titles')
@@ -171,9 +155,7 @@ if catalog is None or catalog == 'companies':
     logger.log('\nBuilding companies catalog.\n')
     q = cndb.query(LIProfile.nrmCompany).filter(LIProfile.nrmCompany != None)
     if startval:
-        q = q.filter(LIProfile.nrmCompany > startval)
-    count = q.count()
-    logger.log('{0:d} companies found.\n'.format(count))
+        q = q.filter(LIProfile.nrmCompany >= startval)
     splitProcess(q, addCompanies, batchsize,
                  njobs=njobs, logger=logger,
-                 workdir='jobs', prefix='build_companys')
+                 workdir='jobs', prefix='build_companies')

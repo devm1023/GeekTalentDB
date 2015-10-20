@@ -37,8 +37,6 @@ def addProfileSkills(fromid, toid, fromdate, todate, nuts):
             if location.geo is not None:
                 point = to_shape(location.geo)
                 nutsid = nuts.find(point)
-            else:
-                print(liprofile.nrmLocation)
             profilecount += 1
             currentid = liprofile.id
             if profilecount != 0 and profilecount % batchsize == 0:
@@ -56,8 +54,6 @@ def addProfileSkills(fromid, toid, fromdate, todate, nuts):
     gmdb.commit()
     logger.log('Batch: {0:d} profiles processed.\n'.format(profilecount))
 
-    return profilecount, currentid
-
 
 njobs = int(sys.argv[1])
 batchsize = int(sys.argv[2])
@@ -70,14 +66,11 @@ if len(sys.argv) > 5:
 filter = and_(LIProfile.indexedOn >= fromdate,
               LIProfile.indexedOn < todate)
 if fromid is not None:
-    filter = and_(filter, LIProfile.id > fromid)
+    filter = and_(filter, LIProfile.id >= fromid)
 
 cndb = CanonicalDB(conf.CANONICAL_DB)
-logger = Logger(sys.stdout)
 nuts = NutsRegions('NUTS_2013_SHP/data/NUTS_RG_01M_2013.shp')
-
-totalrecords = cndb.query(LIProfile.id).filter(filter).count()
-logger.log('{0:d} records found.\n'.format(totalrecords))
+logger = Logger(sys.stdout)
 
 query = cndb.query(LIProfile.id).filter(filter)
 splitProcess(query, addProfileSkills, batchsize,

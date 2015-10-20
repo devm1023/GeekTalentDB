@@ -20,7 +20,7 @@ GEEKTALENT_DB = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geektalent'
 DATOIN_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin'
 
 # Canonical Database
-CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/normalform'
+CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/canonical'
 
 # GeekMaps Database
 GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'

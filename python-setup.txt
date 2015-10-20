@@ -7,7 +7,7 @@ sudo apt-get install python3-pip
 Install required python packages:
 ---------------------------------
 
-sudo apt-get install postgresql-server-dev-X.Y
-sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle
+sudo apt-get install postgresql-server-dev-X.Y libgdal-dev
+sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely
 
 Where X.Y is the PostgreSQL version number.

@@ -109,8 +109,6 @@ def parseProfiles(fromid, toid, fromTs, toTs):
         logger.log('Batch: {0:d} profiles processed.\n' \
                    .format(profilecount))
 
-    return profilecount, liprofile.id
-
 
 
 # process arguments
@@ -128,13 +126,10 @@ toTs   = int((todate   - timestamp0).total_seconds())*1000
 
 filter = and_(LIProfile.indexedOn >= fromTs, LIProfile.indexedOn < toTs)
 if fromid is not None:
-    filter = and_(filter, LIProfile.id > fromid)
+    filter = and_(filter, LIProfile.id >= fromid)
 
 dtdb = DatoinDB(url=conf.DATOIN_DB)
 logger = Logger(sys.stdout)
-
-totalrecords = dtdb.query(LIProfile.id).filter(filter).count()
-logger.log('{0:d} records found.\n'.format(totalrecords))
 
 query = dtdb.query(LIProfile.id).filter(filter)
 splitProcess(query, parseProfiles, batchsize,
