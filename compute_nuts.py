@@ -69,7 +69,7 @@ if fromid is not None:
     filter = and_(filter, LIProfile.id >= fromid)
 
 cndb = CanonicalDB(conf.CANONICAL_DB)
-nuts = NutsRegions('NUTS_2013_SHP/data/NUTS_RG_01M_2013.shp')
+nuts = NutsRegions(conf.NUTS_DATA)
 logger = Logger(sys.stdout)
 
 query = cndb.query(LIProfile.id).filter(filter)

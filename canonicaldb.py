@@ -6,6 +6,11 @@ __all__ = [
     'ExperienceSkill',
     'Location',
     'CanonicalDB',
+    'normalizedSkill',
+    'normalizedTitle',
+    'parsedTitle',
+    'normalizedCompany',
+    'normalizedLocation',
     ]
 
 import conf

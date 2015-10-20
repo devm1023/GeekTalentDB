@@ -90,7 +90,7 @@ argument <start-value> can be used for crash recovery. Example:
 where <from-date> and <to-date> specify the range of timestamps of the profiles
 to process. The optional last argument is for crash recovery as usual. Example:
 
-    python compute_nuts.py 4 200 2015-09-22 2015-09-23
+    python3 compute_nuts.py 4 200 2015-09-22 2015-09-23
 
 
 Additional files
