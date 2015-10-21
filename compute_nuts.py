@@ -18,12 +18,13 @@ def addProfileSkills(fromid, toid, fromdate, todate, nuts):
     gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(LIProfile, Skill, Location) \
+    q = cndb.query(LIProfile, Location) \
             .filter(LIProfile.indexedOn >= fromdate,
                     LIProfile.indexedOn < todate,
-                    LIProfile.id == Skill.profileId,
                     LIProfile.nrmLocation == Location.nrmName,
-                    LIProfile.id >= fromid)
+                    LIProfile.id >= fromid) \
+            .outerjoin(Skill, LIProfile.id == Skill.profileId) \
+            .add_entity(Skill)
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
     q = q.order_by(LIProfile.id)
@@ -31,7 +32,7 @@ def addProfileSkills(fromid, toid, fromdate, todate, nuts):
     currentid = None
     nutsid = None
     profilecount = -1
-    for liprofile, liprofileskill, location in q:
+    for liprofile, location, liprofileskill in q:
         if currentid != liprofile.id:
             nutsid = None
             if location.geo is not None:
@@ -43,12 +44,19 @@ def addProfileSkills(fromid, toid, fromdate, todate, nuts):
                 gmdb.commit()
                 logger.log('Batch: {0:d} profiles processed.\n' \
                            .format(profilecount))
+
+        nrmSkill = None
+        rank = None
+        if liprofileskill is not None:
+            nrmSkill = liprofileskill.nrmName
+            rank = liprofileskill.rank
         gmdb.addLIProfileSkill(liprofile.id,
+                               location.name,
                                nutsid,
                                liprofile.nrmTitle,
                                liprofile.nrmCompany,
-                               liprofileskill.nrmName,
-                               liprofileskill.rank,
+                               nrmSkill,
+                               rank,
                                liprofile.indexedOn)
     profilecount += 1
     gmdb.commit()

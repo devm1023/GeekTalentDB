@@ -52,8 +52,10 @@ class Company(SQLBase):
 
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
-    profileId         = Column(BigInteger, primary_key=True)
-    nrmSkill          = Column(Unicode(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(BigInteger, index=True)
+    nrmSkill          = Column(Unicode(STR_MAX), index=True)
+    location          = Column(Unicode(STR_MAX))
     nuts0             = Column(String(2), index=True)
     nuts1             = Column(String(3), index=True)
     nuts2             = Column(String(4), index=True)
@@ -100,12 +102,9 @@ class GeekMapsDB(SQLDatabase):
         company.count = count
         return company
 
-    def addLIProfileSkill(self, profileId, nutsid,
+    def addLIProfileSkill(self, profileId, location, nutsid,
                           nrmTitle, nrmCompany, nrmSkill,
                           rank, indexedOn):
-        if not nrmSkill:
-            return LIProfileSkill()
-        
         liprofileskill \
             = self.query(LIProfileSkill) \
                   .filter(LIProfileSkill.profileId == profileId,
@@ -119,6 +118,7 @@ class GeekMapsDB(SQLDatabase):
             nuts = [None]*4
         else:
             nuts = [nutsid[:i] for i in range(2, 6)]
+        liprofileskill.location    = location
         liprofileskill.nuts0       = nuts[0]
         liprofileskill.nuts1       = nuts[1]
         liprofileskill.nuts2       = nuts[2]
