@@ -73,7 +73,7 @@ if __name__ == '__main__':
     from nuts import NutsRegions
     import conf
 
-    port = 8080
+    port = 80
     if len(argv) == 2:
         port=int(argv[1])
 

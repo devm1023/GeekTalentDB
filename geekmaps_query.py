@@ -19,12 +19,17 @@ def geekmapsQuery(querytype, querytext, gmdb, nutsids):
     elif querytype == 'company':
         value = normalizedCompany(querytext)
         column = LIProfileSkill.nrmCompany
+    elif querytype == 'total':
+        value = None
+        column = None
     else:
         return {}, 0
 
     q = gmdb.query(LIProfileSkill.nuts3,
                    func.count(distinct(LIProfileSkill.profileId))) \
-            .filter(column == value, LIProfileSkill.nuts3 != None)
+            .filter(LIProfileSkill.nuts3 != None)
+    if column is not None:
+        q = q.filter(column == value)
     if enforced:
         q = q.filter(LIProfileSkill.rank > 0.0)
     q = q.group_by(LIProfileSkill.nuts3)
@@ -40,14 +45,18 @@ def geekmapsQuery(querytype, querytext, gmdb, nutsids):
 
 if __name__ == '__main__':
     try:
-        if len(sys.argv) <= 2:
+        if len(sys.argv) < 2:
+            typeflag = None
+            querytext = None
+        elif len(sys.argv) == 2:
             raise ValueError('Invalid argument list')
-        typeflag = sys.argv[1]
-        if typeflag not in ['-S', '-s', '-t', '-c']:
-            raise ValueError('Invalid query type')
-        querytext = sys.argv[2]
+        else:
+            typeflag = sys.argv[1]
+            if typeflag not in ['-S', '-s', '-t', '-c']:
+                raise ValueError('Invalid query type')
+            querytext = sys.argv[2]
     except ValueError:
-        print('usage: python3 geekmaps_query.py (-S | -s | -t | -c) <query>')
+        print('usage: python3 geekmaps_query.py [(-S | -s | -t | -c) <query>]')
         exit(1)
 
     typedict = {
@@ -61,7 +70,7 @@ if __name__ == '__main__':
     nuts = NutsRegions(conf.NUTS_DATA)
     nutsids = [id for id, shape in nuts.level(3)]
 
-    counts, total = geekmapsQuery(typedict.get(typeflag, None),
+    counts, total = geekmapsQuery(typedict.get(typeflag, 'total'),
                                   querytext,
                                   gmdb,
                                   nutsids)

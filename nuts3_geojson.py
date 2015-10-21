@@ -2,9 +2,19 @@ import conf
 from nuts import NutsRegions
 import shapely.geometry as geo
 import json
+import csv
 
 
 nuts = NutsRegions(conf.NUTS_DATA)
+
+nutsnames = {}
+with open('nutsregions/nuts3.csv', 'r', newline='') as csvfile:
+    csvreader = csv.reader(csvfile)
+    for row in csvreader:
+        if len(row) != 2:
+            continue
+        nutsnames[row[0]] = row[1]
+
 
 features = []
 for id, (nutsid, shape) in enumerate(nuts.level(3)):
@@ -13,7 +23,8 @@ for id, (nutsid, shape) in enumerate(nuts.level(3)):
                      'id' : id,
                      'properties' : {
                          'nutsId' : nutsid,
-                         'count'  : 0
+                         'count'  : 0,
+                         'name'   : nutsnames[nutsid]
                      },
                      'geometry' : geometry})
 
