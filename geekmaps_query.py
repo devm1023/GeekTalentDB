@@ -27,7 +27,7 @@ def geekmapsQuery(querytype, querytext, gmdb, nutsids):
 
     q = gmdb.query(LIProfileSkill.nuts3,
                    func.count(distinct(LIProfileSkill.profileId)))
-    if querytype == 'company':
+    if querytype in ['company', 'jobtitle']:
         q = q.filter(column.like('%'+value+'%'))
     elif column is not None:
         q = q.filter(column == value)
