@@ -26,9 +26,7 @@ def geekmapsQuery(querytype, querytext, gmdb, nutsids):
         return {}, 0
 
     q = gmdb.query(LIProfileSkill.nuts3,
-                   func.count(distinct(LIProfileSkill.profileId))) \
-            .filter(LIProfileSkill.nuts3 != None,
-                    LIProfileSkill.location != 'United Kingdom')
+                   func.count(distinct(LIProfileSkill.profileId)))
     if column is not None:
         q = q.filter(column == value)
     if enforced:

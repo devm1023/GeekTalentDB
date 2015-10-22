@@ -105,6 +105,9 @@ class GeekMapsDB(SQLDatabase):
     def addLIProfileSkill(self, profileId, location, nutsid,
                           nrmTitle, nrmCompany, nrmSkill,
                           rank, indexedOn):
+        if not nutsid or location == 'United Kingdom':
+            return LIProfileSkill()
+        
         liprofileskill \
             = self.query(LIProfileSkill) \
                   .filter(LIProfileSkill.profileId == profileId,
