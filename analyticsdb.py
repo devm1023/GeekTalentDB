@@ -123,3 +123,48 @@ class AnalyticsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
+
+    def addSkill(self, nrmName, name, liprofileCount, experienceCount):
+        skill = self.query(Skill).filter(Skill.nrmName == nrmName) \
+                                 .first()
+        if not skill:
+            skill = Skill(nrmName=nrmName)
+            self.add(skill)
+        skill.name = name
+        skill.liprofileCount = liprofileCount
+        skill.experienceCount = experienceCount
+        return skill
+
+    def addTitle(self, nrmName, name, liprofileCount, experienceCount):
+        title = self.query(Title).filter(Title.nrmName == nrmName) \
+                                 .first()
+        if not title:
+            title = Title(nrmName=nrmName)
+            self.add(title)
+        title.name = name
+        title.liprofileCount = liprofileCount
+        title.experienceCount = experienceCount
+        return title
+
+    def addCompany(self, nrmName, name, liprofileCount, experienceCount):
+        company = self.query(Company).filter(Company.nrmName == nrmName) \
+                                     .first()
+        if not company:
+            company = Company(nrmName=nrmName)
+            self.add(company)
+        company.name = name
+        company.liprofileCount = liprofileCount
+        company.experienceCount = experienceCount
+        return company
+
+    def addLocation(self, placeId, name, geo):
+        if placeId is None:
+            return Location()
+        location = self.query(Location).filter(Location.placeId == placeId) \
+                                       .first()
+        if not location:
+            location = Location(placeId=placeId)
+            self.add(location)
+        location.name = name
+        location.geo = geo
+        return location

@@ -180,3 +180,17 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
             endtime = datetime.now()
             _log_batchend(logger, starttime, endtime, firststart,
                           fromrow_batch, nrows+1, nrows)
+
+
+def processDb(q, f, db, batchsize=1000, logger=Logger(None),
+           msg='processDb: {0:d} records processed.\n'):
+    recordcount = 0
+    for rec in q:
+        f(rec)
+        recordcount += 1
+        if recordcount % batchsize == 0:
+            db.commit()
+            logger.log(msg.format(recordcount))
+    if recordcount % batchsize != 0:
+        db.commit()
+        logger.log(msg.format(recordcount))
