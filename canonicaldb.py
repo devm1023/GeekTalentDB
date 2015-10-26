@@ -272,9 +272,15 @@ class CanonicalDB(SQLDatabase):
         # determine current company
         company = None
         currentexperiences = [e for e in experiencedicts \
-                              if e['start'] is not None and e['end'] is None]
-        if len(currentexperiences) == 1:
-            company = currentexperiences[0]['company']            
+                              if e['start'] is not None and e['end'] is None \
+                              and e['company']]
+        currentexperiences.sort(key=lambda e: e['start'])
+        if currentexperiences:
+            company = currentexperiences[-1]['company']
+        elif profile['title']:
+            titleparts = profile['title'].split(' at ')
+            if len(titleparts) > 1:
+                company = titleparts[1]
 
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
