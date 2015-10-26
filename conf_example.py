@@ -24,6 +24,9 @@ DATOIN_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin'
 # Canonical Database
 CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/canonical'
 
+# Analytics Database
+ANALYTICS_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/analytics'
+
 # GeekMaps Database
 GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'
 

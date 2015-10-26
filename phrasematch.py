@@ -15,7 +15,7 @@ _particles = set([
     'with',
     ])
 
-def clean(s, removebrackets=False, keep='', nospace=''):
+def clean(s, removebrackets=False, keep='', nospace='', sort=False):
     l = []
     plvl = 0
     blvl = 0
@@ -52,7 +52,10 @@ def clean(s, removebrackets=False, keep='', nospace=''):
             l.append(c)
             
     s = ''.join(l)
-    return ' '.join(s.split())
+    s = s.split()
+    if sort:
+        s.sort()
+    return ' '.join(s)
     
 
 def tokenize(s, removebrackets=False):
