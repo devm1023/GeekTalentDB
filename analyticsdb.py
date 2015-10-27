@@ -25,6 +25,7 @@ from sqlalchemy import \
     Date, \
     Float, \
     func
+from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
 
@@ -50,6 +51,14 @@ class LIProfile(SQLBase):
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
 
+    title = relationship('Title')
+    company = relationship('Company')
+    skills = relationship('LIProfileSkill',
+                          cascade='all, delete-orphan')
+    experiences = relationship('Experience',
+                               order_by='Experience.start',
+                               cascade='all, delete-orphan')
+    
     __table_args__ = (UniqueConstraint('datoinId'),)
 
 class Experience(SQLBase):
@@ -71,6 +80,11 @@ class Experience(SQLBase):
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(Date)
 
+    title = relationship('Title')
+    company = relationship('Company')
+    skills = relationship('ExperienceSkill')
+
+    
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
     liprofileId = Column(BigInteger,
@@ -81,6 +95,8 @@ class LIProfileSkill(SQLBase):
                          primary_key=True)
     rank        = Column(Float)
 
+    skill = relationship('Skill')
+
 class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
     experienceId = Column(BigInteger,
@@ -89,6 +105,8 @@ class ExperienceSkill(SQLBase):
     nrmSkill     = Column(Unicode(STR_MAX),
                           ForeignKey('skill.nrmName'),
                           primary_key=True)
+    
+    skill = relationship('Skill')
     
 class Skill(SQLBase):
     __tablename__ = 'skill'
@@ -168,3 +186,52 @@ class AnalyticsDB(SQLDatabase):
         location.name = name
         location.geo = geo
         return location
+
+    # def addExperience(self, experiencedict):
+    #     experience = self.query(Experience) \
+    #                      .filter(Experience.id == experiencedict['id']) \
+    #                      .first()
+    #     if experience:
+    #         updateRowFromDict(experience, experiencedict)
+    #     else:
+    #         experience = rowFromDict(experiencedict, Experience)
+    #         self.add(experience)
+
+    #     skills = experiencedict.get('skills', [])
+    #     q = self.query(ExperienceSkill) \
+    #             .filter(ExperienceSkill.experienceId == experience.id)
+    #     if skills:
+    #         q = q.filter(~ExperienceSkill.nrmSkill.isin(skills))
+    #     q.delete()
+    #     for nrmSkill in skills:
+    #         experienceskill = self.query(ExperienceSkill) \
+    #                               .filter(ExperienceSkill.experienceId \
+    #                                       == experience.id) \
+    #                               .filter(ExperienceSkill.nrmSkill == nrmSkill) \
+    #                               .first()
+    #         if not experienceskill:
+    #             self.add(ExperienceSkill(experienceId=experience.id,
+    #                                      nrmSkill=nrmSkill))
+    #     return experience
+            
+    
+    # def addLIProfile(self, liprofiledict):
+    #     liprofile = self.query(LIProfile) \
+    #                     .filter(LIProfile.id == liprofiledict['id'])
+    #     if liprofile:
+    #         updateRowFromDict(liprofile, liprofiledict)
+    #     else:
+    #         liprofile = rowFromDict(liprofile, LIProfile)
+    #         self.add(liprofile)
+
+    #     experienceIds = [e['id'] for e in liprofiledict['experiences']]
+    #     q = self.query(Experience) \
+    #             .filter(Experience.liprofileId == liprofile.id)
+    #     if experienceIds:
+    #         q = q.filter(~Experience.id.isin(experienceIds))
+    #     q.delete()
+    #     for experience in liprofiledict['experiences']:
+    #         self.addExperience(experience)
+
+    #     profileskills = [s['nrmName'] for s in liprofiledict['skills']]
+        
