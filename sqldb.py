@@ -32,6 +32,8 @@ class SQLDatabase:
         self.metadata.create_all(self.session.bind)
 
     def addFromDict(self, d, table):
+        if d is None:
+            return None
         pkeycols = inspect(table).primary_key
         pkeynames = [c.name for c in pkeycols]
 
@@ -83,7 +85,8 @@ def rowFromDict(d, rowtype):
             val = d[r.key]
             rtype = r.mapper.class_
             if isinstance(val, list):
-                setattr(result, r.key, [rowFromDict(i, rtype) for i in val])
+                val = [v for v in val if v is not None]
+                setattr(result, r.key, [rowFromDict(v, rtype) for v in val])
             elif val is not None:
                 setattr(result, r.key, rowFromDict(val, rtype))
             else:
@@ -138,6 +141,7 @@ def updateRowFromDict(row, d):
             val = d[r.key]
             rtype = r.mapper.class_
             if isinstance(val, list):
+                val = [v for v in val if v is not None]
                 setattr(row, r.key, _mergeLists(getattr(row, r.key), val, rtype))
             elif val is not None:
                 setattr(row, r.key, rowFromDict(val, rtype))

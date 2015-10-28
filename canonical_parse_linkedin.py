@@ -1,6 +1,6 @@
 from datoindb import *
 import canonicaldb as nf
-from windowquery import splitProcess
+from windowquery import splitProcess, processDb
 from sqlalchemy import and_
 import conf
 import sys
@@ -23,10 +23,7 @@ def parseProfiles(fromid, toid, fromTs, toTs):
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
 
-    profilecount = 0
-    for liprofile in q:
-        profilecount += 1
-        
+    def addLIProfile(liprofile):
         if liprofile.name:
             name = liprofile.name
         elif liprofile.firstName and liprofile.lastName:
@@ -36,7 +33,7 @@ def parseProfiles(fromid, toid, fromTs, toTs):
         elif liprofile.firstName:
             name = liprofile.firstName
         else:
-            continue
+            return
 
         if liprofile.city and liprofile.country:
             location = ', '.join([liprofile.city, liprofile.country])
@@ -62,9 +59,10 @@ def parseProfiles(fromid, toid, fromTs, toTs):
             'pictureUrl'  : liprofile.profilePictureUrl,
             'skills'      : liprofile.categories,
             'indexedOn'   : indexedOn,
+            'experiences' : [],
+            'educations'  : []
         }
 
-        experiencedicts = []
         for experience in dtdb.query(Experience) \
                               .filter(Experience.parentId == liprofile.id):
             if experience.dateFrom:
@@ -94,21 +92,11 @@ def parseProfiles(fromid, toid, fromTs, toTs):
                 'description'    : experience.description,
                 'indexedOn'      : indexedOn,
                 }
-            experiencedicts.append(experiencedict)
+            profiledict['experiences'].append(experiencedict)
 
-        cndb.addLIProfile(profiledict, experiencedicts, [], now)
+        cndb.addLIProfile(profiledict, now)
 
-        if profilecount % batchsize == 0:
-            cndb.commit()
-            logger.log('Batch: {0:d} profiles processed.\n' \
-                       .format(profilecount))
-
-    # final commit
-    if profilecount % batchsize != 0:
-        cndb.commit()
-        logger.log('Batch: {0:d} profiles processed.\n' \
-                   .format(profilecount))
-
+    processDb(q, addLIProfile, cndb, logger=logger)
 
 
 # process arguments
@@ -134,4 +122,4 @@ logger = Logger(sys.stdout)
 query = dtdb.query(LIProfile.id).filter(filter)
 splitProcess(query, parseProfiles, batchsize,
              njobs=njobs, args=[fromTs, toTs], logger=logger,
-             workdir='jobs', prefix='parse_linkedin')
+             workdir='jobs', prefix='canonical_parse_linkedin')

@@ -16,6 +16,7 @@ __all__ = [
 import conf
 import numpy as np
 import requests
+from copy import deepcopy
 from sqldb import *
 from sqlalchemy import \
     Column, \
@@ -30,6 +31,7 @@ from sqlalchemy import \
     Date, \
     Float, \
     func
+from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from phrasematch import clean, stem, tokenize, matchStems
 
@@ -56,6 +58,16 @@ class LIProfile(SQLBase):
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
 
+    experiences       = relationship('Experience',
+                                     order_by='Experience.start',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('Education',
+                                     order_by='Education.start',
+                                     cascade='all, delete-orphan')
+    skills            = relationship('Skill',
+                                     order_by='Skill.nrmName',
+                                     cascade='all, delete-orphan')
+    
     __table_args__ = (UniqueConstraint('datoinId'),)
 
 class Experience(SQLBase):
@@ -75,6 +87,10 @@ class Experience(SQLBase):
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(Date)
+
+    skills         = relationship('ExperienceSkill',
+                                  order_by='ExperienceSkill.skillId',
+                                  cascade='all, delete-orphan')
 
 class Education(SQLBase):
     __tablename__ = 'education'
@@ -110,6 +126,7 @@ class ExperienceSkill(SQLBase):
                           primary_key=True)
     skillId      = Column(BigInteger, ForeignKey('skill.id'),
                           primary_key=True)
+    skill        = relationship('Skill')
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -165,71 +182,87 @@ def normalizedCompany(name):
 def normalizedLocation(name):
     return ' '.join(name.lower().split())
 
+
 def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
-    
+def _makeExperience(experience, now):
+    experience = deepcopy(experience)
+    experience['parsedTitle']  = parsedTitle(experience['title'])
+    experience['nrmTitle']     = normalizedTitle(experience['title'])
+    experience['nrmCompany']   = normalizedCompany(experience['company'])
+
+    # work out duration
+    duration = None        
+    if experience['start'] is not None and experience['end'] is not None:
+        if experience['start'] < experience['end']:
+            duration = (experience['end'] - experience['start']).days
+    elif experience['start'] is not None:
+        duration = (now - experience['start']).days
+    experience['duration'] = duration
+
+    return experience
+
+def _makeEducation(education):
+    education = deepcopy(education)
+    education['nrmInstitute']   = normalizedInstitute(edict['institute'])
+    education['nrmDegree']      = normalizedDegree(edict['degree'])
+    education['nrmSubject']     = normalizedSubject(edict['subject'])
+    return education
+
+def _makeSkill(skillname):
+    nrmName = normalizedSkill(skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'name' : skillname, 'nrmName' : nrmName, 'rank' : 0.0}
+
+def _makeLIProfile(liprofile, now):
+    # determine current company
+    company = None
+    currentexperiences = [e for e in liprofile['experiences'] \
+                          if e['start'] is not None and e['end'] is None \
+                          and e['company']]
+    currentexperiences.sort(key=lambda e: e['start'])
+    if currentexperiences:
+        company = currentexperiences[-1]['company']
+    elif liprofile['title']:
+        titleparts = liprofile['title'].split(' at ')
+        if len(titleparts) > 1:
+            company = titleparts[1]
+
+    liprofile['nrmLocation']     = normalizedLocation(liprofile['location'])
+    liprofile['parsedTitle']     = parsedTitle(liprofile['title'])
+    liprofile['nrmTitle']        = normalizedTitle(liprofile['title'])
+    liprofile['company']         = company
+    liprofile['nrmCompany']      = normalizedCompany(company)
+    liprofile['totalExperience'] = 0
+
+    # update experiences
+    liprofile['experiences'] \
+        = [_makeExperience(e, now) for e in liprofile['experiences']]
+    liprofile['totalExperience'] \
+        = sum([e['duration'] for e in liprofile['experiences'] \
+               if e['duration'] is not None])
+
+    # update educations
+    liprofile['educations'] \
+        = [_makeEducation(e) for e in liprofile['educations']]
+
+    # add skills
+    liprofile['skills'] = [_makeSkill(skill) for skill in liprofile['skills']]
+
+    return liprofile
+
+
 class CanonicalDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
-
-    def addExperience(self, profileId, edict, now):        
-        experience = Experience()
-        experience.datoinId       = edict['datoinId']
-        experience.profileId      = profileId
-        experience.title          = edict['title']
-        experience.parsedTitle    = parsedTitle(edict['title'])
-        experience.nrmTitle       = normalizedTitle(edict['title'])
-        experience.company        = edict['company']
-        experience.nrmCompany     = normalizedCompany(edict['company'])
-        experience.start          = edict['start']
-        experience.end            = edict['end']
-        experience.description    = edict['description']
-        experience.indexedOn      = edict['indexedOn']
-
-        # work out duration
-        duration = None        
-        if experience.start is not None and experience.end is not None:
-            if experience.start < experience.end:
-                duration = (experience.end - experience.start).days
-        elif experience.start is not None:
-            duration = (now - experience.start).days
-        experience.duration = duration
-        
-        self.add(experience)
-        return experience
-
-    def addEducation(self, profileId, edict):
-        education = Education()
-        education.datoinId       = edict['datoinId']
-        education.profileId      = profileId
-        education.institute      = edict['institute']
-        education.nrmInstitute   = normalizedInstitute(edict['institute'])
-        education.degree         = edict['degree']
-        education.nrmDegree      = normalizedDegree(edict['degree'])
-        education.subject        = edict['subject']
-        education.nrmSubject     = normalizedSubject(edict['subject'])
-        education.start          = edict['start']
-        education.end            = edict['end']
-        education.description    = edict['description']
-        education.indexedOn      = edict['indexedOn']
-        self.add(education)
-        return education
-
-    def addSkill(self, profileId, skillname):
-        skill = Skill()
-        nrmName = normalizedSkill(skillname)
-        if not nrmName:
-            return skill
-        skill.profileId = profileId
-        skill.name      = skillname
-        skill.nrmName   = nrmName
-        skill.rank      = 0.0
-        self.add(skill)
-        return skill
-
-    def rankSkills(self, skills, experiences, liprofile):
+                             url=url, session=session, engine=engine)        
+    
+    def rankSkills(self, liprofile):
+        skills = liprofile.skills
+        experiences = liprofile.experiences
         descriptionstems = [stem(_joinfields(experience.title,
                                              experience.description)) \
                             for experience in experiences]
@@ -242,6 +275,7 @@ class CanonicalDB(SQLDatabase):
                    conf.SKILL_MATCHING_THRESHOLD)
         ranks = np.zeros(len(skills))
         for iexperience, experience in enumerate(experiences):
+            experience.skills = []
             for iskill, skill in enumerate(skills):
                 if matches[iskill, iexperience]:
                     if experience.duration:
@@ -249,8 +283,9 @@ class CanonicalDB(SQLDatabase):
                     else:
                         duration = 0
                     ranks[iskill] += duration/365.0
-                    self.add(ExperienceSkill(experienceId=experience.id,
-                                             skillId=skill.id))
+                    experience.skills.append(
+                        ExperienceSkill(experienceId=experience.id,
+                                        skillId=skill.id))
 
         # match profile text
         profiletext = _joinfields(liprofile.title, liprofile.description)
@@ -266,86 +301,17 @@ class CanonicalDB(SQLDatabase):
         # update skill ranks
         for iskill, skill in enumerate(skills):
             skill.rank = ranks[iskill]
-        
-    
-    def addLIProfile(self, profile, experiencedicts, educationdicts, now):
-        # determine current company
-        company = None
-        currentexperiences = [e for e in experiencedicts \
-                              if e['start'] is not None and e['end'] is None \
-                              and e['company']]
-        currentexperiences.sort(key=lambda e: e['start'])
-        if currentexperiences:
-            company = currentexperiences[-1]['company']
-        elif profile['title']:
-            titleparts = profile['title'].split(' at ')
-            if len(titleparts) > 1:
-                company = titleparts[1]
 
-        # create or update LIProfile
-        liprofile = self.query(LIProfile) \
-                        .filter(LIProfile.datoinId == profile['datoinId']) \
-                        .first()
-        if not liprofile:
-            isnew = True
-            liprofile = LIProfile()
-        else:
-            isnew = False
-
-        liprofile.datoinId        = profile['datoinId']
-        liprofile.name            = profile['name']
-        liprofile.nrmLocation     = normalizedLocation(profile['location'])
-        liprofile.title           = profile['title']
-        liprofile.parsedTitle     = parsedTitle(profile['title'])
-        liprofile.nrmTitle        = normalizedTitle(profile['title'])
-        liprofile.company         = company
-        liprofile.nrmCompany      = normalizedCompany(company)
-        liprofile.description     = profile['description']
-        liprofile.totalexperience = 0
-        liprofile.url             = profile['url']
-        liprofile.pictureUrl      = profile['pictureUrl']
-        liprofile.indexedOn       = profile['indexedOn']
-
-        if isnew:
-            self.add(liprofile)
-            self.flush()
-
-        # add experiences
-        if not isnew:
-            for experience in self.query(Experience) \
-                                  .filter(Experience.profileId == liprofile.id) :
-                self.query(ExperienceSkill) \
-                    .filter(ExperienceSkill.experienceId == experience.id) \
-                    .delete(synchronize_session='fetch')
-                self.session.delete(experience)
-        experiences = [self.addExperience(liprofile.id, e, now) \
-                       for e in experiencedicts]
-        liprofile.totalExperience = sum([e.duration for e in experiences \
-                                         if e.duration is not None])
-
-        # add educations
-        if not isnew:
-            self.query(Education) \
-                .filter(Education.profileId == liprofile.id) \
-                .delete(synchronize_session='fetch')
-        for edict in educationdicts:
-            self.addEducation(liprofile.id, edict)
-
-        # add skills
-        if not isnew:
-            self.query(Skill) \
-                .filter(Skill.profileId == liprofile.id) \
-                .delete(synchronize_session='fetch')
-        skills = [self.addSkill(liprofile.id, skill) \
-                  for skill in profile['skills']]
-
-        # flush session
+    def addLIProfile(self, liprofile, now):
+        liprofileId = self.query(LIProfile.id) \
+                          .filter(LIProfile.datoinId == liprofile['datoinId']) \
+                          .first()
+        if liprofileId is not None:
+            liprofile['id'] = liprofileId
+        liprofile = _makeLIProfile(liprofile, now)
+        liprofile = self.addFromDict(liprofile, LIProfile)
         self.flush()
-
-        # rank skills and fill ExperienceSkill
-        self.rankSkills(skills, experiences, liprofile)
-        
-        return liprofile
+        self.rankSkills(liprofile)
 
     def addLocation(self, nrmName):
         location = self.query(Location) \

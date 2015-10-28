@@ -54,6 +54,7 @@ class LIProfile(SQLBase):
     title = relationship('Title')
     company = relationship('Company')
     skills = relationship('LIProfileSkill',
+                          order_by='LIProfileSkill.nrmName',
                           cascade='all, delete-orphan')
     experiences = relationship('Experience',
                                order_by='Experience.start',
@@ -82,7 +83,8 @@ class Experience(SQLBase):
 
     title = relationship('Title')
     company = relationship('Company')
-    skills = relationship('ExperienceSkill')
+    skills = relationship('ExperienceSkill',
+                          order_by='ExperienceSkill.nrmName')
 
     
 class LIProfileSkill(SQLBase):
