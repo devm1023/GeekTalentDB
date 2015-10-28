@@ -41,9 +41,11 @@ class LIProfile(SQLBase):
     placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
     nrmTitle          = Column(Unicode(STR_MAX),
                                ForeignKey('title.nrmName'),
+                               nullable=True,
                                index=True)
     nrmCompany        = Column(Unicode(STR_MAX),
                                ForeignKey('company.nrmName'),
+                               nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
     totalExperience   = Column(Integer)
@@ -71,9 +73,11 @@ class Experience(SQLBase):
                             index=True)
     nrmTitle       = Column(Unicode(STR_MAX),
                             ForeignKey('title.nrmName'),
+                            nullable=True,
                             index=True)
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),
+                            nullable=True,
                             index=True)
     start          = Column(Date)
     end            = Column(Date)
@@ -84,7 +88,7 @@ class Experience(SQLBase):
     title = relationship('Title')
     company = relationship('Company')
     skills = relationship('ExperienceSkill',
-                          order_by='ExperienceSkill.nrmName')
+                          order_by='ExperienceSkill.nrmSkill')
 
     
 class LIProfileSkill(SQLBase):
@@ -137,7 +141,6 @@ class Location(SQLBase):
     name      = Column(Unicode(STR_MAX))
     geo       = Column(Geometry('POINT'))
 
-
     
 class AnalyticsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
@@ -189,51 +192,104 @@ class AnalyticsDB(SQLDatabase):
         location.geo = geo
         return location
 
-    # def addExperience(self, experiencedict):
-    #     experience = self.query(Experience) \
-    #                      .filter(Experience.id == experiencedict['id']) \
-    #                      .first()
-    #     if experience:
-    #         updateRowFromDict(experience, experiencedict)
-    #     else:
-    #         experience = rowFromDict(experiencedict, Experience)
-    #         self.add(experience)
+    def addLIProfile(self, liprofile):
+        """Add a LinkedIn profile to the database.
 
-    #     skills = experiencedict.get('skills', [])
-    #     q = self.query(ExperienceSkill) \
-    #             .filter(ExperienceSkill.experienceId == experience.id)
-    #     if skills:
-    #         q = q.filter(~ExperienceSkill.nrmSkill.isin(skills))
-    #     q.delete()
-    #     for nrmSkill in skills:
-    #         experienceskill = self.query(ExperienceSkill) \
-    #                               .filter(ExperienceSkill.experienceId \
-    #                                       == experience.id) \
-    #                               .filter(ExperienceSkill.nrmSkill == nrmSkill) \
-    #                               .first()
-    #         if not experienceskill:
-    #             self.add(ExperienceSkill(experienceId=experience.id,
-    #                                      nrmSkill=nrmSkill))
-    #     return experience
-            
-    
-    # def addLIProfile(self, liprofiledict):
-    #     liprofile = self.query(LIProfile) \
-    #                     .filter(LIProfile.id == liprofiledict['id'])
-    #     if liprofile:
-    #         updateRowFromDict(liprofile, liprofiledict)
-    #     else:
-    #         liprofile = rowFromDict(liprofile, LIProfile)
-    #         self.add(liprofile)
+        Args:
+          liprofile (dict): A ``dict`` describing the LinkedIn profile. It must
+            contain the following fields:
 
-    #     experienceIds = [e['id'] for e in liprofiledict['experiences']]
-    #     q = self.query(Experience) \
-    #             .filter(Experience.liprofileId == liprofile.id)
-    #     if experienceIds:
-    #         q = q.filter(~Experience.id.isin(experienceIds))
-    #     q.delete()
-    #     for experience in liprofiledict['experiences']:
-    #         self.addExperience(experience)
+              ``'datoinId'``
+                The ID of the profile from DATOIN.
 
-    #     profileskills = [s['nrmName'] for s in liprofiledict['skills']]
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'placeId'``
+                The Google Place ID for the user's location.
+
+              ``'nrmTitle'``
+                The normalized profile title.
+
+              ``'nrmCompany'``
+                The normalized name of the user's current company.
+
+              ``'description'``
+                The profile summary.
+
+              ``'totalExperience'``
+                The total work experience in days.
+
+              ``'profileUrl'``
+                The URL of the profile.
+
+              ``'profilePictureUrl'``
+                The URL of the profile picture.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'skills'``
+                The skills declared by the user. This should be a list of 
+                ``dict``s with the following fields:
+
+                  ``'nrmName'``
+                    The normalized name of the skill.
+
+                  ``'rank'``
+                    The rank of the skill.
+
+              ``'experiences'``
+                The work experiences of the user. This should be a list of
+                ``dict``s with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'title'``
+                    The role/job title of the work experience.
+
+                  ``'company'``
+                    The name of the company where the person worked.
+
+                  ``'start'``
+                    The start date of the work experience.
+
+                  ``'end'``
+                    The end date of the work experience.
+
+                  ``'description'``
+                    A free-text description of the work experience.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+                  ``'skills'``
+                    The skills that are explicitely mentioned in this experience
+                    record. This should be a list of normalized skill names.
+              
+        Returns:
+          The ``LIProfile`` object that was added to the database.
+
+        """
+
+        liprofile.pop('title', None)
+        liprofile.pop('company', None)
         
+        if liprofile.get('skills', None) is not None:
+            for skill in liprofile['skills']:
+                skill.pop('liprofileId', None)
+                skill.pop('skill', None)
+
+        if liprofile.get('experiences', None) is not None:
+            for experience in liprofile['experiences']:
+                experience.pop('id', None)
+                experience.pop('liprofileId', None)
+                experience.pop('title', None)
+                experience.pop('company', None)
+                if experience.get('skills', None) is not None:
+                    experience['skills'] \
+                        = [{'nrmSkill' : s} for s in experience['skills']]
+
+        return self.addFromDict(liprofile, LIProfile)
+

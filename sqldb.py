@@ -34,17 +34,13 @@ class SQLDatabase:
     def addFromDict(self, d, table):
         if d is None:
             return None
-        pkeycols = inspect(table).primary_key
-        pkeynames = [c.name for c in pkeycols]
-
-        ispresent = [d.get(k, None) is not None for k in pkeynames]
-        has_pkeys = any(ispresent)
-        if has_pkeys and not all(ispresent):
+        pkeycols, pkey = _getPkey(d, table)
+        if None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
 
         row = None
-        if has_pkeys:
-            whereclauses = [c == d[n] for c, n in zip(pkeycols, pkeynames)]
+        if pkey is not None:
+            whereclauses = [c == v for c, v in zip(pkeycols, pkey)]
             row = self.query(table).filter(*whereclauses).first()
         if row is None:
             row = rowFromDict(d, table)
@@ -54,6 +50,17 @@ class SQLDatabase:
 
         return row
 
+
+def _getPkey(d, table):
+    pkeycols = inspect(table).primary_key
+    pkeynames = [c.name for c in pkeycols]
+    pkey = tuple(d.get(k, None) for k in pkeynames)
+    
+    if any(k is not None for k in pkey):
+        return pkeycols, pkey
+    else:
+        return pkeycols, None
+    
 
 def dictFromRow(row):
     if row is None:
@@ -85,8 +92,17 @@ def rowFromDict(d, rowtype):
             val = d[r.key]
             rtype = r.mapper.class_
             if isinstance(val, list):
-                val = [v for v in val if v is not None]
-                setattr(result, r.key, [rowFromDict(v, rtype) for v in val])
+                pkeys = set()
+                rows = []
+                for v in val:
+                    if v is None:
+                        continue
+                    pkeycols, pkey = _getPkey(v, rtype)
+                    if pkey not in pkeys:
+                        rows.append(rowFromDict(v, rtype))
+                        if pkey is not None:
+                            pkeys.add(pkey)
+                setattr(result, r.key, rows)
             elif val is not None:
                 setattr(result, r.key, rowFromDict(val, rtype))
             else:

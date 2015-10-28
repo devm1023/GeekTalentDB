@@ -2,6 +2,7 @@ import conf
 import analyticsdb
 from canonicaldb import *
 from sqlalchemy import func
+from sqlalchemy.sql.expression import literal_column
 from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
@@ -27,7 +28,46 @@ def entities(q):
     
     if bestname:
         yield currententity, bestname, profilecount
-        
+
+def entities2(q):
+    currententity = None
+    maxprofilecount = 0
+    maxexperiencecount = 0
+    profilecount = 0
+    experiencecount = 0
+    bestprofilename = None
+    bestexperiencename = None
+    for nrmName, name, tpe, count in q:
+        if nrmName != currententity:
+            if bestexperiencename:
+                yield currententity, bestexperiencename, \
+                    profilecount, experiencecount
+            elif bestprofilename:
+                yield currententity, bestprofilename, \
+                    profilecount, experiencecount
+            maxprofilecount = 0
+            profilecount = 0
+            bestprofilename = None
+            maxexperiencecount = 0
+            experiencecount = 0
+            bestexperiencename = None
+            currententity = nrmName
+        if tpe == 1:
+            if count > maxprofilecount:
+                bestprofilename = name
+                maxprofilecount = count
+            profilecount += count
+        if tpe == 2:
+            if count > maxexperiencecount:
+                bestexperiencename = name
+                maxexperiencecount = count
+            experiencecount += count
+    
+    if bestexperiencename:
+        yield currententity, bestexperiencename, profilecount, experiencecount
+    elif bestprofilename:
+        yield currententity, bestprofilename, profilecount, experiencecount
+
 
 def addSkills(fromskill, toskill):
     cndb = CanonicalDB(conf.CANONICAL_DB)
@@ -56,22 +96,24 @@ def addTitles(fromtitle, totitle):
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(LIProfile.nrmTitle, LIProfile.parsedTitle,
-                   func.count(LIProfile.id)) \
+    q1 = cndb.query(LIProfile.nrmTitle.label('nrm'),
+                    LIProfile.parsedTitle.label('parsed'),
+                    literal_column('1').label('type'),
+                    func.count(LIProfile.id)) \
             .filter(LIProfile.nrmTitle >= fromtitle)
+    q2 = cndb.query(Experience.nrmTitle.label('nrm'),
+                    Experience.parsedTitle.label('parsed'),
+                    literal_column('2').label('type'),
+                    func.count(Experience.id)) \
+            .filter(Experience.nrmTitle >= fromtitle)
     if totitle is not None:
-        q = q.filter(LIProfile.nrmTitle < totitle)
-    q = q.group_by(LIProfile.nrmTitle, LIProfile.parsedTitle) \
-         .order_by(LIProfile.nrmTitle)
+        q1 = q1.filter(LIProfile.nrmTitle < totitle)
+        q2 = q2.filter(Experience.nrmTitle < totitle)
+    q1 = q1.group_by('nrm', 'parsed', 'type')
+    q2 = q2.group_by('nrm', 'parsed', 'type')
+    q = q1.union(q2).order_by('nrm')
 
-    def addTitle(rec):
-        nrmName, bestname, profileCount = rec
-        experienceCount = cndb.query(Experience) \
-                              .filter(Experience.nrmTitle == nrmName) \
-                              .count()
-        andb.addTitle(nrmName, bestname, profileCount, experienceCount)
-        
-    processDb(entities(q), addTitle, andb, logger=logger)
+    processDb(entities2(q), lambda r: andb.addTitle(*r), andb, logger=logger)
 
 
 def addCompanies(fromcompany, tocompany):
@@ -79,31 +121,38 @@ def addCompanies(fromcompany, tocompany):
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(Experience.nrmCompany, Experience.company,
-                   func.count(Experience.id)) \
+    q1 = cndb.query(LIProfile.nrmCompany.label('nrm'),
+                    LIProfile.company.label('raw'),
+                    literal_column('1').label('type'),
+                    func.count(LIProfile.id)) \
+            .filter(LIProfile.nrmCompany >= fromcompany)
+    q2 = cndb.query(Experience.nrmCompany.label('nrm'),
+                    Experience.company.label('raw'),
+                    literal_column('2').label('type'),
+                    func.count(Experience.id)) \
             .filter(Experience.nrmCompany >= fromcompany)
     if tocompany is not None:
-        q = q.filter(Experience.nrmCompany < tocompany)
-    q = q.group_by(Experience.nrmCompany, Experience.company) \
-         .order_by(Experience.nrmCompany)
+        q1 = q1.filter(LIProfile.nrmCompany < tocompany)
+        q2 = q2.filter(Experience.nrmCompany < tocompany)
+    q1 = q1.group_by('nrm', 'raw', 'type')
+    q2 = q2.group_by('nrm', 'raw', 'type')
+    q = q1.union(q2).order_by('nrm')
 
-    def addCompany(rec):
-        nrmName, bestname, experienceCount = rec
-        liprofileCount = cndb.query(LIProfile) \
-                             .filter(LIProfile.nrmCompany == nrmName) \
-                             .count()
-        andb.addCompany(nrmName, bestname, liprofileCount, experienceCount)
-        
-    processDb(entities(q), addCompany, andb, logger=logger)
+    processDb(entities2(q), lambda r: andb.addCompany(*r), andb, logger=logger)
 
 
 def addLocations(fromlocation, tolocation):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
-
+    print(repr(fromlocation))
+    
     q = cndb.query(Location.placeId, Location.name, Location.geo) \
-            .distinct().order_by(Location.nrmName)
+            .filter(Location.nrmName != None) \
+            .filter(Location.nrmName >= fromlocation)
+    if tolocation is not None:
+        q = q.filter(Location.nrmName < tolocation)
+    q = q.distinct().order_by(Location.nrmName)
 
     processDb(q, lambda rec: andb.addLocation(*rec), andb, logger=logger) 
 
@@ -137,25 +186,31 @@ if catalog is None or catalog == 'skills':
 
 if catalog is None or catalog == 'titles':
     logger.log('\nBuilding titles catalog.\n')
-    q = cndb.query(LIProfile.nrmTitle).filter(LIProfile.nrmTitle != None)
+    q1 = cndb.query(LIProfile.nrmTitle).filter(LIProfile.nrmTitle != None)
+    q2 = cndb.query(Experience.nrmTitle).filter(Experience.nrmTitle != None)
     if startval:
-        q = q.filter(LIProfile.nrmTitle >= startval)
+        q1 = q1.filter(LIProfile.nrmTitle >= startval)
+        q2 = q2.filter(Experience.nrmTitle >= startval)
+    q = q1.union(q2)
     splitProcess(q, addTitles, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_titles')
 
 if catalog is None or catalog == 'companies':
     logger.log('\nBuilding companies catalog.\n')
-    q = cndb.query(LIProfile.nrmCompany).filter(LIProfile.nrmCompany != None)
+    q1 = cndb.query(LIProfile.nrmCompany).filter(LIProfile.nrmCompany != None)
+    q2 = cndb.query(Experience.nrmCompany).filter(Experience.nrmCompany != None)
     if startval:
-        q = q.filter(LIProfile.nrmCompany >= startval)
+        q1 = q1.filter(LIProfile.nrmCompany >= startval)
+        q2 = q2.filter(Experience.nrmCompany >= startval)
+    q = q1.union(q2)
     splitProcess(q, addCompanies, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_companies')
 
 if catalog is None or catalog == 'locations':
     logger.log('\nBuilding locations catalog.\n')
-    q = cndb.query(Location.nrmName)
+    q = cndb.query(Location.nrmName).filter(Location.nrmName != None)
     if startval:
         q = q.filter(Location.nrmName >= startval)
     splitProcess(q, addLocations, batchsize,

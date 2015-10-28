@@ -53,7 +53,7 @@ class LIProfile(SQLBase):
     company           = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
-    totalExperience   = Column(Integer)
+    totalExperience   = Column(Integer) # total work experience in days
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
@@ -84,7 +84,7 @@ class Experience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
     start          = Column(Date)
     end            = Column(Date)
-    duration       = Column(Integer)
+    duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(Date)
 
