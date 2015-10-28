@@ -35,10 +35,9 @@ class SQLDatabase:
         pkeycols = inspect(table).primary_key
         pkeynames = [c.name for c in pkeycols]
 
-        pkeyset = set(pkeynames)
-        dictkeyset = set([k for k, v in d.items() if v is not None])
-        has_pkeys = pkeyset.issubset(dictkeyset)
-        if not has_pkeys and pkeyset.intersection(dictkeyset):
+        ispresent = [d.get(k, None) is not None for k in pkeynames]
+        has_pkeys = any(ispresent)
+        if has_pkeys and not all(ispresent):
             raise ValueError('dict must contain all or no primary keys.')
 
         row = None
@@ -92,6 +91,41 @@ def rowFromDict(d, rowtype):
 
     return result
 
+def _mergeLists(rows, dicts, rowtype):
+    if not rows:
+        return [rowFromDict(d, rowtype) for d in dicts]
+    mapper = inspect(rowtype)
+    pkeynames = [c.name for c in mapper.primary_key]
+
+    # find existing primary keys in dicts
+    dict_pkeys = set()
+    for d in dicts:
+        ispresent = [d.get(k, None) is not None for k in pkeynames]
+        haskeys = any(ispresent)
+        if haskeys and not all(ispresent):
+            raise ValueError('dict must contain all or no primary keys.')
+        if haskeys:
+            dict_pkeys.add(tuple(d[k] for k in pkeynames))
+
+    # find rows with primary keys that are not in dicts
+    sparerows = []
+    for r in rows:
+        pkeys = tuple(getattr(r, k) for k in pkeynames)
+        if pkeys not in dict_pkeys:
+            sparerows.append(r)
+            
+    # set primary keys in dicts that don't have one
+    i = 0
+    for d in dicts:
+        if i >= len(sparerows):
+            break
+        if d.get(pkeynames[0], None) is None:
+            for pkey in pkeynames:
+                d[pkey] = getattr(sparerows[i], pkey)
+            i += 1
+
+    return [rowFromDict(d, rowtype) for d in dicts]
+
 def updateRowFromDict(row, d):
     mapper = inspect(type(row))
     
@@ -104,7 +138,7 @@ def updateRowFromDict(row, d):
             val = d[r.key]
             rtype = r.mapper.class_
             if isinstance(val, list):
-                setattr(row, r.key, [rowFromDict(i, rtype) for i in val])
+                setattr(row, r.key, _mergeLists(getattr(row, r.key), val, rtype))
             elif val is not None:
                 setattr(row, r.key, rowFromDict(val, rtype))
             else:
