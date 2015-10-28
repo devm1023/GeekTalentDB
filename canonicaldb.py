@@ -137,6 +137,9 @@ class Location(SQLBase):
 
 
 def normalizedSkill(name):
+    """Normalize a string describing a skill.
+
+    """
     if not name:
         return None
     nname = stem(name)
@@ -146,6 +149,9 @@ def normalizedSkill(name):
     return ' '.join(nname)
 
 def parsedTitle(name):
+    """Extract the job title from a LinkedIn profile or experience title.
+
+    """
     if not name:
         return None
     name = clean(name, keep='&/-,\'', removebrackets=True)
@@ -157,6 +163,9 @@ def parsedTitle(name):
     return name
     
 def normalizedTitle(name):
+    """Normalize a string describing a job title.
+
+    """
     name = parsedTitle(name)
     if not name:
         return None
@@ -166,6 +175,9 @@ def normalizedTitle(name):
     return ' '.join(nname)
 
 def normalizedCompany(name):
+    """Normalize a string describing a company.
+
+    """
     if not name:
         return None
     nname = clean(name, keep=',-/&', nospace='\'', removebrackets=True).lower()
@@ -180,6 +192,9 @@ def normalizedCompany(name):
     return nname
 
 def normalizedLocation(name):
+    """Normalize a string describing a location.
+
+    """
     return ' '.join(name.lower().split())
 
 
@@ -303,6 +318,97 @@ class CanonicalDB(SQLDatabase):
             skill.rank = ranks[iskill]
 
     def addLIProfile(self, liprofile, now):
+        """Add a LinkedIn profile to the database (or update if it exists).
+
+        Args:
+          liprofile (dict): Description of the profile. Must contain the
+            following fields:
+
+              ``'datoinId'``
+                The profile ID from DATOIN.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'location'``
+                A string describing the location of the user.
+
+              ``'title'``
+                The profile title, e.g. ``'Web developer at Geek Talent'``
+
+              ``'description'``
+                The profile summary.
+
+              ``'profileUrl'``
+                The URL of the profile.
+
+              ``'profilePictureUrl'``
+                The URL of the profile picture.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'skills'``
+                The skill tags listed by the user. This should be a list of 
+                strings.
+
+              ``'experiences'``
+                The work experiences of the user. This should be a list of
+                ``dict``s with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'title'``
+                    The role/job title of the work experience.
+
+                  ``'company'``
+                    The name of the company where the person worked.
+
+                  ``'start'``
+                    The start date of the work experience.
+
+                  ``'end'``
+                    The end date of the work experience.
+
+                  ``'description'``
+                    A free-text description of the work experience.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+              ``'educations'``
+                The educations of the user. This should be a list of ``dict``s
+                with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'institute'``
+                    The name of the educational institute.
+
+                  ``'degree'``
+                    The name of the accomplished degree.
+
+                  ``'subject'``
+                    The name of the studied subject.
+
+                  ``'start'``
+                    The start date of the education.
+
+                  ``'end'``
+                    The end date of the education.
+
+                  ``'description'``
+                    A free-text description of the education.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+        Returns:
+          The LIProfile object that was added to the database.
+
+        """
         liprofileId = self.query(LIProfile.id) \
                           .filter(LIProfile.datoinId == liprofile['datoinId']) \
                           .first()
@@ -313,7 +419,19 @@ class CanonicalDB(SQLDatabase):
         self.flush()
         self.rankSkills(liprofile)
 
+        return liprofile
+
     def addLocation(self, nrmName):
+        """Add a location to the database.
+
+        Args:
+          nrmName (str): The normalized name (via ``normalizeLocation``) of the
+            location.
+
+        Returns:
+          The Location object that was added to the database.
+
+        """
         location = self.query(Location) \
                        .filter(Location.nrmName == nrmName) \
                        .first()
