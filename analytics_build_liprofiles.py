@@ -26,9 +26,6 @@ def addLIProfiles(fromid, toid):
                         = [s['skill']['nrmName'] for s in experience['skills']]
             
         andb.addLIProfile(liprofiledict)
-
-    # for liprofile in q:
-    #     addLIProfile(liprofile)
         
     processDb(q, addLIProfile, andb, logger=logger)
 

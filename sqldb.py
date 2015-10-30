@@ -10,6 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base as sqlbase
 from sqlalchemy import create_engine, inspect
 
+from pprint import pprint
+
 class SQLDatabase:
     def __init__(self, metadata, url=None, session=None, engine=None):
         if session is None and engine is None and url is None:
@@ -35,7 +37,7 @@ class SQLDatabase:
         if d is None:
             return None
         pkeycols, pkey = _getPkey(d, table)
-        if None in pkey:
+        if pkey is not None and None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
 
         row = None
@@ -60,7 +62,6 @@ def _getPkey(d, table):
         return pkeycols, pkey
     else:
         return pkeycols, None
-    
 
 def dictFromRow(row):
     if row is None:
@@ -84,29 +85,26 @@ def rowFromDict(d, rowtype):
     mapper = inspect(rowtype)
     
     for c in mapper.column_attrs:
-        if c.key in d:
-            setattr(result, c.key, d[c.key])
+        setattr(result, c.key, d.get(c.key, None))
             
-    for r in mapper.relationships:
-        if r.key in d:
-            val = d[r.key]
-            rtype = r.mapper.class_
+    for relation in mapper.relationships:
+        if relation.key in d:
+            val = d[relation.key]
+            remotetype = relation.mapper.class_
+            lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
             if isinstance(val, list):
-                pkeys = set()
                 rows = []
                 for v in val:
                     if v is None:
                         continue
-                    pkeycols, pkey = _getPkey(v, rtype)
-                    if pkey not in pkeys:
-                        rows.append(rowFromDict(v, rtype))
-                        if pkey is not None:
-                            pkeys.add(pkey)
-                setattr(result, r.key, rows)
+                    for l, r in lrpairs:
+                        v[r] = d.get(l, None)
+                    rows.append(rowFromDict(v, remotetype))
+                setattr(result, relation.key, rows)
             elif val is not None:
-                setattr(result, r.key, rowFromDict(val, rtype))
+                setattr(result, relation.key, rowFromDict(val, remotetype))
             else:
-                setattr(result, r.key, None)
+                setattr(result, relation.key, None)
 
     return result
 
@@ -114,55 +112,57 @@ def _mergeLists(rows, dicts, rowtype):
     if not rows:
         return [rowFromDict(d, rowtype) for d in dicts]
     mapper = inspect(rowtype)
-    pkeynames = [c.name for c in mapper.primary_key]
+    nipkeynames = [c.key for c in mapper.primary_key if not c.autoincrement]
+    aipkeynames = [c.key for c in mapper.primary_key if c.autoincrement]
 
-    # find existing primary keys in dicts
-    dict_pkeys = set()
-    for d in dicts:
-        ispresent = [d.get(k, None) is not None for k in pkeynames]
-        haskeys = any(ispresent)
-        if haskeys and not all(ispresent):
-            raise ValueError('dict must contain all or no primary keys.')
-        if haskeys:
-            dict_pkeys.add(tuple(d[k] for k in pkeynames))
-
-    # find rows with primary keys that are not in dicts
-    sparerows = []
-    for r in rows:
-        pkeys = tuple(getattr(r, k) for k in pkeynames)
-        if pkeys not in dict_pkeys:
-            sparerows.append(r)
+    keymap = {}
+    for row in rows:
+        nipkey = tuple(getattr(row, k) for k in nipkeynames)
+        if all(k is not None for k in nipkey):
+            if nipkey in keymap:
+                keymap[nipkey].insert(0, row)
+            else:
+                keymap[nipkey] = [row]
             
-    # set primary keys in dicts that don't have one
-    i = 0
+    newrows = []
     for d in dicts:
-        if i >= len(sparerows):
-            break
-        if d.get(pkeynames[0], None) is None:
-            for pkey in pkeynames:
-                d[pkey] = getattr(sparerows[i], pkey)
-            i += 1
+        nipkey = tuple(d.get(k, None) for k in nipkeynames)
+        if nipkey in keymap:
+            row = keymap[nipkey].pop()
+            for aipkey in aipkeynames:
+                d[aipkey] = getattr(row, aipkey)
+            newrows.append(updateRowFromDict(row, d))
+            if not keymap[nipkey]:
+                del keymap[nipkey]
+        else:
+            newrows.append(rowFromDict(d, rowtype))
 
-    return [rowFromDict(d, rowtype) for d in dicts]
+    return newrows
 
 def updateRowFromDict(row, d):
     mapper = inspect(type(row))
     
     for c in mapper.column_attrs:
-        if c.key in d:
-            setattr(row, c.key, d[c.key])
+        setattr(row, c.key, d.get(c.key, None))
 
-    for r in mapper.relationships:
-        if r.key in d:
-            val = d[r.key]
-            rtype = r.mapper.class_
+    for relation in mapper.relationships:
+        if relation.key in d:
+            val = d[relation.key]
+            remotetype = relation.mapper.class_
+            lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
             if isinstance(val, list):
-                val = [v for v in val if v is not None]
-                setattr(row, r.key, _mergeLists(getattr(row, r.key), val, rtype))
+                for v in val:
+                    if v is None:
+                        continue
+                    for l, r in lrpairs:
+                        v[r] = d.get(l, None)
+                collection = getattr(row, relation.key)
+                collection[:] \
+                    = _mergeLists(getattr(row, relation.key), val, remotetype)
             elif val is not None:
-                setattr(row, r.key, rowFromDict(val, rtype))
+                setattr(row, relation.key, rowFromDict(val, remotetype))
             else:
-                setattr(row, r.key, None)
+                setattr(row, relation.key, None)
     
     return row
 

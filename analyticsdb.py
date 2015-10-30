@@ -73,11 +73,9 @@ class Experience(SQLBase):
                             index=True)
     nrmTitle       = Column(Unicode(STR_MAX),
                             ForeignKey('title.nrmName'),
-                            nullable=True,
                             index=True)
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),
-                            nullable=True,
                             index=True)
     start          = Column(Date)
     end            = Column(Date)
@@ -88,17 +86,20 @@ class Experience(SQLBase):
     title = relationship('Title')
     company = relationship('Company')
     skills = relationship('ExperienceSkill',
-                          order_by='ExperienceSkill.nrmSkill')
+                          order_by='ExperienceSkill.nrmSkill',
+                          cascade='all, delete-orphan')
 
     
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
     liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
-                         primary_key=True)
+                         primary_key=True,
+                         autoincrement=False)
     nrmName     = Column(Unicode(STR_MAX),
                          ForeignKey('skill.nrmName'),
-                         primary_key=True)
+                         primary_key=True,
+                         autoincrement=False)
     rank        = Column(Float)
 
     skill = relationship('Skill')
@@ -107,10 +108,12 @@ class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
     experienceId = Column(BigInteger,
                           ForeignKey('experience.id'),
-                          primary_key=True)
+                          primary_key=True,
+                          autoincrement=False)
     nrmSkill     = Column(Unicode(STR_MAX),
                           ForeignKey('skill.nrmName'),
-                          primary_key=True)
+                          primary_key=True,
+                          autoincrement=False)
     
     skill = relationship('Skill')
     
@@ -277,9 +280,15 @@ class AnalyticsDB(SQLDatabase):
         liprofile.pop('company', None)
         
         if liprofile.get('skills', None) is not None:
+            skillnames = set()
+            newskills = []
             for skill in liprofile['skills']:
                 skill.pop('liprofileId', None)
                 skill.pop('skill', None)
+                if skill['nrmName'] not in skillnames:
+                    skillnames.add(skill['nrmName'])
+                    newskills.append(skill)
+            liprofile['skills'] = newskills
 
         if liprofile.get('experiences', None) is not None:
             for experience in liprofile['experiences']:
@@ -288,8 +297,13 @@ class AnalyticsDB(SQLDatabase):
                 experience.pop('title', None)
                 experience.pop('company', None)
                 if experience.get('skills', None) is not None:
-                    experience['skills'] \
-                        = [{'nrmSkill' : s} for s in experience['skills']]
+                    skillnames = set()
+                    newskills = []
+                    for skill in experience['skills']:
+                        if skill not in skillnames:
+                            newskills.append({'nrmSkill' : skill})
+                            skillnames.add(skill)
+                    experience['skills'] = newskills
 
         return self.addFromDict(liprofile, LIProfile)
 
