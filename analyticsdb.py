@@ -7,7 +7,9 @@ __all__ = [
     'Title',
     'Company',
     'Location',
+    'TitleSkill',
     'AnalyticsDB',
+    'skillScore',
     ]
 
 import conf
@@ -119,32 +121,75 @@ class ExperienceSkill(SQLBase):
     
 class Skill(SQLBase):
     __tablename__ = 'skill'
-    nrmName         = Column(Unicode(STR_MAX), primary_key=True)
+    nrmName         = Column(Unicode(STR_MAX),
+                             primary_key=True,
+                             autoincrement=False)
     name            = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class Title(SQLBase):
     __tablename__ = 'title'
-    nrmName   = Column(Unicode(STR_MAX), primary_key=True)
+    nrmName   = Column(Unicode(STR_MAX),
+                       primary_key=True,
+                       autoincrement=False)
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class Company(SQLBase):
     __tablename__ = 'company'
-    nrmName   = Column(Unicode(STR_MAX), primary_key=True)
+    nrmName   = Column(Unicode(STR_MAX),
+                       primary_key=True,
+                       autoincrement=False)
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class Location(SQLBase):
     __tablename__ = 'location'
-    placeId   = Column(String(STR_MAX), primary_key=True)
+    placeId   = Column(String(STR_MAX),
+                       primary_key=True,
+                       autoincrement=False)
     name      = Column(Unicode(STR_MAX))
     geo       = Column(Geometry('POINT'))
 
-    
+class TitleSkill(SQLBase):
+    __tablename__ = 'title_skill'
+    nrmTitle        = Column(String(STR_MAX),
+                             ForeignKey('title.nrmName'),
+                             primary_key=True,
+                             autoincrement=False,
+                             index=True)
+    nrmSkill        = Column(String(STR_MAX),
+                             ForeignKey('skill.nrmName'),
+                             primary_key=True,
+                             autoincrement=False,
+                             index=True)
+    liprofileCount  = Column(BigInteger)
+    experienceCount = Column(BigInteger)
+
+
+def skillScore(coincidenceCount, categoryCount, skillCount, nrecords):
+    """Measure how strongly a skill is associated with a certain category.
+
+    Args:
+      coincidenceCount (int): Number of times the skill appears in records of
+        the desired category.
+      categoryCount (int): The total number of records belonging to the category.
+      skillCount (int): The total number of records associated with the skill.
+      nrecords (int): The total number of records.
+
+    Returns:
+      float: A number between -1 and 1 measuring the strength of the relationship
+        between the skill and the category. A value of 1 indicates a strong
+        relationship, 0 means no relation, and -1 means that the skill and the
+        category are mutually exclusive.
+
+    """
+    return coincidenceCount/categoryCount \
+        - (skillCount-coincidenceCount)/(nrecords-categoryCount)
+
 class AnalyticsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
