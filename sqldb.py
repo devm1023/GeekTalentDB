@@ -9,8 +9,7 @@ __all__ = [
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base as sqlbase
 from sqlalchemy import create_engine, inspect
-
-from pprint import pprint
+from copy import deepcopy
 
 class SQLDatabase:
     def __init__(self, metadata, url=None, session=None, engine=None):
@@ -36,6 +35,7 @@ class SQLDatabase:
     def addFromDict(self, d, table):
         if d is None:
             return None
+        d = deepcopy(d)
         pkeycols, pkey = _getPkey(d, table)
         if pkey is not None and None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
@@ -130,7 +130,8 @@ def _mergeLists(rows, dicts, rowtype):
         if nipkey in keymap:
             row = keymap[nipkey].pop()
             for aipkey in aipkeynames:
-                d[aipkey] = getattr(row, aipkey)
+                if d.get(aipkey, None) is None:
+                    d[aipkey] = getattr(row, aipkey)
             newrows.append(updateRowFromDict(row, d))
             if not keymap[nipkey]:
                 del keymap[nipkey]
@@ -143,7 +144,8 @@ def updateRowFromDict(row, d):
     mapper = inspect(type(row))
     
     for c in mapper.column_attrs:
-        setattr(row, c.key, d.get(c.key, None))
+        if c.key in d:
+            setattr(row, c.key, d[c.key])
 
     for relation in mapper.relationships:
         if relation.key in d:
