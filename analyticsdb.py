@@ -360,6 +360,8 @@ class AnalyticsDB(SQLDatabase):
             skillnames = set()
             newskills = []
             for skill in liprofile['skills']:
+                if not skill or not skill.get('nrmName', None):
+                    continue
                 skill.pop('liprofileId', None)
                 skill.pop('skill', None)
                 if skill['nrmName'] not in skillnames:
@@ -377,6 +379,8 @@ class AnalyticsDB(SQLDatabase):
                     skillnames = set()
                     newskills = []
                     for skill in experience['skills']:
+                        if not skill:
+                            continue
                         if skill not in skillnames:
                             newskills.append({'nrmSkill' : skill})
                             skillnames.add(skill)
