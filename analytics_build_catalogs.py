@@ -173,7 +173,7 @@ try:
         startval = sys.argv[4]
 except ValueError:
     logger.log('usage: python3 build_catalogs.py <njobs> <batchsize> '
-               '[(skills | titles) [<start-value>]]\n')
+               '[(skills | titles | companies | locations) [<start-value>]]\n')
 
 if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')

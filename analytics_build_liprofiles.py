@@ -41,7 +41,7 @@ try:
         startval = sys.argv[3]
 except ValueError:
     logger.log('usage: python3 analytics_build_liprofiles.py '
-               '<njobs> <batchsize> [(skills | titles) [<start-value>]]\n')
+               '<njobs> <batchsize> [<start-value>]\n')
 
 q = cndb.query(LIProfile.id)
 if startval:

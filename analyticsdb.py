@@ -8,6 +8,8 @@ __all__ = [
     'Company',
     'Location',
     'TitleSkill',
+    'CompanySkill',
+    'SkillSkill',
     'AnalyticsDB',
     'skillScore',
     ]
@@ -166,6 +168,36 @@ class TitleSkill(SQLBase):
                              primary_key=True,
                              autoincrement=False,
                              index=True)
+    liprofileCount  = Column(BigInteger)
+    experienceCount = Column(BigInteger)
+
+class CompanySkill(SQLBase):
+    __tablename__ = 'company_skill'
+    nrmCompany      = Column(String(STR_MAX),
+                             ForeignKey('company.nrmName'),
+                             primary_key=True,
+                             autoincrement=False,
+                             index=True)
+    nrmSkill        = Column(String(STR_MAX),
+                             ForeignKey('skill.nrmName'),
+                             primary_key=True,
+                             autoincrement=False,
+                             index=True)
+    liprofileCount  = Column(BigInteger)
+    experienceCount = Column(BigInteger)
+
+class SkillSkill(SQLBase):
+    __tablename__ = 'skill_skill'
+    nrmSkill1        = Column(String(STR_MAX),
+                              ForeignKey('skill.nrmName'),
+                              primary_key=True,
+                              autoincrement=False,
+                              index=True)
+    nrmSkill2        = Column(String(STR_MAX),
+                              ForeignKey('skill.nrmName'),
+                              primary_key=True,
+                              autoincrement=False,
+                              index=True)
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 

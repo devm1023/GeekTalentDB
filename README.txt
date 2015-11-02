@@ -1,7 +1,7 @@
 GeekTalentDB -- Experimental SQL database for user profiles
 ===========================================================
 
-The scripts operate on three PostgreSQL databases:
+The scripts operate on four PostgreSQL databases:
 
   datoin
     The raw (LinkedIn) data from DATOIN
@@ -17,13 +17,23 @@ The scripts operate on three PostgreSQL databases:
     ranks are stored in the table 'skill'. Latitudes and Longitudes are
     retreived from the Google Places API and stored in the table 'location'.
 
+  analytics
+    Holds catalogues of skills, job titles, companies, and locations as well as
+    'skill cloud' tables describing the relationships between companies, job
+    titles and skills.
+
   geekmaps
-    Holds the data in a form suitable for visualisation with GeekMaps. This
-    database holds catalogues with skills, job titles, and companies found in
-    the (LinkedIn) data and pre-computed NUTS IDs for each profile.
+    Holds the data in a form suitable for visualisation with GeekMaps. Like
+    'analytics' this database holds catalogues with skills, job titles, and
+    companies found in the (LinkedIn) data and pre-computed NUTS IDs for each
+    profile.
 
 See postgres-setup.txt for instructions to set up the PostgreSQL DB.
 See python-setup.txt for instructions on installing python dependencies.
+
+
+Database initialisation
+-----------------------
 
 * To clear all tables in one of the databases do
 
@@ -33,6 +43,10 @@ where <database> is datoin, canonical, analytics, or geekmaps. If the
 --no-create flag is given the database is left completely blank (i.e. no empty
 tables are created). If the --no-delete flag is given existing tables are not
 dropped.
+
+
+datoin
+------
 
 * To download LinkedIn data from DATOIN do
 
@@ -47,15 +61,19 @@ with <from-offset> and <to-offset>. Example:
 
     python3 datoin_download_linkedin.py 20 100 2015-09-22 2015-09-23 0 10000
 
+
+canonical
+---------
+
 * To populate the 'canonical' DB from the 'datoin' DB do
 
     python3 canonical_parse_linkedin.py <njobs> <batchsize> \
         <from-date> <to-date> [<from-id>]
 
-The first four arguments are identical to download_linkedin.py. If the optional
-argument <from-id> is given only profiles with a datoin ID of strictly larger
-than <from-id> will be processed. This can be used for crash recovery, since
-parse_linkedin.py writes the datoin ID of recently processed profiles to
+The first four arguments are identical to datoin_download_linkedin.py. If the
+optional argument <from-id> is given only profiles with a datoin ID of strictly
+larger than <from-id> will be processed. This can be used for crash recovery,
+since parse_linkedin.py writes the datoin ID of recently processed profiles to
 STDOUT. Example:
 
     python3 canonical_parse_linkedin.py 4 200 2015-09-22 2015-09-23
@@ -66,12 +84,50 @@ STDOUT. Example:
     python3 canonical_geolookup_linkedin.py <njobs> <batchsize> \
         <from-date> <to-date> [<from-location>]
 
-The first four arguments are identical to download_linkedin.py. (The range of
-timestamps now restricts the set of profiles whose locations are included
-in the update.) The optional argument <from-location> can be used for crash
-recovery in the same way as <from-id>. Example:
+The first four arguments are identical to datoin_download_linkedin.py. (The
+range of timestamps now restricts the set of profiles whose locations are
+included in the update.) The optional argument <from-location> can be used for
+crash recovery in the same way as <from-id>. Example:
 
     python3 canonical_geolookup_linkedin.py 4 100 2015-09-22 2015-09-23
+
+
+analytics
+---------
+
+* Before adding profile data to the 'analytics' DB you have to build the
+catalogues of skills, job titles, and companies. Do
+
+    python3 analytics_build_catalogs.py <njobs> <batchsize> \
+        [(skills | titles | companies | locations) [<start-value>]]
+
+The third argument specifies the catalogue to build. If it is omitted all
+catalogues are built. As usual, the first two arguments control parallelisation
+and the last one is for crash recovery. Example:
+
+    python3 analytics_build_catalogs.py 4 200
+
+* To add profile data do
+
+    python3 analytics_build_liprofiles.py <njobs> <batchsize> [<start-value>]
+
+Example:
+
+    python3 analytics_build_liprofiles.py 4 500
+
+* To build the skill clouds for job titles, companies and skills do
+
+    python3 analytics_build_skillclouds.py <njobs> <batchsize> \
+        [(titles | companies | skills) [<start-value>]]
+
+The third argument specifies the type of skill cloud to build. If it is omitted
+all skill clouds are built. Example
+
+    python3 analytics_build_skillclouds.py 4 200
+
+
+geekmaps
+--------
 
 * To create catalogues of skills, job titles and companies in the geekmaps DB do
 
