@@ -3,6 +3,7 @@ import analyticsdb
 from canonicaldb import *
 from sqlalchemy import func
 from sqlalchemy.sql.expression import literal_column
+from geoalchemy2.functions import ST_AsText
 from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
@@ -80,15 +81,32 @@ def addSkills(fromskill, toskill):
         q = q.filter(Skill.nrmName < toskill)
     q = q.group_by(Skill.nrmName, Skill.name).order_by(Skill.nrmName)
 
-    def addSkill(rec):
-        nrmName, bestname, profileCount = rec
-        experienceCount = cndb.query(ExperienceSkill.experienceId) \
-                              .join(Skill) \
-                              .filter(Skill.nrmName == nrmName) \
-                              .count()
-        andb.addSkill(nrmName, bestname, profileCount, experienceCount)
+    def addProfileSkill(rec):
+        nrmName, bestname, liprofileCount = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : bestname,
+            'liprofileCount'  : liprofileCount,
+            'experienceCount' : 0,
+        }, analyticsdb.Skill)
 
-    processDb(entities(q), addSkill, andb, logger=logger)
+    processDb(entities(q), addProfileSkill, andb, logger=logger)
+
+    q = cndb.query(func.count(ExperienceSkill.experienceId), Skill.nrmName) \
+            .join(Skill) \
+            .filter(Skill.nrmName >= fromskill)
+    if toskill is not None:
+        q = q.filter(Skill.nrmName < toskill)
+    q = q.group_by(Skill.nrmName)
+
+    def addExperienceSkill(rec):
+        experienceCount, nrmName = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'experienceCount' : experienceCount,
+        }, analyticsdb.Skill)
+
+    processDb(q, addExperienceSkill, andb, logger=logger)
 
 
 def addTitles(fromtitle, totitle):
@@ -113,7 +131,16 @@ def addTitles(fromtitle, totitle):
     q2 = q2.group_by('nrm', 'parsed', 'type')
     q = q1.union(q2).order_by('nrm')
 
-    processDb(entities2(q), lambda r: andb.addTitle(*r), andb, logger=logger)
+    def addTitle(rec):
+        nrmName, name, liprofileCount, experienceCount = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'liprofileCount'  : liprofileCount,
+            'experienceCount' : experienceCount,
+            }, analyticsdb.Title)
+    
+    processDb(entities2(q), addTitle, andb, logger=logger)
 
 
 def addCompanies(fromcompany, tocompany):
@@ -138,23 +165,40 @@ def addCompanies(fromcompany, tocompany):
     q2 = q2.group_by('nrm', 'raw', 'type')
     q = q1.union(q2).order_by('nrm')
 
-    processDb(entities2(q), lambda r: andb.addCompany(*r), andb, logger=logger)
+    def addCompany(rec):
+        nrmName, name, liprofileCount, experienceCount = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'liprofileCount'  : liprofileCount,
+            'experienceCount' : experienceCount,
+            }, analyticsdb.Company)
+    
+    processDb(entities2(q), addCompany, andb, logger=logger)
 
 
 def addLocations(fromlocation, tolocation):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
-    print(repr(fromlocation))
     
-    q = cndb.query(Location.placeId, Location.name, Location.geo) \
+    q = cndb.query(Location.placeId, Location.name, ST_AsText(Location.geo)) \
             .filter(Location.nrmName != None) \
             .filter(Location.nrmName >= fromlocation)
     if tolocation is not None:
         q = q.filter(Location.nrmName < tolocation)
     q = q.distinct().order_by(Location.nrmName)
 
-    processDb(q, lambda rec: andb.addLocation(*rec), andb, logger=logger) 
+    def addLocation(rec):
+        from copy import deepcopy
+        placeId, name, geo = rec
+        andb.addFromDict({
+            'placeId'         : placeId,
+            'name'            : name,
+            'geo'             : geo,
+            }, analyticsdb.Location)
+
+    processDb(q, addLocation, andb, logger=logger) 
 
 
 cndb = CanonicalDB(conf.CANONICAL_DB)
