@@ -55,7 +55,7 @@ class SQLDatabase:
 
 def _getPkey(d, table):
     pkeycols = inspect(table).primary_key
-    pkeynames = [c.name for c in pkeycols]
+    pkeynames = [c.key for c in pkeycols]
     pkey = tuple(d.get(k, None) for k in pkeynames)
     
     if any(k is not None for k in pkey):

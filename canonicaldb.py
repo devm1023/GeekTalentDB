@@ -131,8 +131,8 @@ class ExperienceSkill(SQLBase):
 class Location(SQLBase):
     __tablename__ = 'location'
     nrmName   = Column(Unicode(STR_MAX), primary_key=True)
-    name      = Column(Unicode(STR_MAX))
-    placeId   = Column(String(STR_MAX))
+    name      = Column(Unicode(STR_MAX), index=True)
+    placeId   = Column(String(STR_MAX), index=True)
     geo       = Column(Geometry('POINT'))
 
 

@@ -177,17 +177,17 @@ def addCompanies(fromcompany, tocompany):
     processDb(entities2(q), addCompany, andb, logger=logger)
 
 
-def addLocations(fromlocation, tolocation):
+def addLocations(fromplaceid, toplaceid):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
     q = cndb.query(Location.placeId, Location.name, ST_AsText(Location.geo)) \
-            .filter(Location.nrmName != None) \
-            .filter(Location.nrmName >= fromlocation)
-    if tolocation is not None:
-        q = q.filter(Location.nrmName < tolocation)
-    q = q.distinct().order_by(Location.nrmName)
+            .filter(Location.placeId != None) \
+            .filter(Location.placeId >= fromplaceid)
+    if toplaceid is not None:
+        q = q.filter(Location.placeId < toplaceid)
+    q = q.distinct().order_by(Location.placeId)
 
     def addLocation(rec):
         from copy import deepcopy
@@ -196,7 +196,7 @@ def addLocations(fromlocation, tolocation):
             'placeId'         : placeId,
             'name'            : name,
             'geo'             : geo,
-            }, analyticsdb.Location)
+        }, analyticsdb.Location)
 
     processDb(q, addLocation, andb, logger=logger) 
 
@@ -254,9 +254,9 @@ if catalog is None or catalog == 'companies':
 
 if catalog is None or catalog == 'locations':
     logger.log('\nBuilding locations catalog.\n')
-    q = cndb.query(Location.nrmName).filter(Location.nrmName != None)
+    q = cndb.query(Location.placeId).filter(Location.placeId != None)
     if startval:
-        q = q.filter(Location.nrmName >= startval)
+        q = q.filter(Location.placeId >= startval)
     splitProcess(q, addLocations, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_locations')
