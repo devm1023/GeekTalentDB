@@ -1,5 +1,5 @@
-GeekTalentDB -- Experimental SQL database for user profiles
-===========================================================
+GeekTalentDB -- SQL databases for user profiles
+===============================================
 
 The scripts operate on four PostgreSQL databases:
 
@@ -37,7 +37,7 @@ Database initialisation
 
 * To clear all tables in one of the databases do
 
-    pyton3 initdb.py <database> [--no-create | --no-delete]
+    python3 initdb.py <database> [--no-create | --no-delete]
 
 where <database> is datoin, canonical, analytics, or geekmaps. If the
 --no-create flag is given the database is left completely blank (i.e. no empty
@@ -118,12 +118,20 @@ Example:
 * To build the skill clouds for job titles, companies and skills do
 
     python3 analytics_build_skillclouds.py <njobs> <batchsize> \
+        <category-threshold> <skill-threshold> <count-threshold>
         [(titles | companies | skills) [<start-value>]]
 
-The third argument specifies the type of skill cloud to build. If it is omitted
-all skill clouds are built. Example
 
-    python3 analytics_build_skillclouds.py 4 200
+The 6th argument specifies the type of skill cloud to build. If it is omitted
+all skill clouds are built. Arguments 3 and 4 specify the minimum number of
+records that must exist for a certain skill, title, or company so that it is
+considered in the skill cloud computation. (<category-threshold> refers to
+titles, companies, or skills depending on the 6th argument.) <count-threshold>
+is the minimum number of records of a certain category having a certain skill
+which are necessaryt to make a connection between the category and the skill.
+Example:
+
+    python3 analytics_build_skillclouds.py 4 200 10 10 3
 
 
 geekmaps
@@ -153,11 +161,10 @@ to process. The optional last argument is for crash recovery as usual. Example:
 Additional files
 ----------------
 
-datoindb.py, canonicaldb.py, geekmapsdb.py
+datoindb.py, canonicaldb.py, analyticsdb.py, geekmapsdb.py
   Contain SQLAlchemy classes describing the tables in the respective database.
-  Also provide the classes DatoinDB, CanonicalDB, and GeekMapsDB to interact
-  with the databases. Data should only be added to the databases via the
-  correspoding add... methods.
+  Also provide the classes DatoinDB, CanonicalDB, AnalyticsDB, and GeekMapsDB to
+  interact with the databases.
 
 conf.py, conf_example.py
   Global configurations such as URLs for database servers. The file
