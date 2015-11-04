@@ -133,6 +133,16 @@ Example:
 
     python3 analytics_build_skillclouds.py 4 200 10 10 3
 
+* To extract the skill cloud for a given company, job title, or skill do
+
+    python3 analytics_get_skillcloud.py (title | company | skill) \
+        <query> [<filename>]
+
+This will print the skills related to the search term <query> on the screen. The
+first argument specifies whether <query> is a job title, company or skill. If
+<filename> is given, the results are also written to the specified file in
+csv format.
+
 
 geekmaps
 --------
