@@ -141,7 +141,9 @@ Example:
 This will print the skills related to the search term <query> on the screen. The
 first argument specifies whether <query> is a job title, company or skill. If
 <filename> is given, the results are also written to the specified file in
-csv format.
+csv format. Example:
+
+    python3 analytics_get_skillcloud.py title "Web Developer" web_developer.csv
 
 
 geekmaps
