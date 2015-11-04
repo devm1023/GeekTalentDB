@@ -3,6 +3,7 @@ from analyticsdb import *
 from canonicaldb import normalizedTitle, normalizedCompany, normalizedSkill
 from sqlalchemy import func, or_
 import sys
+import csv
 from logger import Logger
 
 
@@ -47,6 +48,9 @@ try:
     if querytype not in ['title', 'company', 'skill']:
         raise ValueError('Invalid category string')
     query = sys.argv[2]
+    filename = None
+    if len(sys.argv) > 3:
+        filename = sys.argv[3]
 except (ValueError, KeyError):
     sys.stdout.write('usage: python3 analytics_get_skillclouds.py '
                      '(title | company | skill) <query>\n')
@@ -55,6 +59,13 @@ except (ValueError, KeyError):
 
 andb = AnalyticsDB(conf.ANALYTICS_DB)
 logger = Logger(sys.stdout)
+
+csvwriter = None
+csvfile = None
+if filename is not None:
+    csvfile = open(filename, 'w')
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow(['skill', 'relevance'])
 
 if querytype == 'title':
     nrecords = andb.query(Experience.id).count()
@@ -69,6 +80,8 @@ if querytype == 'title':
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
+        if csvwriter is not None:
+            csvwriter.writerow([skillName, score])
     logger.log('\nMatching records: {0:d}\n'.format(nmatches))
     logger.log('\nMatched titles\n')
     for category, count in categories:
@@ -86,6 +99,8 @@ if querytype == 'company':
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
+        if csvwriter is not None:
+            csvwriter.writerow([skillName, score])
     logger.log('\nMatching records: {0:d}\n'.format(nmatches))
     logger.log('\nMatched companies\n')
     for category, count in categories:
@@ -103,9 +118,12 @@ if querytype == 'skill':
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
+        if csvwriter is not None:
+            csvwriter.writerow([skillName, score])
     logger.log('\nMatching records: {0:d}\n'.format(nmatches))
     logger.log('\nMatched skills\n')
     for category, count in categories:
         logger.log('    {0:7d} {1:s}\n'.format(count, category))
     
-
+if csvfile is not None:
+    csvfile.close()

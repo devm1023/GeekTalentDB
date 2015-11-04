@@ -40,6 +40,7 @@ class LIProfile(SQLBase):
     indexedOn         = Column(BigInteger, index=True)
     connections       = Column(String(STR_MAX))
     categories        = Column(Array(Unicode(STR_MAX)))
+    # TODO: add groups column
 
 class Experience(SQLBase):
     __tablename__ = 'experience'
