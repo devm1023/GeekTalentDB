@@ -59,6 +59,7 @@ class LIProfile(SQLBase):
 
     title = relationship('Title')
     company = relationship('Company')
+    location = relationship('Location')
     skills = relationship('LIProfileSkill',
                           order_by='LIProfileSkill.nrmName',
                           cascade='all, delete-orphan')

@@ -1,18 +1,18 @@
 import conf
 from analyticsdb import *
 from canonicaldb import normalizedTitle, normalizedCompany, normalizedSkill
-from sqlalchemy import func
+from sqlalchemy import func, or_
 import sys
 from logger import Logger
 
 
 def getScores(q, categoryNameCol, categoryCountCol, skillCountCol, nrecords):
     coincidenceCounts = {}
-    categories = set()
+    categories = {}
     for category, skill, coincidenceCount in q:
         coincidenceCounts[skill] \
             = coincidenceCount + coincidenceCounts.get(skill, 0)
-        categories.add(category)
+        categories[category] = 0
     skillCounts = {}
     for skill in coincidenceCounts:
         skillCounts[skill] = andb.query(Skill.name, skillCountCol) \
@@ -20,9 +20,11 @@ def getScores(q, categoryNameCol, categoryCountCol, skillCountCol, nrecords):
                                  .first()
     categoryCount = 0
     for category in categories:
-        categoryCount += andb.query(categoryCountCol) \
-                             .filter(categoryNameCol == category) \
-                             .first()[0]
+        count = andb.query(categoryCountCol) \
+                    .filter(categoryNameCol == category) \
+                    .first()[0]
+        categories[category] += count
+        categoryCount += count 
     scores = []
     for skill, coincidenceCount in coincidenceCounts.items():
         skillName, skillCount = skillCounts[skill]
@@ -31,11 +33,14 @@ def getScores(q, categoryNameCol, categoryCountCol, skillCountCol, nrecords):
                                                     skillCount,
                                                     nrecords)))
     scores.sort(key=lambda s: s[2])
-    categories = list(categories)
-    categories.sort()
+    categories = list(categories.items())
+    categories.sort(key=lambda c: c[1])
 
-    return scores, categories
+    return scores, categories, categoryCount
 
+def substringFilter(col, s):
+    return or_(col == s, col.like('% '+s),
+               col.like(s+' %'), col.like('% '+s+' %'))
 
 try:
     querytype = sys.argv[1]
@@ -43,7 +48,8 @@ try:
         raise ValueError('Invalid category string')
     query = sys.argv[2]
 except (ValueError, KeyError):
-    sys.stdout.write('usage: python3 analytics_get_skillclouds.py title <query>\n')
+    sys.stdout.write('usage: python3 analytics_get_skillclouds.py '
+                     '(title | company | skill) <query>\n')
     sys.stdout.flush()
     exit(1)
 
@@ -56,47 +62,50 @@ if querytype == 'title':
     q = andb.query(TitleSkill.nrmTitle,
                    TitleSkill.nrmSkill,
                    TitleSkill.experienceCount) \
-            .filter(TitleSkill.nrmTitle.like('%'+nrmQuery+'%'))
-    scores, categories = getScores(q, Title.nrmName, Title.experienceCount,
-                                   Skill.experienceCount, nrecords)
+            .filter(substringFilter(TitleSkill.nrmTitle, nrmQuery))
+    scores, categories, nmatches \
+        = getScores(q, Title.nrmName, Title.experienceCount,
+                    Skill.experienceCount, nrecords)
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
-    logger.log('\n')
-    logger.log('Matched titles\n')
-    for category in categories:
-        logger.log('    '+category+'\n')
+    logger.log('\nMatching records: {0:d}\n'.format(nmatches))
+    logger.log('\nMatched titles\n')
+    for category, count in categories:
+        logger.log('    {0:7d} {1:s}\n'.format(count, category))
 if querytype == 'company':
     nrecords = andb.query(Experience.id).count()
     nrmQuery = normalizedCompany(query)
     q = andb.query(CompanySkill.nrmCompany,
                    CompanySkill.nrmSkill,
                    CompanySkill.experienceCount) \
-            .filter(CompanySkill.nrmCompany.like('%'+nrmQuery+'%'))
-    scores, categories = getScores(q, Company.nrmName, Company.experienceCount,
-                                   Skill.experienceCount, nrecords)
+            .filter(substringFilter(CompanySkill.nrmCompany, nrmQuery))
+    scores, categories, nmatches \
+        = getScores(q, Company.nrmName, Company.experienceCount,
+                    Skill.experienceCount, nrecords)
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
-    logger.log('\n')
-    logger.log('Matched companies\n')
-    for category in categories:
-        logger.log('    '+category+'\n')
+    logger.log('\nMatching records: {0:d}\n'.format(nmatches))
+    logger.log('\nMatched companies\n')
+    for category, count in categories:
+        logger.log('    {0:7d} {1:s}\n'.format(count, category))
 if querytype == 'skill':
     nrecords = andb.query(Experience.id).count()
     nrmQuery = normalizedSkill(query)
     q = andb.query(SkillSkill.nrmSkill1,
                    SkillSkill.nrmSkill2,
                    SkillSkill.experienceCount) \
-            .filter(SkillSkill.nrmSkill1.like('%'+nrmQuery+'%'))
-    scores, categories = getScores(q, Skill.nrmName, Skill.experienceCount,
-                                   Skill.experienceCount, nrecords)
+            .filter(substringFilter(SkillSkill.nrmSkill1, nrmQuery))
+    scores, categories, nmatches \
+        = getScores(q, Skill.nrmName, Skill.experienceCount,
+                    Skill.experienceCount, nrecords)
         
     for skill, skillName, score in scores:
         logger.log('{0:> 6.1f}% {1:s}\n'.format(score*100, skillName))
-    logger.log('\n')
-    logger.log('Matched skills\n')
-    for category in categories:
-        logger.log('    '+category+'\n')
+    logger.log('\nMatching records: {0:d}\n'.format(nmatches))
+    logger.log('\nMatched skills\n')
+    for category, count in categories:
+        logger.log('    {0:7d} {1:s}\n'.format(count, category))
     
 
