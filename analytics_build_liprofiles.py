@@ -13,17 +13,22 @@ def addLIProfiles(fromid, toid):
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(LIProfile).filter(LIProfile.id >= fromid)
+    q = cndb.query(LIProfile, Location) \
+            .outerjoin(Location, LIProfile.nrmLocation == Location.nrmName) \
+            .filter(LIProfile.id >= fromid)
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
 
-    def addLIProfile(liprofile):
+    def addLIProfile(rec):
+        liprofile, location = rec
         liprofiledict = dictFromRow(liprofile)
         if liprofiledict.get('experiences', None) is not None:
             for experience in liprofiledict['experiences']:
                 if experience.get('skills', None) is not None:
                     experience['skills'] \
                         = [s['skill']['nrmName'] for s in experience['skills']]
+        if location is not None:
+            liprofiledict['placeId'] = location.placeId
             
         andb.addLIProfile(liprofiledict)
         

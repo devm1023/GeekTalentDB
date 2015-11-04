@@ -356,6 +356,7 @@ class AnalyticsDB(SQLDatabase):
 
         liprofile.pop('title', None)
         liprofile.pop('company', None)
+        liprofile.pop('location', None)
         
         if liprofile.get('skills', None) is not None:
             skillnames = set()
