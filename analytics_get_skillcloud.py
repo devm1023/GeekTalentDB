@@ -1,6 +1,6 @@
 import conf
 from analyticsdb import *
-from canonicaldb import normalizedTitle, normalizedCompany, normalizedSkill
+from textnormalization import normalizedTitle, normalizedCompany, normalizedSkill
 from sqlalchemy import func, or_
 import sys
 import csv

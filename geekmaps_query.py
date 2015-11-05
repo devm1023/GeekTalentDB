@@ -1,6 +1,6 @@
 import conf
 from geekmapsdb import *
-from canonicaldb import normalizedSkill, normalizedTitle, normalizedCompany
+from textnormalization import normalizedSkill, normalizedTitle, normalizedCompany
 from nuts import NutsRegions
 import sys
 from sqlalchemy import func, distinct

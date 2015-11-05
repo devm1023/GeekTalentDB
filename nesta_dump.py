@@ -1,5 +1,5 @@
 import conf
-from canonicaldb import normalizedCompany
+from textnormalization import normalizedCompany
 from analyticsdb import *
 from datetime import date
 from sqlalchemy import and_, or_
