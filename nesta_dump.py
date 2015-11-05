@@ -8,6 +8,8 @@ import csv
 import sys
 from logger import Logger
 from windowquery import splitProcess
+import glob
+import fileinput
 
 mindate = date(year=2013, month=11, day=1)
 companies = ['IBM']
@@ -18,13 +20,9 @@ def writeProfiles(jobid, fromid, toid):
     
     experiencefile = open('experiences{0:03d}.csv'.format(jobid), 'w')
     experiencewriter = csv.writer(experiencefile)
-    experiencewriter.writerow(
-        ['user id', 'start date', 'end date', 'job title', 'company'])
 
     userfile = open('users{0:03d}.csv'.format(jobid), 'w')
     userwriter = csv.writer(userfile)
-    userwriter.writerow(
-        ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company'])
 
     q = andb.query(LIProfile) \
             .join(Experience) \
@@ -111,16 +109,23 @@ experiencefile = open('experiences.csv', 'w')
 experiencewriter = csv.writer(experiencefile)
 experiencewriter.writerow(
     ['user id', 'start date', 'end date', 'job title', 'company'])
-experiencefile.close()
 
 userfile = open('users.csv', 'w')
 userwriter = csv.writer(userfile)
 userwriter.writerow(
     ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company'])
-userfile.close()
-
 
 q = andb.query(LIProfile.id)
 splitProcess(q, writeProfiles, batchsize,
              njobs=njobs, logger=logger,
              workdir='jobs', prefix='nesta_dump')
+
+with fileinput.input(glob.glob('jobs/experiences*.csv')) as fin:
+    for line in fin:
+        experiencefile.write(line)
+experiencefile.close()
+
+with fileinput.input(glob.glob('jobs/users*.csv')) as fin:
+    for line in fin:
+        userfile.write(line)
+userfile.close()
