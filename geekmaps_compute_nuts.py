@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 
-def addProfileSkills(fromid, toid, fromdate, todate, nuts):
+def addProfileSkills(jobid, fromid, toid, fromdate, todate, nuts):
     batchsize = 1000
 
     cndb = CanonicalDB(conf.CANONICAL_DB)

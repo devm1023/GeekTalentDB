@@ -11,7 +11,7 @@ timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 
 
-def parseProfiles(fromid, toid, fromTs, toTs):
+def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     batchsize = 50
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)

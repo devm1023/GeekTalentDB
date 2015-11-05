@@ -110,11 +110,10 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
       query (sqlalchemy Query object): The query returning the values to split
         on. `query` must have exactly one column.
       f (callable): The function to apply to the ranges. The first two arguments
-        of `f` must be the lower (inclusive) and upper (exclusive) limits for
+        passed to `f` are the lower (inclusive) and upper (exclusive) limits for
         the values returned by `query`. The second argument may be ``None``,
-        which means no upper limit. The return value of `f` must be a tuple
-        holding the number of processed records and the id of the
-        last processed record.
+        which means no upper limit. The third argument passed to `f` is the
+        ID of the parallel job.
       batchsize (int): The size (i.e. number of distinct `query` values) of the 
         intervals that are passed to `f`.
       njobs (int, optional): Number of parallel processes to start. Defaults to
@@ -134,7 +133,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
             starttime = datetime.now()
             _log_batchstart(logger, starttime, fromid)
-            f(*([fromid, toid]+args))
+            f(*([0, fromid, toid]+args))
             endtime = datetime.now()
             _log_batchend(logger, starttime, endtime, firststart,
                           fromrow, torow, nrows)
@@ -150,7 +149,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
                                            prefix=prefix,
                                            tries=1)
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
-            pargs.append([fromid, toid]+args)
+            pargs.append([len(pargs), fromid, toid]+args)
             if fromid_batch is None or fromid < fromid_batch:
                 fromid_batch = fromid
             if toid is not None and (toid_batch is None or toid > toid_batch):
@@ -183,7 +182,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
 
 
 def processDb(q, f, db, batchsize=1000, logger=Logger(None),
-           msg='processDb: {0:d} records processed.\n'):
+              msg='processDb: {0:d} records processed.\n'):
     recordcount = 0
     for rec in q:
         f(rec)

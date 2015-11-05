@@ -70,7 +70,7 @@ def entities2(q):
         yield currententity, bestprofilename, profilecount, experiencecount
 
 
-def addSkills(fromskill, toskill):
+def addSkills(jobid, fromskill, toskill):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -109,7 +109,7 @@ def addSkills(fromskill, toskill):
     processDb(q, addExperienceSkill, andb, logger=logger)
 
 
-def addTitles(fromtitle, totitle):
+def addTitles(jobid, fromtitle, totitle):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -143,7 +143,7 @@ def addTitles(fromtitle, totitle):
     processDb(entities2(q), addTitle, andb, logger=logger)
 
 
-def addCompanies(fromcompany, tocompany):
+def addCompanies(jobid, fromcompany, tocompany):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -177,7 +177,7 @@ def addCompanies(fromcompany, tocompany):
     processDb(entities2(q), addCompany, andb, logger=logger)
 
 
-def addLocations(fromplaceid, toplaceid):
+def addLocations(jobid, fromplaceid, toplaceid):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)

@@ -29,7 +29,7 @@ def entities(q):
         yield currententity, bestname, profilecount
 
 
-def addSkills(fromskill, toskill):
+def addSkills(jobid, fromskill, toskill):
     batchsize = 1000
 
     cndb = CanonicalDB(conf.CANONICAL_DB)
@@ -56,7 +56,7 @@ def addSkills(fromskill, toskill):
                    .format(skillcount))
 
 
-def addTitles(fromtitle, totitle):
+def addTitles(jobid, fromtitle, totitle):
     batchsize = 1000
 
     cndb = CanonicalDB(conf.CANONICAL_DB)
@@ -85,7 +85,7 @@ def addTitles(fromtitle, totitle):
                    .format(titlecount))
 
 
-def addCompanies(fromcompany, tocompany):
+def addCompanies(jobid, fromcompany, tocompany):
     batchsize = 1000
 
     cndb = CanonicalDB(conf.CANONICAL_DB)

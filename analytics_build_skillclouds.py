@@ -7,7 +7,7 @@ from logger import Logger
 from windowquery import splitProcess, processDb
 
 
-def addTitleSkills(fromtitle, totitle,
+def addTitleSkills(jobid, fromtitle, totitle,
                    titlethreshold, skillthreshold, countthreshold):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -39,7 +39,7 @@ def addTitleSkills(fromtitle, totitle,
     processDb(q, addTitleSkill, andb, logger=logger)
 
 
-def addCompanySkills(fromcompany, tocompany,
+def addCompanySkills(jobid, fromcompany, tocompany,
                      companythreshold, skillthreshold, countthreshold):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -71,7 +71,7 @@ def addCompanySkills(fromcompany, tocompany,
     processDb(q, addCompanySkill, andb, logger=logger)
 
 
-def addSkillSkills(fromskill, toskill,
+def addSkillSkills(jobid, fromskill, toskill,
                    skill1threshold, skill2threshold, countthreshold):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)

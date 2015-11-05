@@ -7,7 +7,7 @@ from sqlalchemy import and_
 from windowquery import splitProcess
 
 
-def processLocations(fromlocation, tolocation, fromdate, todate):
+def processLocations(jobid, fromlocation, tolocation, fromdate, todate):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
     batchsize = 10

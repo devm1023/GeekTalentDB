@@ -8,7 +8,7 @@ from sqldb import dictFromRow
 from windowquery import splitProcess, processDb
 
 
-def addLIProfiles(fromid, toid):
+def addLIProfiles(jobid, fromid, toid):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
