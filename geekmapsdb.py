@@ -24,7 +24,6 @@ from sqlalchemy import \
     Float, \
     func
 from geoalchemy2 import Geometry
-from phrasematch import clean, stem, tokenize, matchStems
 
 
 STR_MAX = 100000

@@ -48,6 +48,12 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
             indexedOn = timestamp0 + timedelta(milliseconds=liprofile.indexedOn)
         else:
             indexedOn = None
+
+        connections = None
+        try:
+            connections = int(liprofile.connections)
+        except (TypeError, ValueError):
+            pass
         
         profiledict = {
             'datoinId'    : liprofile.id,
@@ -58,6 +64,7 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
             'url'         : liprofile.profileUrl,
             'pictureUrl'  : liprofile.profilePictureUrl,
             'skills'      : liprofile.categories,
+            'connections' : connections,
             'indexedOn'   : indexedOn,
             'experiences' : [],
             'educations'  : []
@@ -93,6 +100,38 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
                 'indexedOn'      : indexedOn,
                 }
             profiledict['experiences'].append(experiencedict)
+
+        for education in dtdb.query(Education) \
+                             .filter(Education.parentId == liprofile.id):
+            if education.dateFrom:
+                start = timestamp0 + timedelta(milliseconds=education.dateFrom)
+            else:
+                start = None
+            if start is not None and education.dateTo:
+                end = timestamp0 + timedelta(milliseconds=education.dateTo)
+            else:
+                end = None
+            if start and end and start > end:
+                start = None
+                end = None
+
+            if education.indexedOn:
+                indexedOn = timestamp0 + \
+                            timedelta(milliseconds=education.indexedOn)
+            else:
+                indexedOn = None
+
+            educationdict = {
+                'datoinId'       : education.id,
+                'institute'      : education.institute,
+                'degree'         : education.degree,
+                'subject'        : education.area,
+                'start'          : start,
+                'end'            : end,
+                'description'    : education.description,
+                'indexedOn'      : indexedOn,
+                }
+            profiledict['educations'].append(educationdict)
 
         cndb.addLIProfile(profiledict, now)
 

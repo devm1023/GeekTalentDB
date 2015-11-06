@@ -29,7 +29,8 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from phrasematch import clean, stem, tokenize, matchStems
+from phrasematch import matchStems
+from textnormalization import tokenizedSkill
 
 
 STR_MAX = 100000
@@ -49,9 +50,10 @@ class LIProfile(SQLBase):
     company           = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
+    connections       = Column(Integer)
     totalExperience   = Column(Integer) # total work experience in days
-    profileUrl        = Column(String(STR_MAX))
-    profilePictureUrl = Column(String(STR_MAX))
+    url               = Column(String(STR_MAX))
+    pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
 
     experiences       = relationship('Experience',
@@ -154,9 +156,9 @@ def _makeExperience(experience, now):
 
 def _makeEducation(education):
     education = deepcopy(education)
-    education['nrmInstitute']   = normalizedInstitute(edict['institute'])
-    education['nrmDegree']      = normalizedDegree(edict['degree'])
-    education['nrmSubject']     = normalizedSubject(edict['subject'])
+    education['nrmInstitute']   = normalizedInstitute(education['institute'])
+    education['nrmDegree']      = normalizedDegree(education['degree'])
+    education['nrmSubject']     = normalizedSubject(education['subject'])
     return education
 
 def _makeSkill(skillname):
@@ -212,9 +214,11 @@ class CanonicalDB(SQLDatabase):
     def rankSkills(self, liprofile):
         skills = liprofile.skills
         experiences = liprofile.experiences
-        descriptionstems = [stem(_joinfields(experience.title,
-                                             experience.description)) \
-                            for experience in experiences]
+        descriptionstems = [
+            tokenizedSkill(
+                _joinfields(experience.title, experience.description),
+                removebrackets=False) \
+            for experience in experiences]
         skillstems = [skill.nrmName.split() if skill.nrmName else [] \
                       for skill in skills]
 
@@ -238,7 +242,8 @@ class CanonicalDB(SQLDatabase):
 
         # match profile text
         profiletext = _joinfields(liprofile.title, liprofile.description)
-        matches = (matchStems(skillstems, [stem(profiletext)],
+        profiletextstems = tokenizedSkill(profiletext, removebrackets=False)
+        matches = (matchStems(skillstems, [profiletextstems],
                               threshold=conf.SKILL_MATCHING_THRESHOLD) > \
                    conf.SKILL_MATCHING_THRESHOLD)
         for iskill, skill in enumerate(skills):

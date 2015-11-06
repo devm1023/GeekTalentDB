@@ -1,6 +1,7 @@
 __all__ = [
     'LIProfile',
     'Experience',
+    'Education',
     'DatoinDB',
     ]
 
