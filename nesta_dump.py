@@ -78,7 +78,7 @@ def writeProfiles(jobid, fromid, toid, adminMode):
 
                 row = [liprofile.id, startdate, enddate, title, company]
                 if adminMode:
-                    row += [experience.datoinId]
+                    row += [experience.datoinId, liprofile.datoinId]
                 experiencewriter.writerow(row)
 
     experiencefile.close()
@@ -116,14 +116,14 @@ experiencefile = open('experiences.csv', 'w')
 experiencewriter = csv.writer(experiencefile)
 titlerow = ['user id', 'start date', 'end date', 'job title', 'company']
 if adminMode:
-    titlerow += ['datoinId']
+    titlerow += ['datoin experience id', 'datoin parent id']
 experiencewriter.writerow(titlerow)
 
 userfile = open('users.csv', 'w')
 userwriter = csv.writer(userfile)
 titlerow = ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company']
 if adminMode:
-    titlerow += ['datoinId']
+    titlerow += ['datoin id']
 userwriter.writerow(titlerow)
 
 q = andb.query(LIProfile.id)
