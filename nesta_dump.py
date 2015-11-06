@@ -15,7 +15,7 @@ mindate = date(year=2013, month=11, day=1)
 companies = ['IBM']
 
     
-def writeProfiles(jobid, fromid, toid):
+def writeProfiles(jobid, fromid, toid, adminMode):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     
     experiencefile = open('experiences{0:03d}.csv'.format(jobid), 'w')
@@ -54,8 +54,10 @@ def writeProfiles(jobid, fromid, toid):
         if liprofile.company is not None:
             company = liprofile.company.name
 
-        userwriter.writerow(
-            [liprofile.id, skills, latstr, lonstr, title, company])
+        row = [liprofile.id, skills, latstr, lonstr, title, company]
+        if adminMode:
+            row += [liprofile.datoinId]
+        userwriter.writerow(row)
 
         if liprofile.experiences is not None:
             for experience in liprofile.experiences:
@@ -74,8 +76,10 @@ def writeProfiles(jobid, fromid, toid):
                 if experience.company is not None:
                     company = experience.company.name
 
-                experiencewriter.writerow(
-                    [liprofile.id, startdate, enddate, title, company])
+                row = [liprofile.id, startdate, enddate, title, company]
+                if adminMode:
+                    row += [experience.datoinId]
+                experiencewriter.writerow(row)
 
     experiencefile.close()
     userfile.close()
@@ -88,8 +92,11 @@ logger = Logger(sys.stdout)
 try:
     njobs = int(sys.argv[1])
     batchsize = int(sys.argv[2])
+    adminMode = False
+    if len(sys.argv) > 3:
+        adminMode = sys.argv[3] == '--admin'
 except ValueError:
-    logger.log('usage: python3 nesta_dump.py <njobs> <batchsize>\n')
+    logger.log('usage: python3 nesta_dump.py <njobs> <batchsize> [--admin]\n')
 
 logger.log('Retrieving companies...')
 nrmCompanies = []
@@ -107,17 +114,21 @@ for company in nrmCompanies:
 
 experiencefile = open('experiences.csv', 'w')
 experiencewriter = csv.writer(experiencefile)
-experiencewriter.writerow(
-    ['user id', 'start date', 'end date', 'job title', 'company'])
+titlerow = ['user id', 'start date', 'end date', 'job title', 'company']
+if adminMode:
+    titlerow += ['datoinId']
+experiencewriter.writerow(titlerow)
 
 userfile = open('users.csv', 'w')
 userwriter = csv.writer(userfile)
-userwriter.writerow(
-    ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company'])
+titlerow = ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company']
+if adminMode:
+    titlerow += ['datoinId']
+userwriter.writerow(titlerow)
 
 q = andb.query(LIProfile.id)
 splitProcess(q, writeProfiles, batchsize,
-             njobs=njobs, logger=logger,
+             args=[adminMode], njobs=njobs, logger=logger,
              workdir='jobs', prefix='nesta_dump')
 
 with fileinput.input(glob.glob('jobs/experiences*.csv')) as fin:
