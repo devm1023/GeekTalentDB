@@ -4,7 +4,20 @@ import unicodedata
 import re
 
 _stemmer = nltk.stem.snowball.SnowballStemmer('english')
-_stopwords = nltk.corpus.stopwords.words('english')
+_stopwords = set([
+        'a',
+        'as',
+        'at',
+        'the',
+        'for',
+        'and',
+        'or',
+        'of',
+        'in',
+        'by',
+        'with',
+        'via',
+])    
 
 def clean(s, keep='', nospace='', lowercase=False, removebrackets=False, 
           removestopwords=False, sort=False, removeduplicates=False,
@@ -215,16 +228,13 @@ def normalizedCompany(name):
     """
     if not name:
         return None
-    replace = [
-        (' limited', ' ltd'),
-        ]
+    stopwords = _stopwords | set(['limited', 'ltd'])
     nname = clean(name,
                   keep=',-/&',
                   nospace='\'’',
                   lowercase=True,
                   removebrackets=True,
-                  removestopwords=True,
-                  replace=replace)
+                  removestopwords=stopwords)
     
     nname = nname.split(',')[0]
     nname = nname.split(' - ')[0]
@@ -273,14 +283,7 @@ def normalizedDegree(name):
         return None
     nname = name.split(',')[0]
     regexreplace = [
-        (r'\bdegree\b', ''),
-        (r'\bhons\b', ''),
-        (r'\bhonours\b', ''),
-        (r'\bfirst\s+class\b', ''),
-        (r'\bfirst\b', ''),
-        (r'\b1st\b', ''),
-        (r'\b2[:.]1\b', ''),
-        (r'\b2[:.]2\b', ''),
+        (r'\b[0-9]+((st)|(nd)|(rd)|(th))?\b', ''),
         (r'\bb\.?\s*s\.?\s*c\b', 'bachelor of science'),
         (r'\bb\.?\s*a\b', 'bachelor of arts'),
         (r'\bb\.?\s*eng\b', 'bachelor of engineering'),
@@ -289,14 +292,15 @@ def normalizedDegree(name):
         (r'\bm\.?\s*b\.?\s*a\b', 'master of business administration'),
         (r'\bm\.?\s*phil\b', 'master of philosophy'),
         (r'\bph\.?\s*d\b', 'doctor of philosophy'),
-        (r'\b([0-9]+\s+)?a[- ]+levels?\b', 'alevel'),
-        (r"\b([0-9]+\s+)?gcse['’]?s?\b", 'gcse'),
         ]
+    stopwords \
+        = (_stopwords - set(['a', 'as'])) | \
+        set(['degree', 'hons', 'honours', 'honors', 'first', 'class'])
     nname = clean(nname,
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  removestopwords=True,
+                  removestopwords=stopwords,
                   regexreplace=regexreplace,
                   stem=True)
     if not nname:
