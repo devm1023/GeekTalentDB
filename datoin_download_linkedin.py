@@ -71,6 +71,12 @@ def addProfile(dtdb, profile, dtsession, logger):
         logger.log('invalid profile city\n')
         return False
 
+    # get sector
+    sector = profile.get('sector', None)
+    if sector is not None and type(sector) is not str:
+        logger.log('invalid profile sector\n')
+        return False
+    
     # get title
     title = profile.get('title', None)
     if title is not None and type(title) is not str:
@@ -122,11 +128,27 @@ def addProfile(dtdb, profile, dtsession, logger):
         logger.log('invalid profile indexedOn\n')
         return False
 
+    # get crawl date
+    crawledOn = profile.get('crawledOn', None)
+    if crawledOn is not None and type(crawledOn) is not int:
+        logger.log('invalid profile crawledOn\n')
+        return False        
+    
     # get connections
     connections = profile.get('connections', None)
     if connections is not None and type(connections) is not str:
         logger.log('invalid profile connections\n')
-        return False    
+        return False
+
+    # get groups
+    groups = profile.get('groups', [])
+    if type(groups) is not list:
+        logger.log('invalid profile groups\n')
+        return False
+    for group in groups:
+        if type(group) is not str:
+            logger.log('invalid profile groups\n')
+            return False
 
     # get skills
     categories = profile.get('categories', [])
@@ -146,20 +168,23 @@ def addProfile(dtdb, profile, dtsession, logger):
         'name'              : name,
         'country'           : country,
         'city'              : city,
+        'sector'            : sector,
         'title'             : title,
         'description'       : description,
         'profileUrl'        : profileUrl,
         'profilePictureUrl' : profilePictureUrl,
         'indexedOn'         : indexedOn,
+        'crawledOn'         : crawledOn,
         'connections'       : connections,
         'categories'        : categories,
+        'groups'            : groups
         }
         
     # get experiences
     experiences = []
     for experience in dtsession.query(
             url=conf.DATOIN_PROFILES+'/'+profile_id+'/experiences',
-            params={}):
+            params={}, batchsize=20):
         # get id
         if 'id' not in experience:
             return False
@@ -220,7 +245,7 @@ def addProfile(dtdb, profile, dtsession, logger):
     educations = []
     for education in dtsession.query(
             url=conf.DATOIN_PROFILES+'/'+profile_id+'/educations',
-            params={}):
+            params={}, batchsize=20):
         # get id
         if 'id' not in education:
             return False
@@ -246,7 +271,11 @@ def addProfile(dtdb, profile, dtsession, logger):
             return False
 
         # get area
+        if 'area' in education and 'areaS' in education:
+            return False
         area = education.get('area', None)
+        if area is None:
+            area = education.get('areaS', None)
         if area is not None and type(area) is not str:
             return False
         
@@ -296,9 +325,9 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     logger.log('Downloading {0:d} profiles.\n'.format(rows))
     failed_offsets = []
     count = 0
-    for profile in dtsession.query(params={'sid'    : 'linkedin',
-                                           'fromTs' : fromTs,
-                                           'toTs'   : toTs},
+    for profile in dtsession.query(params={'sid'         : 'linkedin',
+                                           'crawledFrom' : fromTs,
+                                           'crawledTo'   : toTs},
                                    rows=rows,
                                    offset=offset):
         if not addProfile(dtdb, profile, dtsession, logger):

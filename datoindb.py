@@ -34,14 +34,16 @@ class LIProfile(SQLBase):
     name              = Column(Unicode(STR_MAX))
     country           = Column(Unicode(STR_MAX))
     city              = Column(Unicode(STR_MAX))
+    sector            = Column(Unicode(STR_MAX))
     title             = Column(Unicode(STR_MAX))
     description       = Column(Unicode(STR_MAX))
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(BigInteger, index=True)
+    crawledOn         = Column(BigInteger, index=True)
     connections       = Column(String(STR_MAX))
     categories        = Column(Array(Unicode(STR_MAX)))
-    # TODO: add groups column
+    groups            = Column(Array(Unicode(STR_MAX)))
 
 class Experience(SQLBase):
     __tablename__ = 'experience'
