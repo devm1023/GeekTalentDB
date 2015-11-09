@@ -201,6 +201,78 @@ def addLocations(jobid, fromplaceid, toplaceid):
     processDb(q, addLocation, andb, logger=logger) 
 
 
+def addInstitutes(jobid, frominstitute, toinstitute):
+    cndb = CanonicalDB(conf.CANONICAL_DB)
+    andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = cndb.query(Education.nrmInstitute, Education.institute,
+                   func.count(Education.id)) \
+            .filter(Education.nrmInstitute >= frominstitute)
+    if toinstitute is not None:
+        q = q.filter(Education.nrmInstitute < toinstitute)
+    q = q.group_by(Education.nrmInstitute, Education.institute) \
+         .order_by(Education.nrmInstitute)
+
+    def addInstitute(rec):
+        nrmName, name, count = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'count'           : count,
+            }, analyticsdb.Institute)
+    
+    processDb(entities(q), addInstitute, andb, logger=logger)
+
+
+def addDegrees(jobid, fromdegree, todegree):
+    cndb = CanonicalDB(conf.CANONICAL_DB)
+    andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = cndb.query(Education.nrmDegree, Education.degree,
+                   func.count(Education.id)) \
+            .filter(Education.nrmDegree >= fromdegree)
+    if todegree is not None:
+        q = q.filter(Education.nrmDegree < todegree)
+    q = q.group_by(Education.nrmDegree, Education.degree) \
+         .order_by(Education.nrmDegree)
+
+    def addDegree(rec):
+        nrmName, name, count = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'count'           : count,
+            }, analyticsdb.Degree)
+    
+    processDb(entities(q), addDegree, andb, logger=logger)
+
+
+def addSubjects(jobid, fromsubject, tosubject):
+    cndb = CanonicalDB(conf.CANONICAL_DB)
+    andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = cndb.query(Education.nrmSubject, Education.subject,
+                   func.count(Education.id)) \
+            .filter(Education.nrmSubject >= fromsubject)
+    if tosubject is not None:
+        q = q.filter(Education.nrmSubject < tosubject)
+    q = q.group_by(Education.nrmSubject, Education.subject) \
+         .order_by(Education.nrmSubject)
+
+    def addSubject(rec):
+        nrmName, name, count = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'count'           : count,
+            }, analyticsdb.Subject)
+    
+    processDb(entities(q), addSubject, andb, logger=logger)
+
+
 cndb = CanonicalDB(conf.CANONICAL_DB)
 logger = Logger(sys.stdout)
 
@@ -211,13 +283,15 @@ try:
     startval = None
     if len(sys.argv) > 3:
         catalog = sys.argv[3]
-        if catalog not in ['skills', 'titles', 'companies', 'locations']:
+        if catalog not in ['skills', 'titles', 'companies', 'locations',
+                           'institutes', 'degrees', 'subjects']:
             raise ValueError('Invalid catalog string')
     if len(sys.argv) > 4:
         startval = sys.argv[4]
 except ValueError:
     logger.log('usage: python3 build_catalogs.py <njobs> <batchsize> '
-               '[(skills | titles | companies | locations) [<start-value>]]\n')
+               '[(skills | titles | companies | locations | institutes | '
+               'degrees | subjects) [<start-value>]]\n')
 
 if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')
@@ -260,3 +334,30 @@ if catalog is None or catalog == 'locations':
     splitProcess(q, addLocations, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_locations')
+
+if catalog is None or catalog == 'institutes':
+    logger.log('\nBuilding institutes catalog.\n')
+    q = cndb.query(Education.nrmInstitute).filter(Education.nrmInstitute != None)
+    if startval:
+        q = q.filter(Education.nrmInstitute >= startval)
+    splitProcess(q, addInstitutes, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='build_institutes')
+
+if catalog is None or catalog == 'degrees':
+    logger.log('\nBuilding degrees catalog.\n')
+    q = cndb.query(Education.nrmDegree).filter(Education.nrmDegree != None)
+    if startval:
+        q = q.filter(Education.nrmDegree >= startval)
+    splitProcess(q, addDegrees, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='build_degrees')
+
+if catalog is None or catalog == 'subjects':
+    logger.log('\nBuilding subjects catalog.\n')
+    q = cndb.query(Education.nrmSubject).filter(Education.nrmSubject != None)
+    if startval:
+        q = q.filter(Education.nrmSubject >= startval)
+    splitProcess(q, addSubjects, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='build_subjects')

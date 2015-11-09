@@ -1,12 +1,16 @@
 __all__ = [
     'LIProfile',
     'Experience',
+    'Education',
     'LIProfileSkill',
     'ExperienceSkill',
     'Skill',
     'Title',
     'Company',
     'Location',
+    'Institute',
+    'Degree',
+    'Subject',
     'TitleSkill',
     'CompanySkill',
     'SkillSkill',
@@ -43,18 +47,20 @@ class LIProfile(SQLBase):
     datoinId          = Column(String(STR_MAX), index=True)
     name              = Column(Unicode(STR_MAX))
     placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
+    rawTitle          = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX),
                                ForeignKey('title.nrmName'),
                                nullable=True,
                                index=True)
+    rawCompany        = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX),
                                ForeignKey('company.nrmName'),
                                nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
     totalExperience   = Column(Integer)
-    profileUrl        = Column(String(STR_MAX))
-    profilePictureUrl = Column(String(STR_MAX))
+    url               = Column(String(STR_MAX))
+    pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
 
     title = relationship('Title')
@@ -76,9 +82,11 @@ class Experience(SQLBase):
     liprofileId    = Column(BigInteger,
                             ForeignKey('liprofile.id'),
                             index=True)
+    rawTitle       = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX),
                             ForeignKey('title.nrmName'),
                             index=True)
+    rawCompany     = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),
                             index=True)
@@ -94,6 +102,34 @@ class Experience(SQLBase):
                           order_by='ExperienceSkill.nrmSkill',
                           cascade='all, delete-orphan')
 
+class Education(SQLBase):
+    __tablename__ = 'education'
+    id          = Column(BigInteger, primary_key=True)
+    datoinId    = Column(String(STR_MAX))
+    profileId   = Column(BigInteger,
+                         ForeignKey('liprofile.id'),
+                         index=True)
+    rawInstitute   = Column(Unicode(STR_MAX))
+    nrmInstitute   = Column(Unicode(STR_MAX),
+                            ForeignKey('institute.nrmName'),
+                            index=True)
+    rawdegree      = Column(Unicode(STR_MAX))
+    nrmDegree      = Column(Unicode(STR_MAX),
+                            ForeignKey('degree.nrmName'),
+                            index=True)
+    rawsubject     = Column(Unicode(STR_MAX))
+    nrmSubject     = Column(Unicode(STR_MAX),
+                            ForeignKey('subject.nrmName'),
+                            index=True)
+    start          = Column(Date)
+    end            = Column(Date)
+    description    = Column(Unicode(STR_MAX))
+    indexedOn      = Column(Date)
+
+    institute = relationship('Institute')
+    degree = relationship('Degree')
+    subject = relationship('Subject')
+    
     
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
@@ -156,6 +192,31 @@ class Location(SQLBase):
                        autoincrement=False)
     name      = Column(Unicode(STR_MAX))
     geo       = Column(Geometry('POINT'))
+
+class Institute(SQLBase):
+    __tablename__ = 'institute'
+    nrmName         = Column(Unicode(STR_MAX),
+                             primary_key=True,
+                             autoincrement=False)
+    name            = Column(Unicode(STR_MAX))
+    count           = Column(BigInteger)
+
+class Degree(SQLBase):
+    __tablename__ = 'degree'
+    nrmName         = Column(Unicode(STR_MAX),
+                             primary_key=True,
+                             autoincrement=False)
+    name            = Column(Unicode(STR_MAX))
+    count           = Column(BigInteger)
+
+class Subject(SQLBase):
+    __tablename__ = 'subject'
+    nrmName         = Column(Unicode(STR_MAX),
+                             primary_key=True,
+                             autoincrement=False)
+    name            = Column(Unicode(STR_MAX))
+    count           = Column(BigInteger)
+
 
 class TitleSkill(SQLBase):
     __tablename__ = 'title_skill'

@@ -22,11 +22,31 @@ def addLIProfiles(jobid, fromid, toid):
     def addLIProfile(rec):
         liprofile, location = rec
         liprofiledict = dictFromRow(liprofile)
+        
+        if 'title' in liprofiledict:
+            liprofiledict['rawTitle'] = liprofiledict.pop('title')
+        if 'company' in liprofiledict:
+            liprofiledict['rawCompany'] = liprofiledict.pop('company')
+            
         if liprofiledict.get('experiences', None) is not None:
-            for experience in liprofiledict['experiences']:
+            for experience in liprofiledict['experiences']:                
+                if 'title' in experience:
+                    experience['rawTitle'] = experience.pop('title')
+                if 'company' in experience:
+                    experience['rawCompany'] = experience.pop('company')
                 if experience.get('skills', None) is not None:
                     experience['skills'] \
                         = [s['skill']['nrmName'] for s in experience['skills']]
+
+        if liprofiledict.get('educations', None) is not None:
+            for education in liprofiledict['educations']:                
+                if 'institute' in education:
+                    education['rawInstitute'] = education.pop('institute')
+                if 'degree' in education:
+                    education['rawDegree'] = education.pop('degree')
+                if 'subject' in education:
+                    education['rawSubject'] = education.pop('subject')
+                    
         if location is not None:
             liprofiledict['placeId'] = location.placeId
             
