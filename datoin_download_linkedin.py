@@ -374,11 +374,11 @@ def downloadProfiles(fromTs, toTs, offset, rows):
 
 def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
     logger = Logger(sys.stdout)
-    fromTs = int((tfrom - timestamp0).total_seconds())
-    toTs   = int((tto   - timestamp0).total_seconds())
-    nprofiles = datoin.count(params={'sid'    : 'linkedin',
-                                     'fromTs' : fromTs,
-                                     'toTs'   : toTs})
+    fromTs = int((tfrom - timestamp0).total_seconds())*1000
+    toTs   = int((tto   - timestamp0).total_seconds())*1000
+    nprofiles = datoin.count(params={'sid'         : 'linkedin',
+                                     'crawledFrom' : fromTs,
+                                     'crawledTo'   : toTs})
     logger.log(
         'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
         .format(tfrom.strftime('%Y-%m-%d'), fromTs,
