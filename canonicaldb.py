@@ -92,8 +92,7 @@ class Experience(SQLBase):
 
 class Education(SQLBase):
     __tablename__ = 'education'
-    # TODO: change this to BigInteger
-    id          = Column(Integer, primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
     profileId   = Column(BigInteger,
                          ForeignKey('liprofile.id'),
