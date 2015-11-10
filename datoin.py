@@ -1,17 +1,17 @@
 import conf
 import requests
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ChunkedEncodingError, \
+    ReadTimeout
+from urllib.parse import urlencode
 import sys
-from logger import Logger
 import time
-
-
-logger = Logger(None)
+from logger import Logger
 
 
 class Session:
-    def __init__(self):
+    def __init__(self, logger=Logger(None)):
         self._session = requests.Session()
+        self._logger = logger
 
     def count(self,
               params={},
@@ -29,7 +29,8 @@ class Session:
               rows=None,
               offset=0,
               batchsize=100,
-              maxdelay=60):
+              maxdelay=10,
+              timeout=10):
         maxdelay = max(1, maxdelay)
 
         curr_offset=offset
@@ -49,20 +50,27 @@ class Session:
             curr_params['start'] = curr_offset
             curr_params['rows'] = curr_batchsize
 
-            logger.log('Requesting data...')
             delay = 1
             while True:
                 try:
-                    r = self._session.get(url, params=curr_params).json()
+                    request_url = '?'.join([url, urlencode(curr_params)])
+                    r = self._session.get(url,
+                                          params=curr_params,
+                                          timeout=timeout)
+                    r = r.json()
                     if 'results' not in r:
                         raise RuntimeError('Invalid reply: '+repr(r))
                     break
-                except (RuntimeError, ConnectionError):
+                except (RuntimeError, \
+                        ConnectionError, \
+                        ChunkedEncodingError,
+                        ReadTimeout) as e:
+                    self._logger.log('URL: '+request_url+'\n')
+                    self._logger.log(str(e)+'\n')
                     if delay >= maxdelay:
                         raise
                     time.sleep(delay)
                     delay *= 2
-            logger.log('done.\n')
             if not r['results']:
                 break
             else:
@@ -72,8 +80,8 @@ class Session:
             curr_offset += batchsize
 
 
-def count(params={}, url=conf.DATOIN_SEARCH):
-    session = Session()
+def count(params={}, url=conf.DATOIN_SEARCH, logger=Logger(None)):
+    session = Session(logger=logger)
     return session.count(params=params, url=url)
 
 def query(params={},
@@ -81,8 +89,10 @@ def query(params={},
           rows=None,
           offset=0,
           batchsize=100,
-          maxdelay=60):
-    session = Session()
+          maxdelay=10,
+          timeout=10,
+          logger=Logger(None)):
+    session = Session(logger=logger)
     for row in session.query(params=params, url=url,
                              rows=rows, offset=offset, batchsize=batchsize,
                              maxdelay=maxdelay):

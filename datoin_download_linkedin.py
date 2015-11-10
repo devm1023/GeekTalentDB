@@ -320,9 +320,10 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     logger = Logger(sys.stdout)
     BATCH_SIZE = 10
     dtdb = DatoinDB(url=conf.DATOIN_DB)
-    dtsession = datoin.Session()
+    dtsession = datoin.Session(logger=logger)
 
-    logger.log('Downloading {0:d} profiles.\n'.format(rows))
+    logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
+               .format(rows, offset))
     failed_offsets = []
     count = 0
     for profile in dtsession.query(params={'sid'         : 'linkedin',
