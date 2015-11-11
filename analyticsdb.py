@@ -72,6 +72,9 @@ class LIProfile(SQLBase):
     experiences = relationship('Experience',
                                order_by='Experience.start',
                                cascade='all, delete-orphan')
+    educations = relationship('Education',
+                              order_by='Education.start',
+                              cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
