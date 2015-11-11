@@ -131,6 +131,8 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
     firststart = datetime.now()
     if njobs <= 1:
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
+            if fromid is None:
+                continue
             starttime = datetime.now()
             _log_batchstart(logger, starttime, fromid)
             f(*([0, fromid, toid]+args))
@@ -149,6 +151,8 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
                                            prefix=prefix,
                                            tries=1)
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
+            if fromid is None:
+                continue
             pargs.append([len(pargs), fromid, toid]+args)
             if fromid_batch is None or fromid < fromid_batch:
                 fromid_batch = fromid

@@ -129,10 +129,10 @@ def addProfile(dtdb, profile, dtsession, logger):
         return False
 
     # get crawl date
-    crawledOn = profile.get('crawledOn', None)
-    if crawledOn is not None and type(crawledOn) is not int:
-        logger.log('invalid profile crawledOn\n')
-        return False        
+    crawledDate = profile.get('crawledDate', None)
+    if crawledDate is not None and type(crawledDate) is not int:
+        logger.log('invalid profile crawledDate\n')
+        return False
     
     # get connections
     connections = profile.get('connections', None)
@@ -174,7 +174,7 @@ def addProfile(dtdb, profile, dtsession, logger):
         'profileUrl'        : profileUrl,
         'profilePictureUrl' : profilePictureUrl,
         'indexedOn'         : indexedOn,
-        'crawledOn'         : crawledOn,
+        'crawledDate'       : crawledDate,
         'connections'       : connections,
         'categories'        : categories,
         'groups'            : groups

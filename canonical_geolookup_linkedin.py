@@ -12,8 +12,8 @@ def processLocations(jobid, fromlocation, tolocation, fromdate, todate):
     logger = Logger(sys.stdout)
     batchsize = 10
     q = cndb.query(LIProfile.nrmLocation) \
-            .filter(LIProfile.indexedOn >= fromdate,
-                    LIProfile.indexedOn < todate,
+            .filter(LIProfile.crawledOn >= fromdate,
+                    LIProfile.crawledOn < todate,
                     LIProfile.nrmLocation >= fromlocation)
     if tolocation is not None:
         q = q.filter(LIProfile.nrmLocation < tolocation)
@@ -39,8 +39,8 @@ fromlocation = None
 if len(sys.argv) > 5:
     fromlocation = sys.argv[5]
 
-filter = and_(LIProfile.indexedOn >= fromdate,
-              LIProfile.indexedOn < todate)
+filter = and_(LIProfile.crawledOn >= fromdate,
+              LIProfile.crawledOn < todate)
 if fromlocation is not None:
     filter = and_(filter, LIProfile.nrmLocation >= fromlocation)
 

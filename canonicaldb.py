@@ -47,6 +47,8 @@ class LIProfile(SQLBase):
     title             = Column(Unicode(STR_MAX))
     parsedTitle       = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
+    sector            = Column(Unicode(STR_MAX))
+    nrmSector         = Column(Unicode(STR_MAX), index=True)
     company           = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
@@ -55,6 +57,7 @@ class LIProfile(SQLBase):
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
+    crawledOn         = Column(Date, index=True)
 
     experiences       = relationship('Experience',
                                      order_by='Experience.start',
@@ -186,6 +189,7 @@ def _makeLIProfile(liprofile, now):
     liprofile['nrmLocation']     = normalizedLocation(liprofile['location'])
     liprofile['parsedTitle']     = parsedTitle(liprofile['title'])
     liprofile['nrmTitle']        = normalizedTitle(liprofile['title'])
+    liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
     liprofile['nrmCompany']      = normalizedCompany(company)
     liprofile['totalExperience'] = 0

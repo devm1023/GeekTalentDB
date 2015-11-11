@@ -176,6 +176,29 @@ def addCompanies(jobid, fromcompany, tocompany):
     
     processDb(entities2(q), addCompany, andb, logger=logger)
 
+def addSectors(jobid, fromsector, tosector):
+    cndb = CanonicalDB(conf.CANONICAL_DB)
+    andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = cndb.query(LIProfile.nrmSector, LIProfile.sector, \
+                   func.count(LIProfile.id)) \
+            .filter(LIProfile.nrmSector != None) \
+            .filter(LIProfile.nrmSector >= fromsector)
+    if tosector is not None:
+        q = q.filter(LIProfile.nrmSector < tosector)
+    q = q.distinct().order_by(LIProfile.nrmSector)
+
+    def addSector(rec):
+        nrmName, name, count = rec
+        andb.addFromDict({
+            'nrmName'         : nrmName,
+            'name'            : name,
+            'count'           : count,
+        }, analyticsdb.Sector)
+
+    processDb(q, addSector, andb, logger=logger) 
+
 
 def addLocations(jobid, fromplaceid, toplaceid):
     cndb = CanonicalDB(conf.CANONICAL_DB)
@@ -283,15 +306,15 @@ try:
     startval = None
     if len(sys.argv) > 3:
         catalog = sys.argv[3]
-        if catalog not in ['skills', 'titles', 'companies', 'locations',
-                           'institutes', 'degrees', 'subjects']:
+        if catalog not in ['skills', 'titles', 'sectors', 'companies',
+                           'locations', 'institutes', 'degrees', 'subjects']:
             raise ValueError('Invalid catalog string')
     if len(sys.argv) > 4:
         startval = sys.argv[4]
 except ValueError:
     logger.log('usage: python3 build_catalogs.py <njobs> <batchsize> '
-               '[(skills | titles | companies | locations | institutes | '
-               'degrees | subjects) [<start-value>]]\n')
+               '[(skills | titles | sectors | companies | locations | '
+               'institutes | degrees | subjects) [<start-value>]]\n')
 
 if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')
@@ -313,6 +336,13 @@ if catalog is None or catalog == 'titles':
     splitProcess(q, addTitles, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_titles')
+
+if catalog is None or catalog == 'sectors':
+    logger.log('\nBuilding sectors catalog.\n')
+    q = cndb.query(LIProfile.nrmSector).filter(LIProfile.nrmTitle != None)
+    splitProcess(q, addSectors, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='build_sectors')
 
 if catalog is None or catalog == 'companies':
     logger.log('\nBuilding companies catalog.\n')

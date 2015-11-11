@@ -222,6 +222,21 @@ def normalizedTitle(name):
         return None
     return nname
 
+def normalizedSector(name):
+    """Normalize a string describing an industry sector.
+
+    """
+    if not name:
+        return None
+    nname = clean(name,
+                  nospace='\'’',
+                  lowercase=True,
+                  removebrackets=True,
+                  removestopwords=True)
+    if not nname:
+        return None
+    return nname
+
 def normalizedCompany(name):
     """Normalize a string describing a company.
 

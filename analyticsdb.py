@@ -6,6 +6,7 @@ __all__ = [
     'ExperienceSkill',
     'Skill',
     'Title',
+    'Sector',
     'Company',
     'Location',
     'Institute',
@@ -52,6 +53,11 @@ class LIProfile(SQLBase):
                                ForeignKey('title.nrmName'),
                                nullable=True,
                                index=True)
+    rawSector         = Column(Unicode(STR_MAX))
+    nrmSector         = Column(Unicode(STR_MAX),
+                               ForeignKey('sector.nrmName'),
+                               nullable=True,
+                               index=True)
     rawCompany        = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX),
                                ForeignKey('company.nrmName'),
@@ -62,8 +68,10 @@ class LIProfile(SQLBase):
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(Date, index=True)
+    crawledOn         = Column(Date, index=True)
 
     title = relationship('Title')
+    sector = relationship('Sector')
     company = relationship('Company')
     location = relationship('Location')
     skills = relationship('LIProfileSkill',
@@ -72,6 +80,9 @@ class LIProfile(SQLBase):
     experiences = relationship('Experience',
                                order_by='Experience.start',
                                cascade='all, delete-orphan')
+    educations = relationship('Education',
+                              order_by='Education.start',
+                              cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
@@ -175,6 +186,14 @@ class Title(SQLBase):
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
+
+class Sector(SQLBase):
+    __tablename__ = 'sector'
+    nrmName   = Column(Unicode(STR_MAX),
+                       primary_key=True,
+                       autoincrement=False)
+    name      = Column(Unicode(STR_MAX))
+    count     = Column(BigInteger)
 
 class Company(SQLBase):
     __tablename__ = 'company'
@@ -284,55 +303,11 @@ def skillScore(coincidenceCount, categoryCount, skillCount, nrecords):
     return coincidenceCount/categoryCount \
         - (skillCount-coincidenceCount)/(nrecords-categoryCount)
 
+
 class AnalyticsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
-
-    def addSkill(self, nrmName, name, liprofileCount, experienceCount):
-        skill = self.query(Skill).filter(Skill.nrmName == nrmName) \
-                                 .first()
-        if not skill:
-            skill = Skill(nrmName=nrmName)
-            self.add(skill)
-        skill.name = name
-        skill.liprofileCount = liprofileCount
-        skill.experienceCount = experienceCount
-        return skill
-
-    def addTitle(self, nrmName, name, liprofileCount, experienceCount):
-        title = self.query(Title).filter(Title.nrmName == nrmName) \
-                                 .first()
-        if not title:
-            title = Title(nrmName=nrmName)
-            self.add(title)
-        title.name = name
-        title.liprofileCount = liprofileCount
-        title.experienceCount = experienceCount
-        return title
-
-    def addCompany(self, nrmName, name, liprofileCount, experienceCount):
-        company = self.query(Company).filter(Company.nrmName == nrmName) \
-                                     .first()
-        if not company:
-            company = Company(nrmName=nrmName)
-            self.add(company)
-        company.name = name
-        company.liprofileCount = liprofileCount
-        company.experienceCount = experienceCount
-        return company
-
-    def addLocation(self, placeId, name, geo):
-        if placeId is None:
-            return Location()
-        location = self.query(Location).filter(Location.placeId == placeId) \
-                                       .first()
-        if not location:
-            location = Location(placeId=placeId)
-            self.add(location)
-        location.name = name
-        location.geo = geo
-        return location
 
     def addLIProfile(self, liprofile):
         """Add a LinkedIn profile to the database.
@@ -449,5 +424,12 @@ class AnalyticsDB(SQLDatabase):
                             skillnames.add(skill)
                     experience['skills'] = newskills
 
+        if liprofile.get('educations', None) is not None:
+            for education in liprofile['educations']:
+                education.pop('id', None)
+                education.pop('institute', None)
+                education.pop('degree', None)
+                education.pop('subject', None)
+                    
         return self.addFromDict(liprofile, LIProfile)
 

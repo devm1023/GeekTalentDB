@@ -40,7 +40,7 @@ class LIProfile(SQLBase):
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
     indexedOn         = Column(BigInteger, index=True)
-    crawledOn         = Column(BigInteger, index=True)
+    crawledDate       = Column(BigInteger, index=True)
     connections       = Column(String(STR_MAX))
     categories        = Column(Array(Unicode(STR_MAX)))
     groups            = Column(Array(Unicode(STR_MAX)))

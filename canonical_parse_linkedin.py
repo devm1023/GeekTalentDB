@@ -17,8 +17,8 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
-    q = dtdb.query(LIProfile).filter(LIProfile.indexedOn >= fromTs,
-                                     LIProfile.indexedOn < toTs,
+    q = dtdb.query(LIProfile).filter(LIProfile.crawledDate >= fromTs,
+                                     LIProfile.crawledDate < toTs,
                                      LIProfile.id >= fromid)
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
@@ -49,6 +49,12 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
         else:
             indexedOn = None
 
+        if liprofile.crawledDate:
+            crawledOn = timestamp0 \
+                        + timedelta(milliseconds=liprofile.crawledDate)
+        else:
+            crawledOn = None
+            
         connections = None
         try:
             connections = int(liprofile.connections)
@@ -61,11 +67,13 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
             'location'    : location,
             'title'       : liprofile.title,
             'description' : liprofile.description,
+            'sector'      : liprofile.sector,
             'url'         : liprofile.profileUrl,
             'pictureUrl'  : liprofile.profilePictureUrl,
             'skills'      : liprofile.categories,
             'connections' : connections,
             'indexedOn'   : indexedOn,
+            'crawledOn'   : crawledOn,
             'experiences' : [],
             'educations'  : []
         }
@@ -151,7 +159,7 @@ if len(sys.argv) > 5:
 fromTs = int((fromdate - timestamp0).total_seconds())*1000
 toTs   = int((todate   - timestamp0).total_seconds())*1000
 
-filter = and_(LIProfile.indexedOn >= fromTs, LIProfile.indexedOn < toTs)
+filter = and_(LIProfile.crawledDate >= fromTs, LIProfile.crawledDate < toTs)
 if fromid is not None:
     filter = and_(filter, LIProfile.id >= fromid)
 
