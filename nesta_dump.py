@@ -15,22 +15,15 @@ mindate = date(year=2013, month=11, day=1)
 companies = ['IBM']
 
     
-def writeProfiles(jobid, fromid, toid, adminMode):
+def writeProfiles(jobid, fromid, toid, tmpdir, adminMode):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     
-    experiencefile = open('experiences{0:03d}.csv'.format(jobid), 'w')
-    experiencewriter = csv.writer(experiencefile)
-
-    userfile = open('users{0:03d}.csv'.format(jobid), 'w')
+    userfile = open(tmpdir+'users{0:03d}.csv'.format(jobid), 'w')
     userwriter = csv.writer(userfile)
 
+    print(fromid, toid)
     q = andb.query(LIProfile) \
-            .join(Experience) \
-            .filter(or_(LIProfile.nrmCompany.in_(nrmCompanies),
-                        and_(Experience.nrmCompany.in_(nrmCompanies),
-                             Experience.start != None,
-                             or_(Experience.end == None,
-                                 Experience.end >= mindate)))) \
+            .filter(LIProfile.nrmCompany.in_(nrmCompanies)) \
             .filter(LIProfile.id >= fromid)
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
@@ -43,10 +36,6 @@ def writeProfiles(jobid, fromid, toid, adminMode):
             lonstr = str(point.x)
             latstr = str(point.y)
 
-        skills = ''
-        if liprofile.skills is not None:
-            skills = '|'.join([s.skill.name for s in liprofile.skills])
-
         title = ''
         if liprofile.title is not None:
             title = liprofile.title.name
@@ -54,34 +43,21 @@ def writeProfiles(jobid, fromid, toid, adminMode):
         if liprofile.company is not None:
             company = liprofile.company.name
 
-        row = [liprofile.id, skills, latstr, lonstr, title, company]
+        startdate = ''
+        if liprofile.experiences is not None:
+            startdates = [e.start for e in liprofile.experiences \
+                          if e.end is None and e.start is not None \
+                          and e.nrmCompany == liprofile.nrmCompany]
+            if startdates:
+                startdate = min(startdates).strftime('%Y-%m-%d')
+            
+        row = [liprofile.id, latstr, lonstr,
+               title, liprofile.rawTitle,
+               company, liprofile.rawCompany, startdate]
         if adminMode:
             row += [liprofile.datoinId]
         userwriter.writerow(row)
 
-        if liprofile.experiences is not None:
-            for experience in liprofile.experiences:
-                if experience.start is None:
-                    continue
-                if experience.end is not None and experience.end < mindate:
-                    continue
-                startdate = experience.start.strftime('%Y-%m-%d')
-                enddate = ''
-                if experience.end is not None:
-                    enddate = experience.end.strftime('%Y-%m-%d')
-                title = ''
-                if experience.title is not None:
-                    title = experience.title.name
-                company = ''
-                if experience.company is not None:
-                    company = experience.company.name
-
-                row = [liprofile.id, startdate, enddate, title, company]
-                if adminMode:
-                    row += [experience.datoinId, liprofile.datoinId]
-                experiencewriter.writerow(row)
-
-    experiencefile.close()
     userfile.close()
 
 
@@ -112,29 +88,21 @@ logger.log('done.\n')
 for company in nrmCompanies:
     logger.log(company+'\n')
 
-experiencefile = open('experiences.csv', 'w')
-experiencewriter = csv.writer(experiencefile)
-titlerow = ['user id', 'start date', 'end date', 'job title', 'company']
-if adminMode:
-    titlerow += ['datoin experience id', 'datoin parent id']
-experiencewriter.writerow(titlerow)
-
 userfile = open('users.csv', 'w')
 userwriter = csv.writer(userfile)
-titlerow = ['user id', 'skills', 'latitude', 'longitude', 'job title', 'company']
+titlerow = ['user id', 'latitude', 'longitude',
+            'processed job title', 'original job title',
+            'processed company name', 'original company name',
+            'start date']
 if adminMode:
     titlerow += ['datoin id']
 userwriter.writerow(titlerow)
 
-q = andb.query(LIProfile.id)
+q = andb.query(LIProfile.id).filter(LIProfile.nrmCompany.in_(nrmCompanies))
+tmpdir = 'jobs/' if njobs <= 1 else ''
 splitProcess(q, writeProfiles, batchsize,
-             args=[adminMode], njobs=njobs, logger=logger,
+             args=[tmpdir, adminMode], njobs=njobs, logger=logger,
              workdir='jobs', prefix='nesta_dump')
-
-with fileinput.input(glob.glob('jobs/experiences*.csv')) as fin:
-    for line in fin:
-        experiencefile.write(line)
-experiencefile.close()
 
 with fileinput.input(glob.glob('jobs/users*.csv')) as fin:
     for line in fin:

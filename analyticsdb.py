@@ -449,5 +449,12 @@ class AnalyticsDB(SQLDatabase):
                             skillnames.add(skill)
                     experience['skills'] = newskills
 
+        if liprofile.get('educations', None) is not None:
+            for education in liprofile['educations']:
+                education.pop('id', None)
+                education.pop('institute', None)
+                education.pop('degree', None)
+                education.pop('subject', None)
+                    
         return self.addFromDict(liprofile, LIProfile)
 
