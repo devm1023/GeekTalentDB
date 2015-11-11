@@ -32,6 +32,7 @@ from sqlalchemy import \
     String, \
     Text, \
     Date, \
+    DateTime, \
     Float, \
     func
 from sqlalchemy.orm import relationship
@@ -67,8 +68,8 @@ class LIProfile(SQLBase):
     totalExperience   = Column(Integer)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
-    indexedOn         = Column(Date, index=True)
-    crawledOn         = Column(Date, index=True)
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
 
     title = relationship('Title')
     sector = relationship('Sector')
@@ -105,7 +106,7 @@ class Experience(SQLBase):
     end            = Column(Date)
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
     title = relationship('Title')
     company = relationship('Company')
@@ -135,7 +136,7 @@ class Education(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
     institute = relationship('Institute')
     degree = relationship('Degree')

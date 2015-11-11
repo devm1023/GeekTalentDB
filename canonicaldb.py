@@ -24,6 +24,7 @@ from sqlalchemy import \
     UnicodeText, \
     String, \
     Text, \
+    DateTime, \
     Date, \
     Float, \
     func
@@ -56,8 +57,8 @@ class LIProfile(SQLBase):
     totalExperience   = Column(Integer) # total work experience in days
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
-    indexedOn         = Column(Date, index=True)
-    crawledOn         = Column(Date, index=True)
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
 
     experiences       = relationship('Experience',
                                      order_by='Experience.start',
@@ -87,7 +88,7 @@ class Experience(SQLBase):
     end            = Column(Date)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
     skills         = relationship('ExperienceSkill',
                                   order_by='ExperienceSkill.skillId',
@@ -95,8 +96,7 @@ class Experience(SQLBase):
 
 class Education(SQLBase):
     __tablename__ = 'education'
-    # TODO: change this to BigInteger
-    id          = Column(Integer, primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
     profileId   = Column(BigInteger,
                          ForeignKey('liprofile.id'),
@@ -110,7 +110,7 @@ class Education(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
 class Skill(SQLBase):
     __tablename__ = 'skill'
