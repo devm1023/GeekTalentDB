@@ -172,7 +172,7 @@ def tokenizedSkill(name, removebrackets=False):
         ('co-ordin', 'coordin'),
     ]
     return clean(name,
-                 nospace='\'’',
+                 nospace='\'’.',
                  lowercase=True,
                  removestopwords=True,
                  removebrackets=removebrackets,
@@ -213,7 +213,7 @@ def normalizedTitle(name):
     if not nname:
         return None
     nname = clean(nname,
-                  nospace='\'’',
+                  nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
                   removestopwords=True,
@@ -229,7 +229,7 @@ def normalizedSector(name):
     if not name:
         return None
     nname = clean(name,
-                  nospace='\'’',
+                  nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
                   removestopwords=True)
@@ -243,10 +243,10 @@ def normalizedCompany(name):
     """
     if not name:
         return None
-    stopwords = _stopwords | set(['limited', 'ltd'])
+    stopwords = set(['limited', 'ltd', 'inc', 'plc', 'uk'])
     nname = clean(name,
                   keep=',-/&',
-                  nospace='\'’',
+                  nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
                   removestopwords=stopwords)
@@ -254,11 +254,7 @@ def normalizedCompany(name):
     nname = nname.split(',')[0]
     nname = nname.split(' - ')[0]
     nname = nname.split(' / ')[0]
-    nname = nname.split(' & ')[0]
-    # TODO:
-    # remove last line
-    # clean nname again to remove '-' and '/' characters
-    # put '.' in nospace list (to handle abbreviations)
+    nname = clean(nname)
     if not nname:
         return None
     return nname
@@ -284,7 +280,7 @@ def normalizedInstitute(name):
         (r'\bu\.', 'university'),
         ]
     nname = clean(name,
-                  nospace='\'’',
+                  nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
                   removestopwords=True,
