@@ -255,6 +255,10 @@ def normalizedCompany(name):
     nname = nname.split(' - ')[0]
     nname = nname.split(' / ')[0]
     nname = nname.split(' & ')[0]
+    # TODO:
+    # remove last line
+    # clean nname again to remove '-' and '/' characters
+    # put '.' in nospace list (to handle abbreviations)
     if not nname:
         return None
     return nname
