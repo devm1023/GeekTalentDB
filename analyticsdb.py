@@ -15,6 +15,7 @@ __all__ = [
     'TitleSkill',
     'CompanySkill',
     'SkillSkill',
+    'CareerStep',
     'AnalyticsDB',
     'skillScore',
     ]
@@ -283,6 +284,18 @@ class SkillSkill(SQLBase):
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
+class CareerStep(SQLBase):
+    __tablename__ = 'career_step'
+    titleFrom     = Column(String(STR_MAX),
+                           ForeignKey('title.nrmName'),
+                           index=True,
+                           primary_key=True)
+    titleTo       = Column(String(STR_MAX),
+                           ForeignKey('title.nrmName'),
+                           index=True,
+                           primary_key=True)
+    count         = Column(BigInteger)
+    
 
 def skillScore(coincidenceCount, categoryCount, skillCount, nrecords):
     """Measure how strongly a skill is associated with a certain category.
@@ -434,3 +447,17 @@ class AnalyticsDB(SQLDatabase):
                     
         return self.addFromDict(liprofile, LIProfile)
 
+    def addCareerStep(self, titleFrom, titleTo):
+        careerstep = self.query(CareerStep) \
+                         .filter(CareerStep.titleFrom == titleFrom,
+                                 CareerStep.titleTo   == titleTo) \
+                         .with_for_update(of=CareerStep) \
+                         .first()
+        if careerstep is None:
+            careerstep = CareerStep(titleFrom=titleFrom,
+                                    titleTo=titleTo,
+                                    count=0)
+            self.add(careerstep)
+
+        careerstep.count += 1
+        
