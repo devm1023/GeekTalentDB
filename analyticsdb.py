@@ -55,6 +55,7 @@ class LIProfile(SQLBase):
                                ForeignKey('title.nrmName'),
                                nullable=True,
                                index=True)
+    titlePrefix       = Column(Unicode(STR_MAX))
     rawSector         = Column(Unicode(STR_MAX))
     nrmSector         = Column(Unicode(STR_MAX),
                                ForeignKey('sector.nrmName'),
@@ -99,6 +100,7 @@ class Experience(SQLBase):
     nrmTitle       = Column(Unicode(STR_MAX),
                             ForeignKey('title.nrmName'),
                             index=True)
+    titlePrefix    = Column(Unicode(STR_MAX))
     rawCompany     = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),

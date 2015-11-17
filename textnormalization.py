@@ -204,7 +204,48 @@ def parsedTitle(name):
     if not name:
         return None
     return name
-    
+
+titlePrefixWords = set([
+    'senior',
+    'junior',
+    'lead',
+    'head',
+    'apprentice',
+    'intern',
+    'freelance',
+])
+
+titleSuffixWords = set([
+    'intern',
+])
+
+def _splitTitle(stems):
+    if not stems:
+        return None, None
+    prefix = []
+    suffix = []
+    i = 0
+    while i < len(stems):
+        if stems[i] in titlePrefixWords:
+            prefix.append(stems[i])
+            i += 1
+        else:
+            break
+    j = len(stems)-1
+    while j >= i:
+        if stems[j] in titleSuffixWords:
+            suffix.append(stems[j])
+            j -= 1
+        else:
+            break
+    main = ' '.join(stems[i:j+1])
+    prefix = ' '.join(prefix+suffix)
+    if not main:
+        main = None
+    if not prefix:
+        prefix = None
+    return prefix, main
+
 def normalizedTitle(name):
     """Normalize a string describing a job title.
 
@@ -212,15 +253,26 @@ def normalizedTitle(name):
     nname = parsedTitle(name)
     if not nname:
         return None
-    nname = clean(nname,
-                  nospace='\'’.',
-                  lowercase=True,
-                  removebrackets=True,
-                  removestopwords=True,
-                  stem=True)
+    tokens = clean(nname,
+                   nospace='\'’.',
+                   lowercase=True,
+                   removebrackets=True,
+                   removestopwords=True,
+                   tokenize=True)
+    prefix, title = _splitTitle(tokens)
+    return title
+
+def normalizedTitlePrefix(name):
+    nname = parsedTitle(name)
     if not nname:
         return None
-    return nname
+    tokens = clean(nname,
+                   nospace='\'’.',
+                   lowercase=True,
+                   removebrackets=True,
+                   tokenize=True)
+    prefix, title = _splitTitle(tokens)
+    return prefix
 
 def normalizedSector(name):
     """Normalize a string describing an industry sector.

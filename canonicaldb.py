@@ -48,6 +48,7 @@ class LIProfile(SQLBase):
     title             = Column(Unicode(STR_MAX))
     parsedTitle       = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
+    titlePrefix       = Column(Unicode(STR_MAX))
     sector            = Column(Unicode(STR_MAX))
     nrmSector         = Column(Unicode(STR_MAX), index=True)
     company           = Column(Unicode(STR_MAX))
@@ -82,6 +83,7 @@ class Experience(SQLBase):
     title          = Column(Unicode(STR_MAX))
     parsedTitle    = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX), index=True)
+    titlePrefix    = Column(Unicode(STR_MAX))
     company        = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
     start          = Column(Date)
@@ -145,6 +147,7 @@ def _makeExperience(experience, now):
     experience = deepcopy(experience)
     experience['parsedTitle']  = parsedTitle(experience['title'])
     experience['nrmTitle']     = normalizedTitle(experience['title'])
+    experience['titlePrefix']  = normalizedTitlePrefix(experience['title'])
     experience['nrmCompany']   = normalizedCompany(experience['company'])
 
     # work out duration
@@ -189,6 +192,7 @@ def _makeLIProfile(liprofile, now):
     liprofile['nrmLocation']     = normalizedLocation(liprofile['location'])
     liprofile['parsedTitle']     = parsedTitle(liprofile['title'])
     liprofile['nrmTitle']        = normalizedTitle(liprofile['title'])
+    liprofile['titlePrefix']     = normalizedTitlePrefix(liprofile['title'])
     liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
     liprofile['nrmCompany']      = normalizedCompany(company)
