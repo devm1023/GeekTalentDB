@@ -5,9 +5,12 @@ __all__ = [
     'LIProfileSkill',
     'ExperienceSkill',
     'Skill',
+    'SkillWord',
     'Title',
+    'TitleWord',
     'Sector',
     'Company',
+    'CompanyWord',
     'Location',
     'Institute',
     'Degree',
@@ -182,6 +185,18 @@ class Skill(SQLBase):
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
+class SkillWord(SQLBase):
+    __tablename__ = 'skill_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmSkill      = Column(Unicode(STR_MAX),
+                           ForeignKey('skill.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+
 class Title(SQLBase):
     __tablename__ = 'title'
     nrmName   = Column(Unicode(STR_MAX),
@@ -191,6 +206,18 @@ class Title(SQLBase):
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
+class TitleWord(SQLBase):
+    __tablename__ = 'title_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmTitle      = Column(Unicode(STR_MAX),
+                           ForeignKey('title.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    
 class Sector(SQLBase):
     __tablename__ = 'sector'
     nrmName   = Column(Unicode(STR_MAX),
@@ -207,6 +234,18 @@ class Company(SQLBase):
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
+
+class CompanyWord(SQLBase):
+    __tablename__ = 'company_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmCompany    = Column(Unicode(STR_MAX),
+                           ForeignKey('company.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
 
 class Location(SQLBase):
     __tablename__ = 'location'
