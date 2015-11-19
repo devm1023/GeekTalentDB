@@ -10,7 +10,7 @@ import re
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
-skillbuttonpatt = re.compile(r'See ([0-9]+)\+|(Less)')
+skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
 
 def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     batchsize = 50
