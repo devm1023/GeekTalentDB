@@ -145,6 +145,25 @@ csv format. Example:
 
     python3 analytics_get_skillcloud.py title "Web Developer" web_developer.csv
 
+* To compute the career steps table do
+
+    python3 analytics_build_careersteps.py <njobs> <batchsize> \
+        [<min-start-date>]
+
+The optional argument <min-start-date> is the minimum start date which an
+experience record must have in order to be included in the count. Example
+
+    python3 analytics_build_careersteps.py 4 500
+
+* To generate the word lists for fast searches within the catalogues do
+
+    python3 analytics_build_wordlists.py <njobs> <batchsize> [<catalogue>]
+
+where <catalogue> can be 'skills', 'titles', or 'companies'. If <catalogue>
+is omitted word lists are generated for all catalogues. Example:
+
+    python3 analytics_build_wordlists.py 4 500
+
 
 geekmaps
 --------
