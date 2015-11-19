@@ -126,6 +126,8 @@ def _mergeLists(rows, dicts, rowtype):
             
     newrows = []
     for d in dicts:
+        if d is None:
+            continue
         nipkey = tuple(d.get(k, None) for k in nipkeynames)
         if nipkey in keymap:
             row = keymap[nipkey].pop()
@@ -153,9 +155,8 @@ def updateRowFromDict(row, d):
             remotetype = relation.mapper.class_
             lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
             if isinstance(val, list):
+                val = [v for v in val if v is not None]
                 for v in val:
-                    if v is None:
-                        continue
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
