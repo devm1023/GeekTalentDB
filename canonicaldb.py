@@ -361,7 +361,14 @@ class CanonicalDB(SQLDatabase):
                           .filter(LIProfile.datoinId == liprofile['datoinId']) \
                           .first()
         if liprofileId is not None:
-            liprofile['id'] = liprofileId
+            liprofile['id'] = liprofileId[0]
+            experienceIds \
+                = [id for id, in self.query(Experience.id) \
+                   .filter(Experience.profileId == liprofileId[0])]
+            if experienceIds:
+                self.query(ExperienceSkill) \
+                    .filter(ExperienceSkill.experienceId.in_(experienceIds)) \
+                    .delete(synchronize_session=False)
         liprofile = _makeLIProfile(liprofile, now)
         liprofile = self.addFromDict(liprofile, LIProfile)
         self.flush()

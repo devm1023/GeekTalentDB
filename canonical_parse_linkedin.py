@@ -6,10 +6,11 @@ import conf
 import sys
 from datetime import datetime, timedelta
 from logger import Logger
+import re
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
-
+skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
 
 def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     batchsize = 50
@@ -17,7 +18,8 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
-    q = dtdb.query(LIProfile).filter(LIProfile.crawledDate >= fromTs,
+    q = dtdb.query(LIProfile).filter(LIProfile.country == 'United Kingdom',
+                                     LIProfile.crawledDate >= fromTs,
                                      LIProfile.crawledDate < toTs,
                                      LIProfile.id >= fromid)
     if toid is not None:
@@ -60,6 +62,9 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
             connections = int(liprofile.connections)
         except (TypeError, ValueError):
             pass
+
+        skills = [s for s in liprofile.categories \
+                  if not skillbuttonpatt.match(s)]
         
         profiledict = {
             'datoinId'    : liprofile.id,
@@ -70,7 +75,7 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
             'sector'      : liprofile.sector,
             'url'         : liprofile.profileUrl,
             'pictureUrl'  : liprofile.profilePictureUrl,
-            'skills'      : liprofile.categories,
+            'skills'      : skills,
             'connections' : connections,
             'indexedOn'   : indexedOn,
             'crawledOn'   : crawledOn,
@@ -159,14 +164,17 @@ if len(sys.argv) > 5:
 fromTs = int((fromdate - timestamp0).total_seconds())*1000
 toTs   = int((todate   - timestamp0).total_seconds())*1000
 
-filter = and_(LIProfile.crawledDate >= fromTs, LIProfile.crawledDate < toTs)
-if fromid is not None:
-    filter = and_(filter, LIProfile.id >= fromid)
 
 dtdb = DatoinDB(url=conf.DATOIN_DB)
 logger = Logger(sys.stdout)
 
-query = dtdb.query(LIProfile.id).filter(filter)
+query = dtdb.query(LIProfile.id) \
+            .filter(LIProfile.country == 'United Kingdom',
+                    LIProfile.crawledDate >= fromTs,
+                    LIProfile.crawledDate < toTs)
+if fromid is not None:
+    query = query.filter(LIProfile.id >= fromid)
+
 splitProcess(query, parseProfiles, batchsize,
              njobs=njobs, args=[fromTs, toTs], logger=logger,
              workdir='jobs', prefix='canonical_parse_linkedin')
