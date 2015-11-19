@@ -6,6 +6,7 @@ import re
 _stemmer = nltk.stem.snowball.SnowballStemmer('english')
 _stopwords = set([
         'a',
+        'an',
         'as',
         'at',
         'the',
@@ -210,6 +211,7 @@ titlePrefixWords = set([
     'junior',
     'lead',
     'head',
+    'chief',
     'apprentice',
     'intern',
     'freelance',
