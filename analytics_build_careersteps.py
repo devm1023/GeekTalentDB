@@ -6,32 +6,32 @@ from windowquery import splitProcess, processDb
 from datetime import datetime
 
 
-def addCareerSteps(jobid, fromid, toid, minstart):
+def addCareerSteps(jobid, fromtitle, totitle, minstart):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
 
     q = andb.query(Experience.liprofileId,
-                   Experience.nrmTitle) \
-            .filter(Experience.nrmTitle != None,
-                    Experience.start != None,
-                    Experience.liprofileId >= fromid)
-    if toid is not None:
-        q = q.filter(Experience.liprofileId < toid)
+                   Experience.nrmTitle,
+                   Experience.start) \
+            .filter(Experience.nrmTitle >= fromtitle,
+                    Experience.start != None)
+    if totitle is not None:
+        q = q.filter(Experience.nrmTitle < totitle)
     if minstart is not None:
         q = q.filter(Experience.start >= minstart)
-    q = q.order_by(Experience.liprofileId, Experience.start)
 
-    lastid = None
-    lasttitle = None
-    for liprofileId, title in q:
-        if liprofileId != lastid:
-            andb.commit()
-            lasttitle = None
-            lastid = liprofileId
-        if lasttitle is not None:
-            andb.addCareerStep(lasttitle, title)
-        lasttitle = title
-    andb.commit()
+    def addRecord(rec):
+        liprofileId, title1, minstart = rec
+        title2 = andb.query(Experience.nrmTitle) \
+                     .filter(Experience.liprofileId == liprofileId,
+                             Experience.start != None,
+                             Experience.start > minstart) \
+                     .order_by(Experience.start) \
+                     .first()
+        if title2:
+            andb.addCareerStep(title1, title2[0])
+
+    processDb(q, addRecord, andb, logger=logger)
     
 
 andb = AnalyticsDB(conf.ANALYTICS_DB)
@@ -50,7 +50,8 @@ except ValueError:
 andb.query(CareerStep).delete()
 andb.commit()
 
-q = andb.query(LIProfile.id)
+q = andb.query(Title.nrmName) \
+        .filter(Title.experienceCount > 0)
 splitProcess(q, addCareerSteps, batchsize,
              njobs=njobs, logger=logger,
              args=[minstart],
