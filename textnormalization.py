@@ -258,11 +258,20 @@ def normalizedTitle(name):
     nname = parsedTitle(name)
     if not nname:
         return None
+    replace = [
+        ('.net', ' dotnet'),
+        ('c++', 'cplusplus'),
+        ('c#', 'csharp'),
+        ('f#', 'fsharp'),
+        ('tcp/ip', 'tcpip'),
+        ('co-ordin', 'coordin'),
+    ]
     tokens = clean(nname,
                    nospace='\'’.',
                    lowercase=True,
                    removebrackets=True,
                    removestopwords=True,
+                   replace=replace,
                    tokenize=True)
     prefix, title = _splitTitle(tokens)
     return title
@@ -311,7 +320,7 @@ def normalizedCompany(name):
     nname = nname.split(',')[0]
     nname = nname.split(' - ')[0]
     nname = nname.split(' / ')[0]
-    nname = clean(nname)
+    nname = clean(nname, keep='&')
     if not nname:
         return None
     return nname

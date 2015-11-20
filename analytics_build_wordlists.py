@@ -1,5 +1,6 @@
 import conf
 from analyticsdb import *
+from sqlalchemy import func
 from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
@@ -20,10 +21,34 @@ def addSkillWords(jobid, fromskill, toskill):
         for word in skill.split():
             andb.addFromDict({
                 'word' : word,
-                'nrmSkill' : skill,
+                'nrmName' : skill,
                 }, SkillWord)
             
     processDb(q, addSkill, andb, logger=logger)
+
+def countSkillWords(jobid, fromword, toword):
+    andb = AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = andb.query(SkillWord.word,
+                   func.sum(Skill.liprofileCount),
+                   func.sum(Skill.experienceCount)) \
+            .join(Skill) \
+            .filter(SkillWord.word >= fromword)
+    if toword is not None:
+        q = q.filter(SkillWord.word < toword)
+    q = q.group_by(SkillWord.word)
+
+    def addCounts(rec):
+        word, liprofileCount, experienceCount = rec
+        
+        andb.addFromDict({
+            'word' : word,
+            'liprofileSkillCount' : liprofileCount,
+            'experienceSkillCount' : experienceCount,
+        }, Word)
+            
+    processDb(q, addCounts, andb, logger=logger)
 
 
 def addTitleWords(jobid, fromtitle, totitle):
@@ -41,11 +66,35 @@ def addTitleWords(jobid, fromtitle, totitle):
         for word in title.split():
             andb.addFromDict({
                 'word' : word,
-                'nrmTitle' : title,
+                'nrmName' : title,
                 }, TitleWord)
             
     processDb(q, addTitle, andb, logger=logger)
 
+def countTitleWords(jobid, fromword, toword):
+    andb = AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = andb.query(TitleWord.word,
+                   func.sum(Title.liprofileCount),
+                   func.sum(Title.experienceCount)) \
+            .join(Title) \
+            .filter(TitleWord.word >= fromword)
+    if toword is not None:
+        q = q.filter(TitleWord.word < toword)
+    q = q.group_by(TitleWord.word)
+
+    def addCounts(rec):
+        word, liprofileCount, experienceCount = rec
+        
+        andb.addFromDict({
+            'word' : word,
+            'liprofileTitleCount' : liprofileCount,
+            'experienceTitleCount' : experienceCount,
+        }, Word)
+            
+    processDb(q, addCounts, andb, logger=logger)
+    
 
 def addCompanyWords(jobid, fromcompany, tocompany):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
@@ -62,11 +111,34 @@ def addCompanyWords(jobid, fromcompany, tocompany):
         for word in company.split():
             andb.addFromDict({
                 'word' : word,
-                'nrmCompany' : company,
+                'nrmName' : company,
                 }, CompanyWord)
             
     processDb(q, addCompany, andb, logger=logger)
 
+def countCompanyWords(jobid, fromword, toword):
+    andb = AnalyticsDB(conf.ANALYTICS_DB)
+    logger = Logger(sys.stdout)
+    
+    q = andb.query(CompanyWord.word,
+                   func.sum(Company.liprofileCount),
+                   func.sum(Company.experienceCount)) \
+            .join(Company) \
+            .filter(CompanyWord.word >= fromword)
+    if toword is not None:
+        q = q.filter(CompanyWord.word < toword)
+    q = q.group_by(CompanyWord.word)
+
+    def addCounts(rec):
+        word, liprofileCount, experienceCount = rec
+        
+        andb.addFromDict({
+            'word' : word,
+            'liprofileCompanyCount' : liprofileCount,
+            'experienceCompanyCount' : experienceCount,
+        }, Word)
+            
+    processDb(q, addCounts, andb, logger=logger)
 
 
 andb = AnalyticsDB(conf.ANALYTICS_DB)
@@ -89,7 +161,7 @@ except ValueError:
                'institutes | degrees | subjects) [<start-value>]]\n')
 
 if catalog is None or catalog == 'skills':
-    logger.log('\nBuilding skills catalog.\n')
+    logger.log('\nBuilding skills wordlist.\n')
     q = andb.query(Skill.nrmName)
     if startval:
         q = q.filter(Skill.nrmName >= startval)
@@ -98,7 +170,7 @@ if catalog is None or catalog == 'skills':
                  workdir='jobs', prefix='build_skillwords')
 
 if catalog is None or catalog == 'titles':
-    logger.log('\nBuilding titles catalog.\n')
+    logger.log('\nBuilding titles wordlist.\n')
     q = andb.query(Title.nrmName)
     if startval:
         q = q.filter(Title.nrmName >= startval)
@@ -106,8 +178,8 @@ if catalog is None or catalog == 'titles':
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_titlewords')
 
-if catalog is None or catalog == 'companys':
-    logger.log('\nBuilding companies catalog.\n')
+if catalog is None or catalog == 'companies':
+    logger.log('\nBuilding companies wordlist.\n')
     q = andb.query(Company.nrmName)
     if startval:
         q = q.filter(Company.nrmName >= startval)
@@ -115,4 +187,22 @@ if catalog is None or catalog == 'companys':
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_companywords')
 
+if catalog is None or catalog == 'words':
+    logger.log('\nBuilding skill word counts.\n')
+    q = andb.query(SkillWord.word)
+    splitProcess(q, countSkillWords, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='count_skillwords')
+
+    logger.log('\nBuilding title word counts.\n')
+    q = andb.query(TitleWord.word)
+    splitProcess(q, countTitleWords, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='count_skillwords')
+
+    logger.log('\nBuilding company word counts.\n')
+    q = andb.query(CompanyWord.word)
+    splitProcess(q, countCompanyWords, batchsize,
+                 njobs=njobs, logger=logger,
+                 workdir='jobs', prefix='count_skillwords')
     

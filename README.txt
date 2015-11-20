@@ -59,7 +59,7 @@ of profiles per job and iteration to download, and <from-date> and
 format YYYY-MM-DD. Optionally the range of offsets to download can be specified
 with <from-offset> and <to-offset>. Example:
 
-    python3 datoin_download_linkedin.py 20 100 2015-09-22 2015-09-23 0 10000
+    python3 datoin_download_linkedin.py 20 100 2015-11-01 2015-11-02 0 10000
 
 
 canonical
@@ -76,7 +76,7 @@ larger than <from-id> will be processed. This can be used for crash recovery,
 since parse_linkedin.py writes the datoin ID of recently processed profiles to
 STDOUT. Example:
 
-    python3 canonical_parse_linkedin.py 4 200 2015-09-22 2015-09-23
+    python3 canonical_parse_linkedin.py 4 200 2015-11-01 2015-11-02
 
 * canonical_parse_linkedin.py does not populate the 'location' table in the
 'canonical' DB. This needs to be done separately with
@@ -89,7 +89,7 @@ range of timestamps now restricts the set of profiles whose locations are
 included in the update.) The optional argument <from-location> can be used for
 crash recovery in the same way as <from-id>. Example:
 
-    python3 canonical_geolookup_linkedin.py 4 100 2015-09-22 2015-09-23
+    python3 canonical_geolookup_linkedin.py 4 100 2015-11-01 2015-11-02
 
 
 analytics

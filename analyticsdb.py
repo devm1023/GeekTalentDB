@@ -15,6 +15,7 @@ __all__ = [
     'Institute',
     'Degree',
     'Subject',
+    'Word',
     'TitleSkill',
     'CompanySkill',
     'SkillSkill',
@@ -191,7 +192,7 @@ class SkillWord(SQLBase):
                            index=True,
                            primary_key=True,
                            autoincrement=False)
-    nrmSkill      = Column(Unicode(STR_MAX),
+    nrmName       = Column(Unicode(STR_MAX),
                            ForeignKey('skill.nrmName'),
                            index=True,
                            primary_key=True,
@@ -212,7 +213,7 @@ class TitleWord(SQLBase):
                            index=True,
                            primary_key=True,
                            autoincrement=False)
-    nrmTitle      = Column(Unicode(STR_MAX),
+    nrmName       = Column(Unicode(STR_MAX),
                            ForeignKey('title.nrmName'),
                            index=True,
                            primary_key=True,
@@ -241,7 +242,7 @@ class CompanyWord(SQLBase):
                            index=True,
                            primary_key=True,
                            autoincrement=False)
-    nrmCompany    = Column(Unicode(STR_MAX),
+    nrmName       = Column(Unicode(STR_MAX),
                            ForeignKey('company.nrmName'),
                            index=True,
                            primary_key=True,
@@ -279,6 +280,16 @@ class Subject(SQLBase):
     name            = Column(Unicode(STR_MAX))
     count           = Column(BigInteger)
 
+class Word(SQLBase):
+    __tablename__ = 'word'
+    word                   = Column(Unicode(STR_MAX),
+                                    primary_key=True)
+    liprofileSkillCount    = Column(BigInteger)
+    experienceSkillCount   = Column(BigInteger)
+    liprofileTitleCount    = Column(BigInteger)
+    experienceTitleCount   = Column(BigInteger)
+    liprofileCompanyCount  = Column(BigInteger)
+    experienceCompanyCount = Column(BigInteger)
 
 class TitleSkill(SQLBase):
     __tablename__ = 'title_skill'
@@ -504,3 +515,13 @@ class AnalyticsDB(SQLDatabase):
 
         careerstep.count += 1
         
+    def findEntities(self, table, nrmQuery):
+        querywords = nrmQuery.split()
+        if not querywords:
+            return []
+        wordcount = func.count(table.word).label('wordcount')
+        q = self.query(table.nrmName) \
+                .filter(table.word.in_(querywords)) \
+                .group_by(table.nrmName) \
+                .having(wordcount == len(querywords))
+        return [entity for entity, in q]
