@@ -477,10 +477,12 @@ class AnalyticsDB(SQLDatabase):
         return self.addFromDict(liprofile, LIProfile)
 
     def addCareerStep(self, titleFrom, titleTo):
+        if not titleFrom or not titleTo:
+            return
+        
         careerstep = self.query(CareerStep) \
                          .filter(CareerStep.titleFrom == titleFrom,
                                  CareerStep.titleTo   == titleTo) \
-                         .with_for_update(of=CareerStep) \
                          .first()
         if careerstep is None:
             careerstep = CareerStep(titleFrom=titleFrom,
