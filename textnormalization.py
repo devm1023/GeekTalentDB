@@ -215,6 +215,7 @@ titlePrefixWords = set([
     'lead',
     'head',
     'chief',
+    'honorary',
     'apprentice',
     'intern',
     'freelance',

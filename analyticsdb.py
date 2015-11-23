@@ -26,6 +26,7 @@ __all__ = [
 
 import conf
 from sqldb import *
+from textnormalization import normalizedTitle, normalizedCompany, normalizedSkill
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -39,7 +40,8 @@ from sqlalchemy import \
     Date, \
     DateTime, \
     Float, \
-    func
+    func, \
+    or_
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
@@ -515,13 +517,46 @@ class AnalyticsDB(SQLDatabase):
 
         careerstep.count += 1
         
-    def findEntities(self, table, nrmQuery):
-        querywords = nrmQuery.split()
-        if not querywords:
-            return []
-        wordcount = func.count(table.word).label('wordcount')
-        q = self.query(table.nrmName) \
-                .filter(table.word.in_(querywords)) \
-                .group_by(table.nrmName) \
-                .having(wordcount == len(querywords))
-        return [entity for entity, in q]
+    def findEntities(self, querytype, querytext):
+        if querytype == 'title':
+            wordtable = TitleWord
+            wordcountcols = [Word.experienceTitleCount, Word.liprofileTitleCount]
+            entitytable = Title
+            entitycountcols = [Title.experienceCount, Title.liprofileCount]
+            nrmfunc = normalizedTitle
+        elif querytype == 'skill':
+            wordtable = SkillWord
+            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            entitytable = Skill
+            entitycountcols = [Skill.experienceCount, Skill.liprofileCount]
+            nrmfunc = normalizedSkill
+
+
+        words = nrmfunc(querytext).split()
+        wordcounts = self.query(Word.word, *wordcountcols) \
+                         .filter(Word.word.in_(words),
+                                 or_(*[c > 0 for c in wordcountcols])) \
+                         .all()
+        wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
+        wordcounts.sort(key=lambda x: x[1])
+        entitynames = []
+        for i in range(len(wordcounts), 0, -1):
+            words = [wc[0] for wc in wordcounts[:i]]
+            wordcountcol = func.count(wordtable.word).label('wordcount')
+            q = self.query(wordtable.nrmName) \
+                    .filter(wordtable.word.in_(words)) \
+                    .group_by(wordtable.nrmName) \
+                    .having(wordcountcol == len(words))
+            entitynames = [name for name, in q]
+            if entitynames:
+                break
+
+        entities = []
+        for rec in self.query(entitytable.nrmName, *entitycountcols) \
+                       .filter(entitytable.nrmName.in_(entitynames)):
+            entities.append((rec[0], sum(rec[1:])))
+        entities.sort(key=lambda x: -x[1])
+        
+        return entities, words
+
+

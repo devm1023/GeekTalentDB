@@ -315,6 +315,7 @@ except ValueError:
     logger.log('usage: python3 build_catalogs.py <njobs> <batchsize> '
                '[(skills | titles | sectors | companies | locations | '
                'institutes | degrees | subjects) [<start-value>]]\n')
+    exit(1)
 
 if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')
