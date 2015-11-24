@@ -85,6 +85,15 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
 
         for experience in dtdb.query(Experience) \
                               .filter(Experience.parentId == liprofile.id):
+            if experience.city and experience.country:
+                location = ', '.join([experience.city, experience.country])
+            elif experience.country:
+                location = experience.country
+            elif experience.city:
+                location = experience.city
+            else:
+                location = None
+
             if experience.dateFrom:
                 start = timestamp0 + timedelta(milliseconds=experience.dateFrom)
             else:
@@ -107,6 +116,7 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
                 'datoinId'       : experience.id,
                 'title'          : experience.name,
                 'company'        : experience.company,
+                'location'       : location,
                 'start'          : start,
                 'end'            : end,
                 'description'    : experience.description,

@@ -53,6 +53,8 @@ class Experience(SQLBase):
                          index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
+    country     = Column(Unicode(STR_MAX))
+    city        = Column(Unicode(STR_MAX))
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))

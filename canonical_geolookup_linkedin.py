@@ -4,31 +4,31 @@ import sys
 from datetime import datetime, timedelta
 from logger import Logger
 from sqlalchemy import and_
-from windowquery import splitProcess
+from windowquery import splitProcess, processDb
 
 
 def processLocations(jobid, fromlocation, tolocation, fromdate, todate):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
-    batchsize = 10
-    q = cndb.query(LIProfile.nrmLocation) \
-            .filter(LIProfile.crawledOn >= fromdate,
-                    LIProfile.crawledOn < todate,
-                    LIProfile.nrmLocation >= fromlocation)
-    if tolocation is not None:
-        q = q.filter(LIProfile.nrmLocation < tolocation)
 
-    recordcount = 0
-    for nrmLocation, in q:
-        recordcount += 1
-        cndb.addLocation(nrmLocation)
-        if recordcount % batchsize == 0:
-            cndb.commit()
-            logger.log('Batch: {0:d} records processed.\n'.format(recordcount))
-    if recordcount % batchsize != 0:
-        cndb.commit()
-        logger.log('Batch: {0:d} records processed.\n'.format(recordcount))
-            
+    q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
+             .filter(LIProfile.crawledOn >= fromdate,
+                     LIProfile.crawledOn < todate,
+                     LIProfile.nrmLocation >= fromlocation)
+    q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+             .join(LIProfile) \
+             .filter(LIProfile.crawledOn >= fromdate,
+                     LIProfile.crawledOn < todate,
+                     Experience.nrmLocation >= fromlocation)
+    if tolocation is not None:
+        q1 = q1.filter(LIProfile.nrmLocation < tolocation)
+        q2 = q2.filter(Experience.nrmLocation < tolocation)
+    q = q1.union(q2).order_by('nrmloc')
+
+    def addLocation(rec):
+        cndb.addLocation(rec[0])
+
+    processDb(q, addLocation, cndb, logger=logger)            
         
 
 njobs = int(sys.argv[1])
@@ -47,8 +47,19 @@ if fromlocation is not None:
 cndb = CanonicalDB(url=conf.CANONICAL_DB)
 logger = Logger(sys.stdout)
 
-query = cndb.query(LIProfile.nrmLocation).filter(filter)
-splitProcess(query, processLocations, batchsize,
+q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
+         .filter(LIProfile.crawledOn >= fromdate,
+                 LIProfile.crawledOn < todate)
+q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+         .join(LIProfile) \
+         .filter(LIProfile.crawledOn >= fromdate,
+                 LIProfile.crawledOn < todate)
+if fromlocation is not None:
+    q1 = q1.filter(LIProfile.nrmLocation >= fromlocation)
+    q2 = q2.filter(Experience.nrmLocation >= fromlocation)
+    
+q = q1.union(q2).order_by('nrmloc')
+splitProcess(q, processLocations, batchsize,
              njobs=njobs, args=[fromdate, todate], logger=logger,
              workdir='jobs', prefix='geoupdate_linkedin')
 

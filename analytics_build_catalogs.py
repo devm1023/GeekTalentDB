@@ -187,7 +187,8 @@ def addSectors(jobid, fromsector, tosector):
             .filter(LIProfile.nrmSector >= fromsector)
     if tosector is not None:
         q = q.filter(LIProfile.nrmSector < tosector)
-    q = q.distinct().order_by(LIProfile.nrmSector)
+    q = q.group_by(LIProfile.nrmSector, LIProfile.sector) \
+         .order_by(LIProfile.nrmSector)
 
     def addSector(rec):
         nrmName, name, count = rec

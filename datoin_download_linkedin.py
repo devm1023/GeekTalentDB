@@ -209,6 +209,16 @@ def addProfile(dtdb, profile, dtsession, logger):
         if company is not None and type(company) is not str:
             return False
 
+        # get country
+        country = experience.get('country', None)
+        if country is not None and type(country) is not str:
+            return False
+
+        # get city
+        city = experience.get('city', None)
+        if city is not None and type(city) is not str:
+            return False
+
         # get start date
         dateFrom = experience.get('dateFrom', None)
         if dateFrom is not None and type(dateFrom) is not int:
@@ -236,6 +246,8 @@ def addProfile(dtdb, profile, dtsession, logger):
             'parentId'    : parentId,
             'name'        : name,
             'company'     : company,
+            'country'     : country,
+            'city'        : city,
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
             'description' : description,

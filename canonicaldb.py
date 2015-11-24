@@ -86,6 +86,8 @@ class Experience(SQLBase):
     titlePrefix    = Column(Unicode(STR_MAX))
     company        = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
+    location       = Column(Unicode(STR_MAX))
+    nrmLocation    = Column(Unicode(STR_MAX), index=True)
     start          = Column(Date)
     end            = Column(Date)
     duration       = Column(Integer) # duration in days
@@ -149,6 +151,7 @@ def _makeExperience(experience, now):
     experience['nrmTitle']     = normalizedTitle(experience['title'])
     experience['titlePrefix']  = normalizedTitlePrefix(experience['title'])
     experience['nrmCompany']   = normalizedCompany(experience['company'])
+    experience['nrmLocation']  = normalizedLocation(experience['location'])
 
     # work out duration
     duration = None        

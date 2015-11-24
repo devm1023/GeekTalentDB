@@ -27,9 +27,18 @@ def addLIProfiles(jobid, fromid, toid):
             liprofiledict['rawTitle'] = liprofiledict.pop('title')
         if 'company' in liprofiledict:
             liprofiledict['rawCompany'] = liprofiledict.pop('company')
+        if 'sector' in liprofiledict:
+            liprofiledict['rawSector'] = liprofiledict.pop('sector')
             
         if liprofiledict.get('experiences', None) is not None:
-            for experience in liprofiledict['experiences']:                
+            for experience in liprofiledict['experiences']:
+                placeId = None
+                if experience.get('nrmLocation', None) is not None:
+                    placeId = cndb.query(Location.placeId) \
+                                  .filter(Location.nrmName ==
+                                          experience['nrmLocation']) \
+                                  .first()[0]
+                experience['placeId'] = placeId
                 if 'title' in experience:
                     experience['rawTitle'] = experience.pop('title')
                 if 'company' in experience:

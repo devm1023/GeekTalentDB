@@ -111,6 +111,7 @@ class Experience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),
                             index=True)
+    placeId        = Column(String(STR_MAX), ForeignKey('location.placeId'))
     start          = Column(Date)
     end            = Column(Date)
     duration       = Column(Integer)
@@ -437,6 +438,9 @@ class AnalyticsDB(SQLDatabase):
                   ``'company'``
                     The name of the company where the person worked.
 
+                  ``'placeId'``
+                    The Google Place ID for the experience location.
+
                   ``'start'``
                     The start date of the work experience.
 
@@ -461,6 +465,7 @@ class AnalyticsDB(SQLDatabase):
         liprofile.pop('title', None)
         liprofile.pop('company', None)
         liprofile.pop('location', None)
+        liprofile.pop('sector', None)
         
         if liprofile.get('skills', None) is not None:
             skillnames = set()
