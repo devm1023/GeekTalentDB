@@ -1,7 +1,7 @@
 import conf
 from datoindb import *
 from datetime import datetime, timedelta
-from histograms import Histogram1D
+from histograms import Histogram1D, cumulatedHistogram
 import sys
 import pickle
 
@@ -29,6 +29,13 @@ delayHist.set(0)
 fromTs = (fromDate - t0).total_seconds()*1000
 toTs   = (toDate - t0).total_seconds()*1000
 
+indexed0 = dtdb.query(LIProfile.id) \
+               .filter(LIProfile.indexedOn < fromTs) \
+               .count()
+crawled0 = dtdb.query(LIProfile.id) \
+               .filter(LIProfile.crawledDate < fromTs) \
+               .count()
+
 q = dtdb.query(LIProfile.indexedOn, LIProfile.crawledDate) \
         .filter(LIProfile.crawledDate >= fromTs,
                 LIProfile.crawledDate < toTs)
@@ -46,7 +53,10 @@ q = dtdb.query(LIProfile.indexedOn) \
 for indexedOn, in q:
     indexedOn = t0 + timedelta(milliseconds=indexedOn) - fromDate
     indexHist[indexedOn] += 1
-    
+
+indexHist = cumulatedHistogram(indexHist, const=indexed0)
+crawlHist = cumulatedHistogram(crawlHist, const=crawled0)
+
     
 obj = {'fromDate'  : fromDate,
        'toDate'    : toDate,

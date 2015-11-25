@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import pickle
 import sys
+import seaborn
 
 filename = sys.argv[1]
 with open(filename, 'rb') as pclfile:
