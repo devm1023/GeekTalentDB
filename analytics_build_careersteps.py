@@ -10,26 +10,41 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
 
-    q = andb.query(Experience.liprofileId,
-                   Experience.nrmTitle,
-                   Experience.start) \
+    q = andb.query(Experience.liprofileId) \
             .filter(Experience.nrmTitle >= fromtitle,
                     Experience.start != None)
     if totitle is not None:
         q = q.filter(Experience.nrmTitle < totitle)
     if minstart is not None:
         q = q.filter(Experience.start >= minstart)
+    q = q.distinct()
 
     def addRecord(rec):
-        liprofileId, title1, minstart = rec
-        title2 = andb.query(Experience.nrmTitle) \
-                     .filter(Experience.liprofileId == liprofileId,
-                             Experience.start != None,
-                             Experience.start > minstart) \
-                     .order_by(Experience.start) \
-                     .first()
-        if title2:
-            andb.addCareerStep(title1, title2[0])
+        liprofileId, = rec
+        q = andb.query(Experience.nrmTitle) \
+                        .filter(Experience.liprofileId == liprofileId,
+                                Experience.start != None)
+        if minstart is not None:
+            q = q.filter(Experience.start >= minstart)
+        q = q.order_by(Experience.start)
+        alltitles = q.all()
+        
+        titles = []
+        for title, in alltitles:
+            if title and title not in titles:
+                titles.append(title)
+                
+        if len(titles) >= 1:
+            if titles[0] >= fromtitle and (not totitle or titles[0] < totitle):
+                andb.addCareerStep(titles[0], None, None)
+        if len(titles) >= 2:
+            if titles[0] >= fromtitle and (not totitle or titles[0] < totitle):
+                andb.addCareerStep(titles[0], titles[1], None)
+        if len(titles) >= 3:
+            for i in range(len(titles)-3):
+                if titles[i] >= fromtitle and \
+                   (not totitle or titles[i] < totitle):
+                    andb.addCareerStep(titles[i], titles[i+1], titles[i+2])
 
     processDb(q, addRecord, andb, logger=logger)
     
