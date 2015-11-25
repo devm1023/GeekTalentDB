@@ -5,12 +5,16 @@ __all__ = [
     'LIProfileSkill',
     'ExperienceSkill',
     'Skill',
+    'SkillWord',
     'Title',
+    'TitleWord',
     'Company',
+    'CompanyWord',
     'Location',
     'Institute',
     'Degree',
     'Subject',
+    'Word',
     'TitleSkill',
     'CompanySkill',
     'SkillSkill',
@@ -21,6 +25,7 @@ __all__ = [
 
 import conf
 from sqldb import *
+from textnormalization import normalizedTitle, normalizedCompany, normalizedSkill
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -32,8 +37,10 @@ from sqlalchemy import \
     String, \
     Text, \
     Date, \
+    DateTime, \
     Float, \
-    func
+    func, \
+    or_
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
@@ -63,7 +70,7 @@ class LIProfile(SQLBase):
     totalExperience   = Column(Integer)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
-    indexedOn         = Column(Date, index=True)
+    indexedOn         = Column(DateTime, index=True)
 
     title = relationship('Title')
     company = relationship('Company')
@@ -96,11 +103,12 @@ class Experience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX),
                             ForeignKey('company.nrmName'),
                             index=True)
+    placeId        = Column(String(STR_MAX), ForeignKey('location.placeId'))
     start          = Column(Date)
     end            = Column(Date)
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
     title = relationship('Title')
     company = relationship('Company')
@@ -130,7 +138,7 @@ class Education(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(Date)
+    indexedOn      = Column(DateTime)
 
     institute = relationship('Institute')
     degree = relationship('Degree')
@@ -173,6 +181,18 @@ class Skill(SQLBase):
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
+class SkillWord(SQLBase):
+    __tablename__ = 'skill_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmName       = Column(Unicode(STR_MAX),
+                           ForeignKey('skill.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+
 class Title(SQLBase):
     __tablename__ = 'title'
     nrmName   = Column(Unicode(STR_MAX),
@@ -182,6 +202,18 @@ class Title(SQLBase):
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
+class TitleWord(SQLBase):
+    __tablename__ = 'title_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmName       = Column(Unicode(STR_MAX),
+                           ForeignKey('title.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    
 class Company(SQLBase):
     __tablename__ = 'company'
     nrmName   = Column(Unicode(STR_MAX),
@@ -190,6 +222,18 @@ class Company(SQLBase):
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
+
+class CompanyWord(SQLBase):
+    __tablename__ = 'company_word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrmName       = Column(Unicode(STR_MAX),
+                           ForeignKey('company.nrmName'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -223,6 +267,16 @@ class Subject(SQLBase):
     name            = Column(Unicode(STR_MAX))
     count           = Column(BigInteger)
 
+class Word(SQLBase):
+    __tablename__ = 'word'
+    word                   = Column(Unicode(STR_MAX),
+                                    primary_key=True)
+    liprofileSkillCount    = Column(BigInteger)
+    experienceSkillCount   = Column(BigInteger)
+    liprofileTitleCount    = Column(BigInteger)
+    experienceTitleCount   = Column(BigInteger)
+    liprofileCompanyCount  = Column(BigInteger)
+    experienceCompanyCount = Column(BigInteger)
 
 class TitleSkill(SQLBase):
     __tablename__ = 'title_skill'
@@ -302,55 +356,11 @@ def skillScore(coincidenceCount, categoryCount, skillCount, nrecords):
     return coincidenceCount/categoryCount \
         - (skillCount-coincidenceCount)/(nrecords-categoryCount)
 
+
 class AnalyticsDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
-
-    def addSkill(self, nrmName, name, liprofileCount, experienceCount):
-        skill = self.query(Skill).filter(Skill.nrmName == nrmName) \
-                                 .first()
-        if not skill:
-            skill = Skill(nrmName=nrmName)
-            self.add(skill)
-        skill.name = name
-        skill.liprofileCount = liprofileCount
-        skill.experienceCount = experienceCount
-        return skill
-
-    def addTitle(self, nrmName, name, liprofileCount, experienceCount):
-        title = self.query(Title).filter(Title.nrmName == nrmName) \
-                                 .first()
-        if not title:
-            title = Title(nrmName=nrmName)
-            self.add(title)
-        title.name = name
-        title.liprofileCount = liprofileCount
-        title.experienceCount = experienceCount
-        return title
-
-    def addCompany(self, nrmName, name, liprofileCount, experienceCount):
-        company = self.query(Company).filter(Company.nrmName == nrmName) \
-                                     .first()
-        if not company:
-            company = Company(nrmName=nrmName)
-            self.add(company)
-        company.name = name
-        company.liprofileCount = liprofileCount
-        company.experienceCount = experienceCount
-        return company
-
-    def addLocation(self, placeId, name, geo):
-        if placeId is None:
-            return Location()
-        location = self.query(Location).filter(Location.placeId == placeId) \
-                                       .first()
-        if not location:
-            location = Location(placeId=placeId)
-            self.add(location)
-        location.name = name
-        location.geo = geo
-        return location
 
     def addLIProfile(self, liprofile):
         """Add a LinkedIn profile to the database.
@@ -412,6 +422,9 @@ class AnalyticsDB(SQLDatabase):
                   ``'company'``
                     The name of the company where the person worked.
 
+                  ``'placeId'``
+                    The Google Place ID for the experience location.
+
                   ``'start'``
                     The start date of the work experience.
 
@@ -436,6 +449,7 @@ class AnalyticsDB(SQLDatabase):
         liprofile.pop('title', None)
         liprofile.pop('company', None)
         liprofile.pop('location', None)
+        liprofile.pop('sector', None)
         
         if liprofile.get('skills', None) is not None:
             skillnames = set()
@@ -492,3 +506,52 @@ class AnalyticsDB(SQLDatabase):
 
         careerstep.count += 1
         
+    def findEntities(self, querytype, querytext):
+        if querytype == 'title':
+            wordtable = TitleWord
+            wordcountcols = [Word.experienceTitleCount, Word.liprofileTitleCount]
+            entitytable = Title
+            entitycountcols = [Title.experienceCount, Title.liprofileCount]
+            nrmfunc = normalizedTitle
+        elif querytype == 'skill':
+            wordtable = SkillWord
+            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            entitytable = Skill
+            entitycountcols = [Skill.experienceCount, Skill.liprofileCount]
+            nrmfunc = normalizedSkill
+        elif querytype == 'company':
+            wordtable = CompanyWord
+            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            entitytable = Company
+            entitycountcols = [Company.experienceCount, Company.liprofileCount]
+            nrmfunc = normalizedCompany
+
+
+        words = nrmfunc(querytext).split()
+        wordcounts = self.query(Word.word, *wordcountcols) \
+                         .filter(Word.word.in_(words),
+                                 or_(*[c > 0 for c in wordcountcols])) \
+                         .all()
+        wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
+        wordcounts.sort(key=lambda x: x[1])
+        entitynames = []
+        for i in range(len(wordcounts), 0, -1):
+            words = [wc[0] for wc in wordcounts[:i]]
+            wordcountcol = func.count(wordtable.word).label('wordcount')
+            q = self.query(wordtable.nrmName) \
+                    .filter(wordtable.word.in_(words)) \
+                    .group_by(wordtable.nrmName) \
+                    .having(wordcountcol == len(words))
+            entitynames = [name for name, in q]
+            if entitynames:
+                break
+
+        entities = []
+        for rec in self.query(entitytable.nrmName, *entitycountcols) \
+                       .filter(entitytable.nrmName.in_(entitynames)):
+            entities.append((rec[0], sum(rec[1:])))
+        entities.sort(key=lambda x: -x[1])
+        
+        return entities, words
+
+

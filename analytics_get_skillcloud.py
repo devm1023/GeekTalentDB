@@ -39,9 +39,6 @@ def getScores(q, categoryNameCol, categoryCountCol, skillCountCol, nrecords):
 
     return scores, categories, categoryCount
 
-def substringFilter(col, s):
-    return or_(col == s, col.like('% '+s),
-               col.like(s+' %'), col.like('% '+s+' %'))
 
 try:
     querytype = sys.argv[1]
@@ -69,11 +66,12 @@ if filename is not None:
 
 if querytype == 'title':
     nrecords = andb.query(Experience.id).count()
-    nrmQuery = normalizedTitle(query)
+    titles, words = andb.findEntities('title', query)
+    titles = [title[0] for title in titles]
     q = andb.query(TitleSkill.nrmTitle,
                    TitleSkill.nrmSkill,
                    TitleSkill.experienceCount) \
-            .filter(substringFilter(TitleSkill.nrmTitle, nrmQuery))
+            .filter(TitleSkill.nrmTitle.in_(titles))
     scores, categories, nmatches \
         = getScores(q, Title.nrmName, Title.experienceCount,
                     Skill.experienceCount, nrecords)
@@ -88,11 +86,12 @@ if querytype == 'title':
         logger.log('    {0:7d} {1:s}\n'.format(count, category))
 if querytype == 'company':
     nrecords = andb.query(Experience.id).count()
-    nrmQuery = normalizedCompany(query)
+    companies, words = andb.findEntities('company', query)
+    companies = [company[0] for company in companies]
     q = andb.query(CompanySkill.nrmCompany,
                    CompanySkill.nrmSkill,
                    CompanySkill.experienceCount) \
-            .filter(substringFilter(CompanySkill.nrmCompany, nrmQuery))
+            .filter(CompanySkill.nrmCompany.in_(companies))
     scores, categories, nmatches \
         = getScores(q, Company.nrmName, Company.experienceCount,
                     Skill.experienceCount, nrecords)
@@ -107,11 +106,13 @@ if querytype == 'company':
         logger.log('    {0:7d} {1:s}\n'.format(count, category))
 if querytype == 'skill':
     nrecords = andb.query(Experience.id).count()
-    nrmQuery = normalizedSkill(query)
+    skills, words = andb.findEntities('skill', query)
+    skills = [skill[0] for skill in skills]
+    print(skills)
     q = andb.query(SkillSkill.nrmSkill1,
                    SkillSkill.nrmSkill2,
                    SkillSkill.experienceCount) \
-            .filter(substringFilter(SkillSkill.nrmSkill1, nrmQuery))
+            .filter(SkillSkill.nrmSkill1.in_(skills))
     scores, categories, nmatches \
         = getScores(q, Skill.nrmName, Skill.experienceCount,
                     Skill.experienceCount, nrecords)
