@@ -341,14 +341,16 @@ class SkillSkill(SQLBase):
 
 class CareerStep(SQLBase):
     __tablename__ = 'career_step'
-    titleFrom     = Column(String(STR_MAX),
+    id            = Column(BigInteger, primary_key=True)
+    title1        = Column(String(STR_MAX),
                            ForeignKey('title.nrmName'),
-                           index=True,
-                           primary_key=True)
-    titleTo       = Column(String(STR_MAX),
+                           index=True)
+    title2        = Column(String(STR_MAX),
                            ForeignKey('title.nrmName'),
-                           index=True,
-                           primary_key=True)
+                           index=True)
+    title3        = Column(String(STR_MAX),
+                           ForeignKey('title.nrmName'),
+                           index=True)
     count         = Column(BigInteger)
     
 
@@ -506,17 +508,19 @@ class AnalyticsDB(SQLDatabase):
                     
         return self.addFromDict(liprofile, LIProfile)
 
-    def addCareerStep(self, titleFrom, titleTo):
-        if not titleFrom or not titleTo:
+    def addCareerStep(self, title1, title2, title3):
+        if not title1:
             return
         
         careerstep = self.query(CareerStep) \
-                         .filter(CareerStep.titleFrom == titleFrom,
-                                 CareerStep.titleTo   == titleTo) \
+                         .filter(CareerStep.title1 == title1,
+                                 CareerStep.title2 == title2,
+                                 CareerStep.title3 == title3) \
                          .first()
         if careerstep is None:
-            careerstep = CareerStep(titleFrom=titleFrom,
-                                    titleTo=titleTo,
+            careerstep = CareerStep(title1=title1,
+                                    title2=title2,
+                                    title3=title3,
                                     count=0)
             self.add(careerstep)
 
