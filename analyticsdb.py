@@ -535,6 +535,12 @@ class AnalyticsDB(SQLDatabase):
             entitytable = Skill
             entitycountcols = [Skill.experienceCount, Skill.liprofileCount]
             nrmfunc = normalizedSkill
+        elif querytype == 'company':
+            wordtable = CompanyWord
+            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            entitytable = Company
+            entitycountcols = [Company.experienceCount, Company.liprofileCount]
+            nrmfunc = normalizedCompany
 
 
         words = nrmfunc(querytext).split()
