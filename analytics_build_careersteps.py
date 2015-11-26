@@ -7,9 +7,18 @@ from datetime import datetime
 
 
 def addCareerSteps(jobid, fromtitle, totitle, minstart):
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
+
+    def str_lt(s1, s2):
+        return locale.strcoll(s1, s2) > 0
+
+    def str_ge(s1, s2):
+        return not str_lt(s1, s2)
+
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
-
+    
     q = andb.query(Experience.liprofileId) \
             .filter(Experience.nrmTitle >= fromtitle,
                     Experience.start != None)
@@ -22,8 +31,8 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
     def addRecord(rec):
         liprofileId, = rec
         q = andb.query(Experience.nrmTitle) \
-                        .filter(Experience.liprofileId == liprofileId,
-                                Experience.start != None)
+                .filter(Experience.liprofileId == liprofileId,
+                        Experience.start != None)
         if minstart is not None:
             q = q.filter(Experience.start >= minstart)
         q = q.order_by(Experience.start)
@@ -33,18 +42,17 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
         for title, in alltitles:
             if title and title not in titles:
                 titles.append(title)
-                
-        if len(titles) >= 1:
-            if titles[0] >= fromtitle and (not totitle or titles[0] < totitle):
-                andb.addCareerStep(titles[0], None, None)
-        if len(titles) >= 2:
-            if titles[0] >= fromtitle and (not totitle or titles[0] < totitle):
-                andb.addCareerStep(titles[0], titles[1], None)
-        if len(titles) >= 3:
-            for i in range(len(titles)-3):
-                if titles[i] >= fromtitle and \
-                   (not totitle or titles[i] < totitle):
-                    andb.addCareerStep(titles[i], titles[i+1], titles[i+2])
+        if not titles:
+            return
+
+        titles = [None, None]+titles+[None, None]
+        for i in range(len(titles)-3):
+            triple = titles[i:i+3]
+            title0 = next(t for t in triple if t is not None)
+            if str_lt(title0, fromtitle) or \
+               (totitle and str_ge(title0, totitle)):
+                continue
+            andb.addCareerStep(*triple)
 
     processDb(q, addRecord, andb, logger=logger)
     

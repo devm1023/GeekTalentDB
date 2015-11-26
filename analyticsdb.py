@@ -493,9 +493,6 @@ class AnalyticsDB(SQLDatabase):
         return self.addFromDict(liprofile, LIProfile)
 
     def addCareerStep(self, title1, title2, title3):
-        if not title1:
-            return
-        
         careerstep = self.query(CareerStep) \
                          .filter(CareerStep.title1 == title1,
                                  CareerStep.title2 == title2,
