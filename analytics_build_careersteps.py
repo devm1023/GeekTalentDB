@@ -8,18 +8,17 @@ from datetime import datetime
 
 def addCareerSteps(jobid, fromtitle, totitle, minstart):
     import locale
-    locale.setlocale(locale.LC_ALL, '')
+    locale.setlocale(locale.LC_COLLATE, 'en_US.UTF-8')
 
-    def str_lt(s1, s2):
-        return locale.strcoll(s1, s2) > 0
-
-    def str_ge(s1, s2):
-        return not str_lt(s1, s2)
-
+    fromtitle_xfrm = locale.strxfrm(fromtitle)
+    totitle_xfrm = None
+    if totitle:
+        totitle_xfrm = locale.strxfrm(totitle)
+    
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = andb.query(Experience.liprofileId) \
+    q = andb.query(Experience.liprofileId, Experience.nrmTitle) \
             .filter(Experience.nrmTitle >= fromtitle,
                     Experience.start != None)
     if totitle is not None:
@@ -29,7 +28,14 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
     q = q.distinct()
 
     def addRecord(rec):
-        liprofileId, = rec
+        liprofileId, nrmTitle = rec
+        nrmTitle_xfrm = locale.strxfrm(nrmTitle)
+        if nrmTitle_xfrm < fromtitle_xfrm or \
+           (totitle and nrmTitle_xfrm >= totitle_xfrm):
+            raise RuntimeError('mismatch: {0:s} not between {1:s} and {2:s}' \
+                               .format(repr(nrmTitle), repr(fromtitle),
+                                       repr(totitle)))
+        
         q = andb.query(Experience.nrmTitle) \
                 .filter(Experience.liprofileId == liprofileId,
                         Experience.start != None)
@@ -46,11 +52,13 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
             return
 
         titles = [None, None]+titles+[None, None]
+        logger.log('profile: {0:d}\n'.format(liprofileId))
         for i in range(len(titles)-3):
             triple = titles[i:i+3]
             title0 = next(t for t in triple if t is not None)
-            if str_lt(title0, fromtitle) or \
-               (totitle and str_ge(title0, totitle)):
+            title0_xfrm = locale.strxfrm(title0)
+            if title0_xfrm < fromtitle_xfrm or \
+               (totitle and title0_xfrm >= totitle_xfrm):
                 continue
             andb.addCareerStep(*triple)
 
@@ -72,6 +80,7 @@ except ValueError:
 
 andb.query(CareerStep).delete()
 andb.commit()
+andb.execute('ALTER SEQUENCE career_step_id_seq RESTART WITH 1;')
 
 q = andb.query(Title.nrmName) \
         .filter(Title.experienceCount > 0)

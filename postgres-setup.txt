@@ -8,7 +8,7 @@ Set up user and database
 ------------------------
 
 $ sudo su -
-# sudo -u postgres createdb geektalent
+# sudo -u postgres createdb -T template0 --encoding=UTF-8 --locale=en_US.UTF-8 geektalent
 # sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis;"
 # sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis_topology;"
 # sudo -u postgres createuser -P -s -e geektalent
