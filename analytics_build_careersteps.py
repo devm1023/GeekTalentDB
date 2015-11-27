@@ -36,7 +36,7 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
                                .format(repr(nrmTitle), repr(fromtitle),
                                        repr(totitle)))
         
-        q = andb.query(Experience.nrmTitle) \
+        q = andb.query(Experience.titlePrefix, Experience.nrmTitle) \
                 .filter(Experience.liprofileId == liprofileId,
                         Experience.start != None)
         if minstart is not None:
@@ -45,22 +45,21 @@ def addCareerSteps(jobid, fromtitle, totitle, minstart):
         alltitles = q.all()
         
         titles = []
-        for title, in alltitles:
-            if title and title not in titles:
-                titles.append(title)
+        for prefix, title in alltitles:
+            if title and (prefix, title) not in titles:
+                titles.append((prefix, title))
         if not titles:
             return
 
-        titles = [None, None]+titles+[None, None]
-        logger.log('profile: {0:d}\n'.format(liprofileId))
+        titles = [(None, None)]*2 + titles + [(None, None)]*2
         for i in range(len(titles)-3):
             triple = titles[i:i+3]
-            title0 = next(t for t in triple if t is not None)
-            title0_xfrm = locale.strxfrm(title0)
+            title0 = next(t for t in triple if t[1] is not None)
+            title0_xfrm = locale.strxfrm(title0[1])
             if title0_xfrm < fromtitle_xfrm or \
                (totitle and title0_xfrm >= totitle_xfrm):
                 continue
-            andb.addCareerStep(*triple)
+            andb.addCareerStep(*[i for t in triple for i in t])
 
     processDb(q, addRecord, andb, logger=logger)
     
