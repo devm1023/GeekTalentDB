@@ -215,6 +215,7 @@ titlePrefixWords = set([
     'lead',
     'head',
     'chief',
+    'honorary',
     'apprentice',
     'intern',
     'freelance',
@@ -224,26 +225,26 @@ titleSuffixWords = set([
     'intern',
 ])
 
-def _splitTitle(stems):
-    if not stems:
+def _splitTitle(words):
+    if not words:
         return None, None
     prefix = []
     suffix = []
     i = 0
-    while i < len(stems):
-        if stems[i] in titlePrefixWords:
-            prefix.append(stems[i])
+    while i < len(words):
+        if words[i] in titlePrefixWords:
+            prefix.append(words[i])
             i += 1
         else:
             break
-    j = len(stems)-1
+    j = len(words)-1
     while j >= i:
-        if stems[j] in titleSuffixWords:
-            suffix.append(stems[j])
+        if words[j] in titleSuffixWords:
+            suffix.append(words[j])
             j -= 1
         else:
             break
-    main = ' '.join(stems[i:j+1])
+    main = ' '.join(words[i:j+1])
     prefix = ' '.join(prefix+suffix)
     if not main:
         main = None
@@ -258,24 +259,29 @@ def normalizedTitle(name):
     nname = parsedTitle(name)
     if not nname:
         return None
-    tokens = clean(nname,
-                   nospace='\'’.',
-                   lowercase=True,
-                   removebrackets=True,
-                   removestopwords=True,
-                   tokenize=True)
+    tokens = nname.lower().split()
     prefix, title = _splitTitle(tokens)
+    replace = [
+        ('.net', ' dotnet'),
+        ('c++', 'cplusplus'),
+        ('c#', 'csharp'),
+        ('f#', 'fsharp'),
+        ('tcp/ip', 'tcpip'),
+        ('co-ordin', 'coordin'),
+    ]
+    title = clean(title,
+                  nospace='\'’.',
+                  removebrackets=True,
+                  removestopwords=True,
+                  replace=replace,
+                  stem=True)
     return title
 
 def normalizedTitlePrefix(name):
     nname = parsedTitle(name)
     if not nname:
         return None
-    tokens = clean(nname,
-                   nospace='\'’.',
-                   lowercase=True,
-                   removebrackets=True,
-                   tokenize=True)
+    tokens = nname.lower().split()
     prefix, title = _splitTitle(tokens)
     return prefix
 
@@ -311,7 +317,7 @@ def normalizedCompany(name):
     nname = nname.split(',')[0]
     nname = nname.split(' - ')[0]
     nname = nname.split(' / ')[0]
-    nname = clean(nname)
+    nname = clean(nname, keep='&')
     if not nname:
         return None
     return nname
