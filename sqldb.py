@@ -25,6 +25,7 @@ class SQLDatabase:
         self.flush = session.flush
         self.commit = session.commit
         self.add = session.add
+        self.execute = session.execute
 
     def drop_all(self):
         self.metadata.drop_all(self.session.bind)
