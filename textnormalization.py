@@ -261,6 +261,8 @@ def normalizedTitle(name):
         return None
     tokens = nname.lower().split()
     prefix, title = _splitTitle(tokens)
+    if not title:
+        return None
     replace = [
         ('.net', ' dotnet'),
         ('c++', 'cplusplus'),
