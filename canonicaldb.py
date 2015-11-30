@@ -42,7 +42,7 @@ class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
-    language          = Column(String(2))
+    language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)

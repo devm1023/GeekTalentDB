@@ -35,6 +35,8 @@ def windows(query, windowsize):
     column = columns[0]
 
     nrows = query.distinct().count()
+    if nrows < 1:
+        raise StopIteration()
     subq = query.order_by(column).distinct().subquery()
     q = query.session.query(subq,
                             func.row_number().over() \

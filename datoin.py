@@ -90,7 +90,7 @@ def query(params={},
           offset=0,
           batchsize=100,
           maxdelay=10,
-          timeout=10,
+          timeout=60,
           logger=Logger(None)):
     session = Session(logger=logger)
     for row in session.query(params=params, url=url,

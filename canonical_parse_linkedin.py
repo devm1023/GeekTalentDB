@@ -7,6 +7,8 @@ import sys
 from datetime import datetime, timedelta
 from logger import Logger
 import re
+import langdetect
+from langdetect.lang_detect_exception import LangDetectException
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
@@ -18,8 +20,7 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
-    q = dtdb.query(LIProfile).filter(LIProfile.country == 'United Kingdom',
-                                     LIProfile.crawledDate >= fromTs,
+    q = dtdb.query(LIProfile).filter(LIProfile.crawledDate >= fromTs,
                                      LIProfile.crawledDate < toTs,
                                      LIProfile.id >= fromid)
     if toid is not None:
@@ -156,6 +157,35 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
                 }
             profiledict['educations'].append(educationdict)
 
+        
+        # determine language
+
+        profiletexts = [profiledict['title'], profiledict['description']]
+        profiletexts.extend(profiledict['skills'])
+        for experience in profiledict['experiences']:
+            profiletexts.append(experience['title'])
+            profiletexts.append(experience['description'])
+        for education in profiledict['educations']:
+            profiletexts.append(education['degree'])
+            profiletexts.append(education['subject'])
+            profiletexts.append(education['description'])
+        profiletexts = '. '.join([t for t in profiletexts if t])
+        try:
+            language = langdetect.detect(profiletexts)
+        except LangDetectException:
+            language = None
+
+        profiledict['language'] = language
+
+
+        # filter profiles
+        
+        if liprofile.country != 'United Kingdom' and language != 'en':
+            return
+
+        
+        # add profile
+        
         cndb.addLIProfile(profiledict, now)
 
     processDb(q, addLIProfile, cndb, logger=logger)

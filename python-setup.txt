@@ -8,6 +8,6 @@ Install required python packages:
 ---------------------------------
 
 sudo apt-get install postgresql-server-dev-X.Y libgdal-dev
-sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely
+sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely langdetect
 
 Where X.Y is the PostgreSQL version number.
