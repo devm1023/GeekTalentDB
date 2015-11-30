@@ -30,7 +30,7 @@ class Session:
               offset=0,
               batchsize=100,
               maxdelay=10,
-              timeout=10):
+              timeout=60):
         maxdelay = max(1, maxdelay)
 
         curr_offset=offset

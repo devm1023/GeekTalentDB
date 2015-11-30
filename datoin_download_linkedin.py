@@ -231,8 +231,8 @@ def addProfile(dtdb, profile, dtsession, logger):
 
         # get description
         description = experience.get('description', None)
-        if type(description) is not str:
-            continue
+        if description is not None and type(description) is not str:
+            return False
 
         # get timestamp
         if 'indexedOn' not in experience:
@@ -301,6 +301,11 @@ def addProfile(dtdb, profile, dtsession, logger):
         if dateTo is not None and type(dateTo) is not int:
             return False
 
+        # get description
+        description = education.get('description', None)
+        if description is not None and type(description) is not str:
+            return False
+
         # get timestamp
         if 'indexedOn' not in education:
             return False
@@ -316,6 +321,7 @@ def addProfile(dtdb, profile, dtsession, logger):
             'area'        : area,
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
+            'description' : description,
             'indexedOn'   : indexedOn})
 
 
@@ -325,7 +331,7 @@ def addProfile(dtdb, profile, dtsession, logger):
     return True
 
 
-def downloadProfiles(fromTs, toTs, offset, rows):
+def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
     if conf.MAX_PROFILES is not None:
         rows = min(rows, conf.MAX_PROFILES)
     
@@ -334,13 +340,20 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session(logger=logger)
 
+    if byIndexedOn:
+        fromKey = 'fromTs'
+        toKey   = 'toTs'
+    else:
+        fromKey = 'crawledFrom'
+        toKey   = 'crawledTo'
+    
     logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
                .format(rows, offset))
     failed_offsets = []
     count = 0
     for profile in dtsession.query(params={'sid'         : 'linkedin',
-                                           'crawledFrom' : fromTs,
-                                           'crawledTo'   : toTs},
+                                           fromKey       : fromTs,
+                                           toKey         : toTs},
                                    rows=rows,
                                    offset=offset):
         if not addProfile(dtdb, profile, dtsession, logger):
@@ -385,13 +398,23 @@ def downloadProfiles(fromTs, toTs, offset, rows):
     return failed_offsets
 
 
-def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
+def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
+                  offset=0, maxoffset=None):
     logger = Logger(sys.stdout)
-    fromTs = int((tfrom - timestamp0).total_seconds())*1000
-    toTs   = int((tto   - timestamp0).total_seconds())*1000
+    fromTs = int((tfrom - timestamp0).total_seconds())
+    toTs   = int((tto   - timestamp0).total_seconds())
+    if byIndexedOn:
+        fromKey = 'fromTs'
+        toKey   = 'toTs'
+    else:
+        fromTs *= 1000
+        toTs   *= 1000
+        fromKey = 'crawledFrom'
+        toKey   = 'crawledTo'
+        
     nprofiles = datoin.count(params={'sid'         : 'linkedin',
-                                     'crawledFrom' : fromTs,
-                                     'crawledTo'   : toTs})
+                                     fromKey       : fromTs,
+                                     toKey         : toTs})
     logger.log(
         'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
         .format(tfrom.strftime('%Y-%m-%d'), fromTs,
@@ -413,7 +436,7 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
         ncurrentjobs = min(njobs, offset2-offset1)
         if ncurrentjobs > 1:
             poffsets = np.linspace(offset1, offset2, ncurrentjobs+1, dtype=int)
-            args = [(fromTs, toTs, a, b-a) \
+            args = [(fromTs, toTs, a, b-a, byIndexedOn) \
                     for a, b in zip(poffsets[:-1], poffsets[1:])]
             results = ParallelFunction(downloadProfiles,
                                        batchsize=1,
@@ -423,7 +446,7 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, offset=0, maxoffset=None):
             failedoffsets = list(itertools.chain(*results))
         else:
             failedoffsets = downloadProfiles(fromTs, toTs, offset1,
-                                             offset2-offset1)
+                                             offset2-offset1, byIndexedOn)
 
         dlend = datetime.now()
         dltime = (dlend-dlstart).total_seconds()
@@ -445,6 +468,10 @@ if __name__ == '__main__':
     batchsize = int(sys.argv[2])
     fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
     todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
+    byIndexedOn = False
+    if len(sys.argv) > 5 and sys.argv[5] == '--by-index-date':
+        byIndexedOn = True
+        del sys.argv[5]
     if len(sys.argv) > 5:
         offset = int(sys.argv[5])
     else:
@@ -458,8 +485,9 @@ if __name__ == '__main__':
         deltat = timedelta(days=1)
         t = fromdate
         while t < todate:
-            downloadRange(t, min(t+deltat, todate), njobs, njobs*batchsize)
+            downloadRange(t, min(t+deltat, todate), njobs, njobs*batchsize,
+                          byIndexedOn)
             t += deltat
     else:
-        downloadRange(fromdate, todate, njobs, njobs*batchsize,
+        downloadRange(fromdate, todate, njobs, njobs*batchsize, byIndexedOn,
                       offset=offset, maxoffset=maxoffset)
