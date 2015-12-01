@@ -29,8 +29,8 @@ class Session:
               rows=None,
               offset=0,
               batchsize=100,
-              maxdelay=10,
-              timeout=60):
+              maxdelay=1,
+              timeout=300):
         maxdelay = max(1, maxdelay)
 
         curr_offset=offset
@@ -67,7 +67,7 @@ class Session:
                         ReadTimeout) as e:
                     self._logger.log('URL: '+request_url+'\n')
                     self._logger.log(str(e)+'\n')
-                    if delay >= maxdelay:
+                    if delay > maxdelay:
                         raise
                     time.sleep(delay)
                     delay *= 2
@@ -89,8 +89,8 @@ def query(params={},
           rows=None,
           offset=0,
           batchsize=100,
-          maxdelay=10,
-          timeout=60,
+          maxdelay=1,
+          timeout=300,
           logger=Logger(None)):
     session = Session(logger=logger)
     for row in session.query(params=params, url=url,
