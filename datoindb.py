@@ -90,21 +90,12 @@ class DatoinDB(SQLDatabase):
             liprofile = LIProfile(**profile)
             self.add(liprofile)
             self.flush()
-        else:
+        elif profile['indexedOn'] >= liprofile.indexedOn:
             new_profile = False
-            liprofile.parentId          = profile['parentId']
-            liprofile.lastName          = profile['lastName']
-            liprofile.firstName         = profile['firstName']
-            liprofile.name              = profile['name']
-            liprofile.country           = profile['country']
-            liprofile.city              = profile['city']
-            liprofile.title             = profile['title']
-            liprofile.description       = profile['description']
-            liprofile.profileUrl        = profile['profileUrl']
-            liprofile.profilePictureUrl = profile['profilePictureUrl']
-            liprofile.indexedOn         = profile['indexedOn']
-            liprofile.connections       = profile['connections']
-            liprofile.categories        = profile['categories']
+            for key, val in profile.items():
+                setattr(liprofile, key, val)
+        else:
+            return liprofile
 
         # add experiences
         if not new_profile:
