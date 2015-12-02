@@ -75,7 +75,7 @@ def addSkills(jobid, fromskill, toskill):
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(Skill.nrmName, Skill.name, func.count(Skill.profileId)) \
+    q = cndb.query(Skill.nrmName, Skill.name, func.count(Skill.liprofileId)) \
             .filter(Skill.nrmName >= fromskill)
     if toskill is not None:
         q = q.filter(Skill.nrmName < toskill)
@@ -85,6 +85,7 @@ def addSkills(jobid, fromskill, toskill):
         nrmName, bestname, liprofileCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : bestname,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : 0,
@@ -135,6 +136,7 @@ def addTitles(jobid, fromtitle, totitle):
         nrmName, name, liprofileCount, experienceCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : name,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : experienceCount,
@@ -169,6 +171,7 @@ def addCompanies(jobid, fromcompany, tocompany):
         nrmName, name, liprofileCount, experienceCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : name,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : experienceCount,
@@ -242,6 +245,7 @@ def addInstitutes(jobid, frominstitute, toinstitute):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Institute)
@@ -266,6 +270,7 @@ def addDegrees(jobid, fromdegree, todegree):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Degree)
@@ -290,6 +295,7 @@ def addSubjects(jobid, fromsubject, tosubject):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'language'        : nrmName.split(':')[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Subject)

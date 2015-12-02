@@ -14,15 +14,20 @@ timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
 
-def parseProfiles(jobid, fromid, toid, fromTs, toTs):
+def parseProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
     batchsize = 50
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
-    q = dtdb.query(LIProfile).filter(LIProfile.crawledDate >= fromTs,
-                                     LIProfile.crawledDate < toTs,
-                                     LIProfile.id >= fromid)
+    q = dtdb.query(LIProfile).filter(LIProfile.id >= fromid)
+    if byIndexedOn:
+        q = q.filter(LIProfile.indexedOn >= fromTs,
+                     LIProfile.indexedOn < toTs)
+    else:
+        q = q.filter(LIProfile.crawledDate >= fromTs,
+                     LIProfile.crawledDate < toTs)
+                                     
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
 
@@ -182,7 +187,8 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs):
         
         if liprofile.country != 'United Kingdom' and language != 'en':
             return
-
+        profiledict['language'] = 'en'
+        
         
         # add profile
         
@@ -197,6 +203,10 @@ njobs = int(sys.argv[1])
 batchsize = int(sys.argv[2])
 fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
 todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
+byIndexedOn = False
+if len(sys.argv) > 5 and sys.argv[5] == '--by-index-date':
+    byIndexedOn = True
+    del sys.argv[5]
 fromid = None
 if len(sys.argv) > 5:
     fromid = sys.argv[5]
@@ -208,13 +218,16 @@ toTs   = int((todate   - timestamp0).total_seconds())*1000
 dtdb = DatoinDB(url=conf.DATOIN_DB)
 logger = Logger(sys.stdout)
 
-query = dtdb.query(LIProfile.id) \
-            .filter(LIProfile.country == 'United Kingdom',
-                    LIProfile.crawledDate >= fromTs,
-                    LIProfile.crawledDate < toTs)
+query = dtdb.query(LIProfile.id)
+if byIndexedOn:
+    query = query.filter(LIProfile.indexedOn >= fromTs,
+                         LIProfile.indexedOn < toTs)
+else:
+    query = query.filter(LIProfile.crawledDate >= fromTs,
+                         LIProfile.crawledDate < toTs)
 if fromid is not None:
     query = query.filter(LIProfile.id >= fromid)
 
 splitProcess(query, parseProfiles, batchsize,
-             njobs=njobs, args=[fromTs, toTs], logger=logger,
+             njobs=njobs, args=[fromTs, toTs, byIndexedOn], logger=logger,
              workdir='jobs', prefix='canonical_parse_linkedin')

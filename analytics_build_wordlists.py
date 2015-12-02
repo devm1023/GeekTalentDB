@@ -18,10 +18,12 @@ def addSkillWords(jobid, fromskill, toskill):
 
     def addSkill(rec):
         skill, = rec
-        for word in skill.split():
+        language, skillwords = tuple(skill.split(':'))
+        for word in skillwords.split():
             andb.addFromDict({
-                'word' : word,
-                'nrmName' : skill,
+                'language' : language,
+                'word'     : word,
+                'nrmName'  : skill,
                 }, SkillWord)
             
     processDb(q, addSkill, andb, logger=logger)
@@ -30,19 +32,20 @@ def countSkillWords(jobid, fromword, toword):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = andb.query(SkillWord.word,
+    q = andb.query(SkillWord.language, SkillWord.word,
                    func.sum(Skill.liprofileCount),
                    func.sum(Skill.experienceCount)) \
             .join(Skill) \
             .filter(SkillWord.word >= fromword)
     if toword is not None:
         q = q.filter(SkillWord.word < toword)
-    q = q.group_by(SkillWord.word)
+    q = q.group_by(SkillWord.language, SkillWord.word)
 
     def addCounts(rec):
-        word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, experienceCount = rec
         
         andb.addFromDict({
+            'language' : language,
             'word' : word,
             'liprofileSkillCount' : liprofileCount,
             'experienceSkillCount' : experienceCount,
@@ -63,8 +66,10 @@ def addTitleWords(jobid, fromtitle, totitle):
 
     def addTitle(rec):
         title, = rec
-        for word in title.split():
+        language, titlewords = tuple(title.split(':'))
+        for word in titlewords.split():
             andb.addFromDict({
+                'language' : language,
                 'word' : word,
                 'nrmName' : title,
                 }, TitleWord)
@@ -75,19 +80,20 @@ def countTitleWords(jobid, fromword, toword):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = andb.query(TitleWord.word,
+    q = andb.query(TitleWord.language, TitleWord.word,
                    func.sum(Title.liprofileCount),
                    func.sum(Title.experienceCount)) \
             .join(Title) \
             .filter(TitleWord.word >= fromword)
     if toword is not None:
         q = q.filter(TitleWord.word < toword)
-    q = q.group_by(TitleWord.word)
+    q = q.group_by(TitleWord.language, TitleWord.word)
 
     def addCounts(rec):
-        word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, experienceCount = rec
         
         andb.addFromDict({
+            'language' : language,
             'word' : word,
             'liprofileTitleCount' : liprofileCount,
             'experienceTitleCount' : experienceCount,
@@ -108,8 +114,10 @@ def addCompanyWords(jobid, fromcompany, tocompany):
 
     def addCompany(rec):
         company, = rec
-        for word in company.split():
+        language, companywords = tuple(company.split(':'))
+        for word in companywords.split():
             andb.addFromDict({
+                'language' : language,
                 'word' : word,
                 'nrmName' : company,
                 }, CompanyWord)
@@ -120,7 +128,7 @@ def countCompanyWords(jobid, fromword, toword):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = andb.query(CompanyWord.word,
+    q = andb.query(CompanyWord.language, CompanyWord.word,
                    func.sum(Company.liprofileCount),
                    func.sum(Company.experienceCount)) \
             .join(Company) \
@@ -130,9 +138,10 @@ def countCompanyWords(jobid, fromword, toword):
     q = q.group_by(CompanyWord.word)
 
     def addCounts(rec):
-        word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, experienceCount = rec
         
         andb.addFromDict({
+            'language' : language,
             'word' : word,
             'liprofileCompanyCount' : liprofileCount,
             'experienceCompanyCount' : experienceCount,

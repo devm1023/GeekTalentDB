@@ -78,9 +78,10 @@ class Experience(SQLBase):
     __tablename__ = 'experience'
     id             = Column(BigInteger, primary_key=True)
     datoinId       = Column(String(STR_MAX))
-    profileId      = Column(BigInteger,
+    liprofileId    = Column(BigInteger,
                             ForeignKey('liprofile.id'),
                             index=True)
+    language       = Column(String(20))
     title          = Column(Unicode(STR_MAX))
     parsedTitle    = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX), index=True)
@@ -103,9 +104,10 @@ class Education(SQLBase):
     __tablename__ = 'education'
     id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
-    profileId   = Column(BigInteger,
+    liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
+    language       = Column(String(20))
     institute      = Column(Unicode(STR_MAX))
     nrmInstitute   = Column(Unicode(STR_MAX))
     degree         = Column(Unicode(STR_MAX))
@@ -119,13 +121,14 @@ class Education(SQLBase):
 
 class Skill(SQLBase):
     __tablename__ = 'skill'
-    id        = Column(BigInteger, primary_key=True)
-    profileId = Column(BigInteger,
-                       ForeignKey('liprofile.id'),
-                       index=True)
-    name      = Column(Unicode(STR_MAX))
-    nrmName   = Column(Unicode(STR_MAX), index=True)
-    rank      = Column(Float)
+    id          = Column(BigInteger, primary_key=True)
+    liprofileId = Column(BigInteger,
+                         ForeignKey('liprofile.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
+    rank        = Column(Float)
 
 class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
@@ -146,12 +149,15 @@ class Location(SQLBase):
 def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
-def _makeExperience(experience, now):
+def _makeExperience(experience, language, now):
     experience = deepcopy(experience)
-    experience['parsedTitle']  = parsedTitle(experience['title'])
-    experience['nrmTitle']     = normalizedTitle(experience['title'])
-    experience['titlePrefix']  = normalizedTitlePrefix(experience['title'])
-    experience['nrmCompany']   = normalizedCompany(experience['company'])
+    experience['language']     = language
+    experience['parsedTitle']  = parsedTitle(language, experience['title'])
+    experience['nrmTitle']     = normalizedTitle(language, experience['title'])
+    experience['titlePrefix']  = normalizedTitlePrefix(language,
+                                                       experience['title'])
+    experience['nrmCompany']   = normalizedCompany(language,
+                                                   experience['company'])
     experience['nrmLocation']  = normalizedLocation(experience['location'])
 
     # work out duration
@@ -165,19 +171,26 @@ def _makeExperience(experience, now):
 
     return experience
 
-def _makeEducation(education):
+def _makeEducation(education, language):
     education = deepcopy(education)
-    education['nrmInstitute']   = normalizedInstitute(education['institute'])
-    education['nrmDegree']      = normalizedDegree(education['degree'])
-    education['nrmSubject']     = normalizedSubject(education['subject'])
+    education['language']       = language
+    education['nrmInstitute']   = normalizedInstitute(language,
+                                                      education['institute'])
+    education['nrmDegree']      = normalizedDegree(language,
+                                                   education['degree'])
+    education['nrmSubject']     = normalizedSubject(language,
+                                                    education['subject'])
     return education
 
-def _makeSkill(skillname):
-    nrmName = normalizedSkill(skillname)
+def _makeSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
     if not nrmName:
         return None
     else:
-        return {'name' : skillname, 'nrmName' : nrmName, 'rank' : 0.0}
+        return {'language' : language,
+                'name'     : skillname,
+                'nrmName'  : nrmName,
+                'rank'     : 0.0}
 
 def _makeLIProfile(liprofile, now):
     # determine current company
@@ -193,28 +206,34 @@ def _makeLIProfile(liprofile, now):
         if len(titleparts) > 1:
             company = titleparts[1]
 
+    # get profile language
+    language = liprofile.get('language', None)
+
+    # normalize fields
     liprofile['nrmLocation']     = normalizedLocation(liprofile['location'])
-    liprofile['parsedTitle']     = parsedTitle(liprofile['title'])
-    liprofile['nrmTitle']        = normalizedTitle(liprofile['title'])
-    liprofile['titlePrefix']     = normalizedTitlePrefix(liprofile['title'])
+    liprofile['parsedTitle']     = parsedTitle(language, liprofile['title'])
+    liprofile['nrmTitle']        = normalizedTitle(language, liprofile['title'])
+    liprofile['titlePrefix']     = normalizedTitlePrefix(language,
+                                                         liprofile['title'])
     liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
-    liprofile['nrmCompany']      = normalizedCompany(company)
+    liprofile['nrmCompany']      = normalizedCompany(language, company)
     liprofile['totalExperience'] = 0
-
+    
     # update experiences
     liprofile['experiences'] \
-        = [_makeExperience(e, now) for e in liprofile['experiences']]
+        = [_makeExperience(e, language, now) for e in liprofile['experiences']]
     liprofile['totalExperience'] \
         = sum([e['duration'] for e in liprofile['experiences'] \
                if e['duration'] is not None])
 
     # update educations
     liprofile['educations'] \
-        = [_makeEducation(e) for e in liprofile['educations']]
+        = [_makeEducation(e, language) for e in liprofile['educations']]
 
     # add skills
-    liprofile['skills'] = [_makeSkill(skill) for skill in liprofile['skills']]
+    liprofile['skills'] = [_makeSkill(skill, language) \
+                           for skill in liprofile['skills']]
 
     return liprofile
 
@@ -228,12 +247,13 @@ class CanonicalDB(SQLDatabase):
         skills = liprofile.skills
         experiences = liprofile.experiences
         descriptionstems = [
-            tokenizedSkill(
-                _joinfields(experience.title, experience.description),
-                removebrackets=False) \
+            tokenizedSkill(liprofile.language,
+                           _joinfields(experience.title,
+                                       experience.description),
+                           removebrackets=False) \
             for experience in experiences]
-        skillstems = [skill.nrmName.split() if skill.nrmName else [] \
-                      for skill in skills]
+        skillstems = [skill.nrmName.split(':')[1].split() \
+                      if skill.nrmName else [] for skill in skills]
 
         # match experience descriptions
         matches = (matchStems(skillstems, descriptionstems,
@@ -255,7 +275,8 @@ class CanonicalDB(SQLDatabase):
 
         # match profile text
         profiletext = _joinfields(liprofile.title, liprofile.description)
-        profiletextstems = tokenizedSkill(profiletext, removebrackets=False)
+        profiletextstems = tokenizedSkill(liprofile.language,
+                                          profiletext, removebrackets=False)
         matches = (matchStems(skillstems, [profiletextstems],
                               threshold=conf.SKILL_MATCHING_THRESHOLD) > \
                    conf.SKILL_MATCHING_THRESHOLD)

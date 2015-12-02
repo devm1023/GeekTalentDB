@@ -54,6 +54,7 @@ class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
+    language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
     rawTitle          = Column(Unicode(STR_MAX))
@@ -102,6 +103,7 @@ class Experience(SQLBase):
     liprofileId    = Column(BigInteger,
                             ForeignKey('liprofile.id'),
                             index=True)
+    language       = Column(String(20))
     rawTitle       = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX),
                             ForeignKey('title.nrmName'),
@@ -128,9 +130,10 @@ class Education(SQLBase):
     __tablename__ = 'education'
     id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
-    profileId   = Column(BigInteger,
+    liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
+    language       = Column(String(20))
     rawInstitute   = Column(Unicode(STR_MAX))
     nrmInstitute   = Column(Unicode(STR_MAX),
                             ForeignKey('institute.nrmName'),
@@ -185,12 +188,17 @@ class Skill(SQLBase):
     nrmName         = Column(Unicode(STR_MAX),
                              primary_key=True,
                              autoincrement=False)
+    language        = Column(String(20))
     name            = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class SkillWord(SQLBase):
     __tablename__ = 'skill_word'
+    language      = Column(String(20),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
     word          = Column(Unicode(STR_MAX),
                            index=True,
                            primary_key=True,
@@ -206,12 +214,17 @@ class Title(SQLBase):
     nrmName   = Column(Unicode(STR_MAX),
                        primary_key=True,
                        autoincrement=False)
+    language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class TitleWord(SQLBase):
     __tablename__ = 'title_word'
+    language      = Column(String(20),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
     word          = Column(Unicode(STR_MAX),
                            index=True,
                            primary_key=True,
@@ -235,12 +248,17 @@ class Company(SQLBase):
     nrmName   = Column(Unicode(STR_MAX),
                        primary_key=True,
                        autoincrement=False)
+    language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
     liprofileCount  = Column(BigInteger)
     experienceCount = Column(BigInteger)
 
 class CompanyWord(SQLBase):
     __tablename__ = 'company_word'
+    language      = Column(String(20),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
     word          = Column(Unicode(STR_MAX),
                            index=True,
                            primary_key=True,
@@ -264,6 +282,7 @@ class Institute(SQLBase):
     nrmName         = Column(Unicode(STR_MAX),
                              primary_key=True,
                              autoincrement=False)
+    language        = Column(String(20))
     name            = Column(Unicode(STR_MAX))
     count           = Column(BigInteger)
 
@@ -272,6 +291,7 @@ class Degree(SQLBase):
     nrmName         = Column(Unicode(STR_MAX),
                              primary_key=True,
                              autoincrement=False)
+    language        = Column(String(20))
     name            = Column(Unicode(STR_MAX))
     count           = Column(BigInteger)
 
@@ -280,11 +300,14 @@ class Subject(SQLBase):
     nrmName         = Column(Unicode(STR_MAX),
                              primary_key=True,
                              autoincrement=False)
+    language        = Column(String(20))
     name            = Column(Unicode(STR_MAX))
     count           = Column(BigInteger)
 
 class Word(SQLBase):
     __tablename__ = 'word'
+    language               = Column(String(20),
+                                    primary_key=True)
     word                   = Column(Unicode(STR_MAX),
                                     primary_key=True)
     liprofileSkillCount    = Column(BigInteger)
@@ -396,6 +419,9 @@ class AnalyticsDB(SQLDatabase):
               ``'datoinId'``
                 The ID of the profile from DATOIN.
 
+              ``'language'``
+                The language of the profile.
+
               ``'name'``
                 The name of the LinkedIn user.
 
@@ -474,6 +500,7 @@ class AnalyticsDB(SQLDatabase):
         liprofile.pop('company', None)
         liprofile.pop('location', None)
         liprofile.pop('sector', None)
+        language = liprofile.get('language', None)
         
         if liprofile.get('skills', None) is not None:
             skillnames = set()
@@ -494,6 +521,7 @@ class AnalyticsDB(SQLDatabase):
                 experience.pop('liprofileId', None)
                 experience.pop('title', None)
                 experience.pop('company', None)
+                experience['language'] = language
                 if experience.get('skills', None) is not None:
                     skillnames = set()
                     newskills = []
@@ -511,6 +539,7 @@ class AnalyticsDB(SQLDatabase):
                 education.pop('institute', None)
                 education.pop('degree', None)
                 education.pop('subject', None)
+                education['language'] = language
                     
         return self.addFromDict(liprofile, LIProfile)
 
