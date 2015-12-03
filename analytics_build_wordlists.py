@@ -135,7 +135,7 @@ def countCompanyWords(jobid, fromword, toword):
             .filter(CompanyWord.word >= fromword)
     if toword is not None:
         q = q.filter(CompanyWord.word < toword)
-    q = q.group_by(CompanyWord.word)
+    q = q.group_by(CompanyWord.language, CompanyWord.word)
 
     def addCounts(rec):
         language, word, liprofileCount, experienceCount = rec
@@ -160,7 +160,9 @@ try:
     startval = None
     if len(sys.argv) > 3:
         catalog = sys.argv[3]
-        if catalog not in ['skills', 'titles', 'companies']:
+        if catalog not in ['skills', 'titles', 'sectors', 'companies',
+                           'locations', 'institutes', 'degrees', 'subjects',
+                           'words']:
             raise ValueError('Invalid catalog string')
     if len(sys.argv) > 4:
         startval = sys.argv[4]
@@ -207,11 +209,11 @@ if catalog is None or catalog == 'words':
     q = andb.query(TitleWord.word)
     splitProcess(q, countTitleWords, batchsize,
                  njobs=njobs, logger=logger,
-                 workdir='jobs', prefix='count_skillwords')
+                 workdir='jobs', prefix='count_titlewords')
 
     logger.log('\nBuilding company word counts.\n')
     q = andb.query(CompanyWord.word)
     splitProcess(q, countCompanyWords, batchsize,
                  njobs=njobs, logger=logger,
-                 workdir='jobs', prefix='count_skillwords')
+                 workdir='jobs', prefix='count_companywords')
     

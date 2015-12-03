@@ -26,7 +26,8 @@ __all__ = [
 
 import conf
 from sqldb import *
-from textnormalization import normalizedTitle, normalizedCompany, normalizedSkill
+from textnormalization import normalizedTitle, normalizedCompany, \
+    normalizedSkill
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -567,30 +568,34 @@ class AnalyticsDB(SQLDatabase):
 
         careerstep.count += 1
         
-    def findEntities(self, querytype, querytext):
+    def findEntities(self, querytype, language, querytext):
         if querytype == 'title':
             wordtable = TitleWord
-            wordcountcols = [Word.experienceTitleCount, Word.liprofileTitleCount]
+            wordcountcols = [Word.experienceTitleCount,
+                             Word.liprofileTitleCount]
             entitytable = Title
             entitycountcols = [Title.experienceCount, Title.liprofileCount]
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
             wordtable = SkillWord
-            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            wordcountcols = [Word.experienceSkillCount,
+                             Word.liprofileSkillCount]
             entitytable = Skill
             entitycountcols = [Skill.experienceCount, Skill.liprofileCount]
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             wordtable = CompanyWord
-            wordcountcols = [Word.experienceSkillCount, Word.liprofileSkillCount]
+            wordcountcols = [Word.experienceSkillCount,
+                             Word.liprofileSkillCount]
             entitytable = Company
             entitycountcols = [Company.experienceCount, Company.liprofileCount]
             nrmfunc = normalizedCompany
 
 
-        words = nrmfunc(querytext).split()
+        words = nrmfunc(language, querytext).split(':')[1].split()
         wordcounts = self.query(Word.word, *wordcountcols) \
                          .filter(Word.word.in_(words),
+                                 Word.language == language,
                                  or_(*[c > 0 for c in wordcountcols])) \
                          .all()
         wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
@@ -600,7 +605,8 @@ class AnalyticsDB(SQLDatabase):
             words = [wc[0] for wc in wordcounts[:i]]
             wordcountcol = func.count(wordtable.word).label('wordcount')
             q = self.query(wordtable.nrmName) \
-                    .filter(wordtable.word.in_(words)) \
+                    .filter(wordtable.language == language,
+                            wordtable.word.in_(words)) \
                     .group_by(wordtable.nrmName) \
                     .having(wordcountcol == len(words))
             entitynames = [name for name, in q]

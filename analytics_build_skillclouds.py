@@ -127,10 +127,11 @@ try:
             raise ValueError('Invalid category string')
     if len(sys.argv) > 7:
         startval = sys.argv[7]
-except ValueError:
+except (ValueError, IndexError):
     logger.log('usage: python3 build_skillclouds.py <njobs> <batchsize> '
                '<category-threshold> <skill-threshold> <count-threshold> '
                '[(titles | companies | skills) [<start-value>]]\n')
+    exit(1)
     
 if category is None or category == 'titles':
     logger.log('\nBuilding titles skillclouds.\n')

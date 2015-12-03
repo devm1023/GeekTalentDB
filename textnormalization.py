@@ -6,10 +6,14 @@ import re
 _stopwords_en = set(nltk.corpus.stopwords.words('english'))
 _stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
 
+_stemmer_en = nltk.stem.snowball.SnowballStemmer('english')
+_stemmer_nl = nltk.stem.snowball.SnowballStemmer('dutch')
+
 _conf = {
     'en' : {
-        'stemmer' : nltk.stem.snowball.SnowballStemmer('english').stem,
-        
+        'stemmer' : _stemmer_en.stem,
+
+        'skillStemmer' : _stemmer_en.stem,
         'skillStopwords' : _stopwords_en - set(['it', 's', 't']),
         'skillReplace' : [
             ('.net', ' dotnet'),
@@ -74,6 +78,48 @@ _conf = {
             | set(['degree', 'hons', 'honours', 'honors', 'first', 'class']),
         
         'subjectStopwords' : _stopwords_en - set(['it', 's', 't']),
+    },
+
+    'nl' : {
+        'stemmer' : _stemmer_nl.stem,
+        
+        'skillStemmer' : _stemmer_en.stem,
+        'skillStopwords' : _stopwords_nl,
+        'skillReplace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+        
+        'titleStopwords' : _stopwords_nl,
+        'titleSeparators' : [
+            ' at ',
+            ' for ',
+            ' and ',
+            ' bij ',
+            ' en ',
+            ],
+        'titlePrefixWords' : set(),
+        'titleSuffixWords' : set(),
+        'titleReplace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'companyStopwords' : _stopwords_nl,
+
+        'instituteRegexReplace' : [],
+        'instituteStopwords' : _stopwords_nl,
+
+        'degreeRegexReplace' : [],
+        'degreeStopwords' : _stopwords_nl,
+        
+        'subjectStopwords' : _stopwords_nl,
     },
 }
 
@@ -228,7 +274,7 @@ def tokenizedSkill(language, name, removebrackets=False):
                  removebrackets=removebrackets,
                  tokenize=True,
                  replace=conf['skillReplace'],
-                 stem=conf['stemmer'])
+                 stem=conf['skillStemmer'])
 
 def normalizedSkill(language, name):
     """Normalize a string describing a skill.

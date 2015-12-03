@@ -13,6 +13,12 @@ from langdetect.lang_detect_exception import LangDetectException
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
+countryLanguages = {
+    'United Kingdom' : 'en',
+    'Netherlands'    : 'nl',
+    'Nederland'      : 'nl',
+}
+
 
 def parseProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
     batchsize = 50
@@ -180,14 +186,13 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
         except LangDetectException:
             language = None
 
+        if liprofile.country not in countryLanguages.keys():
+            if language not in countryLanguages.values():
+                return
+        elif language not in countryLanguages.values():
+            language = countryLanguages[liprofile.country]
+            
         profiledict['language'] = language
-
-
-        # filter profiles
-        
-        if liprofile.country != 'United Kingdom' and language != 'en':
-            return
-        profiledict['language'] = 'en'
         
         
         # add profile
@@ -199,17 +204,22 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
 
 # process arguments
 
-njobs = int(sys.argv[1])
-batchsize = int(sys.argv[2])
-fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
-byIndexedOn = False
-if len(sys.argv) > 5 and sys.argv[5] == '--by-index-date':
-    byIndexedOn = True
-    del sys.argv[5]
-fromid = None
-if len(sys.argv) > 5:
-    fromid = sys.argv[5]
+try:
+    njobs = int(sys.argv[1])
+    batchsize = int(sys.argv[2])
+    fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
+    todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
+    byIndexedOn = False
+    if len(sys.argv) > 5 and sys.argv[5] == '--by-index-date':
+        byIndexedOn = True
+        del sys.argv[5]
+    fromid = None
+    if len(sys.argv) > 5:
+        fromid = sys.argv[5]
+except (ValueError, IndexError):
+    print('usage: python3 canonical_parse_linkedin.py <njobs> <batchsize> '
+          '<from-date> <to-date> [--by-index-date] [<from-id>]')
+    exit(1)
 
 fromTs = int((fromdate - timestamp0).total_seconds())*1000
 toTs   = int((todate   - timestamp0).total_seconds())*1000

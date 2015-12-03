@@ -73,9 +73,10 @@ try:
     minstart = None
     if len(sys.argv) > 3:
         minstart = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-except ValueError:
+except (ValueError, IndexError):
     logger.log('usage: python3 analytics_build_careersteps.py '
                '<njobs> <batchsize> [<min-start-date>]\n')
+    exit(1)
 
 andb.query(CareerStep).delete()
 andb.commit()

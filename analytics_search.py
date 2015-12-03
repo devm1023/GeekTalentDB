@@ -6,10 +6,11 @@ try:
     querytype = sys.argv[1]
     if querytype not in ['title', 'company', 'skill']:
         raise ValueError('Invalid category string')
-    query = sys.argv[2]
+    language = sys.argv[2]
+    query = sys.argv[3]
     filename = None
-    if len(sys.argv) > 3:
-        filename = sys.argv[3]
+    if len(sys.argv) > 4:
+        filename = sys.argv[4]
 except (ValueError, KeyError):
     sys.stdout.write('usage: python3 analytics_get_skillclouds.py '
                      '(title | company | skill) <query>\n')
@@ -19,7 +20,7 @@ except (ValueError, KeyError):
 
 andb = AnalyticsDB(conf.ANALYTICS_DB)
 
-entities, words = andb.findEntities(querytype, query)
+entities, words = andb.findEntities(querytype, language, query)
 
 print('MATCHING WORDS:')
 for w in words:

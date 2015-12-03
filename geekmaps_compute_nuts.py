@@ -1,6 +1,6 @@
 import conf
 import geekmapsdb
-from canonicaldb import *
+from analyticsdb import *
 from logger import Logger
 import sys
 from windowquery import splitProcess
@@ -11,20 +11,17 @@ from datetime import datetime
 
 
 
-def addProfileSkills(jobid, fromid, toid, fromdate, todate, nuts):
+def addProfileSkills(jobid, fromid, toid, nuts):
     batchsize = 1000
 
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    andb = AnalyticsDB(conf.ANALYTICS_DB)
     gmdb = geekmapsdb.GeekMapsDB(conf.GEEKMAPS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(LIProfile, Location) \
-            .filter(LIProfile.indexedOn >= fromdate,
-                    LIProfile.indexedOn < todate,
-                    LIProfile.nrmLocation == Location.nrmName,
-                    LIProfile.id >= fromid) \
-            .outerjoin(Skill, LIProfile.id == Skill.profileId) \
-            .add_entity(Skill)
+    q = andb.query(LIProfile, Location, LIProfileSkill) \
+            .join(Location) \
+            .outerjoin(LIProfileSkill) \
+            .filter(LIProfile.id >= fromid)
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
     q = q.order_by(LIProfile.id)
@@ -35,7 +32,7 @@ def addProfileSkills(jobid, fromid, toid, fromdate, todate, nuts):
     for liprofile, location, liprofileskill in q:
         if currentid != liprofile.id:
             nutsid = None
-            if location.geo is not None:
+            if location is not None:
                 point = to_shape(location.geo)
                 nutsid = nuts.find(point)
             profilecount += 1
@@ -51,36 +48,37 @@ def addProfileSkills(jobid, fromid, toid, fromdate, todate, nuts):
             nrmSkill = liprofileskill.nrmName
             rank = liprofileskill.rank
         gmdb.addLIProfileSkill(liprofile.id,
+                               liprofile.language,
                                location.name,
                                nutsid,
                                liprofile.nrmTitle,
                                liprofile.nrmCompany,
                                nrmSkill,
-                               rank,
-                               liprofile.indexedOn)
+                               rank)
     profilecount += 1
     gmdb.commit()
     logger.log('Batch: {0:d} profiles processed.\n'.format(profilecount))
 
 
-njobs = int(sys.argv[1])
-batchsize = int(sys.argv[2])
-fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
-fromid = None
-if len(sys.argv) > 5:
-    fromid = int(sys.argv[5])
+try:
+    njobs = int(sys.argv[1])
+    batchsize = int(sys.argv[2])
+    fromid = None
+    if len(sys.argv) > 3:
+        fromid = int(sys.argv[3])
+except (ValueError, IndexError):
+    print('python3 geekmaps_compute_nuts.py <njobs> <batchsize> [<from-id>]')
+    exit(1)
 
-filter = and_(LIProfile.indexedOn >= fromdate,
-              LIProfile.indexedOn < todate)
-if fromid is not None:
-    filter = and_(filter, LIProfile.id >= fromid)
 
-cndb = CanonicalDB(conf.CANONICAL_DB)
+andb = AnalyticsDB(conf.ANALYTICS_DB)
 nuts = NutsRegions(conf.NUTS_DATA)
 logger = Logger(sys.stdout)
 
-query = cndb.query(LIProfile.id).filter(filter)
+query = andb.query(LIProfile.id)
+if fromid is not None:
+    query = query.filter(LIProfile.id >= fromid)
+    
 splitProcess(query, addProfileSkills, batchsize,
-             njobs=njobs, args=[fromdate, todate, nuts], logger=logger,
+             njobs=njobs, args=[nuts], logger=logger,
              workdir='jobs', prefix='compute_nuts')
