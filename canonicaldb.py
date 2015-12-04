@@ -252,7 +252,7 @@ class CanonicalDB(SQLDatabase):
                                        experience.description),
                            removebrackets=False) \
             for experience in experiences]
-        skillstems = [skill.nrmName.split(':')[1].split() \
+        skillstems = [splitNrmName(skill.nrmName)[1].split() \
                       if skill.nrmName else [] for skill in skills]
 
         # match experience descriptions

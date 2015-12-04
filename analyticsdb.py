@@ -27,7 +27,7 @@ __all__ = [
 import conf
 from sqldb import *
 from textnormalization import normalizedTitle, normalizedCompany, \
-    normalizedSkill
+    normalizedSkill, splitNrmName
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -592,7 +592,7 @@ class AnalyticsDB(SQLDatabase):
             nrmfunc = normalizedCompany
 
 
-        words = nrmfunc(language, querytext).split(':')[1].split()
+        words = splitNrmName(nrmfunc(language, querytext))[1].split()
         wordcounts = self.query(Word.word, *wordcountcols) \
                          .filter(Word.word.in_(words),
                                  Word.language == language,

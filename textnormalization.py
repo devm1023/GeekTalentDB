@@ -260,6 +260,15 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
         return ' '.join(s)
 
 
+def makeNrmName(language, name):
+    return ':'.join([language, name])
+
+def splitNrmName(nrmName):
+    splitname = nrmName.split(':')
+    if len(splitname) != 2:
+        raise ValueError('Invalid normalized name.')
+    return tuple(splitname)
+
 def tokenizedSkill(language, name, removebrackets=False):
     if not name:
         return []
@@ -284,7 +293,7 @@ def normalizedSkill(language, name):
     if not tokens:
         return None
     nname = ' '.join(tokens)
-    return ':'.join([language, nname])
+    return makeNrmName(language, nname)
 
 def parsedTitle(language, name):
     """Extract the job title from a LinkedIn profile or experience title.
@@ -359,7 +368,7 @@ def normalizedTitle(language, name):
                   stopwords=conf['titleStopwords'],
                   replace=conf['titleReplace'],
                   stem=conf['stemmer'])
-    return ':'.join([language, title])
+    return makeNrmName(language, title)
 
 def normalizedTitlePrefix(language, name):
     nname = parsedTitle(language, name)
@@ -410,7 +419,7 @@ def normalizedCompany(language, name):
     nname = clean(nname, keep='&')
     if not nname:
         return None
-    return ':'.join([language, nname])
+    return makeNrmName(language, nname)
 
 def normalizedLocation(name):
     """Normalize a string describing a location.
@@ -443,7 +452,7 @@ def normalizedInstitute(language, name):
                   sort=True)
     if not nname:
         return None
-    return ':'.join([language, nname])
+    return makeNrmName(language, nname)
 
 def normalizedDegree(language, name):
     """Normalize a string describing a degree.
@@ -465,7 +474,7 @@ def normalizedDegree(language, name):
                   stem=conf['stemmer'])
     if not nname:
         return None
-    return ':'.join([language, nname])
+    return makeNrmName(language, nname)
 
 def normalizedSubject(language, name):
     if not name:
@@ -483,4 +492,4 @@ def normalizedSubject(language, name):
                   stem=conf['stemmer'])
     if not nname:
         return None
-    return ':'.join([language, nname])
+    return makeNrmName(language, nname)

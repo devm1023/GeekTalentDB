@@ -4,6 +4,7 @@ from sqlalchemy import func
 from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
+from textnormalization import splitNrmName
 
 
 def addSkillWords(jobid, fromskill, toskill):
@@ -18,7 +19,7 @@ def addSkillWords(jobid, fromskill, toskill):
 
     def addSkill(rec):
         skill, = rec
-        language, skillwords = tuple(skill.split(':'))
+        language, skillwords = splitNrmName(skill)
         for word in skillwords.split():
             andb.addFromDict({
                 'language' : language,
@@ -66,7 +67,7 @@ def addTitleWords(jobid, fromtitle, totitle):
 
     def addTitle(rec):
         title, = rec
-        language, titlewords = tuple(title.split(':'))
+        language, titlewords = splitNrmName(title)
         for word in titlewords.split():
             andb.addFromDict({
                 'language' : language,
@@ -114,7 +115,7 @@ def addCompanyWords(jobid, fromcompany, tocompany):
 
     def addCompany(rec):
         company, = rec
-        language, companywords = tuple(company.split(':'))
+        language, companywords = splitNrmName(company)
         for word in companywords.split():
             andb.addFromDict({
                 'language' : language,

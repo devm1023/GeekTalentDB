@@ -7,6 +7,7 @@ from geoalchemy2.functions import ST_AsText
 from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
+from textnormalization import splitNrmName
 
 
 def entities(q):
@@ -85,7 +86,7 @@ def addSkills(jobid, fromskill, toskill):
         nrmName, bestname, liprofileCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : bestname,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : 0,
@@ -136,7 +137,7 @@ def addTitles(jobid, fromtitle, totitle):
         nrmName, name, liprofileCount, experienceCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : name,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : experienceCount,
@@ -171,7 +172,7 @@ def addCompanies(jobid, fromcompany, tocompany):
         nrmName, name, liprofileCount, experienceCount = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : name,
             'liprofileCount'  : liprofileCount,
             'experienceCount' : experienceCount,
@@ -245,7 +246,7 @@ def addInstitutes(jobid, frominstitute, toinstitute):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Institute)
@@ -270,7 +271,7 @@ def addDegrees(jobid, fromdegree, todegree):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Degree)
@@ -295,7 +296,7 @@ def addSubjects(jobid, fromsubject, tosubject):
         nrmName, name, count = rec
         andb.addFromDict({
             'nrmName'         : nrmName,
-            'language'        : nrmName.split(':')[0],
+            'language'        : splitNrmName(nrmName)[0],
             'name'            : name,
             'count'           : count,
             }, analyticsdb.Subject)
