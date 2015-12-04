@@ -5,11 +5,12 @@ import shapely.geometry as geo
 
 class NutsRegions:
     def __init__(self, filename=None,
-                 id_key='NUTS_ID', level_key='STAT_LEVL_', country='UK'):
+                 id_key='NUTS_ID', level_key='STAT_LEVL_',
+                 countries=['UK', 'NL']):
         self._root = {'shape' : None}
         if filename is not None:
             self.read(filename, id_key=id_key, level_key=level_key,
-                      country=country)
+                      countries=countries)
 
     def add(self, id, shape):
         if type(id) is not str or len(id) < 2:
@@ -25,12 +26,12 @@ class NutsRegions:
         region['shape'] = shape
 
     def read(self, fname, id_key='NUTS_ID', level_key='STAT_LEVL_',
-             country='UK'):
+             countries=['UK', 'NL']):
         with fiona.open(fname) as shapefile:
             for shape in shapefile:
                 id = shape['properties'][id_key]
                 level = shape['properties'][level_key]
-                if len(id) < 2 or id[:2] != country:
+                if len(id) < 2 or id[:2] not in countries:
                     continue
                 self.add(id, geo.shape(shape['geometry']))
 

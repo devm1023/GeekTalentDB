@@ -21,14 +21,18 @@ querytypes = {
 }
 
 try:
-    language = sys.argv[1]
-    typeflag = sys.argv[2]
-    query    = sys.argv[3]
-    if typeflag not in columns:
+    language = None
+    typeflag = None
+    query    = None
+    if len(sys.argv) > 1:
+        language = sys.argv[1]
+        typeflag = sys.argv[2]
+        query    = sys.argv[3]
+    if typeflag is not None and typeflag not in columns:
         raise ValueError('Invalid query type')
 except (ValueError, IndexError):
-    print('usage: python3 geekmaps_query.py (en | nl) '
-          '[(-S | -s | -t | -c) <query>]')
+    print('usage: python3 geekmaps_query.py [(en | nl) '
+          '(-S | -s | -t | -c) <query>]')
     exit(1)
 
 
@@ -36,12 +40,14 @@ gmdb = GeekMapsDB(conf.GEEKMAPS_DB)
 nuts = NutsRegions(conf.NUTS_DATA)
 nutsids = [id for id, shape in nuts.level(3)]
 
-entities, words = gmdb.findEntities(querytypes[typeflag], language, query)
-entityids = [e[0] for e in entities]
+if typeflag is not None:
+    entities, words = gmdb.findEntities(querytypes[typeflag], language, query)
+    entityids = [e[0] for e in entities]
 
 q = gmdb.query(LIProfileSkill.nuts3,
-               func.count(distinct(LIProfileSkill.profileId))) \
-        .filter(columns[typeflag].in_(entityids))
+               func.count(distinct(LIProfileSkill.profileId)))
+if typeflag is not None:
+    q = q.filter(columns[typeflag].in_(entityids))
 if typeflag == '-S':
     q = q.filter(LIProfileSkill.rank > 0.0)
 q = q.group_by(LIProfileSkill.nuts3)
