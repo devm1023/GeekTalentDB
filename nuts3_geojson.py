@@ -19,12 +19,14 @@ with open('nutsregions/nuts3.csv', 'r', newline='') as csvfile:
 features = []
 for id, (nutsid, shape) in enumerate(nuts.level(3)):
     geometry = geo.mapping(shape)
+    if nutsid not in nutsnames:
+        print('Description missing for NUTS ID: '+nutsid)
     features.append({'type' : 'Feature',
                      'id' : id,
                      'properties' : {
                          'nutsId' : nutsid,
                          'count'  : 0,
-                         'name'   : nutsnames[nutsid]
+                         'name'   : nutsnames.get(nutsid, '')
                      },
                      'geometry' : geometry})
 

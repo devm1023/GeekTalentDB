@@ -39,14 +39,14 @@ UKM5,North Eastern Scotland
 UKM6,Highlands and Islands
 UKN0,Northern Ireland
 NL22,Gelderland
-NL12,Friesland
-NL21,Overijssel
-NL41,North Brabant
-NL32,North Holland
-NL34,Zeeland
-NL42,Limburg
-NL23,Flevoland
+NL41,Noord-Brabant
+NL33,Zuid-Holland
 NL31,Utrecht
-NL11,Groningen
 NL13,Drenthe
-NL33,South Holland
+NL32,Noord-Holland
+NL11,Groningen
+NL34,Zeeland
+NL12,Friesland (NL)
+NL23,Flevoland
+NL42,Limburg (NL)
+NL21,Overijssel
