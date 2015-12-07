@@ -243,9 +243,10 @@ class GeekMapsDB(SQLDatabase):
                 break
 
         entities = []
-        for rec in self.query(entitytable.nrmName, *entitycountcols) \
-                       .filter(entitytable.nrmName.in_(entitynames)):
-            entities.append((rec[0], sum(rec[1:])))
+        if entitynames:
+            for rec in self.query(entitytable.nrmName, *entitycountcols) \
+                           .filter(entitytable.nrmName.in_(entitynames)):
+                entities.append((rec[0], sum(rec[1:])))
         entities.sort(key=lambda x: -x[1])
         
         return entities, words

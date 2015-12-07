@@ -6,60 +6,88 @@ import sys
 from sqlalchemy import func, distinct
 
 
-columns = {
-    '-S' : LIProfileSkill.nrmSkill,
-    '-s' : LIProfileSkill.nrmSkill,
-    '-t' : LIProfileSkill.nrmTitle,
-    '-c' : LIProfileSkill.nrmCompany,
+_columns = {
+    'enforcedskill' : LIProfileSkill.nrmSkill,
+    'skill'         : LIProfileSkill.nrmSkill,
+    'title'         : LIProfileSkill.nrmTitle,
+    'company'       : LIProfileSkill.nrmCompany,
 }
 
-querytypes = {
-    '-S' : 'skill',
-    '-s' : 'skill',
-    '-t' : 'title',
-    '-c' : 'company',
-}
-
-try:
-    language = None
-    typeflag = None
-    query    = None
-    if len(sys.argv) > 1:
-        language = sys.argv[1]
-        typeflag = sys.argv[2]
-        query    = sys.argv[3]
-    if typeflag is not None and typeflag not in columns:
-        raise ValueError('Invalid query type')
-except (ValueError, IndexError):
-    print('usage: python3 geekmaps_query.py [(en | nl) '
-          '(-S | -s | -t | -c) <query>]')
-    exit(1)
+_languages = ['en', 'nl']
 
 
-gmdb = GeekMapsDB(conf.GEEKMAPS_DB)
-nuts = NutsRegions(conf.NUTS_DATA)
-nutsids = [id for id, shape in nuts.level(3)]
+def geekmapsQuery(querytype, language, querytext, gmdb, nutsids):
+    if language == 'all':
+        languages = _languages[:]
+    elif language in _languages:
+        languages = [language]
+    else:
+        raise ValueError('Invalid language.')
 
-if typeflag is not None:
-    entities, words = gmdb.findEntities(querytypes[typeflag], language, query)
-    entityids = [e[0] for e in entities]
+    if querytype != 'total' and querytype not in _columns:
+        raise ValueError('Invalid query type.')
+        
+    counts = dict((id, 0) for id in nutsids)
+    for language in languages:
+        q = gmdb.query(LIProfileSkill.nuts3,
+                       func.count(distinct(LIProfileSkill.profileId)))
+        if querytype == 'enforcedskill':
+            q = q.filter(LIProfileSkill.rank > 0.0)
+            querytype = 'skill'
+        if querytype != 'total':
+            entities, words = gmdb.findEntities(querytype, language, querytext)
+            entityids = [e[0] for e in entities]
+            if not entityids:
+                continue
+            q = q.filter(_columns[querytype].in_(entityids))
+        q = q.group_by(LIProfileSkill.nuts3)
 
-q = gmdb.query(LIProfileSkill.nuts3,
-               func.count(distinct(LIProfileSkill.profileId)))
-if typeflag is not None:
-    q = q.filter(columns[typeflag].in_(entityids))
-if typeflag == '-S':
-    q = q.filter(LIProfileSkill.rank > 0.0)
-q = q.group_by(LIProfileSkill.nuts3)
+        for id, count in q:
+            counts[id] = counts.get(id, 0) + count
+        
+    total = sum(counts.values())
+    return counts, total
+    
 
-counts = dict((id, 0) for id in nutsids)
-total = 0
-for id, count in q:
-    counts[id] = count
-    total += count
+if __name__ == '__main__':
+    querytypes = {
+        '-S' : 'enforcedskill',
+        '-s' : 'skill',
+        '-t' : 'title',
+        '-c' : 'company',
+    }
 
-counts = sorted(list(counts.items()))
-for id, count in counts:
-    print(id, count)
-print('total', total)
+    try:
+        language = None
+        typeflag = None
+        query    = None
+        if len(sys.argv) > 1:
+            language = sys.argv[1]
+            typeflag = sys.argv[2]
+            query    = sys.argv[3]
+        if typeflag is not None and typeflag not in querytypes:
+            raise ValueError('Invalid query type')
+    except (ValueError, IndexError):
+        print('usage: python3 geekmaps_query.py [(en | nl) '
+              '(-S | -s | -t | -c) <query>]')
+        exit(1)
+
+
+    gmdb = GeekMapsDB(conf.GEEKMAPS_DB)
+    nuts = NutsRegions(conf.NUTS_DATA)
+    nutsids = [id for id, shape in nuts.level(3)]
+
+    if typeflag is None:
+        querytype = 'total'
+    else:
+        querytype = querytypes[typeflag]
+
+
+    counts, total = geekmapsQuery(querytype, language, query,
+                                  gmdb, nutsids)
+
+    counts = sorted(list(counts.items()))
+    for id, count in counts:
+        print(id, count)
+    print('total', total)
 

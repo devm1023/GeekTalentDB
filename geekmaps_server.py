@@ -46,11 +46,14 @@ class GeekMapsRequestHandler(BaseHTTPRequestHandler):
             self._error('`type` parameter must appear exactly once.')
         if len(query['query']) != 1:
             self._error('`query` parameter must appear exactly once.')
+        if len(query.get('lang', [])) > 1:
+            self._error('`lang` parameter can appear at most once.')
         querytype = query['type'][0]
         querytext = query['query'][0]
+        querylang = query.get('lang', ['all'])[0]
 
         gmdb = GeekMapsDB(conf.GEEKMAPS_DB)
-        counts, total = geekmapsQuery(querytype, querytext,
+        counts, total = geekmapsQuery(querytype, querylang, querytext,
                                       gmdb, self.server.nutsids)
         if not counts:
             self._error('Invalid query.')
