@@ -62,4 +62,5 @@ SKILL_MATCHING_THRESHOLD = 0.75
 MAX_ATTEMPTS = 2
 
 # Absolute path to NUTS data
-NUTS_DATA = os.path.abspath('NUTS_2013_SHP/data/NUTS_RG_01M_2013.shp')
+NUTS_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         'NUTS_2013_SHP', 'data', 'NUTS_RG_01M_2013.shp')

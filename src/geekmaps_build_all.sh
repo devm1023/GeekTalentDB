@@ -1,8 +1,11 @@
 #!/bin/bash
 
+scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+
 echo "Initialising geekmaps database."
-echo "# python3 initdb.py geekmaps"
-python3 initdb.py geekmaps || exit 1
+echo "# python3 $scriptdir/initdb.py geekmaps"
+python3 $scriptdir/initdb.py geekmaps || exit 1
 echo
 echo
 echo "Copying catalogues."
@@ -17,5 +20,5 @@ fi
 echo
 echo
 echo "Computing NUTS codes."
-echo "# python3 geekmaps_compute_nuts.py $1 $2"
-python3 geekmaps_compute_nuts.py $1 $2 || exit 1
+echo "# python3 $scriptdir/geekmaps_compute_nuts.py $1 $2"
+python3 $scriptdir/geekmaps_compute_nuts.py $1 $2 || exit 1
