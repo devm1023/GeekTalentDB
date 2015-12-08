@@ -96,7 +96,7 @@ if __name__ == '__main__':
     for word in words:
         print('   ', word)
     print('MATCHED ENTITIES:')
-    for entityId, entityName, count in entities:
+    for language, entityId, entityName, count in entities:
         print('    {0:s} ({1:d})'.format(entityName, count))
     print('REGION COUNTS:')
     for id, count in counts:

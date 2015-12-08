@@ -585,8 +585,8 @@ class AnalyticsDB(SQLDatabase):
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             wordtable = CompanyWord
-            wordcountcols = [Word.experienceSkillCount,
-                             Word.liprofileSkillCount]
+            wordcountcols = [Word.experienceCompanyCount,
+                             Word.liprofileCompanyCount]
             entitytable = Company
             entitycountcols = [Company.experienceCount, Company.liprofileCount]
             nrmfunc = normalizedCompany

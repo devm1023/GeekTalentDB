@@ -213,7 +213,7 @@ class GeekMapsDB(SQLDatabase):
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             wordtable = CompanyWord
-            wordcountcols = [Word.liprofileSkillCount]
+            wordcountcols = [Word.liprofileCompanyCount]
             entitytable = Company
             entitycountcols = [Company.liprofileCount]
             nrmfunc = normalizedCompany
