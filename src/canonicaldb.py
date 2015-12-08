@@ -14,6 +14,7 @@ import requests
 from copy import deepcopy
 from sqldb import *
 from textnormalization import *
+from logger import Logger
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -401,7 +402,7 @@ class CanonicalDB(SQLDatabase):
 
         return liprofile
 
-    def addLocation(self, nrmName):
+    def addLocation(self, nrmName, logger=Logger(None)):
         """Add a location to the database.
 
         Args:
@@ -421,8 +422,18 @@ class CanonicalDB(SQLDatabase):
         # query Google Places API
         r = requests.get(conf.PLACES_API,
                          params={'key' : conf.PLACES_KEY,
-                                 'query' : nrmName}).json()
-        if len(r['results']) != 1:
+                                 'query' : nrmName})
+        url = r.url
+        r = r.json()
+        success = True
+        if 'status' not in r or r['status'] != 'OK' or \
+           'results' not in r or not r['results']:
+            logger.log('Invalid response for URL {0:s}\n'.format(url))
+            success = False
+        if len(r['results']) > 1:
+            logger.log('Ambiguous result for URL {0:s}\n'.format(url))
+            success = False
+        if not success:
             location = Location(nrmName=nrmName)
             self.add(location)
             return location
