@@ -568,7 +568,7 @@ class AnalyticsDB(SQLDatabase):
 
         careerstep.count += 1
         
-    def findEntities(self, querytype, language, querytext):
+    def findEntities(self, querytype, language, querytext, exact=False):
         if querytype == 'title':
             wordtable = TitleWord
             wordcountcols = [Word.experienceTitleCount,
@@ -593,11 +593,14 @@ class AnalyticsDB(SQLDatabase):
 
 
         words = splitNrmName(nrmfunc(language, querytext))[1].split()
+        words = list(set(words))
         wordcounts = self.query(Word.word, *wordcountcols) \
                          .filter(Word.word.in_(words),
                                  Word.language == language,
                                  or_(*[c > 0 for c in wordcountcols])) \
                          .all()
+        if exact and len(wordcounts) < len(words):
+            return [], [w[0] for w in wordcounts]
         wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
         wordcounts.sort(key=lambda x: x[1])
         entitynames = []
@@ -610,7 +613,7 @@ class AnalyticsDB(SQLDatabase):
                     .group_by(wordtable.nrmName) \
                     .having(wordcountcol == len(words))
             entitynames = [name for name, in q]
-            if entitynames:
+            if entitynames or exact:
                 break
 
         entities = []

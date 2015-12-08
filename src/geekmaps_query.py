@@ -28,17 +28,20 @@ def geekmapsQuery(querytype, language, querytext, gmdb, nutsids):
         raise ValueError('Invalid query type.')
         
     counts = dict((id, 0) for id in nutsids)
+    entities = []
+    words = []
     for language in languages:
         q = gmdb.query(LIProfileSkill.nuts3,
                        func.count(distinct(LIProfileSkill.profileId)))
         if querytype == 'enforcedskill':
             q = q.filter(LIProfileSkill.rank > 0.0)
             querytype = 'skill'
-        entities = None
-        words = None
         if querytype != 'total':
-            entities, words = gmdb.findEntities(querytype, language, querytext)
-            entityids = [e[0] for e in entities]
+            lentities, lwords = gmdb.findEntities(querytype, language,
+                                                  querytext, exact=True)
+            entities.extend([(language,)+e for e in lentities])
+            words.extend([(language, w) for w in lwords])
+            entityids = [e[0] for e in lentities]
             if not entityids:
                 continue
             q = q.filter(_columns[querytype].in_(entityids))

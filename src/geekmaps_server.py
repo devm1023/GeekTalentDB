@@ -62,8 +62,13 @@ class GeekMapsRequestHandler(BaseHTTPRequestHandler):
             
         counts = [{'nutsId' : id, 'count' : count} \
                   for id, count in counts.items()]
-        entities = [{'entityId' : id, 'entityName' : name, 'count' : count} \
-                    for id, name, count in entities]
+        entities = [{'language'   : lang,
+                     'entityId'   : id,
+                     'entityName' : name,
+                     'count'      : count} \
+                    for lang, id, name, count in entities]
+        words = [{'language' : lang,
+                  'word'     : word} for lang, word in words]
         self._reply({'counts'          : counts,
                      'total'           : total,
                      'matchedEntities' : entities,
