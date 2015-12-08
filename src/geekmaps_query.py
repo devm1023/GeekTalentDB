@@ -34,6 +34,8 @@ def geekmapsQuery(querytype, language, querytext, gmdb, nutsids):
         if querytype == 'enforcedskill':
             q = q.filter(LIProfileSkill.rank > 0.0)
             querytype = 'skill'
+        entities = None
+        words = None
         if querytype != 'total':
             entities, words = gmdb.findEntities(querytype, language, querytext)
             entityids = [e[0] for e in entities]
@@ -46,7 +48,7 @@ def geekmapsQuery(querytype, language, querytext, gmdb, nutsids):
             counts[id] = counts.get(id, 0) + count
         
     total = sum(counts.values())
-    return counts, total
+    return counts, entities, words, total
     
 
 if __name__ == '__main__':
@@ -83,11 +85,18 @@ if __name__ == '__main__':
         querytype = querytypes[typeflag]
 
 
-    counts, total = geekmapsQuery(querytype, language, query,
-                                  gmdb, nutsids)
+    counts, entities, words, total \
+        = geekmapsQuery(querytype, language, query, gmdb, nutsids)
 
     counts = sorted(list(counts.items()))
+    print('MATCHED WORDS:')
+    for word in words:
+        print('   ', word)
+    print('MATCHED ENTITIES:')
+    for entityId, entityName, count in entities:
+        print('    {0:s} ({1:d})'.format(entityName, count))
+    print('REGION COUNTS:')
     for id, count in counts:
-        print(id, count)
-    print('total', total)
+        print('   ', id, count)
+    print('TOTAL:', total)
 

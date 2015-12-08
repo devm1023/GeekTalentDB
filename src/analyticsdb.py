@@ -615,10 +615,12 @@ class AnalyticsDB(SQLDatabase):
 
         entities = []
         if entitynames:
-            for rec in self.query(entitytable.nrmName, *entitycountcols) \
+            for rec in self.query(entitytable.nrmName,
+                                  entitytable.name,
+                                  *entitycountcols) \
                            .filter(entitytable.nrmName.in_(entitynames)):
-                entities.append((rec[0], sum(rec[1:])))
-        entities.sort(key=lambda x: -x[1])
+                entities.append((rec[0], rec[1], sum(rec[2:])))
+        entities.sort(key=lambda x: -x[-1])
         
         return entities, words
 

@@ -200,10 +200,9 @@ class GeekMapsDB(SQLDatabase):
     def findEntities(self, querytype, language, querytext):
         if querytype == 'title':
             wordtable = TitleWord
-            wordcountcols = [Word.experienceTitleCount,
-                             Word.liprofileTitleCount]
+            wordcountcols = [Word.liprofileTitleCount]
             entitytable = Title
-            entitycountcols = [Title.experienceCount, Title.liprofileCount]
+            entitycountcols = [Title.liprofileCount]
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
             wordtable = SkillWord
@@ -214,10 +213,9 @@ class GeekMapsDB(SQLDatabase):
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             wordtable = CompanyWord
-            wordcountcols = [Word.experienceSkillCount,
-                             Word.liprofileSkillCount]
+            wordcountcols = [Word.liprofileSkillCount]
             entitytable = Company
-            entitycountcols = [Company.experienceCount, Company.liprofileCount]
+            entitycountcols = [Company.liprofileCount]
             nrmfunc = normalizedCompany
 
 
@@ -228,7 +226,7 @@ class GeekMapsDB(SQLDatabase):
                                  or_(*[c > 0 for c in wordcountcols])) \
                          .all()
         wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
-        wordcounts.sort(key=lambda x: x[1])
+        wordcounts.sort(key=lambda x: x[-1])
         entitynames = []
         for i in range(len(wordcounts), 0, -1):
             words = [wc[0] for wc in wordcounts[:i]]
@@ -244,9 +242,11 @@ class GeekMapsDB(SQLDatabase):
 
         entities = []
         if entitynames:
-            for rec in self.query(entitytable.nrmName, *entitycountcols) \
+            for rec in self.query(entitytable.nrmName,
+                                  entitytable.name,
+                                  *entitycountcols) \
                            .filter(entitytable.nrmName.in_(entitynames)):
-                entities.append((rec[0], sum(rec[1:])))
-        entities.sort(key=lambda x: -x[1])
+                entities.append((rec[0], rec[1], sum(rec[2:])))
+        entities.sort(key=lambda x: -x[-1])
         
         return entities, words

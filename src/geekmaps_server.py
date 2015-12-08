@@ -53,14 +53,22 @@ class GeekMapsRequestHandler(BaseHTTPRequestHandler):
         querylang = query.get('lang', ['all'])[0]
 
         gmdb = GeekMapsDB(conf.GEEKMAPS_DB)
-        counts, total = geekmapsQuery(querytype, querylang, querytext,
-                                      gmdb, self.server.nutsids)
-        if not counts:
+        try:
+            counts, entities, words, total \
+                = geekmapsQuery(querytype, querylang, querytext,
+                                gmdb, self.server.nutsids)
+        except ValueError:
             self._error('Invalid query.')
-            return
+            
         counts = [{'nutsId' : id, 'count' : count} \
                   for id, count in counts.items()]
-        self._reply({'counts' : counts, 'total' : total, 'messages' : 'OK'})
+        entities = [{'entityId' : id, 'entityName' : name, 'count' : count} \
+                    for id, name, count in entities]
+        self._reply({'counts'          : counts,
+                     'total'           : total,
+                     'matchedEntities' : entities,
+                     'matchedWords'    : words,
+                     'messages' : 'OK'})
 
     def do_HEAD(self):
         self._set_headers()
