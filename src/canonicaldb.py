@@ -417,26 +417,27 @@ class CanonicalDB(SQLDatabase):
                        .filter(Location.nrmName == nrmName) \
                        .first()
         if location is not None:
-            return location
+            return location, True
 
         # query Google Places API
+        success = False
         r = requests.get(conf.PLACES_API,
                          params={'key' : conf.PLACES_KEY,
                                  'query' : nrmName})
         url = r.url
         r = r.json()
-        success = True
-        if 'status' not in r or r['status'] != 'OK' or \
-           'results' not in r or not r['results']:
+        if 'status' in r and r['status'] == 'OK' and \
+           'results' in r and r['results']:
+            success = True                
+        if not success:
             logger.log('Invalid response for URL {0:s}\n'.format(url))
-            success = False
-        if len(r['results']) > 1:
+        elif len(r['results']) > 1:
             logger.log('Ambiguous result for URL {0:s}\n'.format(url))
             success = False
         if not success:
             location = Location(nrmName=nrmName)
             self.add(location)
-            return location
+            return location, False
 
         # parse result
         lat = r['results'][0]['geometry']['location']['lat']
@@ -460,4 +461,4 @@ class CanonicalDB(SQLDatabase):
                             geo=pointstr)
         self.add(location)
 
-        return location
+        return location, False
