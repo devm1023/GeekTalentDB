@@ -51,8 +51,8 @@ PLACES_API = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 
 # Key for Google Places API
 # Alek's key: AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI
-# Datascience key: AIzaSyDH8TObTWteqBAL7EfvgwRFFVUqhDUSLOM
-PLACES_KEY = 'AIzaSyDH8TObTWteqBAL7EfvgwRFFVUqhDUSLOM'
+# Datascience key: AIzaSyA9rjoaF9BHgl7sC9FrQxlz8DjTjIVVfcI
+PLACES_KEY = 'AIzaSyA9rjoaF9BHgl7sC9FrQxlz8DjTjIVVfcI'
 
 # maximum number of profiles which get added to the DB
 MAX_PROFILES    = None
