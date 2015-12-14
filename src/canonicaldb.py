@@ -433,6 +433,7 @@ class CanonicalDB(SQLDatabase):
             self.add(location)
 
         # query Google Places API
+        maxattempts = 3
         attempts = 0
         while True:
             attempts += 1
@@ -471,19 +472,25 @@ class CanonicalDB(SQLDatabase):
                     'field is absent or non-empty. URL: '+url
                     raise GooglePlacesError(msg)                    
             elif r['status'] == 'OVER_QUERY_LIMIT':
-                if attempts < 3:
+                if attempts < maxattempts:
                     logger.log('URL: '+url+'\n')
                     logger.log('Out of quota. Waiting 2 secs.\n')
                     time.sleep(2)
                 else:
                     logger.log('URL: '+url+'\n')
-                    logger.log('Out of quota. Waiting 3h.')
+                    logger.log('Out of quota. Waiting 3h.\n')
                     attempts = 0
                     time.sleep(3*60*60)
             else:
-                msg = 'Unknown status "'+r['status']+'". URL: '+url
-                raise GooglePlacesError(msg)
-
+                if attempts < maxattempts:
+                    logger.log('URL: {0:s}\n Unknown status "{0:s}". '
+                               'Waiting 2 secs and retrying.\n')
+                    time.sleep(2)
+                else:
+                    logger.log('URL: {0:s}\n Unknown status "{0:s}". '
+                               'Giving up.\n')
+                    msg = 'Unknown status "'+r['status']+'". URL: '+url
+                    raise GooglePlacesError(msg)
             
         location.tries += 1
         if not results:
