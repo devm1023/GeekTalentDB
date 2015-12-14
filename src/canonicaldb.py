@@ -28,16 +28,20 @@ from sqlalchemy import \
     DateTime, \
     Date, \
     Float, \
+    Boolean, \
     func
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 from phrasematch import matchStems
 from textnormalization import tokenizedSkill
+import time
+import random
 
 
 STR_MAX = 100000
 
 SQLBase = sqlbase()
+
 
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
@@ -145,6 +149,8 @@ class Location(SQLBase):
     name      = Column(Unicode(STR_MAX), index=True)
     placeId   = Column(String(STR_MAX), index=True)
     geo       = Column(Geometry('POINT'))
+    tries     = Column(Integer, index=True)
+    ambiguous = Column(Boolean)
 
 
 def _joinfields(*args):
@@ -238,6 +244,9 @@ def _makeLIProfile(liprofile, now):
 
     return liprofile
 
+
+class GooglePlacesError(Exception):
+    pass
 
 class CanonicalDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
@@ -402,7 +411,7 @@ class CanonicalDB(SQLDatabase):
 
         return liprofile
 
-    def addLocation(self, nrmName, logger=Logger(None)):
+    def addLocation(self, nrmName, retry=False, logger=Logger(None)):
         """Add a location to the database.
 
         Args:
@@ -417,34 +426,77 @@ class CanonicalDB(SQLDatabase):
                        .filter(Location.nrmName == nrmName) \
                        .first()
         if location is not None:
-            return location, True
+            if not retry or location.placeId is not None or location.ambiguous:
+                return location
+        else:
+            location = Location(nrmName=nrmName, tries=0)
+            self.add(location)
 
         # query Google Places API
-        success = False
-        r = requests.get(conf.PLACES_API,
-                         params={'key' : conf.PLACES_KEY,
-                                 'query' : nrmName})
-        url = r.url
-        r = r.json()
-        if 'status' in r and r['status'] == 'OK' and \
-           'results' in r and r['results']:
-            success = True                
-        if not success:
-            logger.log('Invalid response for URL {0:s}\n'.format(url))
-        elif len(r['results']) > 1:
-            logger.log('Ambiguous result for URL {0:s}\n'.format(url))
-            success = False
-        if not success:
-            location = Location(nrmName=nrmName)
-            self.add(location)
-            return location, False
+        attempts = 0
+        while True:
+            attempts += 1
+            try:
+                r = requests.get(conf.PLACES_API,
+                                 params={'key' : conf.PLACES_KEY,
+                                         'query' : nrmName})
+                url = r.url
+                r = r.json()
+            except KeyboardInterrupt:
+                raise
+            except:
+                logger.log('Request failed. Retrying.\n')
+                time.sleep(2)
+                continue
+
+            if 'status' not in r:
+                raise GooglePlacesError('Status missing in response.')
+            if r['status'] == 'OK':
+                if 'results' in r and r['results']:
+                    results = r['results']
+                    attempts = 0
+                    break
+                else:
+                    msg = 'Received status "OK", but "results" field is absent '
+                    'or empty. URL: '+url
+                    raise GooglePlacesError(msg)
+            elif r['status'] == 'ZERO_RESULTS':
+                if 'results' in r and not r['results']:
+                    logger.log('No results for URL {0:s}\n'.format(url))
+                    results = r['results']
+                    attempts = 0
+                    break
+                else:
+                    msg = 'Received status "ZERO_RESULTS", but "results" '
+                    'field is absent or non-empty. URL: '+url
+                    raise GooglePlacesError(msg)                    
+            elif r['status'] == 'OVER_QUERY_LIMIT':
+                if attempts < 3:
+                    logger.log('URL: '+url+'\n')
+                    logger.log('Out of quota. Waiting 2 secs.\n')
+                    time.sleep(2)
+                else:
+                    logger.log('URL: '+url+'\n')
+                    logger.log('Out of quota. Waiting 3h.')
+                    attempts = 0
+                    time.sleep(3*60*60)
+            else:
+                msg = 'Unknown status "'+r['status']+'". URL: '+url
+                raise GooglePlacesError(msg)
+
+            
+        location.tries += 1
+        if not results:
+            return location
+        location.ambiguous = len(results) > 1
+        result = results[0]
 
         # parse result
-        lat = r['results'][0]['geometry']['location']['lat']
-        lon = r['results'][0]['geometry']['location']['lng']
+        lat = result['geometry']['location']['lat']
+        lon = result['geometry']['location']['lng']
         pointstr = 'POINT({0:f} {1:f})'.format(lon, lat)
-        address = r['results'][0]['formatted_address']
-        placeId = r['results'][0]['place_id']
+        address = result['formatted_address']
+        placeId = result['place_id']
 
         # format address
         address = address.split(', ')
@@ -454,11 +506,9 @@ class CanonicalDB(SQLDatabase):
                     del address[i+1]
         address = ', '.join(address)
 
-        # add record
-        location = Location(nrmName=nrmName,
-                            name=address,
-                            placeId=placeId,
-                            geo=pointstr)
-        self.add(location)
+        # update record
+        location.name = address
+        location.placeId = placeId
+        location.geo = pointstr
 
-        return location, False
+        return location

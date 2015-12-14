@@ -50,7 +50,9 @@ GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json'
 PLACES_API = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 
 # Key for Google Places API
-PLACES_KEY = 'AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI'
+# Alek's key: AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI
+# Datascience key: AIzaSyDH8TObTWteqBAL7EfvgwRFFVUqhDUSLOM
+PLACES_KEY = 'AIzaSyDH8TObTWteqBAL7EfvgwRFFVUqhDUSLOM'
 
 # maximum number of profiles which get added to the DB
 MAX_PROFILES    = None
