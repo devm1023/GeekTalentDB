@@ -1,6 +1,7 @@
 import conf
 from analyticsdb import *
 from sqlalchemy import case, or_, func
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import literal_column, union_all
 import sys
 
@@ -75,22 +76,12 @@ skillquery = andb.query(LIProfileSkill.liprofileId.label('s_id'))
 if skillfilter is not None:
     skillquery = skillquery.filter(skillfilter)
 
-subq = union_all(liprofilequery, experiencequery, skillquery)
+subq = aliased(union_all(liprofilequery, experiencequery, skillquery))
 countcol = func.count().label('countcol')
-print(subq.c)
 q = andb.query(subq.c.s_id, countcol) \
         .group_by(subq.c.s_id) \
-        .order_by(countcol.desc())
+        .having(countcol >= len(searchentities))
     
+print(q.count())
 
-for row in q:
-    print(row)
-                            
-# titles = entities[0][1]
-# casecol = case([(Experience.nrmTitle.in_(titles), 1)], else_=0)
-# q = andb.query(Experience.id, casecol) \
-#         .filter(Experience.nrmTitle.in_(titles)) \
-#         .limit(100)
 
-# print(titles)
-# print(q.all())
