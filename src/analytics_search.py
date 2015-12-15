@@ -5,11 +5,35 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import literal_column, union_all
 import sys
 from pprint import pprint
+from datetime import datetime
+from math import exp
 import pandas as pd
 
 _categories = ['title', 'skill', 'company']
 
+def _valueFilter(cols, sets):
+    expressions = [c.in_(s) for c, s in zip(cols, sets) if s]
+    if not expressions:
+        return None
+    elif len(expressions) == 1:
+        return expressions[0]
+    else:
+        return or_(*expressions)
 
+def _recencyScore(start, duration, now):
+    if start is None:
+        dt = 1.0
+        t = 1.0
+    else:
+        t = max((now - start).total_seconds()/(60*60*24*365), 0.0)
+        if duration is None:
+            dt = t
+        else:
+            dt = max(min(duration/365, t), 0.0)
+
+    T = 10.0  # lifetime in years
+    return T*exp(-t/T)*(exp(dt/T)-1)
+    
 def findEntities(andb, language, searchterms):
     entities = dict((c, []) for c in _categories)
     for searchtype, searchterm in searchterms:
@@ -30,27 +54,16 @@ def findCandidates(andb, entities):
         for term in entities[c]:
             entitysets[c].update(term['matches'])
             nentities += 1
+
+    liprofilefilter \
+        = _valueFilter([LIProfile.nrmTitle,  LIProfile.nrmCompany],
+                       [entitysets['title'], entitysets['company']])
+    experiencefilter \
+        = _valueFilter([Experience.nrmTitle, Experience.nrmCompany],
+                       [entitysets['title'], entitysets['company']])
+    skillfilter \
+        = _valueFilter([LIProfileSkill.nrmName], [entitysets['skill']])
     
-    if entitysets['title'] and entitysets['company']:
-        liprofilefilter = or_(LIProfile.nrmTitle.in_(entitysets['title']),
-                              LIProfile.nrmCompany.in_(entitysets['company']))
-        experiencefilter = or_(Experience.nrmTitle.in_(entitysets['title']),
-                               Experience.nrmCompany.in_(entitysets['company']))
-    elif entitysets['title']:
-        liprofilefilter = LIProfile.nrmTitle.in_(entitysets['title'])
-        experiencefilter = Experience.nrmTitle.in_(entitysets['title'])
-    elif entitysets['company']:
-        liprofilefilter = LIProfile.nrmCompany.in_(entitysets['company'])
-        experiencefilter = Experience.nrmCompany.in_(entitysets['company'])
-    else:
-        liprofilefilter = None
-        experiencefilter = None
-
-    if entitysets['skill']:
-        skillfilter = LIProfileSkill.nrmName.in_(entitysets['skill'])
-    else:
-        skillfilter = None
-
     queries = []
     if liprofilefilter is not None:
         liprofilequery = andb.query(LIProfile.id.label('s_id')) \
@@ -79,7 +92,7 @@ def findCandidates(andb, entities):
     return candidates
 
 
-def rankCandidates(andb, ids, entities):
+def rankCandidates(andb, now, ids, entities):
     entitysets = {}
     for c in _categories:
         entitysets[c] = set()
@@ -99,9 +112,6 @@ def rankCandidates(andb, ids, entities):
     companyScoreCols = ['companyScore:'+repr(i) \
                        for i in range(len(entities['company']))]
 
-    def doIntersect(s1, s2):
-        return any(e in s1 for e in s2)
-
     coldict = {'isMatch' : True, 'totalScore' : 0.0}
     for hasTitleCol, titleScoreCol in zip(hasTitleCols, titleScoreCols):
         coldict[hasTitleCol] = False
@@ -116,21 +126,64 @@ def rankCandidates(andb, ids, entities):
     df = pd.DataFrame(coldict, index=ids)
 
     # score profile titles and companies
-    q = andb.query(LIProfile.id, LIProfile.nrmTitle, LIProfile.nrmCompany) \
-            .filter(LIProfile.id.in_(ids),
-                    or_(LIProfile.nrmTitle.in_(entitysets['title']),
-                        LIProfile.nrmCompany.in_(entitysets['company'])))
-    for id, title, company in q:
-        for hasTitleCol, titleScoreCol, e \
-            in zip(hasTitleCols, titleScoreCols, entities['title']):
-            if title in e['matches']:
-                df.loc[id, hasTitleCol] = True
-                df.loc[id, titleScoreCol] += 1.0
-        for hasCompanyCol, companyScoreCol, e \
-            in zip(hasCompanyCols, companyScoreCols, entities['company']):
-            if company in e['matches']:
-                df.loc[id, hasCompanyCol] = True
-                df.loc[id, companyScoreCol] += 1.0
+    filter = _valueFilter([LIProfile.nrmTitle,  LIProfile.nrmCompany],
+                          [entitysets['title'], entitysets['company']])
+    if filter is not None:
+        q = andb.query(LIProfile.id, LIProfile.nrmTitle, LIProfile.nrmCompany) \
+                .filter(LIProfile.id.in_(ids), filter)
+        for id, title, company in q:
+            for hasTitleCol, titleScoreCol, e \
+                in zip(hasTitleCols, titleScoreCols, entities['title']):
+                if title in e['matches']:
+                    df.loc[id, hasTitleCol] = True
+                    df.loc[id, titleScoreCol] \
+                        += _recencyScore(None, None, now)
+            for hasCompanyCol, companyScoreCol, e \
+                in zip(hasCompanyCols, companyScoreCols, entities['company']):
+                if company in e['matches']:
+                    df.loc[id, hasCompanyCol] = True
+                    df.loc[id, companyScoreCol] \
+                        += _recencyScore(None, None, now)
+
+    # score skills
+    filter = _valueFilter([LIProfileSkill.nrmName], [entitysets['skill']])
+    if filter is not None:
+        q = andb.query(LIProfileSkill.liprofileId,
+                       LIProfileSkill.nrmName,
+                       LIProfileSkill.rank) \
+                .filter(LIProfileSkill.liprofileId.in_(ids),
+                        LIProfileSkill.nrmName.in_(entitysets['skill']))
+        for id, skill, score in q:
+            for hasSkillCol, skillScoreCol, e \
+                in zip(hasSkillCols, skillScoreCols, entities['skill']):
+                if skill in e['matches']:
+                    df.loc[id, hasSkillCol] = True
+                    df.loc[id, skillScoreCol] += score
+
+    # score experiences
+    filter = _valueFilter([Experience.nrmTitle, Experience.nrmCompany],
+                          [entitysets['title'], entitysets['company']])
+    if filter is not None:
+        q = andb.query(Experience.liprofileId,
+                       Experience.start,
+                       Experience.duration,
+                       Experience.nrmTitle,
+                       Experience.nrmCompany) \
+                .filter(Experience.liprofileId.in_(ids), filter)
+        for id, start, duration, title, company in q:
+            start = datetime.combine(start, datetime.min.time())
+            for hasTitleCol, titleScoreCol, e \
+                in zip(hasTitleCols, titleScoreCols, entities['title']):
+                if title in e['matches']:
+                    df.loc[id, hasTitleCol] = True
+                    df.loc[id, titleScoreCol] \
+                        += _recencyScore(start, duration, now)
+            for hasCompanyCol, companyScoreCol, e \
+                in zip(hasCompanyCols, companyScoreCols, entities['company']):
+                if company in e['matches']:
+                    df.loc[id, hasCompanyCol] = True
+                    df.loc[id, companyScoreCol] \
+                        += _recencyScore(start, duration, now)
 
     # compute 'isMatch' and 'totalScore' columns
     for hasTitleCol in hasTitleCols:
@@ -141,10 +194,13 @@ def rankCandidates(andb, ids, entities):
         df['totalScore'] += df[titleScoreCol]
     for companyScoreCol in companyScoreCols:
         df['totalScore'] += df[companyScoreCol]
+    for hasSkillCol in hasSkillCols:
+        df['isMatch'] &= df[hasSkillCol]
+    for skillScoreCol in skillScoreCols:
+        df['totalScore'] += df[skillScoreCol]
 
     # sort and return result
-    df = df[df['isMatch']]
-    df.sort('totalScore', ascending=False)
+    df = df[df['isMatch']].sort_values('totalScore', ascending=False)
     return list(zip(df.index, df['totalScore']))
 
 
@@ -168,6 +224,7 @@ if __name__ == '__main__':
 
 
     andb = AnalyticsDB(conf.ANALYTICS_DB)
+    now = datetime.now()
     
     entities = findEntities(andb, language, searchterms)
     pprint(entities)
@@ -175,6 +232,6 @@ if __name__ == '__main__':
     candidates = findCandidates(andb, entities)
     print('\nResults: {0:d}'.format(len(candidates)))
 
-    candidates = rankCandidates(andb, candidates, entities)
+    candidates = rankCandidates(andb, now, candidates, entities)
     for id, score in candidates:
         print(id, score)
