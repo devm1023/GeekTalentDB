@@ -63,6 +63,15 @@ SKILL_MATCHING_THRESHOLD = 0.75
 # Number of attempts at downloading corrupt profiles
 MAX_ATTEMPTS = 2
 
+# source directory
+_srcdir = os.path.dirname(os.path.abspath(__file__))
+
 # Absolute path to NUTS data
-NUTS_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+NUTS_DATA = os.path.join(_srcdir,
                          'NUTS_2013_SHP', 'data', 'NUTS_RG_01M_2013.shp')
+
+# Absolute path to UK postcodes
+POSTCODES_UK = os.path.join(_srcdir, 'postcodes', 'ukpostcodes.csv')
+
+# Absolute path to NL postcodes
+POSTCODES_NL = os.path.join(_srcdir, 'postcodes', 'postcode_NL_en.csv')

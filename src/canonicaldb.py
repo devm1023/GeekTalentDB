@@ -426,7 +426,7 @@ class CanonicalDB(SQLDatabase):
                        .filter(Location.nrmName == nrmName) \
                        .first()
         if location is not None:
-            if not retry or location.placeId is not None or location.ambiguous:
+            if not retry or location.placeId is not None:
                 return location
         else:
             location = Location(nrmName=nrmName, tries=0)

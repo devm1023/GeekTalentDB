@@ -12,6 +12,8 @@ __all__ = [
     'Company',
     'CompanyWord',
     'Location',
+    'Postcode',
+    'PostcodeWord',
     'Institute',
     'Degree',
     'Subject',
@@ -277,6 +279,31 @@ class Location(SQLBase):
                        autoincrement=False)
     name      = Column(Unicode(STR_MAX))
     geo       = Column(Geometry('POINT'))
+
+class Postcode(SQLBase):
+    __tablename__ = 'postcode'
+    id            = Column(BigInteger, primary_key=True)
+    country       = Column(Unicode(STR_MAX))
+    state         = Column(Unicode(STR_MAX))
+    region        = Column(Unicode(STR_MAX))
+    town          = Column(Unicode(STR_MAX))
+    postcode      = Column(Unicode(STR_MAX))
+    geo           = Column(Geometry('POINT'))
+
+class PostcodeWord(SQLBase):
+    __tablename__ = 'postcode_word'
+    word          = Column(Unicode(STR_MAX),
+                           primary_key=True,
+                           index=True,
+                           autoincrement=False)
+    postcodeId    = Column(BigInteger,
+                           ForeignKey('postcode.id'),
+                           primary_key=True,
+                           index=True,
+                           autoincrement=False)
+    type          = Column(String(20))
+    country       = Column(Unicode(STR_MAX),
+                           index=True)
 
 class Institute(SQLBase):
     __tablename__ = 'institute'
