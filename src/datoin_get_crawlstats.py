@@ -30,14 +30,17 @@ fromTs = (fromDate - t0).total_seconds()*1000
 toTs   = (toDate - t0).total_seconds()*1000
 
 indexed0 = dtdb.query(LIProfile.id) \
-               .filter(LIProfile.indexedOn < fromTs) \
+               .filter(LIProfile.crawledDate != None,
+                       LIProfile.indexedOn < fromTs) \
                .count()
 crawled0 = dtdb.query(LIProfile.id) \
-               .filter(LIProfile.crawledDate < fromTs) \
+               .filter(LIProfile.crawledDate != None,
+                       LIProfile.crawledDate < fromTs) \
                .count()
 
 q = dtdb.query(LIProfile.indexedOn, LIProfile.crawledDate) \
-        .filter(LIProfile.crawledDate >= fromTs,
+        .filter(LIProfile.crawledDate != None,
+                LIProfile.crawledDate >= fromTs,
                 LIProfile.crawledDate < toTs)
 for indexedOn, crawledOn in q:
     indexedOn = t0 + timedelta(milliseconds=indexedOn) - fromDate
@@ -48,7 +51,8 @@ for indexedOn, crawledOn in q:
     delayHist[delay]     += 1
 
 q = dtdb.query(LIProfile.indexedOn) \
-        .filter(LIProfile.indexedOn >= fromTs,
+        .filter(LIProfile.crawledDate != None,
+                LIProfile.indexedOn >= fromTs,
                 LIProfile.indexedOn < toTs)
 for indexedOn, in q:
     indexedOn = t0 + timedelta(milliseconds=indexedOn) - fromDate

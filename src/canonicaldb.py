@@ -61,7 +61,10 @@ class LIProfile(SQLBase):
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     connections       = Column(Integer)
-    totalExperience   = Column(Integer) # total work experience in days
+    firstExperienceStart = Column(Date)
+    lastExperienceStart  = Column(Date)
+    firstEducationStart  = Column(Date)
+    lastEducationStart   = Column(Date)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
@@ -133,7 +136,7 @@ class Skill(SQLBase):
     language    = Column(String(20))
     name        = Column(Unicode(STR_MAX))
     nrmName     = Column(Unicode(STR_MAX), index=True)
-    rank        = Column(Float)
+    reenforced  = Column(Boolean)
 
 class ExperienceSkill(SQLBase):
     __tablename__ = 'experience_skill'
@@ -172,9 +175,10 @@ def _makeExperience(experience, language, now):
     if experience['start'] is not None and experience['end'] is not None:
         if experience['start'] < experience['end']:
             duration = (experience['end'] - experience['start']).days
-    elif experience['start'] is not None:
-        duration = (now - experience['start']).days
-    experience['duration'] = duration
+        else:
+            experience['end'] = None
+    if experience['start'] is None:
+        experience['end'] = None
 
     return experience
 
@@ -187,6 +191,10 @@ def _makeEducation(education, language):
                                                    education['degree'])
     education['nrmSubject']     = normalizedSubject(language,
                                                     education['subject'])
+
+    if education['start'] is None:
+        education['end'] = None
+    
     return education
 
 def _makeSkill(skillname, language):
@@ -194,10 +202,10 @@ def _makeSkill(skillname, language):
     if not nrmName:
         return None
     else:
-        return {'language' : language,
-                'name'     : skillname,
-                'nrmName'  : nrmName,
-                'rank'     : 0.0}
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName,
+                'reenforced' : False}
 
 def _makeLIProfile(liprofile, now):
     # determine current company
@@ -230,13 +238,26 @@ def _makeLIProfile(liprofile, now):
     # update experiences
     liprofile['experiences'] \
         = [_makeExperience(e, language, now) for e in liprofile['experiences']]
-    liprofile['totalExperience'] \
-        = sum([e['duration'] for e in liprofile['experiences'] \
-               if e['duration'] is not None])
+    startdates = [e['start'] for e in liprofile['experiences'] \
+                  if e['start'] is not None]
+    if startdates:
+        liprofile['firstExperienceStart'] = min(startdates)
+        liprofile['lastExperienceStart'] = max(startdates)
+    else:
+        liprofile['firstExperienceStart'] = None
+        liprofile['lastExperienceStart'] = None    
 
     # update educations
     liprofile['educations'] \
         = [_makeEducation(e, language) for e in liprofile['educations']]
+    startdates = [e['start'] for e in liprofile['educations'] \
+                  if e['start'] is not None]
+    if startdates:
+        liprofile['firstEducationStart'] = min(startdates)
+        liprofile['lastEducationStart'] = max(startdates)
+    else:
+        liprofile['firstEducationStart'] = None
+        liprofile['lastEducationStart'] = None    
 
     # add skills
     liprofile['skills'] = [_makeSkill(skill, language) \
@@ -269,7 +290,6 @@ class CanonicalDB(SQLDatabase):
         matches = (matchStems(skillstems, descriptionstems,
                               threshold=conf.SKILL_MATCHING_THRESHOLD) > \
                    conf.SKILL_MATCHING_THRESHOLD)
-        ranks = np.zeros(len(skills))
         for iexperience, experience in enumerate(experiences):
             experience.skills = []
             for iskill, skill in enumerate(skills):
@@ -278,12 +298,12 @@ class CanonicalDB(SQLDatabase):
                         duration = experience.duration
                     else:
                         duration = 0
-                    ranks[iskill] += duration/365.0
                     experience.skills.append(
                         ExperienceSkill(experienceId=experience.id,
                                         skillId=skill.id))
 
         # match profile text
+        reenforced = [False]*len(skills)
         profiletext = _joinfields(liprofile.title, liprofile.description)
         profiletextstems = tokenizedSkill(liprofile.language,
                                           profiletext, removebrackets=False)
@@ -292,13 +312,11 @@ class CanonicalDB(SQLDatabase):
                    conf.SKILL_MATCHING_THRESHOLD)
         for iskill, skill in enumerate(skills):
             if matches[iskill, 0]:
-                # half of the total work experience for skills mentioned in
-                # the profile summary
-                ranks[iskill] += liprofile.totalExperience/365.0/2.0
+                reenforced[iskill] = True
 
         # update skill ranks
         for iskill, skill in enumerate(skills):
-            skill.rank = ranks[iskill]
+            skill.reenforced = reenforced[iskill]
 
     def addLIProfile(self, liprofile, now):
         """Add a LinkedIn profile to the database (or update if it exists).

@@ -77,7 +77,12 @@ class LIProfile(SQLBase):
                                nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
-    totalExperience   = Column(Integer)
+    firstExperienceStart = Column(Date)
+    lastExperienceStart  = Column(Date)
+    lastExperienceEnd    = Column(Date)
+    firstEducationStart  = Column(Date)
+    lastEducationStart   = Column(Date)
+    lastEducationEnd     = Column(Date)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
@@ -164,12 +169,14 @@ class LIProfileSkill(SQLBase):
     liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          primary_key=True,
+                         index=True,
                          autoincrement=False)
     nrmName     = Column(Unicode(STR_MAX),
                          ForeignKey('skill.nrmName'),
                          primary_key=True,
+                         index=True,
                          autoincrement=False)
-    rank        = Column(Float)
+    reenforced  = Column(Boolean)
 
     skill = relationship('Skill')
 
@@ -178,10 +185,12 @@ class ExperienceSkill(SQLBase):
     experienceId = Column(BigInteger,
                           ForeignKey('experience.id'),
                           primary_key=True,
+                          index=True,
                           autoincrement=False)
     nrmSkill     = Column(Unicode(STR_MAX),
                           ForeignKey('skill.nrmName'),
                           primary_key=True,
+                          index=True,
                           autoincrement=False)
     
     skill = relationship('Skill')
