@@ -69,7 +69,7 @@ try:
         maxretry = 0
         fromdate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
         todate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
-        if sys.argv[0] == '--by-index-date':
+        if sys.argv and sys.argv[0] == '--by-index-date':
             sys.argv.pop(0)
             byIndexedOn = True
         else:

@@ -43,6 +43,7 @@ from sqlalchemy import \
     Date, \
     DateTime, \
     Float, \
+    Boolean, \
     func, \
     or_
 from sqlalchemy.orm import relationship
