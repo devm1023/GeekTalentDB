@@ -428,6 +428,8 @@ def normalizedLocation(name):
     if not name:
         return None
     nname = ' '.join(name.lower().split())
+    nname = nname.replace('en omgeving', '')
+    nname = nname.replace('reino unido', 'united kingdom')
     if not nname:
         return None
     return nname

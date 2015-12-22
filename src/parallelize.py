@@ -384,14 +384,15 @@ class ParallelFunction:
 
     Note:
       ParallelFunction objects are callable and accept a numpy array or list
-      of python objects as argument. They parallelise the task of applying 
-      a certain function to each element of the array. Process communication
+      of tuples as argument. They parallelise the task of applying 
+      a certain function `f` to each tuple in the array. The tuples are
+      'unpacked' when passed to the function `f`. Process communication
       is done via files and the parallel jobs can be run on different nodes of
       a computing cluster.
 
     Args:
-      f (callable): Function to parallelise. It should only take a single
-        argument.
+      f (callable): Function to parallelise. It can take an arbitrary number
+        of positional arguments but no keyword arguments.
       njobs (int, optional): Number of parallel jobs. Defaults to 2.
       batchsize (int or None): Number of evaluations done sequentially in each
         job. If not ``None`` this overrides the value of `njobs`, since

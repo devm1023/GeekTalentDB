@@ -10,15 +10,22 @@ import numpy as np
 from logger import Logger
 from parallelize import ParallelFunction
 from datetime import datetime
+from math import ceil
 
-def windows(query, windowsize):
+def windows(query, windowsize=None, nwindows=None):
     """Generate a series of intervals break a given column into windows.
 
     Args:
       query (sqlalchemy Query object): The query returning the values to split
         on. `query` must have exactly one column.
-      windowsize (int): The number of distinct values of `query` in each
-        interval.
+      windowsize (int, optional): The number of distinct values of `query` in
+        each interval. Defaults to ``None``.
+      nwindows (int, optional): The desired number of windows. Defaults to
+        ``None``
+
+    Note:
+      One of the arguments `windowsize` or `nwindows` must be an integer number.
+      The other one must be ``None``.
 
     Yields:
       a: The lower (inclusive) bound of the interval.
@@ -29,6 +36,12 @@ def windows(query, windowsize):
       nr: The total number of records.
 
     """
+    if (windowsize is None and nwindows is None) or \
+       (windowsize is not None and nwindows is not None) or \
+       (windowsize is not None and windowsize < 1) or \
+       (nwindows is not None and nwindows < 1):
+        raise ValueError('Invalid values for `windowsize` and `nwindows`.')
+    
     columns = list(query.statement.inner_columns)
     if len(columns) != 1:
         raise ValueError('Query must have exactly one column.')
@@ -37,6 +50,8 @@ def windows(query, windowsize):
     nrows = query.distinct().count()
     if nrows < 1:
         raise StopIteration()
+    if windowsize is None:
+        windowsize = ceil(nrows/nwindows)
     subq = query.order_by(column).distinct().subquery()
     q = query.session.query(subq,
                             func.row_number().over() \
