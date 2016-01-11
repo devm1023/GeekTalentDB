@@ -21,6 +21,9 @@ GEEKTALENT_DB = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geektalent'
 # Datoin Database 
 DATOIN_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin'
 
+# Datoin Database 
+DATOIN2_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin2'
+
 # Canonical Database
 CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/canonical'
 
