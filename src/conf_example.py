@@ -46,6 +46,9 @@ DATOIN_SEARCH   = 'http://gt1.datoin.com:8765/search'
 # profiles endpoint from DATOIN
 DATOIN_PROFILES = 'http://gt1.datoin.com:8765/profiles'
 
+# search endpoint for DATOIN returning one document per profile
+DATOIN2_SEARCH   = 'http://gt.datoin.com:8567/search'
+
 # URL for Google Geocoding API
 GEOCODING_API = 'https://maps.googleapis.com/maps/api/geocode/json'
 

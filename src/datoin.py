@@ -12,6 +12,7 @@ class Session:
     def __init__(self, logger=Logger(None)):
         self._session = requests.Session()
         self._logger = logger
+        self.get = self._session.get
 
     def count(self,
               params={},
