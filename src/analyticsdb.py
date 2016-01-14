@@ -1,9 +1,9 @@
 __all__ = [
     'LIProfile',
-    'Experience',
-    'Education',
+    'LIExperience',
+    'LIEducation',
     'LIProfileSkill',
-    'ExperienceSkill',
+    'LIExperienceSkill',
     'Skill',
     'SkillWord',
     'Title',
@@ -96,17 +96,17 @@ class LIProfile(SQLBase):
     skills = relationship('LIProfileSkill',
                           order_by='LIProfileSkill.nrmName',
                           cascade='all, delete-orphan')
-    experiences = relationship('Experience',
-                               order_by='Experience.start',
+    experiences = relationship('LIExperience',
+                               order_by='LIExperience.start',
                                cascade='all, delete-orphan')
-    educations = relationship('Education',
-                              order_by='Education.start',
+    educations = relationship('LIEducation',
+                              order_by='LIEducation.start',
                               cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
-class Experience(SQLBase):
-    __tablename__ = 'experience'
+class LIExperience(SQLBase):
+    __tablename__ = 'liexperience'
     id             = Column(BigInteger, primary_key=True)
     datoinId       = Column(String(STR_MAX))
     liprofileId    = Column(BigInteger,
@@ -131,12 +131,12 @@ class Experience(SQLBase):
 
     title = relationship('Title')
     company = relationship('Company')
-    skills = relationship('ExperienceSkill',
-                          order_by='ExperienceSkill.nrmSkill',
+    skills = relationship('LIExperienceSkill',
+                          order_by='LIExperienceSkill.nrmSkill',
                           cascade='all, delete-orphan')
 
-class Education(SQLBase):
-    __tablename__ = 'education'
+class LIEducation(SQLBase):
+    __tablename__ = 'lieducation'
     id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
     liprofileId = Column(BigInteger,
@@ -181,13 +181,13 @@ class LIProfileSkill(SQLBase):
 
     skill = relationship('Skill')
 
-class ExperienceSkill(SQLBase):
-    __tablename__ = 'experience_skill'
-    experienceId = Column(BigInteger,
-                          ForeignKey('experience.id'),
-                          primary_key=True,
-                          index=True,
-                          autoincrement=False)
+class LIExperienceSkill(SQLBase):
+    __tablename__ = 'liexperience_skill'
+    liexperienceId = Column(BigInteger,
+                            ForeignKey('liexperience.id'),
+                            primary_key=True,
+                            index=True,
+                            autoincrement=False)
     nrmSkill     = Column(Unicode(STR_MAX),
                           ForeignKey('skill.nrmName'),
                           primary_key=True,
@@ -198,13 +198,13 @@ class ExperienceSkill(SQLBase):
     
 class Skill(SQLBase):
     __tablename__ = 'skill'
-    nrmName         = Column(Unicode(STR_MAX),
-                             primary_key=True,
-                             autoincrement=False)
-    language        = Column(String(20))
-    name            = Column(Unicode(STR_MAX))
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    nrmName           = Column(Unicode(STR_MAX),
+                               primary_key=True,
+                               autoincrement=False)
+    language          = Column(String(20))
+    name              = Column(Unicode(STR_MAX))
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class SkillWord(SQLBase):
     __tablename__ = 'skill_word'
@@ -229,8 +229,8 @@ class Title(SQLBase):
                        autoincrement=False)
     language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class TitleWord(SQLBase):
     __tablename__ = 'title_word'
@@ -263,8 +263,8 @@ class Company(SQLBase):
                        autoincrement=False)
     language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class CompanyWord(SQLBase):
     __tablename__ = 'company_word'
@@ -344,61 +344,61 @@ class Subject(SQLBase):
 
 class Word(SQLBase):
     __tablename__ = 'word'
-    language               = Column(String(20),
-                                    primary_key=True)
-    word                   = Column(Unicode(STR_MAX),
-                                    primary_key=True)
-    liprofileSkillCount    = Column(BigInteger)
-    experienceSkillCount   = Column(BigInteger)
-    liprofileTitleCount    = Column(BigInteger)
-    experienceTitleCount   = Column(BigInteger)
-    liprofileCompanyCount  = Column(BigInteger)
-    experienceCompanyCount = Column(BigInteger)
+    language                 = Column(String(20),
+                                      primary_key=True)
+    word                     = Column(Unicode(STR_MAX),
+                                      primary_key=True)
+    liprofileSkillCount      = Column(BigInteger)
+    liexperienceSkillCount   = Column(BigInteger)
+    liprofileTitleCount      = Column(BigInteger)
+    liexperienceTitleCount   = Column(BigInteger)
+    liprofileCompanyCount    = Column(BigInteger)
+    liexperienceCompanyCount = Column(BigInteger)
 
 class TitleSkill(SQLBase):
     __tablename__ = 'title_skill'
-    nrmTitle        = Column(String(STR_MAX),
-                             ForeignKey('title.nrmName'),
-                             primary_key=True,
-                             autoincrement=False,
-                             index=True)
-    nrmSkill        = Column(String(STR_MAX),
-                             ForeignKey('skill.nrmName'),
-                             primary_key=True,
-                             autoincrement=False,
-                             index=True)
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    nrmTitle          = Column(String(STR_MAX),
+                               ForeignKey('title.nrmName'),
+                               primary_key=True,
+                               autoincrement=False,
+                               index=True)
+    nrmSkill          = Column(String(STR_MAX),
+                               ForeignKey('skill.nrmName'),
+                               primary_key=True,
+                               autoincrement=False,
+                               index=True)
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class CompanySkill(SQLBase):
     __tablename__ = 'company_skill'
-    nrmCompany      = Column(String(STR_MAX),
-                             ForeignKey('company.nrmName'),
-                             primary_key=True,
-                             autoincrement=False,
-                             index=True)
-    nrmSkill        = Column(String(STR_MAX),
-                             ForeignKey('skill.nrmName'),
-                             primary_key=True,
-                             autoincrement=False,
-                             index=True)
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    nrmCompany        = Column(String(STR_MAX),
+                               ForeignKey('company.nrmName'),
+                               primary_key=True,
+                               autoincrement=False,
+                               index=True)
+    nrmSkill          = Column(String(STR_MAX),
+                               ForeignKey('skill.nrmName'),
+                               primary_key=True,
+                               autoincrement=False,
+                               index=True)
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class SkillSkill(SQLBase):
     __tablename__ = 'skill_skill'
-    nrmSkill1        = Column(String(STR_MAX),
-                              ForeignKey('skill.nrmName'),
-                              primary_key=True,
-                              autoincrement=False,
-                              index=True)
-    nrmSkill2        = Column(String(STR_MAX),
-                              ForeignKey('skill.nrmName'),
-                              primary_key=True,
-                              autoincrement=False,
-                              index=True)
-    liprofileCount  = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+    nrmSkill1          = Column(String(STR_MAX),
+                                ForeignKey('skill.nrmName'),
+                                primary_key=True,
+                                autoincrement=False,
+                                index=True)
+    nrmSkill2          = Column(String(STR_MAX),
+                                ForeignKey('skill.nrmName'),
+                                primary_key=True,
+                                autoincrement=False,
+                                index=True)
+    liprofileCount    = Column(BigInteger)
+    liexperienceCount = Column(BigInteger)
 
 class CareerStep(SQLBase):
     __tablename__ = 'career_step'
@@ -554,30 +554,30 @@ class AnalyticsDB(SQLDatabase):
             liprofile['skills'] = newskills
 
         if liprofile.get('experiences', None) is not None:
-            for experience in liprofile['experiences']:
-                experience.pop('id', None)
-                experience.pop('liprofileId', None)
-                experience.pop('title', None)
-                experience.pop('company', None)
-                experience['language'] = language
-                if experience.get('skills', None) is not None:
+            for liexperience in liprofile['experiences']:
+                liexperience.pop('id', None)
+                liexperience.pop('liprofileId', None)
+                liexperience.pop('title', None)
+                liexperience.pop('company', None)
+                liexperience['language'] = language
+                if liexperience.get('skills', None) is not None:
                     skillnames = set()
                     newskills = []
-                    for skill in experience['skills']:
+                    for skill in liexperience['skills']:
                         if not skill:
                             continue
                         if skill not in skillnames:
                             newskills.append({'nrmSkill' : skill})
                             skillnames.add(skill)
-                    experience['skills'] = newskills
+                    liexperience['skills'] = newskills
 
         if liprofile.get('educations', None) is not None:
-            for education in liprofile['educations']:
-                education.pop('id', None)
-                education.pop('institute', None)
-                education.pop('degree', None)
-                education.pop('subject', None)
-                education['language'] = language
+            for lieducation in liprofile['educations']:
+                lieducation.pop('id', None)
+                lieducation.pop('institute', None)
+                lieducation.pop('degree', None)
+                lieducation.pop('subject', None)
+                lieducation['language'] = language
                     
         return self.addFromDict(liprofile, LIProfile)
 
@@ -608,24 +608,25 @@ class AnalyticsDB(SQLDatabase):
     def findEntities(self, querytype, language, querytext, exact=False):
         if querytype == 'title':
             wordtable = TitleWord
-            wordcountcols = [Word.experienceTitleCount,
+            wordcountcols = [Word.liexperienceTitleCount,
                              Word.liprofileTitleCount]
             entitytable = Title
-            entitycountcols = [Title.experienceCount, Title.liprofileCount]
+            entitycountcols = [Title.liexperienceCount, Title.liprofileCount]
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
             wordtable = SkillWord
-            wordcountcols = [Word.experienceSkillCount,
+            wordcountcols = [Word.liexperienceSkillCount,
                              Word.liprofileSkillCount]
             entitytable = Skill
-            entitycountcols = [Skill.experienceCount, Skill.liprofileCount]
+            entitycountcols = [Skill.liexperienceCount, Skill.liprofileCount]
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             wordtable = CompanyWord
-            wordcountcols = [Word.experienceCompanyCount,
+            wordcountcols = [Word.liexperienceCompanyCount,
                              Word.liprofileCompanyCount]
             entitytable = Company
-            entitycountcols = [Company.experienceCount, Company.liprofileCount]
+            entitycountcols = [Company.liexperienceCount,
+                               Company.liprofileCount]
             nrmfunc = normalizedCompany
 
 

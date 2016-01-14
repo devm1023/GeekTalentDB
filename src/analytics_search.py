@@ -72,7 +72,7 @@ def findCandidates(andb, entities):
     
     titleAliases = []
     for e in entities['title']:
-        titleAlias = aliased(Experience)
+        titleAlias = aliased(LIExperience)
         titleAliases.append(titleAlias)
         filters.append(or_(LIProfile.nrmTitle.in_(e['matches']),
                            titleAlias.nrmTitle.in_(e['matches'])))
@@ -80,7 +80,7 @@ def findCandidates(andb, entities):
 
     companyAliases = []
     for e in entities['company']:
-        companyAlias = aliased(Experience)
+        companyAlias = aliased(LIExperience)
         companyAliases.append(companyAlias)
         filters.append(or_(LIProfile.nrmCompany.in_(e['matches']),
                            companyAlias.nrmCompany.in_(e['matches'])))
@@ -170,15 +170,15 @@ def rankCandidates(andb, now, ids, entities):
                     df.loc[id, hasSkillCol] = True
                     if reenforced:
                         df.loc[id, profileSkillScoreCol] += 1.0
-    filter = _valueFilter([ExperienceSkill.nrmSkill], [entitysets['skill']])
+    filter = _valueFilter([LIExperienceSkill.nrmSkill], [entitysets['skill']])
     if filter is not None:
-        q = andb.query(Experience.liprofileId,
-                       Experience.start,
-                       Experience.duration,
-                       ExperienceSkill.nrmSkill) \
-                .join(ExperienceSkill) \
-                .filter(Experience.liprofileId.in_(ids),
-                        ExperienceSkill.nrmSkill.in_(entitysets['skill']))
+        q = andb.query(LIExperience.liprofileId,
+                       LIExperience.start,
+                       LIExperience.duration,
+                       LIExperienceSkill.nrmSkill) \
+                .join(LIExperienceSkill) \
+                .filter(LIExperience.liprofileId.in_(ids),
+                        LIExperienceSkill.nrmSkill.in_(entitysets['skill']))
         for id, start, duration, skill in q:
             for hasSkillCol, experienceSkillScoreCol, e \
                 in zip(hasSkillCols, experienceSkillScoreCols,
@@ -189,15 +189,15 @@ def rankCandidates(andb, now, ids, entities):
                         += _recencyScore(start, duration, now)
 
     # score experiences
-    filter = _valueFilter([Experience.nrmTitle, Experience.nrmCompany],
+    filter = _valueFilter([LIExperience.nrmTitle, LIExperience.nrmCompany],
                           [entitysets['title'], entitysets['company']])
     if filter is not None:
-        q = andb.query(Experience.liprofileId,
-                       Experience.start,
-                       Experience.duration,
-                       Experience.nrmTitle,
-                       Experience.nrmCompany) \
-                .filter(Experience.liprofileId.in_(ids), filter)
+        q = andb.query(LIExperience.liprofileId,
+                       LIExperience.start,
+                       LIExperience.duration,
+                       LIExperience.nrmTitle,
+                       LIExperience.nrmCompany) \
+                .filter(LIExperience.liprofileId.in_(ids), filter)
         for id, start, duration, title, company in q:
             if start is not None:
                 start = datetime.combine(start, datetime.min.time())

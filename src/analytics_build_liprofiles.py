@@ -31,30 +31,31 @@ def addLIProfiles(jobid, fromid, toid):
             liprofiledict['rawSector'] = liprofiledict.pop('sector')
             
         if liprofiledict.get('experiences', None) is not None:
-            for experience in liprofiledict['experiences']:
+            for liexperience in liprofiledict['experiences']:
                 placeId = None
-                if experience.get('nrmLocation', None) is not None:
+                if liexperience.get('nrmLocation', None) is not None:
                     placeId = cndb.query(Location.placeId) \
                                   .filter(Location.nrmName ==
-                                          experience['nrmLocation']) \
+                                          liexperience['nrmLocation']) \
                                   .first()[0]
-                experience['placeId'] = placeId
-                if 'title' in experience:
-                    experience['rawTitle'] = experience.pop('title')
-                if 'company' in experience:
-                    experience['rawCompany'] = experience.pop('company')
-                if experience.get('skills', None) is not None:
-                    experience['skills'] \
-                        = [s['skill']['nrmName'] for s in experience['skills']]
+                liexperience['placeId'] = placeId
+                if 'title' in liexperience:
+                    liexperience['rawTitle'] = liexperience.pop('title')
+                if 'company' in liexperience:
+                    liexperience['rawCompany'] = liexperience.pop('company')
+                if liexperience.get('skills', None) is not None:
+                    liexperience['skills'] \
+                        = [s['skill']['nrmName'] \
+                           for s in liexperience['skills']]
 
         if liprofiledict.get('educations', None) is not None:
-            for education in liprofiledict['educations']:                
-                if 'institute' in education:
-                    education['rawInstitute'] = education.pop('institute')
-                if 'degree' in education:
-                    education['rawDegree'] = education.pop('degree')
-                if 'subject' in education:
-                    education['rawSubject'] = education.pop('subject')
+            for lieducation in liprofiledict['educations']:                
+                if 'institute' in lieducation:
+                    lieducation['rawInstitute'] = lieducation.pop('institute')
+                if 'degree' in lieducation:
+                    lieducation['rawDegree'] = lieducation.pop('degree')
+                if 'subject' in lieducation:
+                    lieducation['rawSubject'] = lieducation.pop('subject')
                     
         if location is not None:
             liprofiledict['placeId'] = location.placeId

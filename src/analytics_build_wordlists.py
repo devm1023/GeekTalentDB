@@ -35,7 +35,7 @@ def countSkillWords(jobid, fromword, toword):
     
     q = andb.query(SkillWord.language, SkillWord.word,
                    func.sum(Skill.liprofileCount),
-                   func.sum(Skill.experienceCount)) \
+                   func.sum(Skill.liexperienceCount)) \
             .join(Skill) \
             .filter(SkillWord.word >= fromword)
     if toword is not None:
@@ -43,13 +43,13 @@ def countSkillWords(jobid, fromword, toword):
     q = q.group_by(SkillWord.language, SkillWord.word)
 
     def addCounts(rec):
-        language, word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, liexperienceCount = rec
         
         andb.addFromDict({
             'language' : language,
             'word' : word,
-            'liprofileSkillCount' : liprofileCount,
-            'experienceSkillCount' : experienceCount,
+            'liprofileSkillCount'    : liprofileCount,
+            'liexperienceSkillCount' : liexperienceCount,
         }, Word)
             
     processDb(q, addCounts, andb, logger=logger)
@@ -83,7 +83,7 @@ def countTitleWords(jobid, fromword, toword):
     
     q = andb.query(TitleWord.language, TitleWord.word,
                    func.sum(Title.liprofileCount),
-                   func.sum(Title.experienceCount)) \
+                   func.sum(Title.liexperienceCount)) \
             .join(Title) \
             .filter(TitleWord.word >= fromword)
     if toword is not None:
@@ -91,13 +91,13 @@ def countTitleWords(jobid, fromword, toword):
     q = q.group_by(TitleWord.language, TitleWord.word)
 
     def addCounts(rec):
-        language, word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, liexperienceCount = rec
         
         andb.addFromDict({
             'language' : language,
             'word' : word,
             'liprofileTitleCount' : liprofileCount,
-            'experienceTitleCount' : experienceCount,
+            'liexperienceTitleCount' : liexperienceCount,
         }, Word)
             
     processDb(q, addCounts, andb, logger=logger)
@@ -131,7 +131,7 @@ def countCompanyWords(jobid, fromword, toword):
     
     q = andb.query(CompanyWord.language, CompanyWord.word,
                    func.sum(Company.liprofileCount),
-                   func.sum(Company.experienceCount)) \
+                   func.sum(Company.liexperienceCount)) \
             .join(Company) \
             .filter(CompanyWord.word >= fromword)
     if toword is not None:
@@ -139,13 +139,13 @@ def countCompanyWords(jobid, fromword, toword):
     q = q.group_by(CompanyWord.language, CompanyWord.word)
 
     def addCounts(rec):
-        language, word, liprofileCount, experienceCount = rec
+        language, word, liprofileCount, liexperienceCount = rec
         
         andb.addFromDict({
             'language' : language,
             'word' : word,
             'liprofileCompanyCount' : liprofileCount,
-            'experienceCompanyCount' : experienceCount,
+            'liexperienceCompanyCount' : liexperienceCount,
         }, Word)
             
     processDb(q, addCounts, andb, logger=logger)
