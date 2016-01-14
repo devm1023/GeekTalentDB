@@ -186,7 +186,8 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
     # parse experiences and educations
     
     if 'subDocuments' not in liprofiledoc:
-        return liprofile
+        dtdb.addLIProfile(liprofile)
+        return True
     
     for subdocument in liprofiledoc['subDocuments']:
         if 'type' not in subdocument:
@@ -366,11 +367,11 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
     failed_offsets = []
     count = 0
     for liprofiledoc in dtsession.query(url=conf.DATOIN2_SEARCH,
-                                         params={'sid'         : 'linkedin',
-                                                 fromKey       : fromTs,
-                                                 toKey         : toTs},
-                                         rows=rows,
-                                         offset=offset):
+                                        params={'sid'         : 'linkedin',
+                                                fromKey       : fromTs,
+                                                toKey         : toTs},
+                                        rows=rows,
+                                        offset=offset):
         if not addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
