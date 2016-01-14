@@ -1,7 +1,7 @@
 __all__ = [
     'LIProfile',
-    'Experience',
-    'Education',
+    'LIExperience',
+    'LIEducation',
     'DatoinDB',
     ]
 
@@ -45,8 +45,8 @@ class LIProfile(SQLBase):
     categories        = Column(Array(Unicode(STR_MAX)))
     groups            = Column(Array(Unicode(STR_MAX)))
 
-class Experience(SQLBase):
-    __tablename__ = 'experience'
+class LIExperience(SQLBase):
+    __tablename__ = 'liexperience'
     id          = Column(String(STR_MAX), primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
@@ -60,8 +60,8 @@ class Experience(SQLBase):
     description = Column(Unicode(STR_MAX))
     indexedOn   = Column(BigInteger)
 
-class Education(SQLBase):
-    __tablename__ = 'education'
+class LIEducation(SQLBase):
+    __tablename__ = 'lieducation'
     id          = Column(String(STR_MAX), primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
@@ -80,38 +80,47 @@ class DatoinDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
-    def addLIProfile(self, profile, experiences, educations):
+    def addLIProfile(self, liprofiledict):
+        liexperiences = liprofiledict.pop('experiences')
+        lieducations = liprofiledict.pop('educations')
+        
         # create or update LIProfile
         liprofile = self.query(LIProfile) \
-                        .filter(LIProfile.id == profile['id']) \
+                        .filter(LIProfile.id == liprofiledict['id']) \
                         .first()
         if not liprofile:
             new_profile = True
-            liprofile = LIProfile(**profile)
+            liprofile = LIProfile(**liprofiledict)
             self.add(liprofile)
             self.flush()
-        elif profile['indexedOn'] >= liprofile.indexedOn:
+        elif liprofiledict['indexedOn'] >= liprofile.indexedOn:
             new_profile = False
-            for key, val in profile.items():
+            for key, val in liprofiledict.items():
                 setattr(liprofile, key, val)
         else:
             return liprofile
 
-        # add experiences
+        # add liexperiences
         if not new_profile:
-            self.query(Experience) \
-                .filter(Experience.parentId == liprofile.id) \
+            self.query(LIExperience) \
+                .filter(LIExperience.parentId == liprofile.id) \
                 .delete(synchronize_session='fetch')
-        for experience in experiences:
-            self.add(Experience(**experience))
+        idset = set()
+        for liexperience in liexperiences:
+            if liexperience['id'] not in idset:
+                idset.add(liexperience['id'])
+                self.add(LIExperience(**liexperience))
 
-        # add educations
+        # add lieducations
         if not new_profile:
-            self.query(Education) \
-                .filter(Education.parentId == liprofile.id) \
+            self.query(LIEducation) \
+                .filter(LIEducation.parentId == liprofile.id) \
                 .delete(synchronize_session='fetch')
-        for education in educations:
-            self.add(Education(**education))
+        idset = set()
+        for lieducation in lieducations:
+            if lieducation['id'] not in idset:
+                idset.add(lieducation['id'])
+                self.add(LIEducation(**lieducation))
 
         self.flush()
         return liprofile

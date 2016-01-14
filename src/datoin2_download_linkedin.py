@@ -9,46 +9,46 @@ from parallelize import ParallelFunction
 import itertools
 
 
-def addProfile(dtdb, profile, dtsession, logger):
+def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
     # check sourceId
-    if profile.get('sourceId', '') != 'linkedin':
+    if liprofiledoc.get('sourceId', '') != 'linkedin':
         logger.log('invalid profile sourceId\n')
         return False
 
     # check type
-    if profile.get('type', '') != 'profile':
+    if liprofiledoc.get('type', '') != 'profile':
         logger.log('invalid profile type\n')
         return False
     
     # get id
-    if 'id' not in profile:
+    if 'id' not in liprofiledoc:
         logger.log('invalid profile id\n')
         return False
-    profile_id = profile['id']
+    liprofile_id = liprofiledoc['id']
 
     # get parentId
-    if 'parentId' not in profile:
+    if 'parentId' not in liprofiledoc:
         logger.log('invalid profile parentId\n')
         return False
-    parentId = profile['parentId']
-    if parentId != profile_id:
+    parentId = liprofiledoc['parentId']
+    if parentId != liprofile_id:
         logger.log('invalid profile parentId\n')
         return False
 
     # get last name
-    lastName = profile.get('lastName', '')
+    lastName = liprofiledoc.get('lastName', '')
     if type(lastName) is not str:
         logger.log('invalid profile lastName\n')
         return False
 
     # get first name
-    firstName = profile.get('firstName', '')
+    firstName = liprofiledoc.get('firstName', '')
     if type(firstName) is not str:
         logger.log('invalid profile firstName\n')
         return False
     
     # get name
-    name = profile.get('name', '')
+    name = liprofiledoc.get('name', '')
     if not name:
         name = ' '.join([firstName, lastName])
     if name == ' ':
@@ -60,40 +60,40 @@ def addProfile(dtdb, profile, dtsession, logger):
         lastName = None
 
     # get country
-    country = profile.get('country', None)
+    country = liprofiledoc.get('country', None)
     if country is not None and type(country) is not str:
         logger.log('invalid profile country\n')
         return False
 
     # get city
-    city = profile.get('city', None)
+    city = liprofiledoc.get('city', None)
     if city is not None and type(city) is not str:
         logger.log('invalid profile city\n')
         return False
 
     # get sector
-    sector = profile.get('sector', None)
+    sector = liprofiledoc.get('sector', None)
     if sector is not None and type(sector) is not str:
         logger.log('invalid profile sector\n')
         return False
     
     # get title
-    title = profile.get('title', None)
+    title = liprofiledoc.get('title', None)
     if title is not None and type(title) is not str:
         logger.log('invalid profile title\n')
         return False    
 
     # get description
-    description = profile.get('description', None)
+    description = liprofiledoc.get('description', None)
     if description is not None and type(description) is not str:
         logger.log('invalid profile description\n')
         return False
     
-    # get profile url
-    if 'profileUrl' not in profile:
+    # get liprofile url
+    if 'profileUrl' not in liprofiledoc:
         logger.log('invalid profile profileUrl\n')
         return False
-    profileUrl = profile['profileUrl']
+    profileUrl = liprofiledoc['profileUrl']
     if profileUrl is not None and type(profileUrl) is not str:
         logger.log('invalid profile profileUrl\n')
         return False
@@ -105,8 +105,8 @@ def addProfile(dtdb, profile, dtsession, logger):
         logger.log('invalid profile profileUrl\n')
         return False
 
-    # get profile picture url
-    profilePictureUrl = profile.get('profilePictureUrl', None)
+    # get liprofiledoc picture url
+    profilePictureUrl = liprofiledoc.get('profilePictureUrl', None)
     if profilePictureUrl is not None and type(profilePictureUrl) is not str:
         logger.log('invalid profile profilePictureUrl\n')
         return False
@@ -120,28 +120,28 @@ def addProfile(dtdb, profile, dtsession, logger):
         return False
 
     # get timestamp
-    if 'indexedOn' not in profile:
+    if 'indexedOn' not in liprofiledoc:
         logger.log('invalid profile indexedOn\n')
         return False
-    indexedOn = profile['indexedOn']
+    indexedOn = liprofiledoc['indexedOn']
     if type(indexedOn) is not int:
         logger.log('invalid profile indexedOn\n')
         return False
 
     # get crawl date
-    crawledDate = profile.get('crawledDate', None)
+    crawledDate = liprofiledoc.get('crawledDate', None)
     if crawledDate is not None and type(crawledDate) is not int:
         logger.log('invalid profile crawledDate\n')
         return False
     
     # get connections
-    connections = profile.get('connections', None)
+    connections = liprofiledoc.get('connections', None)
     if connections is not None and type(connections) is not str:
         logger.log('invalid profile connections\n')
         return False
 
     # get groups
-    groups = profile.get('groups', [])
+    groups = liprofiledoc.get('groups', [])
     if type(groups) is not list:
         logger.log('invalid profile groups\n')
         return False
@@ -151,7 +151,7 @@ def addProfile(dtdb, profile, dtsession, logger):
             return False
 
     # get skills
-    categories = profile.get('categories', [])
+    categories = liprofiledoc.get('categories', [])
     if type(categories) is not list:
         logger.log('invalid profile categories\n')
         return False
@@ -161,7 +161,7 @@ def addProfile(dtdb, profile, dtsession, logger):
             return False
 
     liprofile = {
-        'id'                : profile_id,
+        'id'                : liprofile_id,
         'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
@@ -185,10 +185,10 @@ def addProfile(dtdb, profile, dtsession, logger):
 
     # parse experiences and educations
     
-    if 'subDocuments' not in profile:
+    if 'subDocuments' not in liprofiledoc:
         return liprofile
     
-    for subdocument in profile['subDocuments']:
+    for subdocument in liprofiledoc['subDocuments']:
         if 'type' not in subdocument:
             logger.log('type field missing in sub-document.\n')
             return False
@@ -340,10 +340,8 @@ def addProfile(dtdb, profile, dtsession, logger):
             logger.log('unknown sub-document type.\n')
             return False
 
-    # add profile
-    experiences = liprofile.pop('experiences')
-    educations = liprofile.pop('educations')
-    dtdb.addLIProfile(liprofile, experiences, educations)
+    # add liprofile
+    dtdb.addLIProfile(liprofile)
     return True
 
 
@@ -352,7 +350,7 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
         rows = min(rows, conf.MAX_PROFILES)
     
     logger = Logger(sys.stdout)
-    BATCH_SIZE = 10
+    BATCH_SIZE = 100
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session(logger=logger)
 
@@ -367,13 +365,13 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
                .format(rows, offset))
     failed_offsets = []
     count = 0
-    for profile in dtsession.query(url=conf.DATOIN2_SEARCH,
-                                   params={'sid'         : 'linkedin',
-                                           fromKey       : fromTs,
-                                           toKey         : toTs},
-                                   rows=rows,
-                                   offset=offset):
-        if not addProfile(dtdb, profile, dtsession, logger):
+    for liprofiledoc in dtsession.query(url=conf.DATOIN2_SEARCH,
+                                         params={'sid'         : 'linkedin',
+                                                 fromKey       : fromTs,
+                                                 toKey         : toTs},
+                                         rows=rows,
+                                         offset=offset):
+        if not addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
         count += 1
@@ -387,22 +385,24 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
     for attempt in range(conf.MAX_ATTEMPTS):
         if not failed_offsets:
             break
-        logger.log('Re-processing {0:d} profiles.\n'.format(len(failed_offsets)))
+        logger.log('Re-processing {0:d} profiles.\n' \
+                   .format(len(failed_offsets)))
         new_failed_offsets = []
         count = 0
         for offset in failed_offsets:
             count += 1
             try:
-                profile = next(dtsession.query(url=DATOIN2_SEARCH,
-                                               params={'sid'    : 'linkedin',
-                                                       'fromTs' : fromTs,
-                                                       'toTs'   : toTs},
-                                               rows=1,
-                                               offset=offset))
+                liprofiledoc \
+                    = next(dtsession.query(url=DATOIN2_SEARCH,
+                                           params={'sid'    : 'linkedin',
+                                                   'fromTs' : fromTs,
+                                                   'toTs'   : toTs},
+                                           rows=1,
+                                           offset=offset))
             except StopIteration:
                 new_failed_offsets.append(offset)
                 continue
-            if not addProfile(dtdb, profile, dtsession, logger):
+            if not addLIProfile(dtdb, liprofiledoc, dtsession, logger):
                 new_failed_offsets.append(offset)
 
             if count % BATCH_SIZE == 0:

@@ -1,7 +1,7 @@
 __all__ = [
     'LIProfile',
-    'Experience',
-    'Education',
+    'LIExperience',
+    'LIEducation',
     'Datoin2DB',
     ]
 
@@ -47,8 +47,8 @@ class LIProfile(SQLBase):
     categories        = Column(Array(Unicode(STR_MAX)))
     groups            = Column(Array(Unicode(STR_MAX)))
 
-class Experience(SQLBase):
-    __tablename__ = 'experience'
+class LIExperience(SQLBase):
+    __tablename__ = 'liexperience'
     id          = Column(String(STR_MAX), primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
@@ -62,8 +62,8 @@ class Experience(SQLBase):
     description = Column(Unicode(STR_MAX))
     indexedOn   = Column(BigInteger)
 
-class Education(SQLBase):
-    __tablename__ = 'education'
+class LIEducation(SQLBase):
+    __tablename__ = 'lieducation'
     id          = Column(String(STR_MAX), primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
