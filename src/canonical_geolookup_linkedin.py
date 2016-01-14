@@ -25,7 +25,7 @@ def processLocations(jobid, fromlocation, tolocation,
             q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
                      .filter(LIProfile.indexedOn >= fromdate,
                              LIProfile.indexedOn < todate)
-            q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+            q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
                      .join(LIProfile) \
                      .filter(LIProfile.indexedOn >= fromdate,
                              LIProfile.indexedOn < todate)
@@ -33,16 +33,16 @@ def processLocations(jobid, fromlocation, tolocation,
             q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
                      .filter(LIProfile.crawledOn >= fromdate,
                              LIProfile.crawledOn < todate)
-            q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+            q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
                      .join(LIProfile) \
                      .filter(LIProfile.crawledOn >= fromdate,
                              LIProfile.crawledOn < todate)
 
         q1 = q1.filter(LIProfile.nrmLocation >= fromlocation)
-        q2 = q2.filter(Experience.nrmLocation >= fromlocation)
+        q2 = q2.filter(LIExperience.nrmLocation >= fromlocation)
         if tolocation is not None:
             q1 = q1.filter(LIProfile.nrmLocation < tolocation)
-            q2 = q2.filter(Experience.nrmLocation < tolocation)
+            q2 = q2.filter(LIExperience.nrmLocation < tolocation)
 
         q = q1.union(q2)
 
@@ -97,7 +97,7 @@ else:
         q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
                  .filter(LIProfile.indexedOn >= fromdate,
                          LIProfile.indexedOn < todate)
-        q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+        q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
                  .join(LIProfile) \
                  .filter(LIProfile.indexedOn >= fromdate,
                          LIProfile.indexedOn < todate)
@@ -105,14 +105,14 @@ else:
         q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
                  .filter(LIProfile.crawledOn >= fromdate,
                          LIProfile.crawledOn < todate)
-        q2 = cndb.query(Experience.nrmLocation.label('nrmloc')) \
+        q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
                  .join(LIProfile) \
                  .filter(LIProfile.crawledOn >= fromdate,
                          LIProfile.crawledOn < todate)
 
     if fromlocation is not None:
         q1 = q1.filter(LIProfile.nrmLocation >= fromlocation)
-        q2 = q2.filter(Experience.nrmLocation >= fromlocation)
+        q2 = q2.filter(LIExperience.nrmLocation >= fromlocation)
 
     q = q1.union(q2)
 
@@ -120,5 +120,3 @@ splitProcess(q, processLocations, batchsize,
              njobs=njobs, args=[fromdate, todate, byIndexedOn, retry, maxretry],
              logger=logger, workdir='jobs', prefix='geoupdate_linkedin')
 
-# at full speed: 178 out of 1845
-# with throttling: 86 out of 700

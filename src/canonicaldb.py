@@ -1,9 +1,9 @@
 __all__ = [
     'LIProfile',
-    'Experience',
-    'Education',
+    'LIExperience',
+    'LIEducation',
     'Skill',
-    'ExperienceSkill',
+    'LIExperienceSkill',
     'Location',
     'CanonicalDB',
     ]
@@ -70,11 +70,11 @@ class LIProfile(SQLBase):
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
 
-    experiences       = relationship('Experience',
-                                     order_by='Experience.start',
+    experiences       = relationship('LIExperience',
+                                     order_by='LIExperience.start',
                                      cascade='all, delete-orphan')
-    educations        = relationship('Education',
-                                     order_by='Education.start',
+    educations        = relationship('LIEducation',
+                                     order_by='LIEducation.start',
                                      cascade='all, delete-orphan')
     skills            = relationship('Skill',
                                      order_by='Skill.nrmName',
@@ -82,8 +82,8 @@ class LIProfile(SQLBase):
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
-class Experience(SQLBase):
-    __tablename__ = 'experience'
+class LIExperience(SQLBase):
+    __tablename__ = 'liexperience'
     id             = Column(BigInteger, primary_key=True)
     datoinId       = Column(String(STR_MAX))
     liprofileId    = Column(BigInteger,
@@ -104,12 +104,12 @@ class Experience(SQLBase):
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-    skills         = relationship('ExperienceSkill',
-                                  order_by='ExperienceSkill.skillId',
+    skills         = relationship('LIExperienceSkill',
+                                  order_by='LIExperienceSkill.skillId',
                                   cascade='all, delete-orphan')
 
-class Education(SQLBase):
-    __tablename__ = 'education'
+class LIEducation(SQLBase):
+    __tablename__ = 'lieducation'
     id          = Column(BigInteger, primary_key=True)
     datoinId    = Column(String(STR_MAX))
     liprofileId = Column(BigInteger,
@@ -138,13 +138,13 @@ class Skill(SQLBase):
     nrmName     = Column(Unicode(STR_MAX), index=True)
     reenforced  = Column(Boolean)
 
-class ExperienceSkill(SQLBase):
-    __tablename__ = 'experience_skill'
-    experienceId = Column(BigInteger, ForeignKey('experience.id'),
-                          primary_key=True)
-    skillId      = Column(BigInteger, ForeignKey('skill.id'),
-                          primary_key=True)
-    skill        = relationship('Skill')
+class LIExperienceSkill(SQLBase):
+    __tablename__ = 'liexperience_skill'
+    liexperienceId = Column(BigInteger, ForeignKey('liexperience.id'),
+                            primary_key=True)
+    skillId        = Column(BigInteger, ForeignKey('skill.id'),
+                            primary_key=True)
+    skill          = relationship('Skill')
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -159,43 +159,44 @@ class Location(SQLBase):
 def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
-def _makeExperience(experience, language, now):
-    experience = deepcopy(experience)
-    experience['language']     = language
-    experience['parsedTitle']  = parsedTitle(language, experience['title'])
-    experience['nrmTitle']     = normalizedTitle(language, experience['title'])
-    experience['titlePrefix']  = normalizedTitlePrefix(language,
-                                                       experience['title'])
-    experience['nrmCompany']   = normalizedCompany(language,
-                                                   experience['company'])
-    experience['nrmLocation']  = normalizedLocation(experience['location'])
+def _makeLIExperience(liexperience, language, now):
+    liexperience = deepcopy(liexperience)
+    liexperience['language']     = language
+    liexperience['parsedTitle']  = parsedTitle(language, liexperience['title'])
+    liexperience['nrmTitle']     = normalizedTitle(language,
+                                                   liexperience['title'])
+    liexperience['titlePrefix']  = normalizedTitlePrefix(language,
+                                                       liexperience['title'])
+    liexperience['nrmCompany']   = normalizedCompany(language,
+                                                   liexperience['company'])
+    liexperience['nrmLocation']  = normalizedLocation(liexperience['location'])
 
     # work out duration
     duration = None        
-    if experience['start'] is not None and experience['end'] is not None:
-        if experience['start'] < experience['end']:
-            duration = (experience['end'] - experience['start']).days
+    if liexperience['start'] is not None and liexperience['end'] is not None:
+        if liexperience['start'] < liexperience['end']:
+            duration = (liexperience['end'] - liexperience['start']).days
         else:
-            experience['end'] = None
-    if experience['start'] is None:
-        experience['end'] = None
+            liexperience['end'] = None
+    if liexperience['start'] is None:
+        liexperience['end'] = None
 
-    return experience
+    return liexperience
 
-def _makeEducation(education, language):
-    education = deepcopy(education)
-    education['language']       = language
-    education['nrmInstitute']   = normalizedInstitute(language,
-                                                      education['institute'])
-    education['nrmDegree']      = normalizedDegree(language,
-                                                   education['degree'])
-    education['nrmSubject']     = normalizedSubject(language,
-                                                    education['subject'])
+def _makeLIEducation(lieducation, language):
+    lieducation = deepcopy(lieducation)
+    lieducation['language']       = language
+    lieducation['nrmInstitute']   = normalizedInstitute(language,
+                                                      lieducation['institute'])
+    lieducation['nrmDegree']      = normalizedDegree(language,
+                                                   lieducation['degree'])
+    lieducation['nrmSubject']     = normalizedSubject(language,
+                                                    lieducation['subject'])
 
-    if education['start'] is None:
-        education['end'] = None
+    if lieducation['start'] is None:
+        lieducation['end'] = None
     
-    return education
+    return lieducation
 
 def _makeSkill(skillname, language):
     nrmName = normalizedSkill(language, skillname)
@@ -236,8 +237,8 @@ def _makeLIProfile(liprofile, now):
     liprofile['totalExperience'] = 0
     
     # update experiences
-    liprofile['experiences'] \
-        = [_makeExperience(e, language, now) for e in liprofile['experiences']]
+    liprofile['experiences'] = [_makeLIExperience(e, language, now) \
+                                for e in liprofile['experiences']]
     startdates = [e['start'] for e in liprofile['experiences'] \
                   if e['start'] is not None]
     if startdates:
@@ -249,7 +250,7 @@ def _makeLIProfile(liprofile, now):
 
     # update educations
     liprofile['educations'] \
-        = [_makeEducation(e, language) for e in liprofile['educations']]
+        = [_makeLIEducation(e, language) for e in liprofile['educations']]
     startdates = [e['start'] for e in liprofile['educations'] \
                   if e['start'] is not None]
     if startdates:
@@ -299,8 +300,8 @@ class CanonicalDB(SQLDatabase):
                     else:
                         duration = 0
                     experience.skills.append(
-                        ExperienceSkill(experienceId=experience.id,
-                                        skillId=skill.id))
+                        LIExperienceSkill(liexperienceId=experience.id,
+                                          skillId=skill.id))
 
         # match profile text
         reenforced = [False]*len(skills)
@@ -415,12 +416,13 @@ class CanonicalDB(SQLDatabase):
                           .first()
         if liprofileId is not None:
             liprofile['id'] = liprofileId[0]
-            experienceIds \
-                = [id for id, in self.query(Experience.id) \
-                   .filter(Experience.profileId == liprofileId[0])]
-            if experienceIds:
-                self.query(ExperienceSkill) \
-                    .filter(ExperienceSkill.experienceId.in_(experienceIds)) \
+            liexperienceIds \
+                = [id for id, in self.query(LIExperience.id) \
+                   .filter(LIExperience.liprofileId == liprofileId[0])]
+            if liexperienceIds:
+                self.query(LIExperienceSkill) \
+                    .filter(LIExperienceSkill.liexperienceId \
+                            .in_(liexperienceIds)) \
                     .delete(synchronize_session=False)
         liprofile = _makeLIProfile(liprofile, now)
         liprofile = self.addFromDict(liprofile, LIProfile)

@@ -95,91 +95,91 @@ def parseProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
             'educations'  : []
         }
 
-        for experience in dtdb.query(Experience) \
-                              .filter(Experience.parentId == liprofile.id):
-            if experience.city and experience.country:
-                location = ', '.join([experience.city, experience.country])
-            elif experience.country:
-                location = experience.country
-            elif experience.city:
-                location = experience.city
+        for liexperience in dtdb.query(LIExperience) \
+                              .filter(LIExperience.parentId == liprofile.id):
+            if liexperience.city and liexperience.country:
+                location = ', '.join([liexperience.city, liexperience.country])
+            elif liexperience.country:
+                location = liexperience.country
+            elif liexperience.city:
+                location = liexperience.city
             else:
                 location = None
 
-            if experience.dateFrom:
-                start = timestamp0 + timedelta(milliseconds=experience.dateFrom)
+            if liexperience.dateFrom:
+                start = timestamp0 + timedelta(milliseconds=liexperience.dateFrom)
             else:
                 start = None
-            if start is not None and experience.dateTo:
-                end = timestamp0 + timedelta(milliseconds=experience.dateTo)
+            if start is not None and liexperience.dateTo:
+                end = timestamp0 + timedelta(milliseconds=liexperience.dateTo)
             else:
                 end = None
             if start and end and start > end:
                 start = None
                 end = None
 
-            if experience.indexedOn:
+            if liexperience.indexedOn:
                 indexedOn = timestamp0 + \
-                            timedelta(milliseconds=experience.indexedOn)
+                            timedelta(milliseconds=liexperience.indexedOn)
             else:
                 indexedOn = None
 
-            experiencedict = {
-                'datoinId'       : experience.id,
-                'title'          : experience.name,
-                'company'        : experience.company,
+            liexperiencedict = {
+                'datoinId'       : liexperience.id,
+                'title'          : liexperience.name,
+                'company'        : liexperience.company,
                 'location'       : location,
                 'start'          : start,
                 'end'            : end,
-                'description'    : experience.description,
+                'description'    : liexperience.description,
                 'indexedOn'      : indexedOn,
                 }
-            profiledict['experiences'].append(experiencedict)
+            profiledict['experiences'].append(liexperiencedict)
 
-        for education in dtdb.query(Education) \
-                             .filter(Education.parentId == liprofile.id):
-            if education.dateFrom:
-                start = timestamp0 + timedelta(milliseconds=education.dateFrom)
+        for lieducation in dtdb.query(LIEducation) \
+                             .filter(LIEducation.parentId == liprofile.id):
+            if lieducation.dateFrom:
+                start = timestamp0 + timedelta(milliseconds=lieducation.dateFrom)
             else:
                 start = None
-            if start is not None and education.dateTo:
-                end = timestamp0 + timedelta(milliseconds=education.dateTo)
+            if start is not None and lieducation.dateTo:
+                end = timestamp0 + timedelta(milliseconds=lieducation.dateTo)
             else:
                 end = None
             if start and end and start > end:
                 start = None
                 end = None
 
-            if education.indexedOn:
+            if lieducation.indexedOn:
                 indexedOn = timestamp0 + \
-                            timedelta(milliseconds=education.indexedOn)
+                            timedelta(milliseconds=lieducation.indexedOn)
             else:
                 indexedOn = None
 
-            educationdict = {
-                'datoinId'       : education.id,
-                'institute'      : education.institute,
-                'degree'         : education.degree,
-                'subject'        : education.area,
+            lieducationdict = {
+                'datoinId'       : lieducation.id,
+                'institute'      : lieducation.institute,
+                'degree'         : lieducation.degree,
+                'subject'        : lieducation.area,
                 'start'          : start,
                 'end'            : end,
-                'description'    : education.description,
+                'description'    : lieducation.description,
                 'indexedOn'      : indexedOn,
                 }
-            profiledict['educations'].append(educationdict)
+            profiledict['educations'].append(lieducationdict)
 
         
         # determine language
 
         profiletexts = [profiledict['title'], profiledict['description']]
         profiletexts.extend(profiledict['skills'])
-        for experience in profiledict['experiences']:
-            profiletexts.append(experience['title'])
-            profiletexts.append(experience['description'])
-        for education in profiledict['educations']:
-            profiletexts.append(education['degree'])
-            profiletexts.append(education['subject'])
-            profiletexts.append(education['description'])
+        for liexperience in profiledict['experiences']:
+            profiletexts.append(liexperience['title'])
+            profiletexts.append(liexperience['description'])
+        for lieducation in profiledict['educations']:
+            profiletexts.append(lieducation['degree'])
+            profiletexts.append(lieducation['subject'])
+            profiletexts.append(lieducation['description'])
         profiletexts = '. '.join([t for t in profiletexts if t])
         try:
             language = langdetect.detect(profiletexts)
