@@ -346,7 +346,286 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
     return True
 
 
-def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
+def addINProfile(dtdb, inprofiledoc, dtsession, logger):
+    # check sourceId
+    if inprofiledoc.get('sourceId', '') != 'indeed':
+        logger.log('invalid profile sourceId\n')
+        return False
+
+    # check type
+    if inprofiledoc.get('type', '') != 'profile':
+        logger.log('invalid profile type\n')
+        return False
+    
+    # get id
+    if 'id' not in inprofiledoc:
+        logger.log('invalid profile id\n')
+        return False
+    inprofile_id = inprofiledoc['id']
+
+    # get parentId
+    if 'parentId' not in inprofiledoc:
+        logger.log('invalid profile parentId\n')
+        return False
+    parentId = inprofiledoc['parentId']
+    if parentId != inprofile_id:
+        logger.log('invalid profile parentId\n')
+        return False
+
+    # get last name
+    lastName = inprofiledoc.get('lastName', '')
+    if type(lastName) is not str:
+        logger.log('invalid profile lastName\n')
+        return False
+
+    # get first name
+    firstName = inprofiledoc.get('firstName', '')
+    if type(firstName) is not str:
+        logger.log('invalid profile firstName\n')
+        return False
+    
+    # get name
+    name = inprofiledoc.get('name', '')
+    if not name:
+        name = ' '.join([firstName, lastName])
+    if name == ' ':
+        logger.log('invalid profile name\n')
+        return False
+    if not firstName:
+        firstName = None
+    if not lastName:
+        lastName = None
+
+    # get country
+    country = inprofiledoc.get('country', None)
+    if country is not None and type(country) is not str:
+        logger.log('invalid profile country\n')
+        return False
+
+    # get city
+    city = inprofiledoc.get('city', None)
+    if city is not None and type(city) is not str:
+        logger.log('invalid profile city\n')
+        return False
+
+    # get title
+    title = inprofiledoc.get('title', None)
+    if title is not None and type(title) is not str:
+        logger.log('invalid profile title\n')
+        return False    
+
+    # get inprofile url
+    if 'profileUrl' not in inprofiledoc:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    profileUrl = inprofiledoc['profileUrl']
+    if profileUrl is not None and type(profileUrl) is not str:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    try:
+        if profileUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileUrl\n')
+        return False
+
+    # get timestamp
+    if 'indexedOn' not in inprofiledoc:
+        logger.log('invalid profile indexedOn\n')
+        return False
+    indexedOn = inprofiledoc['indexedOn']
+    if type(indexedOn) is not int:
+        logger.log('invalid profile indexedOn\n')
+        return False
+
+    # get crawl date
+    crawledDate = inprofiledoc.get('crawledDate', None)
+    if crawledDate is not None and type(crawledDate) is not int:
+        logger.log('invalid profile crawledDate\n')
+        return False
+
+    inprofile = {
+        'id'                : inprofile_id,
+        'parentId'          : parentId,
+        'lastName'          : lastName,
+        'firstName'         : firstName,
+        'name'              : name,
+        'country'           : country,
+        'city'              : city,
+        'title'             : title,
+        'profileUrl'        : profileUrl,
+        'indexedOn'         : indexedOn,
+        'crawledDate'       : crawledDate,
+        'experiences'       : [],
+        'educations'        : []
+        }
+
+
+    # parse experiences and educations
+    
+    if 'subDocuments' not in inprofiledoc:
+        dtdb.addINProfile(inprofile)
+        return True
+    
+    for subdocument in inprofiledoc['subDocuments']:
+        if 'type' not in subdocument:
+            logger.log('type field missing in sub-document.\n')
+            return False
+
+        if subdocument['type'] == 'profile-experience':
+            experience = subdocument
+            
+            # get id
+            if 'id' not in experience:
+                logger.log('id field missing in experience.\n')
+                return False
+            experience_id = experience['id']
+            if type(experience_id) is not str:
+                logger.log('invalid id field in experience.\n')
+                return False
+
+            # get parent id
+            if 'parentId' not in experience:
+                logger.log('parentId field missing in experience.\n')
+                return False
+            parentId = experience['parentId']
+            if parentId != inprofile['id']:
+                logger.log('invalid parentId field in experience.\n')
+                return False
+
+            # get job title
+            name = experience.get('name', None)
+            if name is not None and type(name) is not str:
+                logger.log('invalid name field in experience.\n')
+                return False
+
+            # get company
+            company = experience.get('company', None)
+            if company is not None and type(company) is not str:
+                logger.log('invalid company field in experience.\n')
+                return False
+
+            # get country
+            country = experience.get('country', None)
+            if country is not None and type(country) is not str:
+                logger.log('invalid country field in experience.\n')
+                return False
+
+            # get city
+            city = experience.get('city', None)
+            if city is not None and type(city) is not str:
+                logger.log('invalid city field in experience.\n')
+                return False
+
+            # get start date
+            dateFrom = experience.get('dateFrom', None)
+            if dateFrom is not None and type(dateFrom) is not int:
+                logger.log('invalid dateFrom field in experience.\n')
+                return False
+
+            # get end date
+            dateTo = experience.get('dateTo', None)
+            if dateTo is not None and type(dateTo) is not int:
+                logger.log('invalid dateTo field in experience.\n')
+                return False
+
+            # get description
+            description = experience.get('description', None)
+            if description is not None and type(description) is not str:
+                logger.log('invalid description field in experience.\n')
+                return False
+
+            inprofile['experiences'].append({
+                'id'          : experience_id,
+                'parentId'    : parentId,
+                'name'        : name,
+                'company'     : company,
+                'country'     : country,
+                'city'        : city,
+                'dateFrom'    : dateFrom,
+                'dateTo'      : dateTo,
+                'description' : description,
+                'indexedOn'   : inprofile['indexedOn']})
+            
+        elif subdocument['type'] == 'profile-education':
+            education = subdocument
+
+            # get id
+            if 'id' not in education:
+                logger.log('id field missing in education.\n')
+                return False
+            education_id = education['id']
+            if type(education_id) is not str:
+                logger.log('invalid id field in education.\n')
+                return False
+
+            # get parent id
+            if 'parentId' not in education:
+                logger.log('parentId field missing in education.\n')
+                return False
+            parentId = education['parentId']
+            if parentId != inprofile['id']:
+                logger.log('invalid parentId field in education.\n')
+                return False
+
+            # get institute
+            institute = education.get('name', None)
+            if institute is not None and type(institute) is not str:
+                logger.log('invalid institute field in education.\n')
+                return False
+
+            # get degree
+            degree = education.get('degree', None)
+            if degree is not None and type(degree) is not str:
+                logger.log('invalid degree field in education.\n')
+                return False
+
+            # get area
+            area = education.get('area', None)
+            if area is not None and type(area) is not str:
+                logger.log('invalid area field in education.\n')
+                return False
+
+            # get start date
+            dateFrom = education.get('dateFrom', None)
+            if dateFrom is not None and type(dateFrom) is not int:
+                logger.log('invalid dateFrom field in education.\n')
+                return False
+
+            # get end date
+            dateTo = education.get('dateTo', None)
+            if dateTo is not None and type(dateTo) is not int:
+                logger.log('invalid dateTo field in education.\n')
+                return False
+
+            # get description
+            description = education.get('description', None)
+            if description is not None and type(description) is not str:
+                logger.log('invalid description field in education.\n')
+                return False
+
+            inprofile['educations'].append({
+                'id'          : education_id,
+                'parentId'    : parentId,
+                'institute'   : institute,
+                'degree'      : degree,
+                'area'        : area,
+                'dateFrom'    : dateFrom,
+                'dateTo'      : dateTo,
+                'description' : description,
+                'indexedOn'   : inprofile['indexedOn']})
+            
+        else:
+            logger.log('unknown sub-document type.\n')
+            return False
+
+    # add inprofile
+    dtdb.addINProfile(inprofile)
+    return True
+
+
+def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
     if conf.MAX_PROFILES is not None:
         rows = min(rows, conf.MAX_PROFILES)
     
@@ -361,18 +640,23 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
     else:
         fromKey = 'crawledFrom'
         toKey   = 'crawledTo'
+    params = {fromKey : fromTs, toKey : toTs, 'sid' : sourceId}
+    if sourceId == 'linkedin':
+        addProfile = addLIProfile
+    elif sourceId == 'indeed':
+        addProfile = addINProfile
+    else:
+        raise ValueError('Invalid source id.')
     
     logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
                .format(rows, offset))
     failed_offsets = []
     count = 0
     for liprofiledoc in dtsession.query(url=conf.DATOIN2_SEARCH,
-                                        params={'sid'         : 'linkedin',
-                                                fromKey       : fromTs,
-                                                toKey         : toTs},
+                                        params=params,
                                         rows=rows,
                                         offset=offset):
-        if not addLIProfile(dtdb, liprofiledoc, dtsession, logger):
+        if not addProfile(dtdb, liprofiledoc, dtsession, logger):
             logger.log('Failed at offset {0:d}.\n'.format(offset+count))
             failed_offsets.append(offset+count)
         count += 1
@@ -395,9 +679,7 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
             try:
                 liprofiledoc \
                     = next(dtsession.query(url=DATOIN2_SEARCH,
-                                           params={'sid'    : 'linkedin',
-                                                   'fromTs' : fromTs,
-                                                   'toTs'   : toTs},
+                                           params=params,
                                            rows=1,
                                            offset=offset))
             except StopIteration:
@@ -417,9 +699,18 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn):
     return failed_offsets
 
 
-def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
+def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
                   offset=0, maxoffset=None):
     logger = Logger(sys.stdout)
+    if sourceId is None:
+        logger.log('Downloading LinkedIn profiles.\n')
+        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'linkedin',
+                      offset=offset, maxoffset=maxoffset)
+        logger.log('Downloading Indeed profiles.\n')
+        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'indeed',
+                      offset=offset, maxoffset=maxoffset)
+        return
+    
     fromTs = int((tfrom - timestamp0).total_seconds())
     toTs   = int((tto   - timestamp0).total_seconds())
     if byIndexedOn:
@@ -430,11 +721,9 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
         toTs   *= 1000
         fromKey = 'crawledFrom'
         toKey   = 'crawledTo'
-        
-    nprofiles = datoin.count(url=conf.DATOIN2_SEARCH,
-                             params={'sid'         : 'linkedin',
-                                     fromKey       : fromTs,
-                                     toKey         : toTs})
+    params = {fromKey : fromTs, toKey : toTs, 'sid' : sourceId}
+    
+    nprofiles = datoin.count(url=conf.DATOIN2_SEARCH, params=params)
     logger.log(
         'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
         .format(tfrom.strftime('%Y-%m-%d'), fromTs,
@@ -456,7 +745,7 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
         ncurrentjobs = min(njobs, offset2-offset1)
         if ncurrentjobs > 1:
             poffsets = np.linspace(offset1, offset2, ncurrentjobs+1, dtype=int)
-            args = [(fromTs, toTs, a, b-a, byIndexedOn) \
+            args = [(fromTs, toTs, a, b-a, byIndexedOn, sourceId) \
                     for a, b in zip(poffsets[:-1], poffsets[1:])]
             results = ParallelFunction(downloadProfiles,
                                        batchsize=1,
@@ -466,7 +755,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
             failedoffsets = list(itertools.chain(*results))
         else:
             failedoffsets = downloadProfiles(fromTs, toTs, offset1,
-                                             offset2-offset1, byIndexedOn)
+                                             offset2-offset1,
+                                             byIndexedOn, sourceId)
 
         dlend = datetime.now()
         dltime = (dlend-dlstart).total_seconds()
@@ -483,31 +773,56 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn,
 
 if __name__ == '__main__':
     # parse arguments
-    timestamp0 = datetime(year=1970, month=1, day=1)
-    njobs = max(int(sys.argv[1]), 1)
-    batchsize = int(sys.argv[2])
-    fromdate = datetime.strptime(sys.argv[3], '%Y-%m-%d')
-    todate = datetime.strptime(sys.argv[4], '%Y-%m-%d')
-    byIndexedOn = False
-    if len(sys.argv) > 5 and sys.argv[5] == '--by-index-date':
-        byIndexedOn = True
-        del sys.argv[5]
-    if len(sys.argv) > 5:
-        offset = int(sys.argv[5])
-    else:
-        offset = 0
-    if len(sys.argv) > 6:
-        maxoffset = int(sys.argv[6])
-    else:
-        maxoffset = None
+    try:
+        sys.argv.pop(0)
+        njobs = max(int(sys.argv.pop(0)), 1)
+        batchsize = int(sys.argv.pop(0))
+        fromdate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
+        todate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
 
+        sourceId = None
+        byIndexedOn = False
+        offset = 0
+        maxoffset = None
+        while sys.argv:
+            option = sys.argv.pop(0).split('=')
+            if len(option) == 1:
+                option = option[0]
+                if option == '--by-index-date':
+                    byIndexedOn = True
+                else:
+                    raise ValueError('Invalid command line argument.')
+            elif len(option) == 2:
+                value=option[1]
+                option=option[0]
+                if option == '--source':
+                    if value in ['linkedin', 'indeed']:
+                        sourceId = value
+                    else:
+                        raise ValueError('Invalid command line argument.')
+                elif option == '--offset':
+                    offset = int(value)
+                elif option == '--maxoffset':
+                    maxoffset = int(value)
+            else:
+                raise ValueError('Invalid command line argument.')
+    except ValueError:
+        print('python3 datoin_download_profiles.py <njobs> <batchsize> '
+              '<from-date> <to-date> [--by-index-date] '
+              '[--source=<sourceid>] [--offset=<offset>] '
+              '[--maxoffset=<maxoffset>]')
+        exit(1)
+        
+    timestamp0 = datetime(year=1970, month=1, day=1)
+        
     if offset == 0 and maxoffset is None:
         deltat = timedelta(days=1)
         t = fromdate
         while t < todate:
             downloadRange(t, min(t+deltat, todate), njobs, njobs*batchsize,
-                          byIndexedOn)
+                          byIndexedOn, sourceId)
             t += deltat
     else:
-        downloadRange(fromdate, todate, njobs, njobs*batchsize, byIndexedOn,
+        downloadRange(fromdate, todate, njobs, njobs*batchsize,
+                      byIndexedOn, sourceId,
                       offset=offset, maxoffset=maxoffset)

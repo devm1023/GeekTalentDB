@@ -2,7 +2,7 @@ import conf
 import sys
 
 def usageAbort():
-    print('usage: python3 initdb.py (geektalent | datoin | canonical | analytics | geekmaps) [--no-create | --no-delete]')
+    print('usage: python3 initdb.py (geektalent | datoin | canonical | analytics | geekmaps | datoin2) [--no-create | --no-delete]')
     exit(1)    
 
 nocreate = False
@@ -50,5 +50,12 @@ elif sys.argv[1] == 'geekmaps':
         gmdb.drop_all()
     if not nocreate:
         gmdb.create_all()
+elif sys.argv[1] == 'datoin2':
+    from datoin2db import Datoin2DB
+    dtdb = Datoin2DB(url=conf.DATOIN2_DB)
+    if not nodelete:
+        dtdb.drop_all()
+    if not nocreate:
+        dtdb.create_all()
 else:
     usageAbort()

@@ -2,6 +2,9 @@ __all__ = [
     'LIProfile',
     'LIExperience',
     'LIEducation',
+    'INProfile',
+    'INExperience',
+    'INEducation',
     'DatoinDB',
     ]
 
@@ -74,6 +77,50 @@ class LIEducation(SQLBase):
     description = Column(Unicode(STR_MAX))
     indexedOn   = Column(BigInteger)
 
+
+class INProfile(SQLBase):
+    __tablename__ = 'inprofile'
+    id                = Column(String(STR_MAX), primary_key=True)
+    parentId          = Column(String(STR_MAX))
+    lastName          = Column(Unicode(STR_MAX))
+    firstName         = Column(Unicode(STR_MAX))
+    name              = Column(Unicode(STR_MAX))
+    country           = Column(Unicode(STR_MAX))
+    city              = Column(Unicode(STR_MAX))
+    title             = Column(Unicode(STR_MAX))
+    profileUrl        = Column(String(STR_MAX))
+    indexedOn         = Column(BigInteger, index=True)
+    crawledDate       = Column(BigInteger, index=True)
+
+class INExperience(SQLBase):
+    __tablename__ = 'inexperience'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    company     = Column(Unicode(STR_MAX))
+    country     = Column(Unicode(STR_MAX))
+    city        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    indexedOn   = Column(BigInteger)
+
+class INEducation(SQLBase):
+    __tablename__ = 'ineducation'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    institute   = Column(Unicode(STR_MAX))
+    degree      = Column(Unicode(STR_MAX))
+    area        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    indexedOn   = Column(BigInteger)
+    
     
 class DatoinDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
@@ -124,3 +171,49 @@ class DatoinDB(SQLDatabase):
 
         self.flush()
         return liprofile
+
+    def addINProfile(self, inprofiledict):
+        inexperiences = inprofiledict.pop('experiences')
+        ineducations = inprofiledict.pop('educations')
+        
+        # create or update INProfile
+        inprofile = self.query(INProfile) \
+                        .filter(INProfile.id == inprofiledict['id']) \
+                        .first()
+        if not inprofile:
+            new_profile = True
+            inprofile = INProfile(**inprofiledict)
+            self.add(inprofile)
+            self.flush()
+        elif inprofiledict['indexedOn'] >= inprofile.indexedOn:
+            new_profile = False
+            for key, val in inprofiledict.items():
+                setattr(inprofile, key, val)
+        else:
+            return inprofile
+
+        # add inexperiences
+        if not new_profile:
+            self.query(INExperience) \
+                .filter(INExperience.parentId == inprofile.id) \
+                .delete(synchronize_session='fetch')
+        idset = set()
+        for liexperience in inexperiences:
+            if liexperience['id'] not in idset:
+                idset.add(liexperience['id'])
+                self.add(INExperience(**liexperience))
+
+        # add ineducations
+        if not new_profile:
+            self.query(INEducation) \
+                .filter(INEducation.parentId == inprofile.id) \
+                .delete(synchronize_session='fetch')
+        idset = set()
+        for lieducation in ineducations:
+            if lieducation['id'] not in idset:
+                idset.add(lieducation['id'])
+                self.add(INEducation(**lieducation))
+
+        self.flush()
+        return inprofile
+    
