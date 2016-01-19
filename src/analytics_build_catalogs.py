@@ -76,11 +76,14 @@ def addSkills(jobid, fromskill, toskill):
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    q = cndb.query(Skill.nrmName, Skill.name, func.count(Skill.liprofileId)) \
-            .filter(Skill.nrmName >= fromskill)
+    q = cndb.query(LIProfileSkill.nrmName,
+                   LIProfileSkill.name,
+                   func.count(LIProfileSkill.liprofileId)) \
+            .filter(LIProfileSkill.nrmName >= fromskill)
     if toskill is not None:
-        q = q.filter(Skill.nrmName < toskill)
-    q = q.group_by(Skill.nrmName, Skill.name).order_by(Skill.nrmName)
+        q = q.filter(LIProfileSkill.nrmName < toskill)
+    q = q.group_by(LIProfileSkill.nrmName,
+                   LIProfileSkill.name).order_by(LIProfileSkill.nrmName)
 
     def addProfileSkill(rec):
         nrmName, bestname, liprofileCount = rec
@@ -95,12 +98,12 @@ def addSkills(jobid, fromskill, toskill):
     processDb(entities(q), addProfileSkill, andb, logger=logger)
 
     q = cndb.query(func.count(LIExperienceSkill.liexperienceId),
-                   Skill.nrmName) \
-            .join(Skill) \
-            .filter(Skill.nrmName >= fromskill)
+                   LIProfileSkill.nrmName) \
+            .join(LIProfileSkill) \
+            .filter(LIProfileSkill.nrmName >= fromskill)
     if toskill is not None:
-        q = q.filter(Skill.nrmName < toskill)
-    q = q.group_by(Skill.nrmName)
+        q = q.filter(LIProfileSkill.nrmName < toskill)
+    q = q.group_by(LIProfileSkill.nrmName)
 
     def addLIExperienceSkill(rec):
         liexperienceCount, nrmName = rec
@@ -328,9 +331,10 @@ except ValueError:
 
 if catalog is None or catalog == 'skills':
     logger.log('\nBuilding skills catalog.\n')
-    q = cndb.query(Skill.nrmName).filter(Skill.nrmName != None)
+    q = cndb.query(LIProfileSkill.nrmName) \
+            .filter(LIProfileSkill.nrmName != None)
     if startval:
-        q = q.filter(Skill.nrmName >= startval)
+        q = q.filter(LIProfileSkill.nrmName >= startval)
     splitProcess(q, addSkills, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_skills')

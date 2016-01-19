@@ -2,8 +2,13 @@ __all__ = [
     'LIProfile',
     'LIExperience',
     'LIEducation',
-    'Skill',
+    'LIProfileSkill',
     'LIExperienceSkill',
+    'INProfile',
+    'INExperience',
+    'INEducation',
+    'INProfileSkill',
+    'INExperienceSkill',
     'Location',
     'CanonicalDB',
     ]
@@ -76,8 +81,8 @@ class LIProfile(SQLBase):
     educations        = relationship('LIEducation',
                                      order_by='LIEducation.start',
                                      cascade='all, delete-orphan')
-    skills            = relationship('Skill',
-                                     order_by='Skill.nrmName',
+    skills            = relationship('LIProfileSkill',
+                                     order_by='LIProfileSkill.nrmName',
                                      cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
@@ -127,8 +132,8 @@ class LIEducation(SQLBase):
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-class Skill(SQLBase):
-    __tablename__ = 'skill'
+class LIProfileSkill(SQLBase):
+    __tablename__ = 'liprofile_skill'
     id          = Column(BigInteger, primary_key=True)
     liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
@@ -142,9 +147,108 @@ class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
     liexperienceId = Column(BigInteger, ForeignKey('liexperience.id'),
                             primary_key=True)
-    skillId        = Column(BigInteger, ForeignKey('skill.id'),
+    skillId        = Column(BigInteger, ForeignKey('liprofile_skill.id'),
                             primary_key=True)
-    skill          = relationship('Skill')
+    skill          = relationship('LIProfileSkill')
+
+class INProfile(SQLBase):
+    __tablename__ = 'inprofile'
+    id                = Column(BigInteger, primary_key=True)
+    datoinId          = Column(String(STR_MAX), index=True)
+    language          = Column(String(20))
+    name              = Column(Unicode(STR_MAX))
+    location          = Column(Unicode(STR_MAX))
+    nrmLocation       = Column(Unicode(STR_MAX), index=True)
+    title             = Column(Unicode(STR_MAX))
+    parsedTitle       = Column(Unicode(STR_MAX))
+    nrmTitle          = Column(Unicode(STR_MAX), index=True)
+    titlePrefix       = Column(Unicode(STR_MAX))
+    company           = Column(Unicode(STR_MAX))
+    nrmCompany        = Column(Unicode(STR_MAX), index=True)
+    description       = Column(Unicode(STR_MAX))
+    firstExperienceStart = Column(Date)
+    lastExperienceStart  = Column(Date)
+    firstEducationStart  = Column(Date)
+    lastEducationStart   = Column(Date)
+    url               = Column(String(STR_MAX))
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
+
+    experiences       = relationship('INExperience',
+                                     order_by='INExperience.start',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('INEducation',
+                                     order_by='INEducation.start',
+                                     cascade='all, delete-orphan')
+    skills            = relationship('INProfileSkill',
+                                     order_by='INProfileSkill.nrmName',
+                                     cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('datoinId'),)
+
+class INExperience(SQLBase):
+    __tablename__ = 'inexperience'
+    id             = Column(BigInteger, primary_key=True)
+    datoinId       = Column(String(STR_MAX))
+    liprofileId    = Column(BigInteger,
+                            ForeignKey('inprofile.id'),
+                            index=True)
+    language       = Column(String(20))
+    title          = Column(Unicode(STR_MAX))
+    parsedTitle    = Column(Unicode(STR_MAX))
+    nrmTitle       = Column(Unicode(STR_MAX), index=True)
+    titlePrefix    = Column(Unicode(STR_MAX))
+    company        = Column(Unicode(STR_MAX))
+    nrmCompany     = Column(Unicode(STR_MAX), index=True)
+    location       = Column(Unicode(STR_MAX))
+    nrmLocation    = Column(Unicode(STR_MAX), index=True)
+    start          = Column(Date)
+    end            = Column(Date)
+    duration       = Column(Integer) # duration in days
+    description    = Column(Unicode(STR_MAX))
+    indexedOn      = Column(DateTime)
+
+    skills         = relationship('INExperienceSkill',
+                                  order_by='INExperienceSkill.nrmName',
+                                  cascade='all, delete-orphan')
+
+class INEducation(SQLBase):
+    __tablename__ = 'ineducation'
+    id          = Column(BigInteger, primary_key=True)
+    datoinId    = Column(String(STR_MAX))
+    inprofileId = Column(BigInteger,
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    language       = Column(String(20))
+    institute      = Column(Unicode(STR_MAX))
+    nrmInstitute   = Column(Unicode(STR_MAX))
+    degree         = Column(Unicode(STR_MAX))
+    nrmDegree      = Column(Unicode(STR_MAX))
+    subject        = Column(Unicode(STR_MAX))
+    nrmSubject     = Column(Unicode(STR_MAX))
+    start          = Column(Date)
+    end            = Column(Date)
+    description    = Column(Unicode(STR_MAX))
+    indexedOn      = Column(DateTime)
+
+class INProfileSkill(SQLBase):
+    __tablename__ = 'inprofile_skill'
+    id          = Column(BigInteger, primary_key=True)
+    inprofileId = Column(BigInteger,
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
+
+class INExperienceSkill(SQLBase):
+    __tablename__ = 'inexperience_skill'
+    id          = Column(BigInteger, primary_key=True)
+    inexperienceId = Column(BigInteger, ForeignKey('inexperience.id'),
+                            primary_key=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -198,7 +302,7 @@ def _makeLIEducation(lieducation, language):
     
     return lieducation
 
-def _makeSkill(skillname, language):
+def _makeLIProfileSkill(skillname, language):
     nrmName = normalizedSkill(language, skillname)
     if not nrmName:
         return None
@@ -234,7 +338,6 @@ def _makeLIProfile(liprofile, now):
     liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
     liprofile['nrmCompany']      = normalizedCompany(language, company)
-    liprofile['totalExperience'] = 0
     
     # update experiences
     liprofile['experiences'] = [_makeLIExperience(e, language, now) \
@@ -261,10 +364,118 @@ def _makeLIProfile(liprofile, now):
         liprofile['lastEducationStart'] = None    
 
     # add skills
-    liprofile['skills'] = [_makeSkill(skill, language) \
+    liprofile['skills'] = [_makeLIProfileSkill(skill, language) \
                            for skill in liprofile['skills']]
 
     return liprofile
+
+def _makeINExperience(inexperience, language, now):
+    inexperience = deepcopy(inexperience)
+    inexperience['language']     = language
+    inexperience['parsedTitle']  = parsedTitle(language, inexperience['title'])
+    inexperience['nrmTitle']     = normalizedTitle(language,
+                                                   inexperience['title'])
+    inexperience['titlePrefix']  = normalizedTitlePrefix(language,
+                                                       inexperience['title'])
+    inexperience['nrmCompany']   = normalizedCompany(language,
+                                                   inexperience['company'])
+    inexperience['nrmLocation']  = normalizedLocation(inexperience['location'])
+
+    # work out duration
+    duration = None        
+    if inexperience['start'] is not None and inexperience['end'] is not None:
+        if inexperience['start'] < inexperience['end']:
+            duration = (inexperience['end'] - inexperience['start']).days
+        else:
+            inexperience['end'] = None
+    if inexperience['start'] is None:
+        inexperience['end'] = None
+
+    # make skills
+    inexperience['skills'] = [_makeINSkill(skill, language) \
+                              for skill in inexperience['skills']]
+        
+    return inexperience
+
+def _makeINEducation(ineducation, language):
+    ineducation = deepcopy(ineducation)
+    ineducation['language']       = language
+    ineducation['nrmInstitute']   = normalizedInstitute(language,
+                                                      ineducation['institute'])
+    ineducation['nrmDegree']      = normalizedDegree(language,
+                                                   ineducation['degree'])
+    ineducation['nrmSubject']     = normalizedSubject(language,
+                                                    ineducation['subject'])
+
+    if ineducation['start'] is None:
+        ineducation['end'] = None
+    
+    return ineducation
+
+def _makeINSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName}
+
+def _makeINProfile(inprofile, now):
+    # determine current company
+    company = None
+    currentexperiences = [e for e in inprofile['experiences'] \
+                          if e['start'] is not None and e['end'] is None \
+                          and e['company']]
+    currentexperiences.sort(key=lambda e: e['start'])
+    if currentexperiences:
+        company = currentexperiences[-1]['company']
+    elif inprofile['title']:
+        titleparts = inprofile['title'].split(' at ')
+        if len(titleparts) > 1:
+            company = titleparts[1]
+
+    # get profile language
+    language = inprofile.get('language', None)
+
+    # normalize fields
+    inprofile['nrmLocation']     = normalizedLocation(inprofile['location'])
+    inprofile['parsedTitle']     = parsedTitle(language, inprofile['title'])
+    inprofile['nrmTitle']        = normalizedTitle(language, inprofile['title'])
+    inprofile['titlePrefix']     = normalizedTitlePrefix(language,
+                                                         inprofile['title'])
+    inprofile['company']         = company
+    inprofile['nrmCompany']      = normalizedCompany(language, company)
+    
+    # update experiences
+    inprofile['experiences'] = [_makeINExperience(e, language, now) \
+                                for e in inprofile['experiences']]
+    startdates = [e['start'] for e in inprofile['experiences'] \
+                  if e['start'] is not None]
+    if startdates:
+        inprofile['firstExperienceStart'] = min(startdates)
+        inprofile['lastExperienceStart'] = max(startdates)
+    else:
+        inprofile['firstExperienceStart'] = None
+        inprofile['lastExperienceStart'] = None    
+
+    # update educations
+    inprofile['educations'] \
+        = [_makeINEducation(e, language) for e in inprofile['educations']]
+    startdates = [e['start'] for e in inprofile['educations'] \
+                  if e['start'] is not None]
+    if startdates:
+        inprofile['firstEducationStart'] = min(startdates)
+        inprofile['lastEducationStart'] = max(startdates)
+    else:
+        inprofile['firstEducationStart'] = None
+        inprofile['lastEducationStart'] = None    
+
+    # add skills
+    inprofile['skills'] = [_makeINSkill(skill, language) \
+                           for skill in inprofile['skills']]
+
+    return inprofile
 
 
 class GooglePlacesError(Exception):
@@ -430,6 +641,118 @@ class CanonicalDB(SQLDatabase):
         self.rankSkills(liprofile)
 
         return liprofile
+
+    def addINProfile(self, inprofile, now):
+        """Add a LinkedIn profile to the database (or update if it exists).
+
+        Args:
+          inprofile (dict): Description of the profile. Must contain the
+            following fields:
+
+              ``'datoinId'``
+                The profile ID from DATOIN.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'location'``
+                A string describing the location of the user.
+
+              ``'title'``
+                The profile title, e.g. ``'Web developer at Geek Talent'``
+
+              ``'description'``
+                The profile summary.
+
+              ``'profileUrl'``
+                The URL of the profile.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'skills'``
+                The skills mentioned in the main profile. This should be a list
+                of strings.
+
+              ``'experiences'``
+                The work experiences of the user. This should be a list of
+                ``dict``s with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'title'``
+                    The role/job title of the work experience.
+
+                  ``'company'``
+                    The name of the company where the person worked.
+
+                  ``'start'``
+                    The start date of the work experience.
+
+                  ``'end'``
+                    The end date of the work experience.
+
+                  ``'description'``
+                    A free-text description of the work experience.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+                  ``'skills'``
+                    The skills mentioned in the experience record. This should
+                    be a list of strings.
+
+              ``'educations'``
+                The educations of the user. This should be a list of ``dict``s
+                with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'institute'``
+                    The name of the educational institute.
+
+                  ``'degree'``
+                    The name of the accomplished degree.
+
+                  ``'subject'``
+                    The name of the studied subject.
+
+                  ``'start'``
+                    The start date of the education.
+
+                  ``'end'``
+                    The end date of the education.
+
+                  ``'description'``
+                    A free-text description of the education.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+        Returns:
+          The INProfile object that was added to the database.
+
+        """
+        inprofileId = self.query(INProfile.id) \
+                          .filter(INProfile.datoinId == inprofile['datoinId']) \
+                          .first()
+        if inprofileId is not None:
+            inprofile['id'] = inprofileId[0]
+            inexperienceIds \
+                = [id for id, in self.query(INExperience.id) \
+                   .filter(INExperience.inprofileId == inprofileId[0])]
+            if inexperienceIds:
+                self.query(INExperienceSkill) \
+                    .filter(INExperienceSkill.inexperienceId \
+                            .in_(inexperienceIds)) \
+                    .delete(synchronize_session=False)
+        inprofile = _makeINProfile(inprofile, now)
+        inprofile = self.addFromDict(inprofile, INProfile)
+        self.flush()
+
+        return inprofile
 
     def addLocation(self, nrmName, retry=False, logger=Logger(None)):
         """Add a location to the database.

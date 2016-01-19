@@ -705,6 +705,8 @@ def testRange(fromdate, todate, rows, offset=0, byIndexedOn=False):
     #         'Number of profiles disagree: {0:d} (old API) vs {1:d} (new API)\n' \
     #         .format(nprofiles1, nprofiles2))
     #     exit(1)
+    # else:
+    #     logger.log('Total counts match.\n')
     if nprofiles2 <= offset:
         return
         
@@ -734,6 +736,8 @@ def testRange(fromdate, todate, rows, offset=0, byIndexedOn=False):
             exit(1)
 
         # compare profiles
+        profile1 = removeIndexedOn(profile1)
+        profile2 = removeIndexedOn(profile2)
         if profile1 != profile2:
             logger.log('Inconsistent data at offset {0:d}\n' \
                        .format(offset+profilecount))
@@ -745,12 +749,27 @@ def testRange(fromdate, todate, rows, offset=0, byIndexedOn=False):
         logger.log('Profile {0:d} passed.\n'.format(profilecount))
     
 
+def removeIndexedOn(d):
+    if isinstance(d, dict):
+        newd = {}
+        for key, val in d.items():
+            if key != 'indexedOn':
+                newd[key] = removeIndexedOn(val)
+    elif isinstance(d, list):
+        newd = [removeIndexedOn(v) for v in d]
+    else:
+        newd = d
+
+    return newd
+        
 def docDiff(d1, d2):
     if not isinstance(d1, dict) or not isinstance(d2, dict):
         return (d1, d2)
     diff = {}
     keys = set(d1.keys()) | set(d2.keys())
     for key in keys:
+        if key == 'indexedOn':
+            continue
         val1 = d1.get(key, None)
         val2 = d2.get(key, None)
         if val1 == val2:

@@ -37,7 +37,9 @@ def addLIProfiles(jobid, fromid, toid):
                     placeId = cndb.query(Location.placeId) \
                                   .filter(Location.nrmName ==
                                           liexperience['nrmLocation']) \
-                                  .first()[0]
+                                  .first()
+                    if placeId is not None:
+                        placeId = placeId[0]
                 liexperience['placeId'] = placeId
                 if 'title' in liexperience:
                     liexperience['rawTitle'] = liexperience.pop('title')
