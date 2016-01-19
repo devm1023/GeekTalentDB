@@ -88,6 +88,7 @@ class INProfile(SQLBase):
     country           = Column(Unicode(STR_MAX))
     city              = Column(Unicode(STR_MAX))
     title             = Column(Unicode(STR_MAX))
+    description       = Column(Unicode(STR_MAX))
     profileUrl        = Column(String(STR_MAX))
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)

@@ -414,6 +414,12 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         logger.log('invalid profile title\n')
         return False    
 
+    # get description
+    description = inprofiledoc.get('description', None)
+    if description is not None and type(description) is not str:
+        logger.log('invalid profile description\n')
+        return False
+    
     # get inprofile url
     if 'profileUrl' not in inprofiledoc:
         logger.log('invalid profile profileUrl\n')
@@ -454,6 +460,7 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         'country'           : country,
         'city'              : city,
         'title'             : title,
+        'description'       : description,
         'profileUrl'        : profileUrl,
         'indexedOn'         : indexedOn,
         'crawledDate'       : crawledDate,

@@ -107,7 +107,6 @@ class LIExperience(SQLBase):
     end            = Column(Date)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(DateTime)
 
     skills         = relationship('LIExperienceSkill',
                                   order_by='LIExperienceSkill.skillId',
@@ -130,7 +129,6 @@ class LIEducation(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(DateTime)
 
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
@@ -206,7 +204,6 @@ class INExperience(SQLBase):
     end            = Column(Date)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(DateTime)
 
     skills         = relationship('INExperienceSkill',
                                   order_by='INExperienceSkill.nrmName',
@@ -229,7 +226,6 @@ class INEducation(SQLBase):
     start          = Column(Date)
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
-    indexedOn      = Column(DateTime)
 
 class INProfileSkill(SQLBase):
     __tablename__ = 'inprofile_skill'
@@ -561,6 +557,9 @@ class CanonicalDB(SQLDatabase):
               ``'indexedOn'``
                 The date when the profile was indexed.
 
+              ``'crawledOn'``
+                The date when the profile was crawled.
+
               ``'skills'``
                 The skill tags listed by the user. This should be a list of 
                 strings.
@@ -587,9 +586,6 @@ class CanonicalDB(SQLDatabase):
                   ``'description'``
                     A free-text description of the work experience.
 
-                  ``'indexedOn'``
-                    The date when the record was indexed.
-
               ``'educations'``
                 The educations of the user. This should be a list of ``dict``s
                 with the following fields:
@@ -614,9 +610,6 @@ class CanonicalDB(SQLDatabase):
 
                   ``'description'``
                     A free-text description of the education.
-
-                  ``'indexedOn'``
-                    The date when the record was indexed.
 
         Returns:
           The LIProfile object that was added to the database.
@@ -670,6 +663,9 @@ class CanonicalDB(SQLDatabase):
               ``'indexedOn'``
                 The date when the profile was indexed.
 
+              ``'crawledOn'``
+                The date when the profile was crawled.
+
               ``'skills'``
                 The skills mentioned in the main profile. This should be a list
                 of strings.
@@ -695,9 +691,6 @@ class CanonicalDB(SQLDatabase):
 
                   ``'description'``
                     A free-text description of the work experience.
-
-                  ``'indexedOn'``
-                    The date when the record was indexed.
 
                   ``'skills'``
                     The skills mentioned in the experience record. This should
@@ -727,9 +720,6 @@ class CanonicalDB(SQLDatabase):
 
                   ``'description'``
                     A free-text description of the education.
-
-                  ``'indexedOn'``
-                    The date when the record was indexed.
 
         Returns:
           The INProfile object that was added to the database.
