@@ -695,7 +695,7 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
             count += 1
             try:
                 liprofiledoc \
-                    = next(dtsession.query(url=DATOIN2_SEARCH,
+                    = next(dtsession.query(url=DATOIN_SEARCH,
                                            params=params,
                                            rows=1,
                                            offset=offset))
@@ -740,7 +740,7 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
         toKey   = 'crawledTo'
     params = {fromKey : fromTs, toKey : toTs, 'sid' : sourceId}
     
-    nprofiles = datoin.count(url=conf.DATOIN2_SEARCH, params=params)
+    nprofiles = datoin.count(url=conf.DATOIN_SEARCH, params=params)
     logger.log(
         'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
         .format(tfrom.strftime('%Y-%m-%d'), fromTs,
