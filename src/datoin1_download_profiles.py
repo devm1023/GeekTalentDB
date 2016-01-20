@@ -249,6 +249,13 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             logger.log('invalid description field in experience.\n')
             return False
 
+        # get timestamp
+        if 'indexedOn' not in experience:
+            return False
+        indexedOn = experience['indexedOn']
+        if type(indexedOn) is not int:
+            return False
+
         liprofile['experiences'].append({
             'id'          : experience_id,
             'parentId'    : parentId,
@@ -259,7 +266,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
             'description' : description,
-            'indexedOn'   : liprofile['indexedOn']})
+            'indexedOn'   : indexedOn})
 
     # get educations
         
@@ -321,6 +328,13 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             logger.log('invalid description field in education.\n')
             return False
 
+        # get timestamp
+        if 'indexedOn' not in education:
+            return False
+        indexedOn = education['indexedOn']
+        if type(indexedOn) is not int:
+            return False
+
         liprofile['educations'].append({
             'id'          : education_id,
             'parentId'    : parentId,
@@ -330,7 +344,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
             'description' : description,
-            'indexedOn'   : liprofile['indexedOn']})
+            'indexedOn'   : indexedOn})
 
     # add liprofile
     dtdb.addLIProfile(liprofile)
@@ -526,6 +540,13 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
             logger.log('invalid description field in experience.\n')
             return False
 
+        # get timestamp
+        if 'indexedOn' not in experience:
+            return False
+        indexedOn = experience['indexedOn']
+        if type(indexedOn) is not int:
+            return False
+
         inprofile['experiences'].append({
             'id'          : experience_id,
             'parentId'    : parentId,
@@ -536,7 +557,7 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
             'description' : description,
-            'indexedOn'   : inprofile['indexedOn']})
+            'indexedOn'   : indexedOn})
             
     # get educations
         
@@ -598,6 +619,13 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
             logger.log('invalid description field in education.\n')
             return False
 
+        # get timestamp
+        if 'indexedOn' not in education:
+            return False
+        indexedOn = education['indexedOn']
+        if type(indexedOn) is not int:
+            return False
+
         inprofile['educations'].append({
             'id'          : education_id,
             'parentId'    : parentId,
@@ -607,7 +635,7 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
             'description' : description,
-            'indexedOn'   : inprofile['indexedOn']})
+            'indexedOn'   : indexedOn})
 
     # add inprofile
     dtdb.addINProfile(inprofile)
