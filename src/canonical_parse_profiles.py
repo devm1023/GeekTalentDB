@@ -1,9 +1,12 @@
 from datoindb import *
 import canonicaldb as nf
 from windowquery import splitProcess, processDb
+from phraseextract import PhraseExtractor
+from textnormalization import tokenizedSkill
 from sqlalchemy import and_
 import conf
 import sys
+import csv
 from datetime import datetime, timedelta
 from logger import Logger
 import re
@@ -20,8 +23,8 @@ countryLanguages = {
 }
 
 
-def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
-    batchsize = 50
+def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+                    skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
@@ -188,8 +191,8 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
 
     processDb(q, addLIProfile, cndb, logger=logger)
 
-def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
-    batchsize = 50
+def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+                    skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
@@ -208,21 +211,15 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
     def addINProfile(inprofile):
         if inprofile.name:
             name = inprofile.name
-        elif inprofile.firstName and inprofile.lastName:
-            name = ' '.join([inprofile.firstName, inprofile.lastName])
-        elif inprofile.lastName:
-            name = inprofile.lastName
-        elif inprofile.firstName:
-            name = inprofile.firstName
+        elif inprofile.firstName or inprofile.lastName:
+            name = ' '.join(s for s in \
+                            [inprofile.firstName, inprofile.lastName] if s)
         else:
             return
 
-        if inprofile.city and inprofile.country:
-            location = ', '.join([inprofile.city, inprofile.country])
-        elif inprofile.country:
-            location = inprofile.country
-        elif inprofile.city:
-            location = inprofile.city
+        if inprofile.city or inprofile.country:
+            location = ', '.join(s for s in \
+                                 [inprofile.city, inprofile.country] if s)
         else:
             location = None
 
@@ -251,14 +248,12 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
             'educations'  : []
         }
 
-        for inexperience in dtdb.query(LIExperience) \
-                              .filter(LIExperience.parentId == inprofile.id):
-            if inexperience.city and inexperience.country:
-                location = ', '.join([inexperience.city, inexperience.country])
-            elif inexperience.country:
-                location = inexperience.country
-            elif inexperience.city:
-                location = inexperience.city
+        for inexperience in dtdb.query(INExperience) \
+                                .filter(INExperience.parentId == inprofile.id):
+            if inexperience.city or inexperience.country:
+                location = ', '.join(s for s in \
+                                     [inexperience.city, inexperience.country] \
+                                     if s)
             else:
                 location = None
 
@@ -286,8 +281,8 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
                 }
             profiledict['experiences'].append(inexperiencedict)
 
-        for ineducation in dtdb.query(LIEducation) \
-                             .filter(LIEducation.parentId == inprofile.id):
+        for ineducation in dtdb.query(INEducation) \
+                               .filter(INEducation.parentId == inprofile.id):
             if ineducation.dateFrom:
                 start = timestamp0 \
                         + timedelta(milliseconds=ineducation.dateFrom)
@@ -337,7 +332,19 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
             language = countryLanguages[inprofile.country]
             
         profiledict['language'] = language
-        
+
+
+        # extract skills
+
+        if skillextractor is not None and language == 'en':
+            text = ' '.join(s for s in [profiledict['title'],
+                                        profiledict['description']] if s)
+            profiledict['skills'] = list(set(skillextractor(text)))
+            for inexperience in profiledict['experiences']:
+                text = ' '.join(s for s in [inexperience['title'],
+                                            inexperience['description']] if s)
+                inexperience['skills'] = list(set(skillextractor(text)))
+
         
         # add profile
         
@@ -345,7 +352,7 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn):
 
     processDb(q, addINProfile, cndb, logger=logger)
 
-def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn):
+def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
     logger = Logger(sys.stdout)
     if sourceId is None:
         parseProfile(fromTs, toTs, fromid, 'linkedin', byIndexedOn)
@@ -376,8 +383,8 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn):
         query = query.filter(table.id >= fromid)
 
     splitProcess(query, parsefunc, batchsize,
-                 njobs=njobs, args=[fromTs, toTs, byIndexedOn], logger=logger,
-                 workdir='jobs', prefix=prefix)
+                 njobs=njobs, args=[fromTs, toTs, byIndexedOn, skillextractor],
+                 logger=logger, workdir='jobs', prefix=prefix)
     
 
 if __name__ == '__main__':
@@ -392,6 +399,7 @@ if __name__ == '__main__':
         sourceId = None
         byIndexedOn = False
         fromid = None
+        skillfile = None
         while sys.argv:
             option = sys.argv.pop(0).split('=')
             if len(option) == 1:
@@ -410,6 +418,8 @@ if __name__ == '__main__':
                         raise ValueError('Invalid command line argument.')
                 elif option == '--fromid':
                     fromid = int(value)
+                elif option == '--skills':
+                    skillfile = value
             else:
                 raise ValueError('Invalid command line argument.')
     except ValueError:
@@ -421,4 +431,17 @@ if __name__ == '__main__':
 
     fromTs = int((fromdate - timestamp0).total_seconds())*1000
     toTs   = int((todate   - timestamp0).total_seconds())*1000
-    parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn)
+
+    skillextractor = None
+    if skillfile is not None:
+        skills = []
+        with open(skillfile, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                if row:
+                    skills.append(row[0])
+        tokenize = lambda x: tokenizedSkill('en', x)
+        skillextractor = PhraseExtractor(skills, tokenize=tokenize)
+        del skills
+    
+    parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor)
