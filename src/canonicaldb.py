@@ -54,6 +54,7 @@ class LIProfile(SQLBase):
     datoinId          = Column(String(STR_MAX), index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
+    isCompany         = Column(Boolean)
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
@@ -308,6 +309,12 @@ def _makeLIProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
+def _isCompany(language, name):
+    if language != 'en':
+        return False
+    tokens = clean(name, lowercase=True, tokenize=True)
+    return ('limited' in tokens or 'ltd' in tokens)
+    
 def _makeLIProfile(liprofile, now):
     # determine current company
     company = None
@@ -334,6 +341,9 @@ def _makeLIProfile(liprofile, now):
     liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
     liprofile['nrmCompany']      = normalizedCompany(language, company)
+
+    # tag company profiles
+    liprofile['isCompany']       = _isCompany(language, liprofile['name'])
     
     # update experiences
     liprofile['experiences'] = [_makeLIExperience(e, language, now) \
