@@ -41,11 +41,13 @@ class PhraseExtractor:
         self.margin = margin
         self.fraction = fraction
 
-    def __call__(self, text):
+    def __call__(self, text, tokenize=None):
+        if tokenize is None:
+            tokenize = self.tokenize
         partialmatches = []
         activephrases = set()
         matchedphrases = []
-        for word in self.tokenize(text):
+        for word in tokenize(text):
             newpartialmatches = []
             for partialmatch in partialmatches:
                 partialmatch.add(word)
@@ -61,8 +63,11 @@ class PhraseExtractor:
                 if phrase not in activephrases:
                     partialmatch = _PartialMatch(phrase, self.wordsets[phrase])
                     partialmatch.add(word)
-                    newpartialmatches.append(partialmatch)
-                    activephrases.add(phrase)
+                    if partialmatch.ismatch(self.fraction, self.margin):
+                        matchedphrases.append(partialmatch.phrase)
+                    else:
+                        newpartialmatches.append(partialmatch)
+                        activephrases.add(phrase)
 
             partialmatches = newpartialmatches
 
@@ -72,8 +77,8 @@ class PhraseExtractor:
 if __name__ == '__main__':
     from textnormalization import tokenizedSkill
 
-    phrases = ['foo bar', 'bar baz', 'foo baz']
-    text = 'blah blah foo bar baz blah blah baz blah foo'
+    phrases = ['foo bar', 'bar baz', 'foo baz', 'woo']
+    text = 'blah blah foo bar baz blah blah baz blah foo blah blah woo blah'
     # tokenize = lambda x: tokenizedSkill('en', x)
     tokenize = lambda x: x.split()
 

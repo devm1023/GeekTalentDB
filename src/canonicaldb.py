@@ -37,7 +37,7 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
-from phrasematch import matchStems
+from phraseextract import PhraseExtractor
 from textnormalization import tokenizedSkill
 import time
 import random
@@ -493,48 +493,26 @@ class CanonicalDB(SQLDatabase):
                              url=url, session=session, engine=engine)        
     
     def rankSkills(self, liprofile):
-        skills = liprofile.skills
-        experiences = liprofile.experiences
-        descriptionstems = [
-            tokenizedSkill(liprofile.language,
-                           _joinfields(experience.title,
-                                       experience.description),
-                           removebrackets=False) \
-            for experience in experiences]
-        skillstems = [splitNrmName(skill.nrmName)[1].split() \
-                      if skill.nrmName else [] for skill in skills]
+        skillIds = dict((s.nrmName, s.id) \
+                        for s in liprofile.skills if s.nrmName)
+        reenforced = dict((s, False) for s in skillIds.keys())
+        tokenize = lambda x: splitNrmName(x)[1].split()
+        skillextractor = PhraseExtractor(skillIds.keys(), tokenize=tokenize)
+        tokenize = lambda x: tokenizedSkill(liprofile.language, x,
+                                            removebrackets=False)
+        for experience in liprofile.experiences:
+            skills = skillextractor(_joinfields(experience.title,
+                                                experience.description),
+                                    tokenize=tokenize)
+            skills = set(skills)
+            for skill in skills:
+                reenforced[skill] = True
+                experience.skills.append(
+                    LIExperienceSkill(liexperienceId=experience.id,
+                                      skillId=skillIds[skill]))
 
-        # match experience descriptions
-        matches = (matchStems(skillstems, descriptionstems,
-                              threshold=conf.SKILL_MATCHING_THRESHOLD) > \
-                   conf.SKILL_MATCHING_THRESHOLD)
-        for iexperience, experience in enumerate(experiences):
-            experience.skills = []
-            for iskill, skill in enumerate(skills):
-                if matches[iskill, iexperience]:
-                    if experience.duration:
-                        duration = experience.duration
-                    else:
-                        duration = 0
-                    experience.skills.append(
-                        LIExperienceSkill(liexperienceId=experience.id,
-                                          skillId=skill.id))
-
-        # match profile text
-        reenforced = [False]*len(skills)
-        profiletext = _joinfields(liprofile.title, liprofile.description)
-        profiletextstems = tokenizedSkill(liprofile.language,
-                                          profiletext, removebrackets=False)
-        matches = (matchStems(skillstems, [profiletextstems],
-                              threshold=conf.SKILL_MATCHING_THRESHOLD) > \
-                   conf.SKILL_MATCHING_THRESHOLD)
-        for iskill, skill in enumerate(skills):
-            if matches[iskill, 0]:
-                reenforced[iskill] = True
-
-        # update skill ranks
-        for iskill, skill in enumerate(skills):
-            skill.reenforced = reenforced[iskill]
+        for skill in liprofile.skills:
+            skill.reenforced = reenforced[skill.nrmName]
 
     def addLIProfile(self, liprofile, now):
         """Add a LinkedIn profile to the database (or update if it exists).

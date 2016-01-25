@@ -417,7 +417,7 @@ if __name__ == '__main__':
                     else:
                         raise ValueError('Invalid command line argument.')
                 elif option == '--fromid':
-                    fromid = int(value)
+                    fromid = value
                 elif option == '--skills':
                     skillfile = value
             else:
@@ -425,8 +425,8 @@ if __name__ == '__main__':
     except ValueError:
         print('python3 canonical_parse_profiles.py <njobs> <batchsize> '
               '<from-date> <to-date> [--by-index-date] '
-              '[--source=<sourceid>] [--offset=<offset>] '
-              '[--maxoffset=<maxoffset>]')
+              '[--source=<sourceid>] [--fromid=<fromid>] '
+              '[--skills=<skills.csv>]')
         exit(1)
 
     fromTs = int((fromdate - timestamp0).total_seconds())*1000
