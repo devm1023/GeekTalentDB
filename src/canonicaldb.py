@@ -141,6 +141,7 @@ class LIProfileSkill(SQLBase):
     name        = Column(Unicode(STR_MAX))
     nrmName     = Column(Unicode(STR_MAX), index=True)
     reenforced  = Column(Boolean)
+    score       = Column(Float)
 
 class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
@@ -189,7 +190,7 @@ class INExperience(SQLBase):
     __tablename__ = 'inexperience'
     id             = Column(BigInteger, primary_key=True)
     datoinId       = Column(String(STR_MAX))
-    liprofileId    = Column(BigInteger,
+    inprofileId    = Column(BigInteger,
                             ForeignKey('inprofile.id'),
                             index=True)
     language       = Column(String(20))
@@ -207,7 +208,7 @@ class INExperience(SQLBase):
     description    = Column(Unicode(STR_MAX))
 
     skills         = relationship('INExperienceSkill',
-                                  order_by='INExperienceSkill.nrmName',
+                                  order_by='INExperienceSkill.skillId',
                                   cascade='all, delete-orphan')
 
 class INEducation(SQLBase):
@@ -237,15 +238,16 @@ class INProfileSkill(SQLBase):
     language    = Column(String(20))
     name        = Column(Unicode(STR_MAX))
     nrmName     = Column(Unicode(STR_MAX), index=True)
+    reenforced  = Column(Boolean)
+    score       = Column(Float)
 
 class INExperienceSkill(SQLBase):
     __tablename__ = 'inexperience_skill'
-    id          = Column(BigInteger, primary_key=True)
     inexperienceId = Column(BigInteger, ForeignKey('inexperience.id'),
                             primary_key=True)
-    language    = Column(String(20))
-    name        = Column(Unicode(STR_MAX))
-    nrmName     = Column(Unicode(STR_MAX), index=True)
+    skillId        = Column(BigInteger, ForeignKey('inprofile_skill.id'),
+                            primary_key=True)
+    skill          = relationship('INProfileSkill')
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -396,10 +398,6 @@ def _makeINExperience(inexperience, language, now):
             inexperience['end'] = None
     if inexperience['start'] is None:
         inexperience['end'] = None
-
-    # make skills
-    inexperience['skills'] = [_makeINSkill(skill, language) \
-                              for skill in inexperience['skills']]
         
     return inexperience
 
@@ -418,14 +416,16 @@ def _makeINEducation(ineducation, language):
     
     return ineducation
 
-def _makeINSkill(skillname, language):
+def _makeINProfileSkill(skillname, language, reenforced):
     nrmName = normalizedSkill(language, skillname)
     if not nrmName:
         return None
     else:
         return {'language'   : language,
                 'name'       : skillname,
-                'nrmName'    : nrmName}
+                'nrmName'    : nrmName,
+                'reenforced' : reenforced,
+                'score'      : 1.0 if reenforced else 0.0}
 
 def _makeINProfile(inprofile, now):
     # determine current company
@@ -478,8 +478,15 @@ def _makeINProfile(inprofile, now):
         inprofile['lastEducationStart'] = None    
 
     # add skills
-    inprofile['skills'] = [_makeINSkill(skill, language) \
-                           for skill in inprofile['skills']]
+    profileskills = set(inprofile['skills'])
+    allskills = set(inprofile['skills'])
+    for inexperience in inprofile['experiences']:
+        allskills.update(inexperience['skills'])
+    inprofile['skills'] = []
+    for skill in allskills:
+        inprofile['skills'] \
+            .append(_makeINProfileSkill(skill, language,
+                                        skill in profileskills))
 
     return inprofile
 
@@ -496,24 +503,40 @@ class CanonicalDB(SQLDatabase):
         skillIds = dict((s.nrmName, s.id) \
                         for s in liprofile.skills if s.nrmName)
         reenforced = dict((s, False) for s in skillIds.keys())
+        scores = dict((s, 0.0) for s in skillIds.keys())
         tokenize = lambda x: splitNrmName(x)[1].split()
         skillextractor = PhraseExtractor(skillIds.keys(), tokenize=tokenize)
         tokenize = lambda x: tokenizedSkill(liprofile.language, x,
                                             removebrackets=False)
+
+        # extract from profile text
+        profileskills = skillextractor(_joinfields(liprofile.title,
+                                                   liprofile.description),
+                                       tokenize=tokenize)
+        profileskills = set(profileskills)
+        for skill in profileskills:
+            reenforced[skill] = True
+            scores[skill] += 1.0
+
+        # extract from experiences
         for experience in liprofile.experiences:
-            skills = skillextractor(_joinfields(experience.title,
-                                                experience.description),
-                                    tokenize=tokenize)
-            skills = set(skills)
-            for skill in skills:
-                reenforced[skill] = True
+            experienceskills \
+                = skillextractor(_joinfields(experience.title,
+                                             experience.description),
+                                 tokenize=tokenize)
+            experienceskills = set(experienceskills)
+            for skill in experienceskills:
+                scores[skill] += 1.0
                 experience.skills.append(
                     LIExperienceSkill(liexperienceId=experience.id,
                                       skillId=skillIds[skill]))
 
+        # update score and reenforced columns
         for skill in liprofile.skills:
             skill.reenforced = reenforced[skill.nrmName]
+            skill.score = scores[skill.nrmName]
 
+                
     def addLIProfile(self, liprofile, now):
         """Add a LinkedIn profile to the database (or update if it exists).
 
@@ -623,7 +646,7 @@ class CanonicalDB(SQLDatabase):
 
         return liprofile
 
-    def addINProfile(self, inprofile, now):
+    def addINProfile(self, inprofiledict, now):
         """Add a LinkedIn profile to the database (or update if it exists).
 
         Args:
@@ -714,10 +737,11 @@ class CanonicalDB(SQLDatabase):
 
         """
         inprofileId = self.query(INProfile.id) \
-                          .filter(INProfile.datoinId == inprofile['datoinId']) \
+                          .filter(INProfile.datoinId \
+                                  == inprofiledict['datoinId']) \
                           .first()
         if inprofileId is not None:
-            inprofile['id'] = inprofileId[0]
+            inprofiledict['id'] = inprofileId[0]
             inexperienceIds \
                 = [id for id, in self.query(INExperience.id) \
                    .filter(INExperience.inprofileId == inprofileId[0])]
@@ -726,9 +750,26 @@ class CanonicalDB(SQLDatabase):
                     .filter(INExperienceSkill.inexperienceId \
                             .in_(inexperienceIds)) \
                     .delete(synchronize_session=False)
-        inprofile = _makeINProfile(inprofile, now)
-        inprofile = self.addFromDict(inprofile, INProfile)
+        inprofiledict = _makeINProfile(inprofiledict, now)
+        inexperiences = inprofiledict.pop('experiences')
+        inprofile = self.addFromDict(inprofiledict, INProfile)
         self.flush()
+
+        # add experiences and compute skill scores
+        skillIds = dict((s.name, s.id) for s in inprofile.skills)
+        scores = dict((s.name, s.score) for s in inprofile.skills)
+        for inexperiencedict in inexperiences:
+            inexperiencedict['inprofileId'] = inprofile.id
+            skills = []
+            for skillname in inexperiencedict['skills']:
+                skills.append({'skillId' : skillIds[skillname]})
+                scores[skillname] += 1.0
+            inexperiencedict['skills'] = skills
+            self.addFromDict(inexperiencedict, INExperience)
+
+        # update skill scores
+        for skill in inprofile.skills:
+            skill.score = scores[skill.name]
 
         return inprofile
 
