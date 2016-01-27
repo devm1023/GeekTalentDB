@@ -78,6 +78,7 @@ class LIProfile(SQLBase):
                                nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
+    connections       = Column(Integer)
     firstExperienceStart = Column(Date)
     lastExperienceStart  = Column(Date)
     lastExperienceEnd    = Column(Date)
@@ -185,6 +186,140 @@ class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
     liexperienceId = Column(BigInteger,
                             ForeignKey('liexperience.id'),
+                            primary_key=True,
+                            index=True,
+                            autoincrement=False)
+    nrmSkill     = Column(Unicode(STR_MAX),
+                          ForeignKey('skill.nrmName'),
+                          primary_key=True,
+                          index=True,
+                          autoincrement=False)
+    
+    skill = relationship('Skill')
+
+class INProfile(SQLBase):
+    __tablename__ = 'inprofile'
+    id                = Column(BigInteger, primary_key=True)
+    datoinId          = Column(String(STR_MAX), index=True)
+    language          = Column(String(20))
+    name              = Column(Unicode(STR_MAX))
+    placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
+    rawTitle          = Column(Unicode(STR_MAX))
+    nrmTitle          = Column(Unicode(STR_MAX),
+                               ForeignKey('title.nrmName'),
+                               nullable=True,
+                               index=True)
+    titlePrefix       = Column(Unicode(STR_MAX))
+    rawCompany        = Column(Unicode(STR_MAX))
+    nrmCompany        = Column(Unicode(STR_MAX),
+                               ForeignKey('company.nrmName'),
+                               nullable=True,
+                               index=True)
+    description       = Column(Unicode(STR_MAX))
+    firstExperienceStart = Column(Date)
+    lastExperienceStart  = Column(Date)
+    lastExperienceEnd    = Column(Date)
+    firstEducationStart  = Column(Date)
+    lastEducationStart   = Column(Date)
+    lastEducationEnd     = Column(Date)
+    url               = Column(String(STR_MAX))
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
+
+    title = relationship('Title')
+    company = relationship('Company')
+    location = relationship('Location')
+    skills = relationship('INProfileSkill',
+                          order_by='INProfileSkill.nrmName',
+                          cascade='all, delete-orphan')
+    experiences = relationship('INExperience',
+                               order_by='INExperience.start',
+                               cascade='all, delete-orphan')
+    educations = relationship('INEducation',
+                              order_by='INEducation.start',
+                              cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('datoinId'),)
+
+class INExperience(SQLBase):
+    __tablename__ = 'inexperience'
+    id             = Column(BigInteger, primary_key=True)
+    datoinId       = Column(String(STR_MAX))
+    inprofileId    = Column(BigInteger,
+                            ForeignKey('inprofile.id'),
+                            index=True)
+    language       = Column(String(20))
+    rawTitle       = Column(Unicode(STR_MAX))
+    nrmTitle       = Column(Unicode(STR_MAX),
+                            ForeignKey('title.nrmName'),
+                            index=True)
+    titlePrefix    = Column(Unicode(STR_MAX))
+    rawCompany     = Column(Unicode(STR_MAX))
+    nrmCompany     = Column(Unicode(STR_MAX),
+                            ForeignKey('company.nrmName'),
+                            index=True)
+    placeId        = Column(String(STR_MAX), ForeignKey('location.placeId'))
+    start          = Column(Date)
+    end            = Column(Date)
+    duration       = Column(Integer)
+    description    = Column(Unicode(STR_MAX))
+    indexedOn      = Column(DateTime)
+
+    title = relationship('Title')
+    company = relationship('Company')
+    skills = relationship('INExperienceSkill',
+                          order_by='INExperienceSkill.nrmSkill',
+                          cascade='all, delete-orphan')
+
+class INEducation(SQLBase):
+    __tablename__ = 'ineducation'
+    id          = Column(BigInteger, primary_key=True)
+    datoinId    = Column(String(STR_MAX))
+    inprofileId = Column(BigInteger,
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    language       = Column(String(20))
+    rawInstitute   = Column(Unicode(STR_MAX))
+    nrmInstitute   = Column(Unicode(STR_MAX),
+                            ForeignKey('institute.nrmName'),
+                            index=True)
+    rawdegree      = Column(Unicode(STR_MAX))
+    nrmDegree      = Column(Unicode(STR_MAX),
+                            ForeignKey('degree.nrmName'),
+                            index=True)
+    rawsubject     = Column(Unicode(STR_MAX))
+    nrmSubject     = Column(Unicode(STR_MAX),
+                            ForeignKey('subject.nrmName'),
+                            index=True)
+    start          = Column(Date)
+    end            = Column(Date)
+    description    = Column(Unicode(STR_MAX))
+    indexedOn      = Column(DateTime)
+
+    institute = relationship('Institute')
+    degree = relationship('Degree')
+    subject = relationship('Subject')
+    
+class INProfileSkill(SQLBase):
+    __tablename__ = 'inprofile_skill'
+    inprofileId = Column(BigInteger,
+                         ForeignKey('inprofile.id'),
+                         primary_key=True,
+                         index=True,
+                         autoincrement=False)
+    nrmName     = Column(Unicode(STR_MAX),
+                         ForeignKey('skill.nrmName'),
+                         primary_key=True,
+                         index=True,
+                         autoincrement=False)
+    reenforced  = Column(Boolean)
+
+    skill = relationship('Skill')
+
+class INExperienceSkill(SQLBase):
+    __tablename__ = 'inexperience_skill'
+    inexperienceId = Column(BigInteger,
+                            ForeignKey('inexperience.id'),
                             primary_key=True,
                             index=True,
                             autoincrement=False)
@@ -581,6 +716,138 @@ class AnalyticsDB(SQLDatabase):
                     
         return self.addFromDict(liprofile, LIProfile)
 
+    def addINProfile(self, inprofile):
+        """Add a LinkedIn profile to the database.
+
+        Args:
+          inprofile (dict): A ``dict`` describing the LinkedIn profile. It must
+            contain the following fields:
+
+              ``'datoinId'``
+                The ID of the profile from DATOIN.
+
+              ``'language'``
+                The language of the profile.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'placeId'``
+                The Google Place ID for the user's location.
+
+              ``'nrmTitle'``
+                The normalized profile title.
+
+              ``'nrmCompany'``
+                The normalized name of the user's current company.
+
+              ``'description'``
+                The profile summary.
+
+              ``'totalExperience'``
+                The total work experience in days.
+
+              ``'profileUrl'``
+                The URL of the profile.
+
+              ``'profilePictureUrl'``
+                The URL of the profile picture.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'skills'``
+                The skills declared by the user. This should be a list of 
+                ``dict``s with the following fields:
+
+                  ``'nrmName'``
+                    The normalized name of the skill.
+
+                  ``'rank'``
+                    The rank of the skill.
+
+              ``'experiences'``
+                The work experiences of the user. This should be a list of
+                ``dict``s with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'title'``
+                    The role/job title of the work experience.
+
+                  ``'company'``
+                    The name of the company where the person worked.
+
+                  ``'placeId'``
+                    The Google Place ID for the experience location.
+
+                  ``'start'``
+                    The start date of the work experience.
+
+                  ``'end'``
+                    The end date of the work experience.
+
+                  ``'description'``
+                    A free-text description of the work experience.
+
+                  ``'indexedOn'``
+                    The date when the record was indexed.
+
+                  ``'skills'``
+                    The skills that are explicitely mentioned in this experience
+                    record. This should be a list of normalized skill names.
+              
+        Returns:
+          The ``INProfile`` object that was added to the database.
+
+        """
+        inprofile.pop('title', None)
+        inprofile.pop('company', None)
+        inprofile.pop('location', None)
+        language = inprofile.get('language', None)
+        
+        if inprofile.get('skills', None) is not None:
+            skillnames = set()
+            newskills = []
+            for skill in inprofile['skills']:
+                if not skill or not skill.get('nrmName', None):
+                    continue
+                skill.pop('inprofileId', None)
+                skill.pop('skill', None)
+                if skill['nrmName'] not in skillnames:
+                    skillnames.add(skill['nrmName'])
+                    newskills.append(skill)
+            inprofile['skills'] = newskills
+
+        if inprofile.get('experiences', None) is not None:
+            for inexperience in inprofile['experiences']:
+                inexperience.pop('id', None)
+                inexperience.pop('inprofileId', None)
+                inexperience.pop('title', None)
+                inexperience.pop('company', None)
+                inexperience['language'] = language
+                if inexperience.get('skills', None) is not None:
+                    skillnames = set()
+                    newskills = []
+                    for skill in inexperience['skills']:
+                        if not skill:
+                            continue
+                        if skill not in skillnames:
+                            newskills.append({'nrmSkill' : skill})
+                            skillnames.add(skill)
+                    inexperience['skills'] = newskills
+
+        if inprofile.get('educations', None) is not None:
+            for ineducation in inprofile['educations']:
+                ineducation.pop('id', None)
+                ineducation.pop('institute', None)
+                ineducation.pop('degree', None)
+                ineducation.pop('subject', None)
+                ineducation['language'] = language
+                    
+        return self.addFromDict(inprofile, INProfile)
+    
     def addCareerStep(self,
                       prefix1, title1,
                       prefix2, title2,

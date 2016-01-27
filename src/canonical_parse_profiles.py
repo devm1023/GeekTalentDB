@@ -355,8 +355,11 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
 def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
     logger = Logger(sys.stdout)
     if sourceId is None:
-        parseProfile(fromTs, toTs, fromid, 'linkedin', byIndexedOn)
-        parseProfile(fromTs, toTs, fromid, 'indeed', byIndexedOn)
+        parseProfiles(fromTs, toTs, fromid, 'linkedin', byIndexedOn,
+                      skillextractor)
+        parseProfiles(fromTs, toTs, fromid, 'indeed', byIndexedOn,
+                      skillextractor)
+        return
     elif sourceId == 'linkedin':
         logger.log('Parsing LinkedIn profiles.\n')
         table = LIProfile
