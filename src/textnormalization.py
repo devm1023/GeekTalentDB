@@ -78,6 +78,8 @@ _conf = {
             | set(['degree', 'hons', 'honours', 'honors', 'first', 'class']),
         
         'subjectStopwords' : _stopwords_en - set(['it', 's', 't']),
+
+        'groupStopwords' : _stopwords_en - set(['it', 's', 't']),
     },
 
     'nl' : {
@@ -120,6 +122,8 @@ _conf = {
         'degreeStopwords' : _stopwords_nl,
         
         'subjectStopwords' : _stopwords_nl,
+
+        'groupStopwords' : _stopwords_nl,
     },
 }
 
@@ -491,6 +495,22 @@ def normalizedSubject(language, name):
                   lowercase=True,
                   removebrackets=True,
                   stopwords=conf['subjectStopwords'],
+                  stem=conf['stemmer'])
+    if not nname:
+        return None
+    return makeNrmName(language, nname)
+
+def normalizedGroup(language, name):
+    if not name:
+        return None
+    if language not in _conf:
+        raise ValueError('Invalid language: '+repr(language))
+    conf = _conf[language]
+
+    nname = clean(name,
+                  nospace='\'’.',
+                  lowercase=True,
+                  stopwords=conf['groupStopwords'],
                   stem=conf['stemmer'])
     if not nname:
         return None

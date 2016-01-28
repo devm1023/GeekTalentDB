@@ -2,6 +2,7 @@ __all__ = [
     'LIProfile',
     'LIExperience',
     'LIEducation',
+    'LIGroup',
     'LIProfileSkill',
     'LIExperienceSkill',
     'INProfile',
@@ -85,6 +86,9 @@ class LIProfile(SQLBase):
     skills            = relationship('LIProfileSkill',
                                      order_by='LIProfileSkill.nrmName',
                                      cascade='all, delete-orphan')
+    groups            = relationship('LIGroup',
+                                     order_by='LIGroup.nrmName',
+                                     cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
@@ -131,6 +135,16 @@ class LIEducation(SQLBase):
     end            = Column(Date)
     description    = Column(Unicode(STR_MAX))
 
+class LIGroup(SQLBase):
+    __tablename__ = 'ligroup'
+    id            = Column(BigInteger, primary_key=True)
+    liprofileId   = Column(BigInteger,
+                           ForeignKey('liprofile.id'),
+                           index=True)
+    language      = Column(String(20))
+    name          = Column(Unicode(STR_MAX))
+    nrmName       = Column(Unicode(STR_MAX), index=True)
+    
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
     id          = Column(BigInteger, primary_key=True)
@@ -311,6 +325,15 @@ def _makeLIProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
+def _makeLIGroup(groupname, language):
+    nrmName = normalizedGroup(language, groupname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : groupname,
+                'nrmName'    : nrmName}
+    
 def _isCompany(language, name):
     if language != 'en':
         return False
@@ -374,6 +397,10 @@ def _makeLIProfile(liprofile, now):
     # add skills
     liprofile['skills'] = [_makeLIProfileSkill(skill, language) \
                            for skill in liprofile['skills']]
+
+    # add groups
+    liprofile['groups'] = [_makeLIGroup(group, language) \
+                           for group in liprofile['groups']]
 
     return liprofile
 

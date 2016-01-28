@@ -16,6 +16,7 @@ from langdetect.lang_detect_exception import LangDetectException
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
+connectionspatt = re.compile(r'[^0-9]*([0-9]+)[^0-9]*')
 countryLanguages = {
     'United Kingdom' : 'en',
     'Netherlands'    : 'nl',
@@ -72,11 +73,9 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         else:
             crawledOn = None
             
-        connections = None
-        try:
-            connections = int(liprofile.connections)
-        except (TypeError, ValueError):
-            pass
+        connections = connectionspatt.match(liprofile.connections)
+        if connections is not None:
+            connections = int(connections.group(1))
 
         skills = [s for s in liprofile.categories \
                   if not skillbuttonpatt.match(s)]
@@ -90,12 +89,13 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             'sector'      : liprofile.sector,
             'url'         : liprofile.profileUrl,
             'pictureUrl'  : liprofile.profilePictureUrl,
-            'skills'      : skills,
             'connections' : connections,
             'indexedOn'   : indexedOn,
             'crawledOn'   : crawledOn,
             'experiences' : [],
-            'educations'  : []
+            'educations'  : [],
+            'skills'      : skills,
+            'groups'      : list(liprofile.groups)
         }
 
         for liexperience in dtdb.query(LIExperience) \
