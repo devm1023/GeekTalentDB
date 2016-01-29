@@ -72,13 +72,21 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                         + timedelta(milliseconds=liprofile.crawledDate)
         else:
             crawledOn = None
-            
-        connections = connectionspatt.match(liprofile.connections)
+
+        connections = liprofile.connections
+        if connections is not None:
+            connections = connectionspatt.match(connections)
         if connections is not None:
             connections = int(connections.group(1))
 
-        skills = [s for s in liprofile.categories \
-                  if not skillbuttonpatt.match(s)]
+        skills = []
+        if liprofile.categories:
+            skills = [s for s in liprofile.categories \
+                      if not skillbuttonpatt.match(s)]
+
+        groups = []
+        if liprofile.groups:
+            groups = list(liprofile.groups)
         
         profiledict = {
             'datoinId'    : liprofile.id,
@@ -95,7 +103,7 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             'experiences' : [],
             'educations'  : [],
             'skills'      : skills,
-            'groups'      : list(liprofile.groups)
+            'groups'      : groups
         }
 
         for liexperience in dtdb.query(LIExperience) \
