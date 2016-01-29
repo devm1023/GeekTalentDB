@@ -147,7 +147,7 @@ def addTitles(jobid, fromtitle, totitle):
     inq2 = cndb.query(INExperience.nrmTitle.label('nrm'),
                       INExperience.parsedTitle.label('parsed'),
                       literal_column('2').label('type')) \
-               .filter(LIExperience.nrmTitle >= fromtitle)
+               .filter(INExperience.nrmTitle >= fromtitle)
     if totitle is not None:
         liq1 = liq1.filter(LIProfile.nrmTitle < totitle)
         liq2 = liq2.filter(LIExperience.nrmTitle < totitle)

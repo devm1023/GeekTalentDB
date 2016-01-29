@@ -11,7 +11,7 @@ python3 $scriptdir/analytics_build_catalogs.py $1 $2 || exit 1
 echo
 echo
 echo "# python3 $scriptdir/analytics_build_liprofiles.py $1 $2"
-python3 $scriptdir/analytics_build_liprofiles.py $1 $2 || exit 1
+python3 $scriptdir/analytics_build_profiles.py $1 $2 || exit 1
 echo
 echo
 echo "# python3 $scriptdir/analytics_build_wordlists.py $1 $2"

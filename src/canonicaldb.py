@@ -269,6 +269,10 @@ class Location(SQLBase):
     name      = Column(Unicode(STR_MAX), index=True)
     placeId   = Column(String(STR_MAX), index=True)
     geo       = Column(Geometry('POINT'))
+    minlat    = Column(Float)
+    minlon    = Column(Float)
+    maxlat    = Column(Float)
+    maxlon    = Column(Float)
     tries     = Column(Integer, index=True)
     ambiguous = Column(Boolean)
 
@@ -893,6 +897,13 @@ class CanonicalDB(SQLDatabase):
         pointstr = 'POINT({0:f} {1:f})'.format(lon, lat)
         address = result['formatted_address']
         placeId = result['place_id']
+        if 'viewport' in result['geometry']:
+            minlat = result['geometry']['viewport']['southwest']['lat']
+            minlon = result['geometry']['viewport']['southwest']['lng']
+            maxlat = result['geometry']['viewport']['northeast']['lat']
+            maxlon = result['geometry']['viewport']['northeast']['lng']
+        else:
+            minlat = minlon = maxlat = maxlon = None
 
         # format address
         address = address.split(', ')
@@ -906,5 +917,9 @@ class CanonicalDB(SQLDatabase):
         location.name = address
         location.placeId = placeId
         location.geo = pointstr
+        location.minlat = minlat
+        location.minlon = minlon
+        location.maxlat = maxlat
+        location.maxlon = maxlon
 
         return location
