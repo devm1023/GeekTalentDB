@@ -3,11 +3,13 @@ sys.path.append('../src')
 
 import conf
 from analyticsdb import *
-from histograms import Histogram1D, Histogram2D
+from histograms import Histogram1D, Histogram2D, densityHistogram, \
+    cumulatedHistogram, GVar
 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
+from math import log, sqrt
 
 
 def employmentLists(q):
@@ -50,6 +52,23 @@ def employmentLists(q):
     if currentid:
         newcompany(None, None, None)
         yield currentid, employments
+
+def decayRateHistogram(hist):
+    n = int(hist.sum())
+    hist = hist/n
+    hist = cumulatedHistogram(hist, upper=True)
+    data = []
+    for t1, t2, f1, f2 in zip(hist.xbins[:-2], hist.xbins[2:], \
+                              hist.data[:-1], hist.data[1:]):
+        if f1 <= 0 or f2 <= 0:
+            data.append(None)
+        else:
+            df2sq = f2*(1-f2)/n
+            df1sq = f1*(1-f1)/n
+            lam = 2*log(f2/f1)/(t1-t2)
+            dlam = abs(2/(t1-t2))*sqrt(df2sq/f2**2 + df1sq/f1**2)
+            data.append(GVar(lam, dlam))
+    return Histogram1D(xbins=hist.xvals, data=data)
     
     
 
@@ -60,37 +79,30 @@ q = andb.query(LIExperience.liprofileId,
                LIExperience.end)
 
 
-nexperienceHist = Histogram1D(xbins=np.arange(0.5, 11.0, 1.0), init=0)
 durationHist = Histogram1D(xbins=np.arange(0.0, 10.1, 0.5), init=0)
-ageHist = Histogram1D(xbins=np.arange(0.0, 10.1, 0.5), init=0)
-ageDurationHist = Histogram2D(xbins=np.arange(0.0, 10.1, 0.2),
-                              ybins=np.arange(0.0, 10.1, 0.2),
-                              init=0)
+nexperienceDurationHist = Histogram2D(xbins=np.arange(0.5, 11.0, 2.0),
+                                      ybins=np.arange(0.0, 10.1, 1.0),
+                                      init=0)
 
 for id, employments in employmentLists(q):
-    # if len(employments) < 2:
-    #     continue
+    if not employments:
+        continue
     firststart = employments[0][1]
-    # laststart = employments[-1][1]
-    
-    for company, start, end in employments:
-        duration = (end - start).days/365
-        age = (start - firststart).days/365
-        nexperienceHist.inc(len(employments))
-        durationHist.inc(duration)
-        ageHist.inc(age)
-        ageDurationHist.inc(age, duration)
+    laststart = employments[-1][1]
+    lastduration = (employments[-1][2] - employments[-1][1]).days/365
+    nexperience = len(employments)
 
-nexperienceHist.plot(drawstyle='steps')
+    durationHist.inc(lastduration)
+    nexperienceDurationHist.inc(nexperience, lastduration)
+
+
+durationHist = decayRateHistogram(durationHist)
+durationHist.errorbar(drawstyle='steps')
 plt.show()
 
-durationHist.plot(drawstyle='steps')
+slices = nexperienceDurationHist.xslices()
+for nexperience, hist in zip(nexperienceDurationHist.xvals, slices):
+    hist = decayRateHistogram(hist)
+    hist.errorbar(drawstyle='steps', label=str(nexperience))
+plt.legend()
 plt.show()
-
-ageHist.plot(drawstyle='steps')
-plt.show()
-
-p = ageDurationHist.pcolormesh(cmap='YlOrRd')
-plt.colorbar(p)
-plt.show()
-

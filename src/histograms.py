@@ -296,13 +296,18 @@ class Histogram2D:
         """
         return Histogram2D(like=self, data=self.data)
 
+    def _getxbin(self, x):
+        if x < self.xbins[0] or x > self.xbins[-1]:
+            raise KeyError('Invalid x-key `'+repr(x)+'`.')
+        return max(bisect.bisect_left(self.xbins, x) - 1, 0)
+        
+    def _getybin(self, y):
+        if y < self.ybins[0] or y > self.ybins[-1]:
+            raise KeyError('Invalid y-key `'+repr(y)+'`.')
+        return max(bisect.bisect_left(self.ybins, y) - 1, 0)
+    
     def _getbin(self, x, y):
-        if y < self.ybins[0] or y > self.ybins[-1] or \
-                x < self.xbins[0] or x > self.xbins[-1]:
-            raise KeyError('Invalid key `'+repr((x, y))+'`.')
-        py = max(bisect.bisect_left(self.ybins, y) - 1, 0)
-        px = max(bisect.bisect_left(self.xbins, x) - 1, 0)
-        return py, px
+        return self._getybin(y), self._getxbin(x)
 
     def __getitem__(self, xy):
         """Return the data value of a specific bin
@@ -412,6 +417,19 @@ class Histogram2D:
                 result = v if result is None else min(v, result)
         return result
         
+    def sum(self):
+        """Return the sum of all data members in the histogram.
+
+        Note:
+          `None` values are ignored.
+
+        """
+        result = None
+        for x, y, v in self.iteritems():
+            if v is not None:
+                result = v if result is None else v + result
+        return result    
+        
     def set(self, h):
         """Set all data values of the histogram.
 
@@ -465,6 +483,34 @@ class Histogram2D:
         elif h is not None:
             for p, v in numpy.ndenumerate(self.data):
                 self.data[p] = max(v, h) if v is not None else h
+
+    def xslices(self):
+        slices = []
+        for i in range(len(self.xvals)):
+            slices.append(Histogram1D(xvals=self.yvals,
+                                      xbins=self.ybins,
+                                      data=self.data[:,i]))
+        return slices
+
+    def xslice(self, x):
+        px = self._getxbin(x)
+        return Histogram1D(xvals=self.yvals,
+                           xbins=self.ybins,
+                           data=self.data[:,px])
+
+    def yslices(self):
+        slices = []
+        for i in range(len(self.yvals)):
+            slices.append(Histogram1D(xvals=self.xvals,
+                                      xbins=self.xbins,
+                                      data=self.data[i,:]))
+        return slices
+        
+    def yslice(self, x):
+        py = self._getybin(y)
+        return Histogram1D(xvals=self.xvals,
+                           xbins=self.xbins,
+                           data=self.data[py,:])
 
     def contour(self, axes=None, convert=None, **kwargs):
         """Draw contour lines with matplotlib
@@ -572,18 +618,18 @@ class Histogram2D:
                     self.data[p] *= h
         return self
 
-    def __idiv__(self, h):
+    def __itruediv__(self, h):
         if isinstance(h, Histogram2D):
             if not (numpy.array_equal(h.xbins, self.xbins) and \
                     numpy.array_equal(h.ybins, self.ybins)):
                 raise ValueError('cannot add histograms with different bins')
             for p, v in numpy.ndenumerate(h.data):
                 if self.data[p] is not None:
-                    self.data[p] = _hdiv(self.data[p], v)
+                    self.data[p] = self.data[p]/v
         elif h is not None:
             for p, v in numpy.ndenumerate(self.data):
                 if v is not None:
-                    self.data[p] = _hdiv(self.data[p], h)
+                    self.data[p] = self.data[p]/h
         return self
 
     def __add__(self, h):
@@ -601,7 +647,7 @@ class Histogram2D:
         result *= h
         return result
 
-    def __div__(self, h):
+    def __truediv__(self, h):
         result = self.copy()
         result /= h
         return result
@@ -622,10 +668,10 @@ class Histogram2D:
         result *= h
         return result
 
-    def __rdiv__(self, h):
+    def __rtruediv__(self, h):
         result = Histogram2D(like=self)
         for p, v in numpy.ndenumerate(self.data):
-            result.data[p] = _hdiv(h/v)
+            result.data[p] = h/v
         return result
 
 
@@ -808,7 +854,7 @@ class Histogram1D:
         return result
 
     def min(self):
-        """Return the smalles data member in the histogram.
+        """Return the smallest data member in the histogram.
 
         Note:
           `None` values are ignored.
@@ -819,6 +865,19 @@ class Histogram1D:
             if v is not None:
                 result = v if result is None else min(v, result)
         return result
+
+    def sum(self):
+        """Return the sum of all data members in the histogram.
+
+        Note:
+          `None` values are ignored.
+
+        """
+        result = None
+        for x, v in self.iteritems():
+            if v is not None:
+                result = v if result is None else v + result
+        return result    
         
     def set(self, h):
         """Set all data values of the histogram.
@@ -914,7 +973,7 @@ class Histogram1D:
             xvals = list(map(xconvert, xvals))
         return axes.plot(xvals, dat, *args, **kwargs)
 
-    def errorbars(self, *args, **kwargs):
+    def errorbar(self, *args, **kwargs):
         """Plot errorbars with matplotlib.
 
         Args:
@@ -947,10 +1006,15 @@ class Histogram1D:
                 xvals.append(x)
                 means.append(gd.mean)
                 sdevs.append(gd.sdev)
-        kwargs['yerr'] = sdevs
-        kwargs['fmt'] = None
         kwargs.pop('axes', None)
         kwargs.pop('convert', None)
+        p, = self.plot(*args, **kwargs)
+        kwargs.pop('label', None)
+        kwargs['ecolor'] = p.get_color()
+        kwargs['elinewidth'] = p.get_linewidth()
+        kwargs['fmt'] = None
+        kwargs['yerr'] = sdevs
+        # kwargs['fmt'] = None
         return axes.errorbar(xvals, means, *args, **kwargs)
 
     def setxlim(self, axes=None):
@@ -1005,17 +1069,17 @@ class Histogram1D:
                     self.data[p] *= h
         return self
 
-    def __idiv__(self, h):
+    def __itruediv__(self, h):
         if isinstance(h, Histogram1D):
             if not numpy.array_equal(h.xbins, self.xbins):
                 raise ValueError('cannot add histograms with different bins')
             for p, v in numpy.ndenumerate(h.data):
                 if self.data[p] is not None:
-                    self.data[p] = _hdiv(self.data[p], v)
+                    self.data[p] = self.data[p]/v
         elif h is not None:
             for p, v in numpy.ndenumerate(self.data):
                 if v is not None:
-                    self.data[p] = _hdiv(self.data[p], h)
+                    self.data[p] = self.data[p]/h
         return self
 
     def __add__(self, h):
@@ -1033,7 +1097,7 @@ class Histogram1D:
         result *= h
         return result
 
-    def __div__(self, h):
+    def __truediv__(self, h):
         result = self.copy()
         result /= h
         return result
@@ -1054,10 +1118,10 @@ class Histogram1D:
         result *= h
         return result
 
-    def __rdiv__(self, h):
+    def __rtruediv__(self, h):
         result = Histogram2D(like=self)
         for p, v in numpy.ndenumerate(self.data):
-            result.data[p] = _hdiv(h, v)
+            result.data[p] = h/v
         return result
 
 
