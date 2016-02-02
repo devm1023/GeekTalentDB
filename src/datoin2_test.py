@@ -511,7 +511,9 @@ def makeLIProfile2(profile, logger):
     
     if 'subDocuments' not in profile:
         return liprofile
-    
+
+    experienceIds = set()
+    educationIds = set()
     for subdocument in profile['subDocuments']:
         if 'type' not in subdocument:
             logger.log('type field missing in sub-document.\n')
@@ -580,6 +582,12 @@ def makeLIProfile2(profile, logger):
                 logger.log('invalid description field in experience.\n')
                 return False
 
+            # eliminate duplicates
+            if experience_id in experienceIds:
+                continue
+            else:
+                experienceIds.add(experience_id)
+            
             liprofile['experiences'].append({
                 'id'          : experience_id,
                 'parentId'    : parentId,
@@ -648,6 +656,12 @@ def makeLIProfile2(profile, logger):
             if description is not None and type(description) is not str:
                 logger.log('invalid description field in education.\n')
                 return False
+
+            # eliminate duplicates
+            if education_id in educationIds:
+                continue
+            else:
+                educationIds.add(education_id)
 
             liprofile['educations'].append({
                 'id'          : education_id,
@@ -1283,8 +1297,8 @@ def testRange(fromdate, todate, rows, offset, sourceId, byIndexedOn=False):
     #     exit(1)
     # else:
     #     logger.log('Total counts match.\n')
-    if nprofiles2 <= offset:
-        return
+    # if nprofiles2 <= offset:
+    #     return
         
     logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
                .format(rows, offset))
