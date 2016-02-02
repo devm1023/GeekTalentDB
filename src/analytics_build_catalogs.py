@@ -278,7 +278,7 @@ def addInstitutes(jobid, frominstitute, toinstitute):
               .filter(INEducation.nrmInstitute >= frominstitute)
     if toinstitute is not None:
         liq = liq.filter(LIEducation.nrmInstitute < toinstitute)
-        inq = inq.filter(LIEducation.nrmInstitute < toinstitute)
+        inq = inq.filter(INEducation.nrmInstitute < toinstitute)
     subq = liq.union_all(inq).subquery()
     nrmcol, rawcol = tuple(subq.columns)
     q = cndb.query(nrmcol, rawcol, func.count()) \
@@ -310,7 +310,7 @@ def addDegrees(jobid, fromdegree, todegree):
               .filter(INEducation.nrmDegree >= fromdegree)
     if todegree is not None:
         liq = liq.filter(LIEducation.nrmDegree < todegree)
-        inq = inq.filter(LIEducation.nrmDegree < todegree)
+        inq = inq.filter(INEducation.nrmDegree < todegree)
     subq = liq.union_all(inq).subquery()
     nrmcol, rawcol = tuple(subq.columns)
     q = cndb.query(nrmcol, rawcol, func.count()) \
@@ -416,7 +416,7 @@ if catalog is None or catalog == 'titles':
 
 if catalog is None or catalog == 'sectors':
     logger.log('\nBuilding sectors catalog.\n')
-    q = cndb.query(LIProfile.nrmSector).filter(LIProfile.nrmTitle != None)
+    q = cndb.query(LIProfile.nrmSector).filter(LIProfile.nrmSector != None)
     splitProcess(q, addSectors, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_sectors')
