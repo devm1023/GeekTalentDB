@@ -863,7 +863,12 @@ class CanonicalDB(SQLDatabase):
                 else:
                     msg = 'Received status "ZERO_RESULTS", but "results" '
                     'field is absent or non-empty. URL: '+url
-                    raise GooglePlacesError(msg)                    
+                    raise GooglePlacesError(msg)
+            elif r['status'] == 'INVALID_REQUEST':
+                logger.log('Invalid request for URL {0:s}\n'.format(url))
+                results = []
+                attempts = 0
+                break
             elif r['status'] == 'OVER_QUERY_LIMIT':
                 if attempts < maxattempts:
                     logger.log('URL: '+url+'\n')
