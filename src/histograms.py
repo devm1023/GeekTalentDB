@@ -188,6 +188,7 @@ class Histogram2D:
         and bin boundaries of another Histogram2D instance are used. This
         supercedes any values specified for `xvals`, `yvals`, `xbins`, or
         `ybins`. The ``data`` member is not copied. Defaults to ``None``.
+      init: Initial value for all bins of the histogram. Defaults to ``None``.
 
     Attributes:
       xvals (numpy array): list of central x-values of the histogram bins.
@@ -206,7 +207,7 @@ class Histogram2D:
 
     """
     def __init__(self, xvals=None, yvals=None, xbins=None, ybins=None,
-                 data=None, like=None):
+                 data=None, like=None, init=None):
         if like is not None:
             xvals = numpy.array(like.xvals)
             yvals = numpy.array(like.yvals)
@@ -281,7 +282,7 @@ class Histogram2D:
         self.ybins = ybins
 
         if data is None:
-            self.data = numpy.empty((len(yvals), len(xvals)), dtype=object)
+            self.data = numpy.full((len(yvals), len(xvals)), init, dtype=object)
         else:
             if not hasattr(data, 'shape') or len(data.shape) != 2:
                 raise TypeError('`data` argument must be 2D-array.')
@@ -333,6 +334,12 @@ class Histogram2D:
         """
         x, y = xy
         self.data[self._getbin(x, y)] = val
+
+    def inc(self, x, y, by=1):
+        try:
+            self[x, y] += by
+        except KeyError:
+            pass
 
     def center(self, x, y):
         """Return the center of the bin to which (x,y) belongs.
@@ -517,9 +524,10 @@ class Histogram2D:
         if axes is None:
             axes = plt.gca()
         if convert is None:
-            data = self.data
+            data = numpy.asarray(self.data, dtype=float)
         else:
-            data = numpy.vectorize(convert)(self.data)
+            data = numpy.asarray(numpy.vectorize(convert)(self.data),
+                                 dtype=float)
         return axes.pcolormesh(self.xbins, self.ybins, data, **kwargs)
 
     def __iadd__(self, h):
@@ -636,6 +644,7 @@ class Histogram1D:
         and bin boundaries of another Histogram1D instance are used. This
         supercedes any values specified for `xvals` or `xbins`. The
         ``data`` member is not copied.
+      init: Initial value for all bins of the histogram. Defaults to ``None``.
 
     Attributes:
       xvals (numpy array): list of central x-values of the histogram bins.
@@ -650,7 +659,7 @@ class Histogram1D:
       is also supported.
 
     """
-    def __init__(self, xvals=None, xbins=None, data=None, like=None):
+    def __init__(self, xvals=None, xbins=None, data=None, like=None, init=None):
         if like is not None:
             xvals = numpy.array(like.xvals)
             xbins = numpy.array(like.xbins)
@@ -692,7 +701,7 @@ class Histogram1D:
         self.xbins = xbins
 
         if data is None:
-            self.data = numpy.empty((len(xvals),), dtype=object)
+            self.data = numpy.full((len(xvals),), init, dtype=object)
         else:
             if not hasattr(data, '__len__'):
                 raise TypeError('`data` argument must be 1D-array.')
@@ -739,6 +748,12 @@ class Histogram1D:
 
         """
         self.data[self._getbin(x)] = val
+
+    def inc(self, x, by=1):
+        try:
+            self[x] += by
+        except KeyError:
+            pass
 
     def center(self, x):
         """Return the center of the bin to which x belongs.
