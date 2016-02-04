@@ -160,9 +160,11 @@ class LIProfileSkill(SQLBase):
 class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
     liexperienceId = Column(BigInteger, ForeignKey('liexperience.id'),
-                            primary_key=True)
+                            primary_key=True,
+                            index=True)
     skillId        = Column(BigInteger, ForeignKey('liprofile_skill.id'),
-                            primary_key=True)
+                            primary_key=True,
+                            index=True)
     skill          = relationship('LIProfileSkill')
 
 class INProfile(SQLBase):
@@ -258,9 +260,11 @@ class INProfileSkill(SQLBase):
 class INExperienceSkill(SQLBase):
     __tablename__ = 'inexperience_skill'
     inexperienceId = Column(BigInteger, ForeignKey('inexperience.id'),
-                            primary_key=True)
+                            primary_key=True,
+                            index=True)
     skillId        = Column(BigInteger, ForeignKey('inprofile_skill.id'),
-                            primary_key=True)
+                            primary_key=True,
+                            index=True)
     skill          = relationship('INProfileSkill')
 
 class Location(SQLBase):

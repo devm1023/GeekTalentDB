@@ -338,8 +338,8 @@ class Skill(SQLBase):
                                autoincrement=False)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
+    profileCount      = Column(BigInteger)
+    experienceCount   = Column(BigInteger)
 
 class SkillWord(SQLBase):
     __tablename__ = 'skill_word'
@@ -364,8 +364,8 @@ class Title(SQLBase):
                        autoincrement=False)
     language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
+    profileCount    = Column(BigInteger)
+    experienceCount = Column(BigInteger)
 
 class TitleWord(SQLBase):
     __tablename__ = 'title_word'
@@ -389,7 +389,7 @@ class Sector(SQLBase):
                        primary_key=True,
                        autoincrement=False)
     name      = Column(Unicode(STR_MAX))
-    count     = Column(BigInteger)
+    liCount   = Column(BigInteger)
 
 class Company(SQLBase):
     __tablename__ = 'company'
@@ -398,8 +398,8 @@ class Company(SQLBase):
                        autoincrement=False)
     language  = Column(String(20))
     name      = Column(Unicode(STR_MAX))
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
+    profileCount    = Column(BigInteger)
+    experienceCount = Column(BigInteger)
 
 class CompanyWord(SQLBase):
     __tablename__ = 'company_word'
@@ -483,12 +483,12 @@ class Word(SQLBase):
                                       primary_key=True)
     word                     = Column(Unicode(STR_MAX),
                                       primary_key=True)
-    liprofileSkillCount      = Column(BigInteger)
-    liexperienceSkillCount   = Column(BigInteger)
-    liprofileTitleCount      = Column(BigInteger)
-    liexperienceTitleCount   = Column(BigInteger)
-    liprofileCompanyCount    = Column(BigInteger)
-    liexperienceCompanyCount = Column(BigInteger)
+    profileSkillCount        = Column(BigInteger)
+    experienceSkillCount     = Column(BigInteger)
+    profileTitleCount        = Column(BigInteger)
+    experienceTitleCount     = Column(BigInteger)
+    profileCompanyCount      = Column(BigInteger)
+    experienceCompanyCount   = Column(BigInteger)
 
 class TitleSkill(SQLBase):
     __tablename__ = 'title_skill'

@@ -12,6 +12,7 @@ from logger import Logger
 import re
 import langdetect
 from langdetect.lang_detect_exception import LangDetectException
+import argparse
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
@@ -400,45 +401,47 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
 
 if __name__ == '__main__':
     # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('njobs', help='Number of parallel jobs.', type=int)
+    parser.add_argument('batchsize', help='Number of rows per batch.', type=int)
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after\n'
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before\n'
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate and\n'
+                        '--todate are index dates. Otherwise they are interpreted\n'
+                        'as crawl dates.',
+                        action='store_true')
+    parser.add_argument('--from-id', help=
+                        'Start processing from this datoin ID. Useful for\n'
+                        'crash recovery.')
+    parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
+                        'Source type to process. If not specified all sources are\n'
+                        'processed.')
+    parser.add_argument('--skills', help=
+                        'Name of a CSV file holding skill tags. Only needed when\n'
+                        'processing Indeed CVs.')
+    args = parser.parse_args()
+    
+    njobs = max(args.njobs, 1)
+    batchsize = args.batchsize
     try:
-        sys.argv.pop(0)
-        njobs = max(int(sys.argv.pop(0)), 1)
-        batchsize = int(sys.argv.pop(0))
-        fromdate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
-        todate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
-
-        sourceId = None
-        byIndexedOn = False
-        fromid = None
-        skillfile = None
-        while sys.argv:
-            option = sys.argv.pop(0).split('=')
-            if len(option) == 1:
-                option = option[0]
-                if option == '--by-index-date':
-                    byIndexedOn = True
-                else:
-                    raise ValueError('Invalid command line argument.')
-            elif len(option) == 2:
-                value=option[1]
-                option=option[0]
-                if option == '--source':
-                    if value in ['linkedin', 'indeed']:
-                        sourceId = value
-                    else:
-                        raise ValueError('Invalid command line argument.')
-                elif option == '--fromid':
-                    fromid = value
-                elif option == '--skills':
-                    skillfile = value
-            else:
-                raise ValueError('Invalid command line argument.')
+        fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
+        if not args.to_date:
+            todate = datetime.now()
+        else:
+            todate = datetime.strptime(args.to_date, '%Y-%m-%d')
     except ValueError:
-        print('python3 canonical_parse_profiles.py <njobs> <batchsize> '
-              '<from-date> <to-date> [--by-index-date] '
-              '[--source=<sourceid>] [--fromid=<fromid>] '
-              '[--skills=<skills.csv>]')
+        sys.stderr.write('Invalid date format.\n')
         exit(1)
+    byIndexedOn = bool(args.by_index_date)
+    fromid = args.from_id
+    skillfile = args.skills
+    sourceId = args.source
 
     fromTs = int((fromdate - timestamp0).total_seconds())*1000
     toTs   = int((todate   - timestamp0).total_seconds())*1000
