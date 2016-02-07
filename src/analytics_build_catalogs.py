@@ -71,7 +71,7 @@ def entities2(q):
     elif bestprofilename:
         yield currententity, bestprofilename, profilecount, experiencecount
 
-def addSkills():
+def addSkills(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -97,7 +97,8 @@ def addSkills():
         }, analyticsdb.Skill)
 
     logger.log('Scanning profiles.\n')
-    processDb(entities(q), addProfileSkill, andb, logger=logger)
+    processDb(entities(q), addProfileSkill, andb, batchsize=batchsize,
+              logger=logger)
 
     liq = cndb.query(LIExperienceSkill.liexperienceId,
                      LIProfileSkill.nrmName.label('nrm')) \
@@ -118,10 +119,10 @@ def addSkills():
         }, analyticsdb.Skill)
 
     logger.log('Scanning experiences.\n')
-    processDb(q, addLIExperienceSkill, andb, logger=logger)
+    processDb(q, addLIExperienceSkill, andb, batchsize=batchsize, logger=logger)
 
 
-def addTitles():
+def addTitles(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -154,10 +155,10 @@ def addTitles():
             'experienceCount'   : experienceCount,
             }, analyticsdb.Title)
     
-    processDb(entities2(q), addTitle, andb, logger=logger)
+    processDb(entities2(q), addTitle, andb, batchsize=batchsize, logger=logger)
 
 
-def addCompanies():
+def addCompanies(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -190,9 +191,10 @@ def addCompanies():
             'experienceCount'   : experienceCount,
             }, analyticsdb.Company)
     
-    processDb(entities2(q), addCompany, andb, logger=logger)
+    processDb(entities2(q), addCompany, andb, batchsize=batchsize,
+              logger=logger)
 
-def addSectors():
+def addSectors(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -211,10 +213,10 @@ def addSectors():
             'liCount'         : liCount,
         }, analyticsdb.Sector)
 
-    processDb(q, addSector, andb, logger=logger) 
+    processDb(q, addSector, andb, batchsize=batchsize, logger=logger) 
 
 
-def addLocations():
+def addLocations(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -232,10 +234,10 @@ def addLocations():
             'geo'             : geo,
         }, analyticsdb.Location)
 
-    processDb(q, addLocation, andb, logger=logger) 
+    processDb(q, addLocation, andb, batchsize=batchsize, logger=logger) 
 
 
-def addInstitutes():
+def addInstitutes(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -259,10 +261,11 @@ def addInstitutes():
             'count'           : count,
             }, analyticsdb.Institute)
     
-    processDb(entities(q), addInstitute, andb, logger=logger)
+    processDb(entities(q), addInstitute, andb, batchsize=batchsize,
+              logger=logger)
 
 
-def addDegrees():
+def addDegrees(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -286,10 +289,10 @@ def addDegrees():
             'count'           : count,
             }, analyticsdb.Degree)
     
-    processDb(entities(q), addDegree, andb, logger=logger)
+    processDb(entities(q), addDegree, andb, batchsize=batchsize, logger=logger)
 
 
-def addSubjects():
+def addSubjects(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
@@ -313,7 +316,7 @@ def addSubjects():
             'count'           : count,
             }, analyticsdb.Subject)
     
-    processDb(entities(q), addSubject, andb, logger=logger)
+    processDb(entities(q), addSubject, andb, batchsize=batchsize, logger=logger)
 
 
 if __name__ == '__main__':
@@ -324,40 +327,42 @@ if __name__ == '__main__':
                                  'locations', 'institutes', 'degrees',
                                  'subjects'],
                         default=None, nargs='?')
+    parser.add_argument('--batchsize', type=int, default=10000, help=
+                        'Number of rows to commit in one batch.')
     args = parser.parse_args()
     catalog = args.catalog
+    batchsize = args.batchsize
     
-    cndb = CanonicalDB(conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
 
     if catalog is None or catalog == 'skills':
         logger.log('\nBuilding skills catalog.\n')
-        addSkills()
+        addSkills(batchsize)
 
     if catalog is None or catalog == 'titles':
         logger.log('\nBuilding titles catalog.\n')
-        addTitles()
+        addTitles(batchsize)
         
     if catalog is None or catalog == 'sectors':
         logger.log('\nBuilding sectors catalog.\n')
-        addSectors()
+        addSectors(batchsize)
 
     if catalog is None or catalog == 'companies':
         logger.log('\nBuilding companies catalog.\n')
-        addCompanies()
+        addCompanies(batchsize)
 
     if catalog is None or catalog == 'locations':
         logger.log('\nBuilding locations catalog.\n')
-        addLocations()
+        addLocations(batchsize)
 
     if catalog is None or catalog == 'institutes':
         logger.log('\nBuilding institutes catalog.\n')
-        addInstitutes()
+        addInstitutes(batchsize)
 
     if catalog is None or catalog == 'degrees':
         logger.log('\nBuilding degrees catalog.\n')
-        addDegrees()
+        addDegrees(batchsize)
 
     if catalog is None or catalog == 'subjects':
         logger.log('\nBuilding subjects catalog.\n')
-        addSubjects()
+        addSubjects(batchsize)

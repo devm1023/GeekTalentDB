@@ -1,7 +1,8 @@
 __all__ = [
     'windows',
     'windowQuery',
-    'splitProcess'
+    'splitProcess',
+    'processDb',
 ]
 
 import sqlalchemy

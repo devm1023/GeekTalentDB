@@ -153,20 +153,22 @@ def addProfiles(args):
                  njobs=args.njobs, logger=logger,
                  workdir='jobs', prefix='analytics_build_liprofiles')
 
-parser = argparse.ArgumentParser()
-parser.add_argument('njobs',
-                    help='The number of parallel jobs.',
-                    type=int)
-parser.add_argument('batchsize',
-                    help='The number of rows in each parallel batch.',
-                    type=int)
-parser.add_argument('--fromid',
-                    help='The profile ID to start from.',
-                    type=int)
-parser.add_argument('--source',
-                    help='The data source to process.',
-                    choices=['linkedin', 'indeed'])
-args = parser.parse_args()
-addProfiles(args)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('njobs',
+                        help='The number of parallel jobs.',
+                        type=int)
+    parser.add_argument('batchsize',
+                        help='The number of rows in each parallel batch.',
+                        type=int)
+    parser.add_argument('--fromid',
+                        help='The profile ID to start from.',
+                        type=int)
+    parser.add_argument('--source',
+                        help='The data source to process.',
+                        choices=['linkedin', 'indeed'])
+    args = parser.parse_args()
+    addProfiles(args)
 
 
