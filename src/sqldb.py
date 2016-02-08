@@ -33,7 +33,7 @@ class SQLDatabase:
     def create_all(self):
         self.metadata.create_all(self.session.bind)
 
-    def addFromDict(self, d, table):
+    def addFromDict(self, d, table, update=True):
         if d is None:
             return None
         d = deepcopy(d)
@@ -41,15 +41,19 @@ class SQLDatabase:
         if pkey is not None and None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
 
-        row = None
-        if pkey is not None:
-            whereclauses = [c == v for c, v in zip(pkeycols, pkey)]
-            row = self.query(table).filter(*whereclauses).first()
-        if row is None:
+        if not update:
             row = rowFromDict(d, table)
             self.add(row)
         else:
-            updateRowFromDict(row, d)
+            row = None
+            if pkey is not None:
+                whereclauses = [c == v for c, v in zip(pkeycols, pkey)]
+                row = self.query(table).filter(*whereclauses).first()
+            if row is None:
+                row = rowFromDict(d, table)
+                self.add(row)
+            else:
+                updateRowFromDict(row, d)
 
         return row
 
