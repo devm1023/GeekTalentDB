@@ -9,6 +9,23 @@ import itertools
 from pprint import pprint
 
 
+def educationKey(e):
+    return (e['institute'] if e['institute'] else '',
+            e['degree'] if e['degree'] else '',
+            e['area'] if e['area'] else '',
+            e['dateFrom'] if e['dateFrom'] else 0,
+            e['dateTo'] if e['dateTo'] else 0,
+            e['description'] if e['description'] else '')
+
+def experienceKey(e):
+    return (e['name'] if e['name'] else '',
+            e['company'] if e['company'] else '',
+            e['country'] if e['country'] else '',
+            e['city'] if e['city'] else '',
+            e['dateFrom'] if e['dateFrom'] else 0,
+            e['dateTo'] if e['dateTo'] else 0,
+            e['description'] if e['description'] else '')
+
 def makeLIProfile1(profile, dtsession, logger):
     # check sourceId
     if profile.get('sourceId', '') != 'linkedin':
@@ -242,8 +259,8 @@ def makeLIProfile1(profile, dtsession, logger):
             return False
 
         experiences.append({
-            'id'          : experience_id,
-            'parentId'    : parentId,
+            # 'id'          : experience_id,
+            # 'parentId'    : parentId,
             'name'        : name,
             'company'     : company,
             'country'     : country,
@@ -314,8 +331,8 @@ def makeLIProfile1(profile, dtsession, logger):
             return False
 
         educations.append({
-            'id'          : education_id,
-            'parentId'    : parentId,
+            # 'id'          : education_id,
+            # 'parentId'    : parentId,
             'institute'   : institute,
             'degree'      : degree,
             'area'        : area,
@@ -325,8 +342,8 @@ def makeLIProfile1(profile, dtsession, logger):
             'indexedOn'   : indexedOn})
 
     # sort experiences and educations
-    experiences.sort(key=lambda e: e['id'])
-    educations.sort(key=lambda e: e['id'])
+    experiences.sort(key=experienceKey)
+    educations.sort(key=educationKey)
 
     # return profile
     liprofile['experiences'] = experiences
@@ -523,22 +540,22 @@ def makeLIProfile2(profile, logger):
             experience = subdocument
             
             # get id
-            if 'id' not in experience:
-                logger.log('id field missing in experience.\n')
-                return False
-            experience_id = experience['id']
-            if type(experience_id) is not str:
-                logger.log('invalid id field in experience.\n')
-                return False
+            # if 'id' not in experience:
+            #     logger.log('id field missing in experience.\n')
+            #     return False
+            # experience_id = experience['id']
+            # if type(experience_id) is not str:
+            #     logger.log('invalid id field in experience.\n')
+            #     return False
 
             # get parent id
-            if 'parentId' not in experience:
-                logger.log('parentId field missing in experience.\n')
-                return False
-            parentId = experience['parentId']
-            if parentId != liprofile['id']:
-                logger.log('invalid parentId field in experience.\n')
-                return False
+            # if 'parentId' not in experience:
+            #     logger.log('parentId field missing in experience.\n')
+            #     return False
+            # parentId = experience['parentId']
+            # if parentId != liprofile['id']:
+            #     logger.log('invalid parentId field in experience.\n')
+            #     return False
 
             # get job title
             name = experience.get('name', None)
@@ -583,14 +600,14 @@ def makeLIProfile2(profile, logger):
                 return False
 
             # eliminate duplicates
-            if experience_id in experienceIds:
-                continue
-            else:
-                experienceIds.add(experience_id)
+            # if experience_id in experienceIds:
+            #     continue
+            # else:
+            #     experienceIds.add(experience_id)
             
             liprofile['experiences'].append({
-                'id'          : experience_id,
-                'parentId'    : parentId,
+                # 'id'          : experience_id,
+                # 'parentId'    : parentId,
                 'name'        : name,
                 'company'     : company,
                 'country'     : country,
@@ -604,22 +621,22 @@ def makeLIProfile2(profile, logger):
             education = subdocument
 
             # get id
-            if 'id' not in education:
-                logger.log('id field missing in education.\n')
-                return False
-            education_id = education['id']
-            if type(education_id) is not str:
-                logger.log('invalid id field in education.\n')
-                return False
+            # if 'id' not in education:
+            #     logger.log('id field missing in education.\n')
+            #     return False
+            # education_id = education['id']
+            # if type(education_id) is not str:
+            #     logger.log('invalid id field in education.\n')
+            #     return False
 
             # get parent id
-            if 'parentId' not in education:
-                logger.log('parentId field missing in education.\n')
-                return False
-            parentId = education['parentId']
-            if parentId != liprofile['id']:
-                logger.log('invalid parentId field in education.\n')
-                return False
+            # if 'parentId' not in education:
+            #     logger.log('parentId field missing in education.\n')
+            #     return False
+            # parentId = education['parentId']
+            # if parentId != liprofile['id']:
+            #     logger.log('invalid parentId field in education.\n')
+            #     return False
 
             # get institute
             institute = education.get('name', None)
@@ -658,33 +675,31 @@ def makeLIProfile2(profile, logger):
                 return False
 
             # eliminate duplicates
-            if education_id in educationIds:
-                continue
-            else:
-                educationIds.add(education_id)
+            # if education_id in educationIds:
+            #     continue
+            # else:
+            #     educationIds.add(education_id)
 
             liprofile['educations'].append({
-                'id'          : education_id,
-                'parentId'    : parentId,
+                # 'id'          : education_id,
+                # 'parentId'    : parentId,
                 'institute'   : institute,
                 'degree'      : degree,
                 'area'        : area,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : liprofile['indexedOn']})
+                'description' : description})
             
         else:
             logger.log('unknown sub-document type.\n')
             return False
 
     # sort experiences and educations
-    liprofile['experiences'].sort(key=lambda e: e['id'])
-    liprofile['educations'].sort(key=lambda e: e['id'])
+    liprofile['experiences'].sort(key=experienceKey)
+    liprofile['educations'].sort(key=educationKey)
 
     # return profile
     return liprofile
-
 
 def makeINProfile1(inprofiledoc, dtsession, logger):
     # check sourceId
@@ -876,16 +891,15 @@ def makeINProfile1(inprofiledoc, dtsession, logger):
             return False
 
         inprofile['experiences'].append({
-            'id'          : experience_id,
-            'parentId'    : parentId,
+            # 'id'          : experience_id,
+            # 'parentId'    : parentId,
             'name'        : name,
             'company'     : company,
             'country'     : country,
             'city'        : city,
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
-            'description' : description,
-            'indexedOn'   : inprofile['indexedOn']})
+            'description' : description})
             
     # get educations
         
@@ -948,15 +962,18 @@ def makeINProfile1(inprofiledoc, dtsession, logger):
             return False
 
         inprofile['educations'].append({
-            'id'          : education_id,
-            'parentId'    : parentId,
+            # 'id'          : education_id,
+            # 'parentId'    : parentId,
             'institute'   : institute,
             'degree'      : degree,
             'area'        : area,
             'dateFrom'    : dateFrom,
             'dateTo'      : dateTo,
-            'description' : description,
-            'indexedOn'   : inprofile['indexedOn']})
+            'description' : description})
+
+    # sort experiences and educations
+    inprofile['experiences'].sort(key=experienceKey)
+    inprofile['educations'].sort(key=educationKey)
 
     # return inprofile
     return inprofile
@@ -1098,22 +1115,22 @@ def makeINProfile2(inprofiledoc, logger):
             experience = subdocument
             
             # get id
-            if 'id' not in experience:
-                logger.log('id field missing in experience.\n')
-                return False
-            experience_id = experience['id']
-            if type(experience_id) is not str:
-                logger.log('invalid id field in experience.\n')
-                return False
+            # if 'id' not in experience:
+            #     logger.log('id field missing in experience.\n')
+            #     return False
+            # experience_id = experience['id']
+            # if type(experience_id) is not str:
+            #     logger.log('invalid id field in experience.\n')
+            #     return False
 
             # get parent id
-            if 'parentId' not in experience:
-                logger.log('parentId field missing in experience.\n')
-                return False
-            parentId = experience['parentId']
-            if parentId != inprofile['id']:
-                logger.log('invalid parentId field in experience.\n')
-                return False
+            # if 'parentId' not in experience:
+            #     logger.log('parentId field missing in experience.\n')
+            #     return False
+            # parentId = experience['parentId']
+            # if parentId != inprofile['id']:
+            #     logger.log('invalid parentId field in experience.\n')
+            #     return False
 
             # get job title
             name = experience.get('name', None)
@@ -1158,37 +1175,36 @@ def makeINProfile2(inprofiledoc, logger):
                 return False
 
             inprofile['experiences'].append({
-                'id'          : experience_id,
-                'parentId'    : parentId,
+                # 'id'          : experience_id,
+                # 'parentId'    : parentId,
                 'name'        : name,
                 'company'     : company,
                 'country'     : country,
                 'city'        : city,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : inprofile['indexedOn']})
+                'description' : description})
             
         elif subdocument['type'] == 'profile-education':
             education = subdocument
 
             # get id
-            if 'id' not in education:
-                logger.log('id field missing in education.\n')
-                return False
-            education_id = education['id']
-            if type(education_id) is not str:
-                logger.log('invalid id field in education.\n')
-                return False
+            # if 'id' not in education:
+            #     logger.log('id field missing in education.\n')
+            #     return False
+            # education_id = education['id']
+            # if type(education_id) is not str:
+            #     logger.log('invalid id field in education.\n')
+            #     return False
 
             # get parent id
-            if 'parentId' not in education:
-                logger.log('parentId field missing in education.\n')
-                return False
-            parentId = education['parentId']
-            if parentId != inprofile['id']:
-                logger.log('invalid parentId field in education.\n')
-                return False
+            # if 'parentId' not in education:
+            #     logger.log('parentId field missing in education.\n')
+            #     return False
+            # parentId = education['parentId']
+            # if parentId != inprofile['id']:
+            #     logger.log('invalid parentId field in education.\n')
+            #     return False
 
             # get institute
             institute = education.get('name', None)
@@ -1227,8 +1243,8 @@ def makeINProfile2(inprofiledoc, logger):
                 return False
 
             inprofile['educations'].append({
-                'id'          : education_id,
-                'parentId'    : parentId,
+                # 'id'          : education_id,
+                # 'parentId'    : parentId,
                 'institute'   : institute,
                 'degree'      : degree,
                 'area'        : area,
@@ -1241,6 +1257,10 @@ def makeINProfile2(inprofiledoc, logger):
             logger.log('unknown sub-document type.\n')
             return False
 
+    # sort experiences and educations
+    inprofile['experiences'].sort(key=experienceKey)
+    inprofile['educations'].sort(key=educationKey)
+
     # add inprofile
     return inprofile
 
@@ -1248,6 +1268,7 @@ def makeINProfile2(inprofiledoc, logger):
 
 
 def testRange(fromdate, todate, rows, offset, sourceId, byIndexedOn=False):
+    batchsize = 10
     logger = Logger(sys.stdout)
     if sourceId is None:
         logger.log('Testing LinkedIn.\n')
@@ -1290,15 +1311,15 @@ def testRange(fromdate, todate, rows, offset, sourceId, byIndexedOn=False):
         .format(fromdate.strftime('%Y-%m-%d'), fromTs,
                 todate.strftime('%Y-%m-%d'), toTs,
                 nprofiles2))
-    # if nprofiles1 != nprofiles2:
-    #     logger.log(
-    #         'Number of profiles disagree: {0:d} (old API) vs {1:d} (new API)\n' \
-    #         .format(nprofiles1, nprofiles2))
-    #     exit(1)
-    # else:
-    #     logger.log('Total counts match.\n')
-    # if nprofiles2 <= offset:
-    #     return
+    if nprofiles1 != nprofiles2:
+        logger.log(
+            'Number of profiles disagree: {0:d} (old API) vs {1:d} (new API)\n' \
+            .format(nprofiles1, nprofiles2))
+        exit(1)
+    else:
+        logger.log('Total counts match.\n')
+    if nprofiles2 <= offset:
+        return
         
     logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
                .format(rows, offset))
@@ -1336,6 +1357,10 @@ def testRange(fromdate, todate, rows, offset, sourceId, byIndexedOn=False):
             exit(1)
 
         profilecount += 1
+        if profilecount % batchsize == 0:
+            logger.log('Profile {0:d} passed.\n'.format(profilecount))
+    
+    if profilecount % batchsize != 0:
         logger.log('Profile {0:d} passed.\n'.format(profilecount))
     
 
