@@ -1320,9 +1320,13 @@ def testRange(fromdate, todate, rows, offset, sourceId, byIndexedOn=False):
         logger.log('Total counts match.\n')
     if nprofiles2 <= offset:
         return
-        
-    logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
-               .format(rows, offset))
+
+    if rows is not None:
+        logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
+                   .format(rows, offset))
+    else:
+        logger.log('Downloading all profiles from offset {0:d}.\n'\
+                   .format(offset))
     profilecount = 0
     for profile2 in dtsession.query(url=conf.DATOIN2_SEARCH,
                                     params={'sid'         : sourceId,
