@@ -998,23 +998,34 @@ class Histogram1D:
         if len(self.data) == 0:
             return
         means = []
+        allmeans = []
         sdevs = []
         xvals = []
-        for x, d in zip(self.xvals, self.data):
+        offset = kwargs.pop('offset', 0)
+        for lb, x, ub, d in zip(self.xbins[:-1], self.xvals, self.xbins[1:],
+                                self.data):
             if d is not None:
                 gd = convert(d)
-                xvals.append(x)
+                if offset < 0:
+                    xvals.append(x + (x-lb)*offset)
+                else:
+                    xvals.append(x + (ub-x)*offset)
                 means.append(gd.mean)
+                allmeans.append(gd.mean)
                 sdevs.append(gd.sdev)
+            else:
+                allmeans.append(None)
         kwargs.pop('axes', None)
         kwargs.pop('convert', None)
-        p, = self.plot(*args, **kwargs)
+        if kwargs.get('drawstyle', None) == 'steps':
+            p, = axes.plot(self.xbins, [allmeans[0]]+allmeans, *args, **kwargs)
+        else:
+            p, = axes.plot(self.xvals, allmeans, *args, **kwargs)
         kwargs.pop('label', None)
         kwargs['ecolor'] = p.get_color()
         kwargs['elinewidth'] = p.get_linewidth()
-        kwargs['fmt'] = None
+        kwargs['fmt'] = 'none'
         kwargs['yerr'] = sdevs
-        # kwargs['fmt'] = None
         return axes.errorbar(xvals, means, *args, **kwargs)
 
     def setxlim(self, axes=None):
