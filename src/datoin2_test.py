@@ -719,13 +719,14 @@ def makeINProfile1(inprofiledoc, dtsession, logger):
     inprofile_id = inprofiledoc['id']
 
     # get parentId
-    if 'parentId' not in inprofiledoc:
-        logger.log('invalid profile parentId\n')
-        return False
-    parentId = inprofiledoc['parentId']
-    if parentId != inprofile_id:
-        logger.log('invalid profile parentId\n')
-        return False
+    # if 'parentId' not in inprofiledoc:
+    #     logger.log('Profile parentId missing\n')
+    #     return False
+    # parentId = inprofiledoc['parentId']
+    # if parentId != inprofile_id:
+    #     logger.log('Profile ID: {0:s}\n'.format(inprofile_id))
+    #     logger.log('Invalid profile parentId: {0:s}\n'.format(parentId))
+    #     return False
 
     # get last name
     lastName = inprofiledoc.get('lastName', '')
@@ -808,7 +809,7 @@ def makeINProfile1(inprofiledoc, dtsession, logger):
 
     inprofile = {
         'id'                : inprofile_id,
-        'parentId'          : parentId,
+        # 'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
         'name'              : name,
@@ -996,13 +997,14 @@ def makeINProfile2(inprofiledoc, logger):
     inprofile_id = inprofiledoc['id']
 
     # get parentId
-    if 'parentId' not in inprofiledoc:
-        logger.log('invalid profile parentId\n')
-        return False
-    parentId = inprofiledoc['parentId']
-    if parentId != inprofile_id:
-        logger.log('invalid profile parentId\n')
-        return False
+    # if 'parentId' not in inprofiledoc:
+    #     logger.log('Profile parentId missing\n')
+    #     return False
+    # parentId = inprofiledoc['parentId']
+    # if parentId != inprofile_id:
+    #     logger.log('Profile ID: {0:s}\n'.format(inprofile_id))
+    #     logger.log('Invalid profile parentId: {0:s}\n'.format(parentId))
+    #     return False
 
     # get last name
     lastName = inprofiledoc.get('lastName', '')
@@ -1085,7 +1087,7 @@ def makeINProfile2(inprofiledoc, logger):
 
     inprofile = {
         'id'                : inprofile_id,
-        'parentId'          : parentId,
+        # 'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
         'name'              : name,
