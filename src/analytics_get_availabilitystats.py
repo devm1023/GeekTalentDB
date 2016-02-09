@@ -60,6 +60,8 @@ def employmentLists(q):
 
 def retentionHistogram(hist):
     n = int(hist.sum())
+    if n <= 0:
+        return None
     hist = hist/n
     hist = cumulatedHistogram(hist, upper=True)
     data = []
@@ -76,9 +78,22 @@ def retentionHistogram(hist):
             data.append(GVar(r, dr))
     return Histogram1D(xbins=hist.xvals, data=data)
 
+def retentionHistogramList(hist, labelfmt='{0:d} to {1:d}'):
+    slices = hist.xslices()
+    result = []
+    for nfrom, nto, h in zip(hist.xbins[:-1],
+                             hist.xbins[1:],
+                             slices):
+        h = retentionHistogram(h)
+        label = labelfmt.format(int(nfrom), int(nto))
+        result.append((label, h))
+
+    return result
+
 def differenceInYears(start, end):
     return (end-start).days/365
     
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -148,5 +163,23 @@ if __name__ == '__main__':
         if lasttitle in hist['title']:
             hist['title'][lasttitle].inc(lastduration)
 
+    hist['duration'] = retentionHistogram(hist['duration'])
+    hist['nexp']     = retentionHistogramList(hist['nexp'])
+    hist['age']      = retentionHistogramList(hist['age'],
+                                              labelfmt='{0:d} to {1:d} years')
+    hist['maxdur']   = retentionHistogramList(hist['maxdur'],
+                                              labelfmt='{0:d} to {1:d} years')
+    hist['prevdur']  = retentionHistogramList(hist['prevdur'],
+                                              labelfmt='{0:d} to {1:d} years')
+
+    titlehists = []
+    for title, h in hist['title'].items():
+        if h.sum() < args.titlethreshold:
+            continue
+        h = retentionHistogram(h)
+        if h is not None:
+            titlehists.append((titlenames[title], h))
+    hist['title'] = titlehists
+            
     with open(args.outputfile, 'wb') as pclfile:
         pickle.dump(hist, pclfile)
