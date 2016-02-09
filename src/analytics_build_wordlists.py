@@ -35,8 +35,8 @@ def countSkillWords(jobid, fromword, toword):
     logger = Logger(sys.stdout)
     
     q = andb.query(SkillWord.language, SkillWord.word,
-                   func.sum(Skill.liprofileCount),
-                   func.sum(Skill.liexperienceCount)) \
+                   func.sum(Skill.profileCount),
+                   func.sum(Skill.experienceCount)) \
             .join(Skill) \
             .filter(SkillWord.word >= fromword)
     if toword is not None:
@@ -83,8 +83,8 @@ def countTitleWords(jobid, fromword, toword):
     logger = Logger(sys.stdout)
     
     q = andb.query(TitleWord.language, TitleWord.word,
-                   func.sum(Title.liprofileCount),
-                   func.sum(Title.liexperienceCount)) \
+                   func.sum(Title.profileCount),
+                   func.sum(Title.experienceCount)) \
             .join(Title) \
             .filter(TitleWord.word >= fromword)
     if toword is not None:
@@ -131,8 +131,8 @@ def countCompanyWords(jobid, fromword, toword):
     logger = Logger(sys.stdout)
     
     q = andb.query(CompanyWord.language, CompanyWord.word,
-                   func.sum(Company.liprofileCount),
-                   func.sum(Company.liexperienceCount)) \
+                   func.sum(Company.profileCount),
+                   func.sum(Company.experienceCount)) \
             .join(Company) \
             .filter(CompanyWord.word >= fromword)
     if toword is not None:
