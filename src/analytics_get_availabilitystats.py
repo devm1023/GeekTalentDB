@@ -97,9 +97,11 @@ def differenceInYears(start, end):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('titlethreshold',
-                        help='The minimal popularity for job titles.',
-                        type=int)
+    parser.add_argument('--source', choices=['linkedin', 'indeed'],
+                        help='The data source to use.',
+                        default='linkedin')
+    parser.add_argument('--threshold', type=int, default=10000,
+                        help='The minimal popularity for job titles.')
     parser.add_argument('outputfile',
                         help='The name of the output file')
     args = parser.parse_args()
@@ -108,14 +110,24 @@ if __name__ == '__main__':
 
     # get titles
     q = andb.query(Title.nrmName, Title.name) \
-            .filter(Title.experienceCount >= args.titlethreshold)
+            .filter(Title.experienceCount >= args.threshold)
     titlenames = dict(q)
 
-    q = andb.query(LIExperience.liprofileId,
-                   LIExperience.nrmTitle,
-                   LIExperience.nrmCompany,
-                   LIExperience.start,
-                   LIExperience.end)
+    if args.source == 'linkedin':
+        q = andb.query(LIExperience.liprofileId,
+                       LIExperience.nrmTitle,
+                       LIExperience.nrmCompany,
+                       LIExperience.start,
+                       LIExperience.end)
+    elif args.source == 'indeed':
+        q = andb.query(INExperience.inprofileId,
+                       INExperience.nrmTitle,
+                       INExperience.nrmCompany,
+                       INExperience.start,
+                       INExperience.end)
+    else:
+        raise ValueError('Invalid source type')
+    
 
     durationbins = np.arange(0.0, 10.1, 1.0)
 
@@ -174,7 +186,7 @@ if __name__ == '__main__':
 
     titlehists = []
     for title, h in hist['title'].items():
-        if h.sum() < args.titlethreshold:
+        if h.sum() < args.threshold:
             continue
         h = retentionHistogram(h)
         if h is not None:
