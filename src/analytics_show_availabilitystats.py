@@ -1,6 +1,7 @@
 from histograms import Histogram1D, Histogram2D
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.colors import LogNorm
 import seaborn
 from math import log, sqrt, exp
 import pickle
@@ -77,6 +78,10 @@ imin = min((t for t in hist['title'] if t[1].data[0] is not None),
            key=lambda x: x[1].data[0].mean)
 drawHist([imin, imax],
          title='Retention rate by job title')
+show(pdf)
+
+hist['matrix'].plot(figsize=(12, 9), offdiagcfg={'norm' : LogNorm(vmin=1)})
+plt.tight_layout()
 show(pdf)
 
 if pdf is not None:

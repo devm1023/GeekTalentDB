@@ -1,7 +1,7 @@
 import conf
 from analyticsdb import *
 from histograms import Histogram1D, Histogram2D, densityHistogram, \
-    cumulatedHistogram, GVar
+    cumulatedHistogram, GVar, HistoMatrix
 
 from math import log, sqrt, exp
 import numpy as np
@@ -147,6 +147,11 @@ if __name__ == '__main__':
                                    init=0)
     hist['title'] = dict((title, Histogram1D(xbins=durationbins, init=0)) \
                          for title in titlenames)
+    hist['matrix'] = HistoMatrix('duration', durationbins,
+                                 'nexp',     np.arange(0.5, 7.0, 2.0),
+                                 'age',      np.arange(0.0, 10.1, 2.0),
+                                 'maxdur',   np.arange(0.0, 10.1, 2.0),
+                                 'prevdur',  np.arange(0.0, 10.1, 2.0))
 
     for id, employments in employmentLists(q):
         if not employments:
@@ -171,6 +176,11 @@ if __name__ == '__main__':
 
             hist['maxdur'].inc(maxduration, lastduration)
             hist['prevdur'].inc(prevduration, lastduration)
+            hist['matrix'].inc({'duration' : lastduration,
+                                'nexp'     : nexperience,
+                                'age'      : age,
+                                'maxdur'   : maxduration,
+                                'prevdur'  : prevduration})
 
         if lasttitle in hist['title']:
             hist['title'][lasttitle].inc(lastduration)

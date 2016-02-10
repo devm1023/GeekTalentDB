@@ -576,6 +576,32 @@ class Histogram2D:
                                  dtype=float)
         return axes.pcolormesh(self.xbins, self.ybins, data, **kwargs)
 
+    def setxlim(self, axes=None):
+        """Set x limits of the current plot.
+
+        Args:
+          axes (matplotlib.axes.Axes or None): Axes object whose limits are
+            to be set. Uses ``matplotlib.pyplot.gca()`` if ``None``. Defaults to
+            ``None``.
+
+        """
+        if axes is None:
+            axes = plt.gca()
+        return axes.set_xlim((self.xbins[0], self.xbins[-1]))
+
+    def setylim(self, axes=None):
+        """Set y limits of the current plot.
+
+        Args:
+          axes (matplotlib.axes.Axes or None): Axes object whose limits are
+            to be set. Uses ``matplotlib.pyplot.gca()`` if ``None``. Defaults to
+            ``None``.
+
+        """
+        if axes is None:
+            axes = plt.gca()
+        return axes.set_ylim((self.ybins[0], self.ybins[-1]))
+    
     def __iadd__(self, h):
         if isinstance(h, Histogram2D):
             if not (numpy.array_equal(h.xbins, self.xbins) and \
@@ -1484,3 +1510,92 @@ class SplitHistogram2D:
 
         return Histogram2D(xvals=xvals, xbins=xbins,
                            yvals=yvals, ybins=ybins, data=data)
+
+
+class HistoMatrix:
+    def __init__(self, *args, init=0, bincenters=False):
+        if len(args) % 2 != 0:
+            raise ValueError(
+                'HistoMatrix requires an even number of positional arguments.')
+        self._varnames = [args[i] for i in range(0, len(args), 2)]
+        if not all(isinstance(n, str) for n in self._varnames):
+            raise ValueError('Variable names must be strings.')
+        self._nameset = set(self._varnames)
+        if len(self._nameset) < len(self._varnames):
+            raise ValueError('Variable names must be distinct.')
+        bins = [args[i] for i in range(1, len(args), 2)]
+        if not all(hasattr(b, '__iter__') for b in bins):
+            raise ValueError('Bin specs must be iterable.')
+        
+        self._histos = {}
+        for xname, xbins in zip(self._varnames, bins):
+            for yname, ybins in zip(self._varnames, bins):
+                if xname == yname:
+                    if bincenters:
+                        self._histos[yname, xname] \
+                            = Histogram1D(xvals=xbins, init=init)
+                    else:
+                        self._histos[yname, xname] \
+                            = Histogram1D(xbins=xbins, init=init)
+                else:
+                    if bincenters:
+                        self._histos[yname, xname] \
+                            = Histogram2D(xvals=xbins, yvals=ybins, init=init)
+                    else:
+                        self._histos[yname, xname] \
+                            = Histogram2D(xbins=xbins, ybins=ybins, init=init)
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._histos[key, key]
+        else:
+            return self._histos[key]
+
+    def inc(self, vars, by=1):
+        if isinstance(vars, dict):
+            for xname in self._varnames:
+                for yname in self._varnames:
+                    if xname == yname:
+                        self._histos[yname, xname].inc(vars[xname], by=by)
+                    else:
+                        self._histos[yname, xname].inc(vars[xname],
+                                                       vars[yname], by=by)
+        elif hasattr(vars, '__len__') and len(vars) == len(self._varnames):
+            for xname, xval in zip(self._varnames, vars):
+                for yname, yval in zip(self._varnames, vars):
+                    if xname == yname:
+                        self._histos[yname, xname].inc(xval, by=by)
+                    else:
+                        self._histos[yname, xname].inc(xval, yval, by=by)
+        else:
+            raise ValueError('Invalid variable list.')
+
+    def plot(self, diagcfg={}, offdiagcfg={}, **kwargs):
+        diagcfg = diagcfg.copy()
+        if 'drawstyle' not in diagcfg:
+            diagcfg['drawstyle'] = 'steps'
+        offdiagcfg = offdiagcfg.copy()
+        if 'cmap' not in offdiagcfg:
+            offdiagcfg['cmap'] = 'Blues'
+        n = len(self._varnames)
+        fig, axes = plt.subplots(n, n, **kwargs)
+        for ix, varx in enumerate(self._varnames):
+            for iy, vary in enumerate(self._varnames):
+                if ix > iy:
+                    axes[iy, ix].axis('off')
+                    continue
+                if ix == iy:
+                    self._histos[vary, varx].plot(axes=axes[iy, ix],
+                                                  **diagcfg)
+                    self._histos[vary, varx].setxlim(axes=axes[iy, ix])
+                    axes[iy, ix].set_ylim(bottom=0)
+                else:
+                    self._histos[vary, varx].pcolormesh(axes=axes[iy, ix],
+                                                        **offdiagcfg)
+                    self._histos[vary, varx].setxlim(axes=axes[iy, ix])
+                    self._histos[vary, varx].setylim(axes=axes[iy, ix])
+        for i, varname in enumerate(self._varnames):
+            axes[n-1, i].set_xlabel(varname)
+            if i > 0:
+                axes[i, 0].set_ylabel(varname)
+            
