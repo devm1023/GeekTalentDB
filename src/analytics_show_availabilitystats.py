@@ -80,7 +80,8 @@ drawHist([imin, imax],
          title='Retention rate by job title')
 show(pdf)
 
-hist['matrix'].plot(figsize=(12, 9), offdiagcfg={'norm' : LogNorm(vmin=1)})
+# hist['matrix'].plot(figsize=(12, 9), offdiagcfg={'norm' : LogNorm(vmin=1)})
+hist['matrix'].plot(figsize=(12, 9))
 plt.tight_layout()
 show(pdf)
 
