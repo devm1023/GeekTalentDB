@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from parallelize import ParallelFunction
 import itertools
+import argparse
 
 
 def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
@@ -631,6 +632,359 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
     dtdb.addINProfile(inprofile)
     return True
 
+def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
+    # check sourceId
+    if uwprofiledoc.get('sourceId', '') != 'indeed':
+        logger.log('invalid profile sourceId\n')
+        return False
+
+    # check type
+    if uwprofiledoc.get('type', '') != 'profile':
+        logger.log('invalid profile type\n')
+        return False
+    
+    # get id
+    if 'id' not in uwprofiledoc:
+        logger.log('invalid profile id\n')
+        return False
+    uwprofile_id = uwprofiledoc['id']
+
+    # get parentId
+    if 'parentId' not in uwprofiledoc:
+        logger.log('invalid profile parentId\n')
+        return False
+    parentId = uwprofiledoc['parentId']
+    if parentId != uwprofile_id:
+        logger.log('invalid profile parentId\n')
+        return False
+
+    # get last name
+    lastName = uwprofiledoc.get('lastName', '')
+    if type(lastName) is not str:
+        logger.log('invalid profile lastName\n')
+        return False
+
+    # get first name
+    firstName = uwprofiledoc.get('firstName', '')
+    if type(firstName) is not str:
+        logger.log('invalid profile firstName\n')
+        return False
+    
+    # get name
+    name = uwprofiledoc.get('name', '')
+    if not name:
+        name = ' '.join([firstName, lastName])
+    if name == ' ':
+        logger.log('invalid profile name\n')
+        return False
+    if not firstName:
+        firstName = None
+    if not lastName:
+        lastName = None
+
+    # get country
+    country = uwprofiledoc.get('country', None)
+    if country is not None and type(country) is not str:
+        logger.log('invalid profile country\n')
+        return False
+
+    # get city
+    city = uwprofiledoc.get('city', None)
+    if city is not None and type(city) is not str:
+        logger.log('invalid profile city\n')
+        return False
+
+    # get title
+    title = uwprofiledoc.get('title', None)
+    if title is not None and type(title) is not str:
+        logger.log('invalid profile title\n')
+        return False    
+
+    # get description
+    description = uwprofiledoc.get('description', None)
+    if description is not None and type(description) is not str:
+        logger.log('invalid profile description\n')
+        return False
+    
+    # get uwprofile url
+    if 'profileUrl' not in uwprofiledoc:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    profileUrl = uwprofiledoc['profileUrl']
+    if profileUrl is not None and type(profileUrl) is not str:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    try:
+        if profileUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileUrl\n')
+        return False
+
+    # get uwprofiledoc picture url
+    profilePictureUrl = uwprofiledoc.get('profilePictureUrl', None)
+    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+    try:
+        if profilePictureUrl is not None and \
+           profilePictureUrl[:4].lower() != 'http':
+            logger.log('invalid profile profilePictureUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+
+    # get timestamp
+    if 'indexedOn' not in uwprofiledoc:
+        logger.log('invalid profile indexedOn\n')
+        return False
+    indexedOn = uwprofiledoc['indexedOn']
+    if type(indexedOn) is not int:
+        logger.log('invalid profile indexedOn\n')
+        return False
+
+    # get crawl date
+    crawledDate = uwprofiledoc.get('crawledDate', None)
+    if crawledDate is not None and type(crawledDate) is not int:
+        logger.log('invalid profile crawledDate\n')
+        return False
+
+    uwprofile = {
+        'id'                : uwprofile_id,
+        'parentId'          : parentId,
+        'lastName'          : lastName,
+        'firstName'         : firstName,
+        'name'              : name,
+        'country'           : country,
+        'city'              : city,
+        'title'             : title,
+        'description'       : description,
+        'profileUrl'        : profileUrl,
+        'profilePictureUrl' : profilePictureUrl,
+        'indexedOn'         : indexedOn,
+        'crawledDate'       : crawledDate,
+        'experiences'       : [],
+        'educations'        : [],
+        'tests'             : []
+        }
+
+
+    # parse experiences and educations
+    
+    if 'subDocuments' not in uwprofiledoc:
+        dtdb.addINProfile(uwprofile)
+        return True
+    
+    for subdocument in uwprofiledoc['subDocuments']:
+        if 'type' not in subdocument:
+            logger.log('type field missing in sub-document.\n')
+            return False
+
+        if subdocument['type'] == 'profile-experience':
+            experience = subdocument
+            
+            # get id
+            if 'id' not in experience:
+                logger.log('id field missing in experience.\n')
+                return False
+            experience_id = experience['id']
+            if type(experience_id) is not str:
+                logger.log('invalid id field in experience.\n')
+                return False
+
+            # get parent id
+            if 'parentId' not in experience:
+                logger.log('parentId field missing in experience.\n')
+                return False
+            parentId = experience['parentId']
+            if parentId != uwprofile['id']:
+                logger.log('invalid parentId field in experience.\n')
+                return False
+
+            # get job title
+            name = experience.get('name', None)
+            if name is not None and type(name) is not str:
+                logger.log('invalid name field in experience.\n')
+                return False
+
+            # get company
+            company = experience.get('company', None)
+            if company is not None and type(company) is not str:
+                logger.log('invalid company field in experience.\n')
+                return False
+
+            # get country
+            country = experience.get('country', None)
+            if country is not None and type(country) is not str:
+                logger.log('invalid country field in experience.\n')
+                return False
+
+            # get city
+            city = experience.get('city', None)
+            if city is not None and type(city) is not str:
+                logger.log('invalid city field in experience.\n')
+                return False
+
+            # get start date
+            dateFrom = experience.get('dateFrom', None)
+            if dateFrom is not None and type(dateFrom) is not int:
+                logger.log('invalid dateFrom field in experience.\n')
+                return False
+
+            # get end date
+            dateTo = experience.get('dateTo', None)
+            if dateTo is not None and type(dateTo) is not int:
+                logger.log('invalid dateTo field in experience.\n')
+                return False
+
+            # get description
+            description = experience.get('description', None)
+            if description is not None and type(description) is not str:
+                logger.log('invalid description field in experience.\n')
+                return False
+
+            uwprofile['experiences'].append({
+                'id'          : experience_id,
+                'parentId'    : parentId,
+                'name'        : name,
+                'company'     : company,
+                'country'     : country,
+                'city'        : city,
+                'dateFrom'    : dateFrom,
+                'dateTo'      : dateTo,
+                'description' : description,
+                'indexedOn'   : uwprofile['indexedOn']})
+            
+        elif subdocument['type'] == 'profile-education':
+            education = subdocument
+
+            # get id
+            if 'id' not in education:
+                logger.log('id field missing in education.\n')
+                return False
+            education_id = education['id']
+            if type(education_id) is not str:
+                logger.log('invalid id field in education.\n')
+                return False
+
+            # get parent id
+            if 'parentId' not in education:
+                logger.log('parentId field missing in education.\n')
+                return False
+            parentId = education['parentId']
+            if parentId != uwprofile['id']:
+                logger.log('invalid parentId field in education.\n')
+                return False
+
+            # get institute
+            institute = education.get('name', None)
+            if institute is not None and type(institute) is not str:
+                logger.log('invalid institute field in education.\n')
+                return False
+
+            # get degree
+            degree = education.get('degree', None)
+            if degree is not None and type(degree) is not str:
+                logger.log('invalid degree field in education.\n')
+                return False
+
+            # get area
+            area = education.get('area', None)
+            if area is not None and type(area) is not str:
+                logger.log('invalid area field in education.\n')
+                return False
+
+            # get start date
+            dateFrom = education.get('dateFrom', None)
+            if dateFrom is not None and type(dateFrom) is not int:
+                logger.log('invalid dateFrom field in education.\n')
+                return False
+
+            # get end date
+            dateTo = education.get('dateTo', None)
+            if dateTo is not None and type(dateTo) is not int:
+                logger.log('invalid dateTo field in education.\n')
+                return False
+
+            # get description
+            description = education.get('description', None)
+            if description is not None and type(description) is not str:
+                logger.log('invalid description field in education.\n')
+                return False
+
+            uwprofile['educations'].append({
+                'id'          : education_id,
+                'parentId'    : parentId,
+                'institute'   : institute,
+                'degree'      : degree,
+                'area'        : area,
+                'dateFrom'    : dateFrom,
+                'dateTo'      : dateTo,
+                'description' : description,
+                'indexedOn'   : uwprofile['indexedOn']})
+
+        elif subdocument['type'] == 'profile-test':
+            # get id
+            if 'id' not in test:
+                logger.log('id field missing in test.\n')
+                return False
+            test_id = test['id']
+            if type(test_id) is not str:
+                logger.log('invalid id field in test.\n')
+                return False
+
+            # get parent id
+            if 'parentId' not in test:
+                logger.log('parentId field missing in test.\n')
+                return False
+            parentId = test['parentId']
+            if parentId != uwprofile['id']:
+                logger.log('invalid parentId field in test.\n')
+                return False
+
+            # get name
+            name = test.get('name', None)
+            if name is not None and type(name) is not str:
+                logger.log('invalid name field in test.\n')
+                return False
+
+            # get type
+            testtype = test.get('type', None)
+            if testtype is not None and type(testtype) is not str:
+                logger.log('invalid type field in test.\n')
+                return False
+
+            # get type
+            score = test.get('score', None)
+            if score is not None and type(score) is not float:
+                logger.log('invalid score field in test.\n')
+                return False
+
+            # get timestamp
+            if 'indexedOn' not in test:
+                return False
+            indexedOn = test['indexedOn']
+            if type(indexedOn) is not int:
+                return False
+
+            uwprofile['tests'].append({
+                'id'          : test_id,
+                'parentId'    : parentId,
+                'name'        : name,
+                'type'        : testtype,
+                'score'       : score,
+                'indexedOn'   : indexedOn})
+            
+        else:
+            logger.log('unknown sub-document type.\n')
+            return False
+
+    # add uwprofile
+    dtdb.addINProfile(uwprofile)
+    return True
+
 
 def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
     if conf.MAX_PROFILES is not None:
@@ -652,6 +1006,8 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
         addProfile = addLIProfile
     elif sourceId == 'indeed':
         addProfile = addINProfile
+    elif sourceId == 'upwork':
+        addProfile = addUWProfile
     else:
         raise ValueError('Invalid source id.')
     
@@ -685,7 +1041,7 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
             count += 1
             try:
                 liprofiledoc \
-                    = next(dtsession.query(url=DATOIN2_SEARCH,
+                    = next(dtsession.query(url=conf.DATOIN2_SEARCH,
                                            params=params,
                                            rows=1,
                                            offset=offset))
@@ -715,6 +1071,9 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Indeed profiles.\n')
         downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'indeed',
+                      offset=offset, maxoffset=maxoffset)
+        logger.log('Downloading Upwork profiles.\n')
+        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'upwork',
                       offset=offset, maxoffset=maxoffset)
         return
     
@@ -780,45 +1139,48 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
 
 if __name__ == '__main__':
     # parse arguments
-    try:
-        sys.argv.pop(0)
-        njobs = max(int(sys.argv.pop(0)), 1)
-        batchsize = int(sys.argv.pop(0))
-        fromdate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
-        todate = datetime.strptime(sys.argv.pop(0), '%Y-%m-%d')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('njobs', help='Number of parallel jobs.', type=int)
+    parser.add_argument('batchsize', help='Number of rows per batch.', type=int)
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after\n'
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before\n'
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate and\n'
+                        '--todate are index dates. Otherwise they are interpreted\n'
+                        'as crawl dates.',
+                        action='store_true')
+    parser.add_argument('--from-offset', type=int, default=0, help=
+                        'Start processing from this offset. Useful for\n'
+                        'crash recovery.')
+    parser.add_argument('--to-offset', help=
+                        'Stop processing at this offset.')
+    parser.add_argument('--source',
+                        choices=['linkedin', 'indeed', 'upwork'],
+                        help=
+                        'Source type to process. If not specified all sources are\n'
+                        'processed.')
+    args = parser.parse_args()
 
-        sourceId = None
-        byIndexedOn = False
-        offset = 0
-        maxoffset = None
-        while sys.argv:
-            option = sys.argv.pop(0).split('=')
-            if len(option) == 1:
-                option = option[0]
-                if option == '--by-index-date':
-                    byIndexedOn = True
-                else:
-                    raise ValueError('Invalid command line argument.')
-            elif len(option) == 2:
-                value=option[1]
-                option=option[0]
-                if option == '--source':
-                    if value in ['linkedin', 'indeed']:
-                        sourceId = value
-                    else:
-                        raise ValueError('Invalid command line argument.')
-                elif option == '--offset':
-                    offset = int(value)
-                elif option == '--maxoffset':
-                    maxoffset = int(value)
-            else:
-                raise ValueError('Invalid command line argument.')
+    njobs = max(args.njobs, 1)
+    batchsize = args.batchsize
+    try:
+        fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
+        if not args.to_date:
+            todate = datetime.now()
+        else:
+            todate = datetime.strptime(args.to_date, '%Y-%m-%d')
     except ValueError:
-        print('python3 datoin_download_profiles.py <njobs> <batchsize> '
-              '<from-date> <to-date> [--by-index-date] '
-              '[--source=<sourceid>] [--offset=<offset>] '
-              '[--maxoffset=<maxoffset>]')
+        sys.stderr.write('Invalid date format.\n')
         exit(1)
+    byIndexedOn = bool(args.by_index_date)
+    offset = args.from_offset
+    maxoffset = args.to_offset
+    sourceId = args.source    
         
     timestamp0 = datetime(year=1970, month=1, day=1)
         

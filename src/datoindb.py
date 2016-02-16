@@ -5,6 +5,10 @@ __all__ = [
     'INProfile',
     'INExperience',
     'INEducation',
+    'UWProfile',
+    'UWExperience',
+    'UWEducation',
+    'UWTest',
     'DatoinDB',
     ]
 
@@ -121,6 +125,64 @@ class INEducation(SQLBase):
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
     indexedOn   = Column(BigInteger)
+
+
+class UWProfile(SQLBase):
+    __tablename__ = 'uwprofile'
+    id                = Column(String(STR_MAX), primary_key=True)
+    parentId          = Column(String(STR_MAX))
+    lastName          = Column(Unicode(STR_MAX))
+    firstName         = Column(Unicode(STR_MAX))
+    name              = Column(Unicode(STR_MAX))
+    country           = Column(Unicode(STR_MAX))
+    city              = Column(Unicode(STR_MAX))
+    title             = Column(Unicode(STR_MAX))
+    description       = Column(Unicode(STR_MAX))
+    profileUrl        = Column(String(STR_MAX))
+    profilePictureUrl = Column(String(STR_MAX))
+    indexedOn         = Column(BigInteger, index=True)
+    crawledDate       = Column(BigInteger, index=True)
+
+class UWExperience(SQLBase):
+    __tablename__ = 'uwexperience'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    company     = Column(Unicode(STR_MAX))
+    country     = Column(Unicode(STR_MAX))
+    city        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    indexedOn   = Column(BigInteger)
+
+class UWEducation(SQLBase):
+    __tablename__ = 'uweducation'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    institute   = Column(Unicode(STR_MAX))
+    degree      = Column(Unicode(STR_MAX))
+    area        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    indexedOn   = Column(BigInteger)
+
+class UWTest(SQLBase):
+    __tablename__ = 'uwtest'
+    id          = Column(String(STR_MAX), primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    type        = Column(Unicode(STR_MAX))
+    name        = Column(Unicode(STR_MAX))
+    score       = Column(Float)
+    indexedOn   = Column(BigInteger)
+    
     
     
 class DatoinDB(SQLDatabase):
@@ -215,6 +277,60 @@ class DatoinDB(SQLDatabase):
                 idset.add(lieducation['id'])
                 self.add(INEducation(**lieducation))
 
+    def addUWProfile(self, uwprofiledict):
+        uwexperiences = uwprofiledict.pop('experiences')
+        uweducations = uwprofiledict.pop('educations')
+        uwtests = uwprofiledict.pop('tests')
+        
+        # create or update UWProfile
+        uwprofile = self.query(UWProfile) \
+                        .filter(UWProfile.id == uwprofiledict['id']) \
+                        .first()
+        if not uwprofile:
+            new_profile = True
+            uwprofile = UWProfile(**uwprofiledict)
+            self.add(uwprofile)
+            self.flush()
+        elif uwprofiledict['indexedOn'] >= uwprofile.indexedOn:
+            new_profile = False
+            for key, val in uwprofiledict.items():
+                setattr(uwprofile, key, val)
+        else:
+            return uwprofile
+
+        # add uwexperiences
+        if not new_profile:
+            self.query(UWExperience) \
+                .filter(UWExperience.parentId == uwprofile.id) \
+                .delete(synchronize_session='fetch')
+        idset = set()
+        for uwexperience in uwexperiences:
+            if uwexperience['id'] not in idset:
+                idset.add(uwexperience['id'])
+                self.add(UWExperience(**uwexperience))
+
+        # add uweducations
+        if not new_profile:
+            self.query(UWEducation) \
+                .filter(UWEducation.parentId == uwprofile.id) \
+                .delete(synchronize_session='fetch')
+        idset = set()
+        for uweducation in uweducations:
+            if uweducation['id'] not in idset:
+                idset.add(uweducation['id'])
+                self.add(UWEducation(**uweducation))
+
+        # add uweducations
+        if not new_profile:
+            self.query(UWTest) \
+                .filter(UWTest.parentId == uwprofile.id) \
+                .delete(synchronize_session='fetch')
+        idset = set()
+        for uwtest in uwtests:
+            if uwtest['id'] not in idset:
+                idset.add(uwtest['id'])
+                self.add(UWTest(**uwtest))
+                
         self.flush()
-        return inprofile
+        return uwprofile
     
