@@ -27,15 +27,6 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         return False
     liprofile_id = liprofiledoc['id']
 
-    # get parentId
-    if 'parentId' not in liprofiledoc:
-        logger.log('invalid profile parentId\n')
-        return False
-    parentId = liprofiledoc['parentId']
-    if parentId != liprofile_id:
-        logger.log('invalid profile parentId\n')
-        return False
-
     # get last name
     lastName = liprofiledoc.get('lastName', '')
     if type(lastName) is not str:
@@ -141,16 +132,6 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         logger.log('invalid profile connections\n')
         return False
 
-    # get groups
-    groups = liprofiledoc.get('groups', [])
-    if type(groups) is not list:
-        logger.log('invalid profile groups\n')
-        return False
-    for group in groups:
-        if type(group) is not str:
-            logger.log('invalid profile groups\n')
-            return False
-
     # get skills
     categories = liprofiledoc.get('categories', [])
     if type(categories) is not list:
@@ -163,7 +144,6 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
 
     liprofile = {
         'id'                : liprofile_id,
-        'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
         'name'              : name,
@@ -178,16 +158,16 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         'crawledDate'       : crawledDate,
         'connections'       : connections,
         'categories'        : categories,
-        'groups'            : groups,
         'experiences'       : [],
-        'educations'        : []
+        'educations'        : [],
+        'groups'            : []
         }
 
 
     # parse experiences and educations
     
     if 'subDocuments' not in liprofiledoc:
-        dtdb.addLIProfile(liprofile)
+        dtdb.addFromDict(liprofile, LIProfile)
         return True
     
     for subdocument in liprofiledoc['subDocuments']:
@@ -198,24 +178,6 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         if subdocument['type'] == 'profile-experience':
             experience = subdocument
             
-            # get id
-            if 'id' not in experience:
-                logger.log('id field missing in experience.\n')
-                return False
-            experience_id = experience['id']
-            if type(experience_id) is not str:
-                logger.log('invalid id field in experience.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in experience:
-                logger.log('parentId field missing in experience.\n')
-                return False
-            parentId = experience['parentId']
-            if parentId != liprofile['id']:
-                logger.log('invalid parentId field in experience.\n')
-                return False
-
             # get job title
             name = experience.get('name', None)
             if name is not None and type(name) is not str:
@@ -259,37 +221,16 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
                 return False
 
             liprofile['experiences'].append({
-                'id'          : experience_id,
-                'parentId'    : parentId,
                 'name'        : name,
                 'company'     : company,
                 'country'     : country,
                 'city'        : city,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : liprofile['indexedOn']})
+                'description' : description})
             
         elif subdocument['type'] == 'profile-education':
             education = subdocument
-
-            # get id
-            if 'id' not in education:
-                logger.log('id field missing in education.\n')
-                return False
-            education_id = education['id']
-            if type(education_id) is not str:
-                logger.log('invalid id field in education.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in education:
-                logger.log('parentId field missing in education.\n')
-                return False
-            parentId = education['parentId']
-            if parentId != liprofile['id']:
-                logger.log('invalid parentId field in education.\n')
-                return False
 
             # get institute
             institute = education.get('name', None)
@@ -328,22 +269,39 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
                 return False
 
             liprofile['educations'].append({
-                'id'          : education_id,
-                'parentId'    : parentId,
                 'institute'   : institute,
                 'degree'      : degree,
                 'area'        : area,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : liprofile['indexedOn']})
+                'description' : description})
+
+        elif subdocument['type'] == 'profile-group':
+            group = subdocument
             
+            # get name
+            name = group.get('name', None)
+            if name is not None and type(name) is not str:
+                logger.log('invalid name field in group.\n')
+                return False
+
+            # get degree
+            url = group.get('url', None)
+            if url is not None and type(url) is not str:
+                logger.log('invalid url field in group.\n')
+                return False
+
+            liprofile['groups'].append({
+                'name'     : name,
+                'url'      : url})
+
         else:
-            logger.log('unknown sub-document type.\n')
+            logger.log('unknown sub-document type `{0:s}`.\n' \
+                       .format(subdocument['type']))
             return False
 
     # add liprofile
-    dtdb.addLIProfile(liprofile)
+    dtdb.addFromDict(liprofile, LIProfile)
     return True
 
 
@@ -363,15 +321,6 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         logger.log('invalid profile id\n')
         return False
     inprofile_id = inprofiledoc['id']
-
-    # get parentId
-    if 'parentId' not in inprofiledoc:
-        logger.log('invalid profile parentId\n')
-        return False
-    parentId = inprofiledoc['parentId']
-    if parentId != inprofile_id:
-        logger.log('invalid profile parentId\n')
-        return False
 
     # get last name
     lastName = inprofiledoc.get('lastName', '')
@@ -454,7 +403,6 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
 
     inprofile = {
         'id'                : inprofile_id,
-        'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
         'name'              : name,
@@ -466,14 +414,15 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         'indexedOn'         : indexedOn,
         'crawledDate'       : crawledDate,
         'experiences'       : [],
-        'educations'        : []
+        'educations'        : [],
+        'certifications'    : []
         }
 
 
     # parse experiences and educations
     
     if 'subDocuments' not in inprofiledoc:
-        dtdb.addINProfile(inprofile)
+        dtdb.addFromDict(inprofile, INProfile)
         return True
     
     for subdocument in inprofiledoc['subDocuments']:
@@ -484,24 +433,6 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         if subdocument['type'] == 'profile-experience':
             experience = subdocument
             
-            # get id
-            if 'id' not in experience:
-                logger.log('id field missing in experience.\n')
-                return False
-            experience_id = experience['id']
-            if type(experience_id) is not str:
-                logger.log('invalid id field in experience.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in experience:
-                logger.log('parentId field missing in experience.\n')
-                return False
-            parentId = experience['parentId']
-            if parentId != inprofile['id']:
-                logger.log('invalid parentId field in experience.\n')
-                return False
-
             # get job title
             name = experience.get('name', None)
             if name is not None and type(name) is not str:
@@ -545,37 +476,16 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
                 return False
 
             inprofile['experiences'].append({
-                'id'          : experience_id,
-                'parentId'    : parentId,
                 'name'        : name,
                 'company'     : company,
                 'country'     : country,
                 'city'        : city,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : inprofile['indexedOn']})
+                'description' : description})
             
         elif subdocument['type'] == 'profile-education':
             education = subdocument
-
-            # get id
-            if 'id' not in education:
-                logger.log('id field missing in education.\n')
-                return False
-            education_id = education['id']
-            if type(education_id) is not str:
-                logger.log('invalid id field in education.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in education:
-                logger.log('parentId field missing in education.\n')
-                return False
-            parentId = education['parentId']
-            if parentId != inprofile['id']:
-                logger.log('invalid parentId field in education.\n')
-                return False
 
             # get institute
             institute = education.get('name', None)
@@ -614,27 +524,70 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
                 return False
 
             inprofile['educations'].append({
-                'id'          : education_id,
-                'parentId'    : parentId,
                 'institute'   : institute,
                 'degree'      : degree,
                 'area'        : area,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : inprofile['indexedOn']})
+                'description' : description})
+            
+        elif subdocument['type'] == 'profile-certification':
+            certification = subdocument
+
+            # get institute
+            institute = certification.get('name', None)
+            if institute is not None and type(institute) is not str:
+                logger.log('invalid institute field in certification.\n')
+                return False
+
+            # get degree
+            degree = certification.get('degree', None)
+            if degree is not None and type(degree) is not str:
+                logger.log('invalid degree field in certification.\n')
+                return False
+
+            # get area
+            area = certification.get('area', None)
+            if area is not None and type(area) is not str:
+                logger.log('invalid area field in certification.\n')
+                return False
+
+            # get start date
+            dateFrom = certification.get('dateFrom', None)
+            if dateFrom is not None and type(dateFrom) is not int:
+                logger.log('invalid dateFrom field in certification.\n')
+                return False
+
+            # get end date
+            dateTo = certification.get('dateTo', None)
+            if dateTo is not None and type(dateTo) is not int:
+                logger.log('invalid dateTo field in certification.\n')
+                return False
+
+            # get description
+            description = certification.get('description', None)
+            if description is not None and type(description) is not str:
+                logger.log('invalid description field in certification.\n')
+                return False
+
+            inprofile['certifications'].append({
+                'name'        : name,
+                'dateFrom'    : dateFrom,
+                'dateTo'      : dateTo,
+                'description' : description})
             
         else:
-            logger.log('unknown sub-document type.\n')
+            logger.log('unknown sub-document type `{0:s}`.\n' \
+                       .format(subdocument['type']))
             return False
 
     # add inprofile
-    dtdb.addINProfile(inprofile)
+    dtdb.addFromDict(inprofile, INProfile)
     return True
 
 def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
     # check sourceId
-    if uwprofiledoc.get('sourceId', '') != 'indeed':
+    if uwprofiledoc.get('sourceId', '') != 'upwork':
         logger.log('invalid profile sourceId\n')
         return False
 
@@ -648,15 +601,6 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         logger.log('invalid profile id\n')
         return False
     uwprofile_id = uwprofiledoc['id']
-
-    # get parentId
-    if 'parentId' not in uwprofiledoc:
-        logger.log('invalid profile parentId\n')
-        return False
-    parentId = uwprofiledoc['parentId']
-    if parentId != uwprofile_id:
-        logger.log('invalid profile parentId\n')
-        return False
 
     # get last name
     lastName = uwprofiledoc.get('lastName', '')
@@ -753,7 +697,6 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
 
     uwprofile = {
         'id'                : uwprofile_id,
-        'parentId'          : parentId,
         'lastName'          : lastName,
         'firstName'         : firstName,
         'name'              : name,
@@ -774,7 +717,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
     # parse experiences and educations
     
     if 'subDocuments' not in uwprofiledoc:
-        dtdb.addINProfile(uwprofile)
+        dtdb.addFromDict(uwprofile, UWProfile)
         return True
     
     for subdocument in uwprofiledoc['subDocuments']:
@@ -785,24 +728,6 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         if subdocument['type'] == 'profile-experience':
             experience = subdocument
             
-            # get id
-            if 'id' not in experience:
-                logger.log('id field missing in experience.\n')
-                return False
-            experience_id = experience['id']
-            if type(experience_id) is not str:
-                logger.log('invalid id field in experience.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in experience:
-                logger.log('parentId field missing in experience.\n')
-                return False
-            parentId = experience['parentId']
-            if parentId != uwprofile['id']:
-                logger.log('invalid parentId field in experience.\n')
-                return False
-
             # get job title
             name = experience.get('name', None)
             if name is not None and type(name) is not str:
@@ -846,37 +771,16 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
                 return False
 
             uwprofile['experiences'].append({
-                'id'          : experience_id,
-                'parentId'    : parentId,
                 'name'        : name,
                 'company'     : company,
                 'country'     : country,
                 'city'        : city,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : uwprofile['indexedOn']})
+                'description' : description})
             
         elif subdocument['type'] == 'profile-education':
             education = subdocument
-
-            # get id
-            if 'id' not in education:
-                logger.log('id field missing in education.\n')
-                return False
-            education_id = education['id']
-            if type(education_id) is not str:
-                logger.log('invalid id field in education.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in education:
-                logger.log('parentId field missing in education.\n')
-                return False
-            parentId = education['parentId']
-            if parentId != uwprofile['id']:
-                logger.log('invalid parentId field in education.\n')
-                return False
 
             # get institute
             institute = education.get('name', None)
@@ -915,74 +819,36 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
                 return False
 
             uwprofile['educations'].append({
-                'id'          : education_id,
-                'parentId'    : parentId,
                 'institute'   : institute,
                 'degree'      : degree,
                 'area'        : area,
                 'dateFrom'    : dateFrom,
                 'dateTo'      : dateTo,
-                'description' : description,
-                'indexedOn'   : uwprofile['indexedOn']})
+                'description' : description})
 
         elif subdocument['type'] == 'profile-test':
-            # get id
-            if 'id' not in test:
-                logger.log('id field missing in test.\n')
-                return False
-            test_id = test['id']
-            if type(test_id) is not str:
-                logger.log('invalid id field in test.\n')
-                return False
-
-            # get parent id
-            if 'parentId' not in test:
-                logger.log('parentId field missing in test.\n')
-                return False
-            parentId = test['parentId']
-            if parentId != uwprofile['id']:
-                logger.log('invalid parentId field in test.\n')
-                return False
-
             # get name
             name = test.get('name', None)
             if name is not None and type(name) is not str:
                 logger.log('invalid name field in test.\n')
                 return False
 
-            # get type
-            testtype = test.get('type', None)
-            if testtype is not None and type(testtype) is not str:
-                logger.log('invalid type field in test.\n')
-                return False
-
-            # get type
+            # get score
             score = test.get('score', None)
             if score is not None and type(score) is not float:
                 logger.log('invalid score field in test.\n')
                 return False
 
-            # get timestamp
-            if 'indexedOn' not in test:
-                return False
-            indexedOn = test['indexedOn']
-            if type(indexedOn) is not int:
-                return False
-
             uwprofile['tests'].append({
-                'id'          : test_id,
-                'parentId'    : parentId,
                 'name'        : name,
-                'type'        : testtype,
-                'score'       : score,
-                'indexedOn'   : indexedOn})
+                'score'       : score})
             
         else:
             logger.log('unknown sub-document type.\n')
             return False
 
     # add uwprofile
-    dtdb.addINProfile(uwprofile)
+    dtdb.addFromDict(uwprofile, UWProfile)
     return True
 
 
@@ -1157,7 +1023,7 @@ if __name__ == '__main__':
     parser.add_argument('--from-offset', type=int, default=0, help=
                         'Start processing from this offset. Useful for\n'
                         'crash recovery.')
-    parser.add_argument('--to-offset', help=
+    parser.add_argument('--to-offset', type=int, help=
                         'Stop processing at this offset.')
     parser.add_argument('--source',
                         choices=['linkedin', 'indeed', 'upwork'],

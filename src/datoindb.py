@@ -2,9 +2,11 @@ __all__ = [
     'LIProfile',
     'LIExperience',
     'LIEducation',
+    'LIGroup',
     'INProfile',
     'INExperience',
     'INEducation',
+    'INCertification',
     'UWProfile',
     'UWExperience',
     'UWEducation',
@@ -25,6 +27,7 @@ from sqlalchemy import \
     Date, \
     Float, \
     func
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY as Array
 
 
@@ -35,7 +38,6 @@ SQLBase = sqlbase()
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(String(STR_MAX), primary_key=True)
-    parentId          = Column(String(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
     name              = Column(Unicode(STR_MAX))
@@ -46,15 +48,21 @@ class LIProfile(SQLBase):
     description       = Column(Unicode(STR_MAX))
     profileUrl        = Column(String(STR_MAX))
     profilePictureUrl = Column(String(STR_MAX))
-    indexedOn         = Column(BigInteger, index=True)
-    crawledDate       = Column(BigInteger, index=True)
     connections       = Column(String(STR_MAX))
     categories        = Column(Array(Unicode(STR_MAX)))
-    groups            = Column(Array(Unicode(STR_MAX)))
+    indexedOn         = Column(BigInteger, index=True)
+    crawledDate       = Column(BigInteger, index=True)
 
+    experiences       = relationship('LIExperience',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('LIEducation',
+                                     cascade='all, delete-orphan')
+    groups            = relationship('LIGroup',
+                                     cascade='all, delete-orphan')
+    
 class LIExperience(SQLBase):
     __tablename__ = 'liexperience'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
                          index=True)
@@ -65,11 +73,10 @@ class LIExperience(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
 class LIEducation(SQLBase):
     __tablename__ = 'lieducation'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('liprofile.id'),
                          index=True)
@@ -79,13 +86,20 @@ class LIEducation(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
+class LIGroup(SQLBase):
+    __tablename__ = 'ligroup'
+    id          = Column(BigInteger, primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('liprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    url         = Column(Unicode(STR_MAX))
+    
 
 class INProfile(SQLBase):
     __tablename__ = 'inprofile'
     id                = Column(String(STR_MAX), primary_key=True)
-    parentId          = Column(String(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
     name              = Column(Unicode(STR_MAX))
@@ -97,9 +111,16 @@ class INProfile(SQLBase):
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)
 
+    experiences       = relationship('INExperience',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('INEducation',
+                                     cascade='all, delete-orphan')
+    certifications    = relationship('INCertification',
+                                     cascade='all, delete-orphan')
+    
 class INExperience(SQLBase):
     __tablename__ = 'inexperience'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('inprofile.id'),
                          index=True)
@@ -110,11 +131,10 @@ class INExperience(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
 class INEducation(SQLBase):
     __tablename__ = 'ineducation'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('inprofile.id'),
                          index=True)
@@ -124,13 +144,22 @@ class INEducation(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
+class INCertification(SQLBase):
+    __tablename__ = 'incertification'
+    id          = Column(BigInteger, primary_key=True)
+    parentId    = Column(String(STR_MAX),
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    dateFrom    = Column(BigInteger)
+    dateTo      = Column(BigInteger)
+    description = Column(Unicode(STR_MAX))
+    
 
 class UWProfile(SQLBase):
     __tablename__ = 'uwprofile'
     id                = Column(String(STR_MAX), primary_key=True)
-    parentId          = Column(String(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
     name              = Column(Unicode(STR_MAX))
@@ -143,9 +172,16 @@ class UWProfile(SQLBase):
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)
 
+    experiences       = relationship('UWExperience',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('UWEducation',
+                                     cascade='all, delete-orphan')
+    tests             = relationship('UWTest',
+                                     cascade='all, delete-orphan')
+
 class UWExperience(SQLBase):
     __tablename__ = 'uwexperience'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('uwprofile.id'),
                          index=True)
@@ -156,11 +192,10 @@ class UWExperience(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
 class UWEducation(SQLBase):
     __tablename__ = 'uweducation'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('uwprofile.id'),
                          index=True)
@@ -170,18 +205,15 @@ class UWEducation(SQLBase):
     dateFrom    = Column(BigInteger)
     dateTo      = Column(BigInteger)
     description = Column(Unicode(STR_MAX))
-    indexedOn   = Column(BigInteger)
 
 class UWTest(SQLBase):
     __tablename__ = 'uwtest'
-    id          = Column(String(STR_MAX), primary_key=True)
+    id          = Column(BigInteger, primary_key=True)
     parentId    = Column(String(STR_MAX),
                          ForeignKey('uwprofile.id'),
                          index=True)
-    type        = Column(Unicode(STR_MAX))
     name        = Column(Unicode(STR_MAX))
     score       = Column(Float)
-    indexedOn   = Column(BigInteger)
     
     
     
@@ -189,148 +221,4 @@ class DatoinDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
-
-    def addLIProfile(self, liprofiledict):
-        liexperiences = liprofiledict.pop('experiences')
-        lieducations = liprofiledict.pop('educations')
-        
-        # create or update LIProfile
-        liprofile = self.query(LIProfile) \
-                        .filter(LIProfile.id == liprofiledict['id']) \
-                        .first()
-        if not liprofile:
-            new_profile = True
-            liprofile = LIProfile(**liprofiledict)
-            self.add(liprofile)
-            self.flush()
-        elif liprofiledict['indexedOn'] >= liprofile.indexedOn:
-            new_profile = False
-            for key, val in liprofiledict.items():
-                setattr(liprofile, key, val)
-        else:
-            return liprofile
-
-        # add liexperiences
-        if not new_profile:
-            self.query(LIExperience) \
-                .filter(LIExperience.parentId == liprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for liexperience in liexperiences:
-            if liexperience['id'] not in idset:
-                idset.add(liexperience['id'])
-                self.add(LIExperience(**liexperience))
-
-        # add lieducations
-        if not new_profile:
-            self.query(LIEducation) \
-                .filter(LIEducation.parentId == liprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for lieducation in lieducations:
-            if lieducation['id'] not in idset:
-                idset.add(lieducation['id'])
-                self.add(LIEducation(**lieducation))
-
-        self.flush()
-        return liprofile
-
-    def addINProfile(self, inprofiledict):
-        inexperiences = inprofiledict.pop('experiences')
-        ineducations = inprofiledict.pop('educations')
-        
-        # create or update INProfile
-        inprofile = self.query(INProfile) \
-                        .filter(INProfile.id == inprofiledict['id']) \
-                        .first()
-        if not inprofile:
-            new_profile = True
-            inprofile = INProfile(**inprofiledict)
-            self.add(inprofile)
-            self.flush()
-        elif inprofiledict['indexedOn'] >= inprofile.indexedOn:
-            new_profile = False
-            for key, val in inprofiledict.items():
-                setattr(inprofile, key, val)
-        else:
-            return inprofile
-
-        # add inexperiences
-        if not new_profile:
-            self.query(INExperience) \
-                .filter(INExperience.parentId == inprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for liexperience in inexperiences:
-            if liexperience['id'] not in idset:
-                idset.add(liexperience['id'])
-                self.add(INExperience(**liexperience))
-
-        # add ineducations
-        if not new_profile:
-            self.query(INEducation) \
-                .filter(INEducation.parentId == inprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for lieducation in ineducations:
-            if lieducation['id'] not in idset:
-                idset.add(lieducation['id'])
-                self.add(INEducation(**lieducation))
-
-    def addUWProfile(self, uwprofiledict):
-        uwexperiences = uwprofiledict.pop('experiences')
-        uweducations = uwprofiledict.pop('educations')
-        uwtests = uwprofiledict.pop('tests')
-        
-        # create or update UWProfile
-        uwprofile = self.query(UWProfile) \
-                        .filter(UWProfile.id == uwprofiledict['id']) \
-                        .first()
-        if not uwprofile:
-            new_profile = True
-            uwprofile = UWProfile(**uwprofiledict)
-            self.add(uwprofile)
-            self.flush()
-        elif uwprofiledict['indexedOn'] >= uwprofile.indexedOn:
-            new_profile = False
-            for key, val in uwprofiledict.items():
-                setattr(uwprofile, key, val)
-        else:
-            return uwprofile
-
-        # add uwexperiences
-        if not new_profile:
-            self.query(UWExperience) \
-                .filter(UWExperience.parentId == uwprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for uwexperience in uwexperiences:
-            if uwexperience['id'] not in idset:
-                idset.add(uwexperience['id'])
-                self.add(UWExperience(**uwexperience))
-
-        # add uweducations
-        if not new_profile:
-            self.query(UWEducation) \
-                .filter(UWEducation.parentId == uwprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for uweducation in uweducations:
-            if uweducation['id'] not in idset:
-                idset.add(uweducation['id'])
-                self.add(UWEducation(**uweducation))
-
-        # add uweducations
-        if not new_profile:
-            self.query(UWTest) \
-                .filter(UWTest.parentId == uwprofile.id) \
-                .delete(synchronize_session='fetch')
-        idset = set()
-        for uwtest in uwtests:
-            if uwtest['id'] not in idset:
-                idset.add(uwtest['id'])
-                self.add(UWTest(**uwtest))
-                
-        self.flush()
-        return uwprofile
     
