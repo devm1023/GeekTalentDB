@@ -481,28 +481,7 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         
         # determine language
 
-        profiletexts = [profiledict['title'], profiledict['description']]
-        profiletexts.extend(profiledict['skills'])
-        for uwexperience in profiledict['experiences']:
-            profiletexts.append(uwexperience['title'])
-            profiletexts.append(uwexperience['description'])
-        for uweducation in profiledict['educations']:
-            profiletexts.append(uweducation['degree'])
-            profiletexts.append(uweducation['subject'])
-            profiletexts.append(uweducation['description'])
-        profiletexts = '. '.join([t for t in profiletexts if t])
-        try:
-            language = langdetect.detect(profiletexts)
-        except LangDetectException:
-            language = None
-
-        if uwprofile.country not in countryLanguages.keys():
-            if language not in countryLanguages.values():
-                return
-        elif language not in countryLanguages.values():
-            language = countryLanguages[uwprofile.country]
-            
-        profiledict['language'] = language
+        profiledict['language'] = 'en'
         
         
         # add profile
@@ -510,6 +489,83 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         cndb.addUWProfile(profiledict, now)
 
     processDb(q, addUWProfile, cndb, logger=logger)
+
+def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+                    skillextractor):
+    logger = Logger(sys.stdout)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+
+    q = dtdb.query(MUProfile).filter(MUProfile.id >= fromid)
+    if byIndexedOn:
+        q = q.filter(MUProfile.indexedOn >= fromTs,
+                     MUProfile.indexedOn < toTs)
+    else:
+        q = q.filter(MUProfile.crawledDate >= fromTs,
+                     MUProfile.crawledDate < toTs)
+                                     
+    if toid is not None:
+        q = q.filter(MUProfile.id < toid)
+
+    def addMUProfile(muprofile):
+        name = muprofile.name
+        if not name:
+            return
+
+        if muprofile.city and muprofile.country:
+            location = ', '.join(s for s in \
+                                 [muprofile.city, muprofile.country] if s)
+        if not location:
+            location = None
+
+        if muprofile.indexedOn:
+            indexedOn = timestamp0 + timedelta(milliseconds=muprofile.indexedOn)
+        else:
+            indexedOn = None
+
+        if muprofile.crawledDate:
+            crawledOn = timestamp0 \
+                        + timedelta(milliseconds=muprofile.crawledDate)
+        else:
+            crawledOn = None
+
+        skills = []
+        if muprofile.categories:
+            skills = [s for s in muprofile.categories \
+                      if not skillbuttonpatt.match(s)]
+
+        links = []
+        if muprofile.links:
+            links = [{'type' : l.type, 'url' : l.url} for l in muprofile.links]
+
+        profiledict = {
+            'datoinId'        : muprofile.id,
+            'name'            : name,
+            'location'        : location,
+            'status'          : muprofile.status,
+            'description'     : muprofile.description,
+            'url'             : muprofile.profileUrl,
+            'pictureId'       : muprofile.profilePictureId,
+            'pictureUrl'      : muprofile.profilePictureUrl,
+            'hqPictureUrl'    : muprofile.profileHQPictureUrl,
+            'thumbPictureUrl' : muprofile.profileThumbPictureUrl,
+            'indexedOn'       : indexedOn,
+            'crawledOn'       : crawledOn,
+            'skills'          : skills,
+            'links'           : links
+        }
+
+        # determine language
+            
+        profiledict['language'] = 'en'
+        
+        
+        # add profile
+        
+        cndb.addMUProfile(profiledict, now)
+
+    processDb(q, addMUProfile, cndb, logger=logger)
+
     
 def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
     logger = Logger(sys.stdout)
@@ -536,6 +592,11 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
         table = UWProfile
         parsefunc = parseUWProfiles
         prefix = 'canonical_parse_upwork'
+    elif sourceId == 'meetup':
+        logger.log('Parsing Meetup profiles.\n')
+        table = MUProfile
+        parsefunc = parseMUProfiles
+        prefix = 'canonical_parse_meetup'
     else:
         raise ValueError('Invalid source type.')
     
@@ -577,7 +638,7 @@ if __name__ == '__main__':
                         'Start processing from this datoin ID. Useful for\n'
                         'crash recovery.')
     parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork'],
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup'],
                         help=
                         'Source type to process. If not specified all sources are\n'
                         'processed.')

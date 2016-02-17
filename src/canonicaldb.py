@@ -367,6 +367,53 @@ class UWExperienceSkill(SQLBase):
                             index=True)
     skill          = relationship('UWProfileSkill')
 
+class MUProfile(SQLBase):
+    __tablename__ = 'muprofile'
+    id                = Column(BigInteger, primary_key=True)
+    datoinId          = Column(String(STR_MAX), index=True)
+    language          = Column(String(20))
+    name              = Column(Unicode(STR_MAX))
+    location          = Column(Unicode(STR_MAX))
+    nrmLocation       = Column(Unicode(STR_MAX), index=True)
+    status            = Column(Unicode(STR_MAX))
+    description       = Column(Unicode(STR_MAX))
+    url               = Column(String(STR_MAX))
+    pictureId         = Column(String(STR_MAX))
+    pictureUrl        = Column(String(STR_MAX))
+    hqPictureUrl      = Column(String(STR_MAX))
+    thumbPictureUrl   = Column(String(STR_MAX))
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
+
+    skills            = relationship('MUProfileSkill',
+                                     order_by='MUProfileSkill.nrmName',
+                                     cascade='all, delete-orphan')
+    links             = relationship('MULink',
+                                     order_by='MULink.url',
+                                     cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('datoinId'),)
+
+class MUProfileSkill(SQLBase):
+    __tablename__ = 'muprofile_skill'
+    id          = Column(BigInteger, primary_key=True)
+    muprofileId = Column(BigInteger,
+                         ForeignKey('muprofile.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
+    reenforced  = Column(Boolean)
+
+class MULink(SQLBase):
+    __tablename__ = 'mulink'
+    id            = Column(BigInteger, primary_key=True)
+    muprofileId   = Column(BigInteger,
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    type          = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+    
 class Location(SQLBase):
     __tablename__ = 'location'
     nrmName   = Column(Unicode(STR_MAX), primary_key=True)
@@ -716,6 +763,29 @@ def _makeUWProfile(uwprofile, now):
 
     return uwprofile
 
+def _makeMUProfile(muprofile, now):
+    # get profile language
+    language = muprofile.get('language', None)
+
+    # normalize fields
+    muprofile['nrmLocation'] = normalizedLocation(muprofile['location'])
+
+    # add skills
+    muprofile['skills'] = [_makeMUProfileSkill(skill, language) \
+                           for skill in muprofile['skills']]
+
+    return muprofile
+
+def _makeMUProfileSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName,
+                'reenforced' : False}
+
 
 class GooglePlacesError(Exception):
     pass
@@ -725,51 +795,57 @@ class CanonicalDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)        
     
-    def rankSkills(self, liprofile, source):
+    def rankSkills(self, profile, source):
         if source == 'linkedin':
             experienceSkillTab = LIExperienceSkill
             experienceIdKey = 'liexperienceId'
         elif source == 'upwork':
             experienceSkillTab = UWExperienceSkill
             experienceIdKey = 'uwexperienceId'
+        elif source == 'meetup':
+            pass
         else:
             raise ValueError('Invalid source type.')
         
         skillIds = dict((s.nrmName, s.id) \
-                        for s in liprofile.skills if s.nrmName)
+                        for s in profile.skills if s.nrmName)
         reenforced = dict((s, False) for s in skillIds.keys())
         scores = dict((s, 0.0) for s in skillIds.keys())
         tokenize = lambda x: splitNrmName(x)[1].split()
         skillextractor = PhraseExtractor(skillIds.keys(), tokenize=tokenize)
-        tokenize = lambda x: tokenizedSkill(liprofile.language, x,
+        tokenize = lambda x: tokenizedSkill(profile.language, x,
                                             removebrackets=False)
 
         # extract from profile text
-        profileskills = skillextractor(_joinfields(liprofile.title,
-                                                   liprofile.description),
-                                       tokenize=tokenize)
+        if source == 'meetup':
+            profiletext = profile.description
+        else:
+            profiletext = _joinfields(profile.title, profile.description)
+        profileskills = skillextractor(profiletext, tokenize=tokenize)
         profileskills = set(profileskills)
         for skill in profileskills:
             reenforced[skill] = True
             scores[skill] += 1.0
 
         # extract from experiences
-        for experience in liprofile.experiences:
-            experienceskills \
-                = skillextractor(_joinfields(experience.title,
-                                             experience.description),
-                                 tokenize=tokenize)
-            experienceskills = set(experienceskills)
-            for skill in experienceskills:
-                scores[skill] += 1.0
-                kwargs = {experienceIdKey : experience.id,
-                          'skillId'       : skillIds[skill]}
-                experience.skills.append(experienceSkillTab(**kwargs))
+        if source in ['linkedin', 'upwork']:
+            for experience in profile.experiences:
+                experienceskills \
+                    = skillextractor(_joinfields(experience.title,
+                                                 experience.description),
+                                     tokenize=tokenize)
+                experienceskills = set(experienceskills)
+                for skill in experienceskills:
+                    scores[skill] += 1.0
+                    kwargs = {experienceIdKey : experience.id,
+                              'skillId'       : skillIds[skill]}
+                    experience.skills.append(experienceSkillTab(**kwargs))
 
         # update score and reenforced columns
-        for skill in liprofile.skills:
+        for skill in profile.skills:
             skill.reenforced = reenforced[skill.nrmName]
-            skill.score = scores[skill.nrmName]
+            if source in ['linkedin', 'upwork']:
+                skill.score = scores[skill.nrmName]
 
                 
     def addLIProfile(self, liprofile, now):
@@ -1116,6 +1192,69 @@ class CanonicalDB(SQLDatabase):
         self.rankSkills(uwprofile, 'upwork')
 
         return uwprofile
+
+    def addMUProfile(self, muprofile, now):
+        """Add a Meetup profile to the database (or update if it exists).
+
+        Args:
+          muprofile (dict): Description of the profile. Must contain the
+            following fields:
+
+              ``'datoinId'``
+                The profile ID from DATOIN.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'location'``
+                A string describing the location of the user.
+
+              ``'status'``
+                The profile status
+
+              ``'description'``
+                The profile summary.
+
+              ``'url'``
+                The URL of the profile.
+
+              ``'pictureId'``
+                The ID of the profile picture.
+
+              ``'pictureUrl'``
+                The URL of the profile picture.
+
+              ``'hqPictureUrl'``
+                The URL of the high quality profile picture.
+
+              ``'thumbPictureUrl'``
+                The URL of the profile picture thumbnail.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'crawledOn'``
+                The date when the profile was crawled.
+
+              ``'skills'``
+                Interests listed by the user. This should be a list of 
+                strings.
+
+        Returns:
+          The MUProfile object that was added to the database.
+
+        """
+        muprofileId = self.query(MUProfile.id) \
+                          .filter(MUProfile.datoinId == muprofile['datoinId']) \
+                          .first()
+        if muprofileId is not None:
+            muprofile['id'] = muprofileId[0]
+        muprofile = _makeMUProfile(muprofile, now)
+        muprofile = self.addFromDict(muprofile, MUProfile)
+        self.flush()
+        self.rankSkills(muprofile, 'meetup')
+
+        return muprofile
     
     def addLocation(self, nrmName, retry=False, logger=Logger(None)):
         """Add a location to the database.
