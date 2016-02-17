@@ -87,7 +87,7 @@ class LIProfile(SQLBase):
                                      order_by='LIProfileSkill.nrmName',
                                      cascade='all, delete-orphan')
     groups            = relationship('LIGroup',
-                                     order_by='LIGroup.nrmName',
+                                     order_by='LIGroup.url',
                                      cascade='all, delete-orphan')
     
     __table_args__ = (UniqueConstraint('datoinId'),)
@@ -143,7 +143,8 @@ class LIGroup(SQLBase):
                            index=True)
     language      = Column(String(20))
     name          = Column(Unicode(STR_MAX))
-    nrmName       = Column(Unicode(STR_MAX), index=True)
+    url           = Column(Unicode(STR_MAX), index=True)
+    
     
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
@@ -266,6 +267,105 @@ class INExperienceSkill(SQLBase):
                             primary_key=True,
                             index=True)
     skill          = relationship('INProfileSkill')
+
+class UWProfile(SQLBase):
+    __tablename__ = 'uwprofile'
+    id                = Column(BigInteger, primary_key=True)
+    datoinId          = Column(String(STR_MAX), index=True)
+    language          = Column(String(20))
+    name              = Column(Unicode(STR_MAX))
+    location          = Column(Unicode(STR_MAX))
+    nrmLocation       = Column(Unicode(STR_MAX), index=True)
+    title             = Column(Unicode(STR_MAX))
+    parsedTitle       = Column(Unicode(STR_MAX))
+    nrmTitle          = Column(Unicode(STR_MAX), index=True)
+    titlePrefix       = Column(Unicode(STR_MAX))
+    description       = Column(Unicode(STR_MAX))
+    firstExperienceStart = Column(Date)
+    lastExperienceStart  = Column(Date)
+    firstEducationStart  = Column(Date)
+    lastEducationStart   = Column(Date)
+    url               = Column(String(STR_MAX))
+    pictureUrl        = Column(String(STR_MAX))
+    indexedOn         = Column(DateTime, index=True)
+    crawledOn         = Column(DateTime, index=True)
+
+    experiences       = relationship('UWExperience',
+                                     order_by='UWExperience.start',
+                                     cascade='all, delete-orphan')
+    educations        = relationship('UWEducation',
+                                     order_by='UWEducation.start',
+                                     cascade='all, delete-orphan')
+    skills            = relationship('UWProfileSkill',
+                                     order_by='UWProfileSkill.nrmName',
+                                     cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('datoinId'),)
+
+class UWExperience(SQLBase):
+    __tablename__ = 'uwexperience'
+    id             = Column(BigInteger, primary_key=True)
+    datoinId       = Column(String(STR_MAX))
+    uwprofileId    = Column(BigInteger,
+                            ForeignKey('uwprofile.id'),
+                            index=True)
+    language       = Column(String(20))
+    title          = Column(Unicode(STR_MAX))
+    parsedTitle    = Column(Unicode(STR_MAX))
+    nrmTitle       = Column(Unicode(STR_MAX), index=True)
+    titlePrefix    = Column(Unicode(STR_MAX))
+    company        = Column(Unicode(STR_MAX))
+    nrmCompany     = Column(Unicode(STR_MAX), index=True)
+    location       = Column(Unicode(STR_MAX))
+    nrmLocation    = Column(Unicode(STR_MAX), index=True)
+    start          = Column(Date)
+    end            = Column(Date)
+    duration       = Column(Integer) # duration in days
+    description    = Column(Unicode(STR_MAX))
+
+    skills         = relationship('UWExperienceSkill',
+                                  order_by='UWExperienceSkill.skillId',
+                                  cascade='all, delete-orphan')
+
+class UWEducation(SQLBase):
+    __tablename__ = 'uweducation'
+    id          = Column(BigInteger, primary_key=True)
+    datoinId    = Column(String(STR_MAX))
+    uwprofileId = Column(BigInteger,
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    language       = Column(String(20))
+    institute      = Column(Unicode(STR_MAX))
+    nrmInstitute   = Column(Unicode(STR_MAX))
+    degree         = Column(Unicode(STR_MAX))
+    nrmDegree      = Column(Unicode(STR_MAX))
+    subject        = Column(Unicode(STR_MAX))
+    nrmSubject     = Column(Unicode(STR_MAX))
+    start          = Column(Date)
+    end            = Column(Date)
+    description    = Column(Unicode(STR_MAX))
+
+class UWProfileSkill(SQLBase):
+    __tablename__ = 'uwprofile_skill'
+    id          = Column(BigInteger, primary_key=True)
+    uwprofileId = Column(BigInteger,
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
+    reenforced  = Column(Boolean)
+    score       = Column(Float)
+
+class UWExperienceSkill(SQLBase):
+    __tablename__ = 'uwexperience_skill'
+    uwexperienceId = Column(BigInteger, ForeignKey('uwexperience.id'),
+                            primary_key=True,
+                            index=True)
+    skillId        = Column(BigInteger, ForeignKey('uwprofile_skill.id'),
+                            primary_key=True,
+                            index=True)
+    skill          = relationship('UWProfileSkill')
 
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -526,6 +626,97 @@ def _makeINProfile(inprofile, now):
     return inprofile
 
 
+def _makeUWExperience(uwexperience, language, now):
+    uwexperience = deepcopy(uwexperience)
+    uwexperience['language']     = language
+    uwexperience['parsedTitle']  = parsedTitle(language, uwexperience['title'])
+    uwexperience['nrmTitle']     = normalizedTitle(language,
+                                                   uwexperience['title'])
+    uwexperience['titlePrefix']  = normalizedTitlePrefix(language,
+                                                         uwexperience['title'])
+    uwexperience['nrmCompany']   = normalizedCompany(language,
+                                                     uwexperience['company'])
+    uwexperience['nrmLocation']  = normalizedLocation(uwexperience['location'])
+
+    # check start and end dates
+    if uwexperience['start'] is not None and uwexperience['end'] is not None:
+        if uwexperience['start'] >= uwexperience['end']:
+            uwexperience['end'] = None
+    if uwexperience['start'] is None:
+        uwexperience['end'] = None
+
+    return uwexperience
+
+def _makeUWEducation(uweducation, language):
+    uweducation = deepcopy(uweducation)
+    uweducation['language']     = language
+    uweducation['nrmInstitute'] = normalizedInstitute(language,
+                                                      uweducation['institute'])
+    uweducation['nrmDegree']    = normalizedDegree(language,
+                                                   uweducation['degree'])
+    uweducation['nrmSubject']   = normalizedSubject(language,
+                                                    uweducation['subject'])
+
+    if uweducation['start'] is not None and uweducation['end'] is not None:
+        if uweducation['start'] >= uweducation['end']:
+            uweducation['end'] = None
+    if uweducation['start'] is None:
+        uweducation['end'] = None
+    
+    return uweducation
+
+def _makeUWProfileSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName,
+                'reenforced' : False}
+
+def _makeUWProfile(uwprofile, now):
+    # get profile language
+    language = uwprofile.get('language', None)
+
+    # normalize fields
+    uwprofile['nrmLocation']     = normalizedLocation(uwprofile['location'])
+    uwprofile['parsedTitle']     = parsedTitle(language, uwprofile['title'])
+    uwprofile['nrmTitle']        = normalizedTitle(language, uwprofile['title'])
+    uwprofile['titlePrefix']     = normalizedTitlePrefix(language,
+                                                         uwprofile['title'])
+    
+    # update experiences
+    uwprofile['experiences'] = [_makeUWExperience(e, language, now) \
+                                for e in uwprofile['experiences']]
+    startdates = [e['start'] for e in uwprofile['experiences'] \
+                  if e['start'] is not None]
+    if startdates:
+        uwprofile['firstExperienceStart'] = min(startdates)
+        uwprofile['lastExperienceStart'] = max(startdates)
+    else:
+        uwprofile['firstExperienceStart'] = None
+        uwprofile['lastExperienceStart'] = None    
+
+    # update educations
+    uwprofile['educations'] \
+        = [_makeUWEducation(e, language) for e in uwprofile['educations']]
+    startdates = [e['start'] for e in uwprofile['educations'] \
+                  if e['start'] is not None]
+    if startdates:
+        uwprofile['firstEducationStart'] = min(startdates)
+        uwprofile['lastEducationStart'] = max(startdates)
+    else:
+        uwprofile['firstEducationStart'] = None
+        uwprofile['lastEducationStart'] = None    
+
+    # add skills
+    uwprofile['skills'] = [_makeUWProfileSkill(skill, language) \
+                           for skill in uwprofile['skills']]
+
+    return uwprofile
+
+
 class GooglePlacesError(Exception):
     pass
 
@@ -534,7 +725,16 @@ class CanonicalDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)        
     
-    def rankSkills(self, liprofile):
+    def rankSkills(self, liprofile, source):
+        if source == 'linkedin':
+            experienceSkillTab = LIExperienceSkill
+            experienceIdKey = 'liexperienceId'
+        elif source == 'upwork':
+            experienceSkillTab = UWExperienceSkill
+            experienceIdKey = 'uwexperienceId'
+        else:
+            raise ValueError('Invalid source type.')
+        
         skillIds = dict((s.nrmName, s.id) \
                         for s in liprofile.skills if s.nrmName)
         reenforced = dict((s, False) for s in skillIds.keys())
@@ -562,9 +762,9 @@ class CanonicalDB(SQLDatabase):
             experienceskills = set(experienceskills)
             for skill in experienceskills:
                 scores[skill] += 1.0
-                experience.skills.append(
-                    LIExperienceSkill(liexperienceId=experience.id,
-                                      skillId=skillIds[skill]))
+                kwargs = {experienceIdKey : experience.id,
+                          'skillId'       : skillIds[skill]}
+                experience.skills.append(experienceSkillTab(**kwargs))
 
         # update score and reenforced columns
         for skill in liprofile.skills:
@@ -677,7 +877,7 @@ class CanonicalDB(SQLDatabase):
         liprofile = _makeLIProfile(liprofile, now)
         liprofile = self.addFromDict(liprofile, LIProfile)
         self.flush()
-        self.rankSkills(liprofile)
+        self.rankSkills(liprofile, 'linkedin')
 
         return liprofile
 
@@ -808,6 +1008,115 @@ class CanonicalDB(SQLDatabase):
 
         return inprofile
 
+    def addUWProfile(self, uwprofile, now):
+        """Add a LinkedIn profile to the database (or update if it exists).
+
+        Args:
+          liprofile (dict): Description of the profile. Must contain the
+            following fields:
+
+              ``'datoinId'``
+                The profile ID from DATOIN.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'location'``
+                A string describing the location of the user.
+
+              ``'title'``
+                The profile title, e.g. ``'Web developer at Geek Talent'``
+
+              ``'description'``
+                The profile summary.
+
+              ``'profileUrl'``
+                The URL of the profile.
+
+              ``'profilePictureUrl'``
+                The URL of the profile picture.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'crawledOn'``
+                The date when the profile was crawled.
+
+              ``'skills'``
+                The skill tags listed by the user. This should be a list of 
+                strings.
+
+              ``'experiences'``
+                The work experiences of the user. This should be a list of
+                ``dict``s with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'title'``
+                    The role/job title of the work experience.
+
+                  ``'company'``
+                    The name of the company where the person worked.
+
+                  ``'start'``
+                    The start date of the work experience.
+
+                  ``'end'``
+                    The end date of the work experience.
+
+                  ``'description'``
+                    A free-text description of the work experience.
+
+              ``'educations'``
+                The educations of the user. This should be a list of ``dict``s
+                with the following fields:
+
+                  ``'datoinId'``
+                    The ID of the experience record from DATOIN.
+
+                  ``'institute'``
+                    The name of the educational institute.
+
+                  ``'degree'``
+                    The name of the accomplished degree.
+
+                  ``'subject'``
+                    The name of the studied subject.
+
+                  ``'start'``
+                    The start date of the education.
+
+                  ``'end'``
+                    The end date of the education.
+
+                  ``'description'``
+                    A free-text description of the education.
+
+        Returns:
+          The UWProfile object that was added to the database.
+
+        """
+        uwprofileId = self.query(UWProfile.id) \
+                          .filter(UWProfile.datoinId == uwprofile['datoinId']) \
+                          .first()
+        if uwprofileId is not None:
+            uwprofile['id'] = uwprofileId[0]
+            uwexperienceIds \
+                = [id for id, in self.query(UWExperience.id) \
+                   .filter(UWExperience.uwprofileId == uwprofileId[0])]
+            if uwexperienceIds:
+                self.query(UWExperienceSkill) \
+                    .filter(UWExperienceSkill.uwexperienceId \
+                            .in_(uwexperienceIds)) \
+                    .delete(synchronize_session=False)
+        uwprofile = _makeUWProfile(uwprofile, now)
+        uwprofile = self.addFromDict(uwprofile, UWProfile)
+        self.flush()
+        self.rankSkills(uwprofile, 'upwork')
+
+        return uwprofile
+    
     def addLocation(self, nrmName, retry=False, logger=Logger(None)):
         """Add a location to the database.
 

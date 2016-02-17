@@ -361,12 +361,164 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
 
     processDb(q, addINProfile, cndb, logger=logger)
 
+def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+                    skillextractor):
+    logger = Logger(sys.stdout)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+
+    q = dtdb.query(UWProfile).filter(UWProfile.id >= fromid)
+    if byIndexedOn:
+        q = q.filter(UWProfile.indexedOn >= fromTs,
+                     UWProfile.indexedOn < toTs)
+    else:
+        q = q.filter(UWProfile.crawledDate >= fromTs,
+                     UWProfile.crawledDate < toTs)
+                                     
+    if toid is not None:
+        q = q.filter(UWProfile.id < toid)
+
+    def addUWProfile(uwprofile):
+        if uwprofile.name:
+            name = uwprofile.name
+        else:
+            name = ' '.join(s for s in \
+                            [uwprofile.firstName, uwprofile.lastName] if s)
+        if not name:
+            return
+
+        location = ', '.join(s for s in \
+                             [uwprofile.city, uwprofile.country] if s)
+        if not location:
+            location = None
+
+        if uwprofile.indexedOn:
+            indexedOn = timestamp0 + timedelta(milliseconds=uwprofile.indexedOn)
+        else:
+            indexedOn = None
+
+        if uwprofile.crawledDate:
+            crawledOn = timestamp0 \
+                        + timedelta(milliseconds=uwprofile.crawledDate)
+        else:
+            crawledOn = None
+
+        skills = []
+        if uwprofile.categories:
+            skills = [s for s in uwprofile.categories \
+                      if not skillbuttonpatt.match(s)]
+
+        profiledict = {
+            'datoinId'    : uwprofile.id,
+            'name'        : name,
+            'location'    : location,
+            'title'       : uwprofile.title,
+            'description' : uwprofile.description,
+            'url'         : uwprofile.profileUrl,
+            'pictureUrl'  : uwprofile.profilePictureUrl,
+            'indexedOn'   : indexedOn,
+            'crawledOn'   : crawledOn,
+            'experiences' : [],
+            'educations'  : [],
+            'skills'      : skills
+        }
+
+        for uwexperience in dtdb.query(UWExperience) \
+                              .filter(UWExperience.parentId == uwprofile.id):
+            location = ', '.join(s for s in \
+                                 [uwexperience.city, uwexperience.country] if s)
+            if not location:
+                location = None
+
+            if uwexperience.dateFrom:
+                start = timestamp0 \
+                        + timedelta(milliseconds=uwexperience.dateFrom)
+            else:
+                start = None
+            if start is not None and uwexperience.dateTo:
+                end = timestamp0 + timedelta(milliseconds=uwexperience.dateTo)
+            else:
+                end = None
+            if start and end and start > end:
+                start = None
+                end = None
+
+            uwexperiencedict = {
+                'title'          : uwexperience.name,
+                'company'        : uwexperience.company,
+                'location'       : location,
+                'start'          : start,
+                'end'            : end,
+                'description'    : uwexperience.description,
+                }
+            profiledict['experiences'].append(uwexperiencedict)
+
+        for uweducation in dtdb.query(UWEducation) \
+                             .filter(UWEducation.parentId == uwprofile.id):
+            if uweducation.dateFrom:
+                start = timestamp0 \
+                        + timedelta(milliseconds=uweducation.dateFrom)
+            else:
+                start = None
+            if start is not None and uweducation.dateTo:
+                end = timestamp0 + timedelta(milliseconds=uweducation.dateTo)
+            else:
+                end = None
+            if start and end and start > end:
+                start = None
+                end = None
+
+            uweducationdict = {
+                'institute'      : uweducation.institute,
+                'degree'         : uweducation.degree,
+                'subject'        : uweducation.area,
+                'start'          : start,
+                'end'            : end,
+                'description'    : uweducation.description,
+                }
+            profiledict['educations'].append(uweducationdict)
+
+        
+        # determine language
+
+        profiletexts = [profiledict['title'], profiledict['description']]
+        profiletexts.extend(profiledict['skills'])
+        for uwexperience in profiledict['experiences']:
+            profiletexts.append(uwexperience['title'])
+            profiletexts.append(uwexperience['description'])
+        for uweducation in profiledict['educations']:
+            profiletexts.append(uweducation['degree'])
+            profiletexts.append(uweducation['subject'])
+            profiletexts.append(uweducation['description'])
+        profiletexts = '. '.join([t for t in profiletexts if t])
+        try:
+            language = langdetect.detect(profiletexts)
+        except LangDetectException:
+            language = None
+
+        if uwprofile.country not in countryLanguages.keys():
+            if language not in countryLanguages.values():
+                return
+        elif language not in countryLanguages.values():
+            language = countryLanguages[uwprofile.country]
+            
+        profiledict['language'] = language
+        
+        
+        # add profile
+        
+        cndb.addUWProfile(profiledict, now)
+
+    processDb(q, addUWProfile, cndb, logger=logger)
+    
 def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
     logger = Logger(sys.stdout)
     if sourceId is None:
         parseProfiles(fromTs, toTs, fromid, 'linkedin', byIndexedOn,
                       skillextractor)
         parseProfiles(fromTs, toTs, fromid, 'indeed', byIndexedOn,
+                      skillextractor)
+        parseProfiles(fromTs, toTs, fromid, 'upwork', byIndexedOn,
                       skillextractor)
         return
     elif sourceId == 'linkedin':
@@ -379,6 +531,11 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
         table = INProfile
         parsefunc = parseINProfiles
         prefix = 'canonical_parse_indeed'
+    elif sourceId == 'upwork':
+        logger.log('Parsing Upwork profiles.\n')
+        table = UWProfile
+        parsefunc = parseUWProfiles
+        prefix = 'canonical_parse_upwork'
     else:
         raise ValueError('Invalid source type.')
     
@@ -419,7 +576,9 @@ if __name__ == '__main__':
     parser.add_argument('--from-id', help=
                         'Start processing from this datoin ID. Useful for\n'
                         'crash recovery.')
-    parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
+    parser.add_argument('--source',
+                        choices=['linkedin', 'indeed', 'upwork'],
+                        help=
                         'Source type to process. If not specified all sources are\n'
                         'processed.')
     parser.add_argument('--skills', help=

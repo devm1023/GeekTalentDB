@@ -680,6 +680,16 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         logger.log('invalid profile profilePictureUrl\n')
         return False
 
+    # get skills
+    categories = uwprofiledoc.get('categories', [])
+    if type(categories) is not list:
+        logger.log('invalid profile categories\n')
+        return False
+    for skill in categories:
+        if type(skill) is not str:
+            logger.log('invalid profile categories\n')
+            return False
+
     # get timestamp
     if 'indexedOn' not in uwprofiledoc:
         logger.log('invalid profile indexedOn\n')
@@ -706,6 +716,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         'description'       : description,
         'profileUrl'        : profileUrl,
         'profilePictureUrl' : profilePictureUrl,
+        'categories'        : categories,
         'indexedOn'         : indexedOn,
         'crawledDate'       : crawledDate,
         'experiences'       : [],
