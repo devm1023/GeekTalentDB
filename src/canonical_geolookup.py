@@ -13,9 +13,18 @@ import argparse
 SOURCES = ['linkedin', 'indeed']
 
 def processLocations(jobid, fromlocation, tolocation,
-                     fromdate, todate, byIndexedOn, retry, maxretry):
+                     fromdate, todate, byIndexedOn, source, retry, maxretry):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
+
+    if source == 'linkedin':
+        profileTab = LIProfile
+        experienceTab = LIExperience
+    elif source == 'indeed':
+        profileTab = INProfile
+        experienceTab = INExperience
+    else:
+        raise ValueError('Invalid source type.')
 
     if retry:
         q = cndb.query(Location.nrmName) \
@@ -25,27 +34,27 @@ def processLocations(jobid, fromlocation, tolocation,
             q = q.filter(Location.nrmName >= fromlocation)
     else:
         if byIndexedOn:
-            q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
-                     .filter(LIProfile.indexedOn >= fromdate,
-                             LIProfile.indexedOn < todate)
-            q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
-                     .join(LIProfile) \
-                     .filter(LIProfile.indexedOn >= fromdate,
-                             LIProfile.indexedOn < todate)
+            q1 = cndb.query(profileTab.nrmLocation.label('nrmloc')) \
+                     .filter(profileTab.indexedOn >= fromdate,
+                             profileTab.indexedOn < todate)
+            q2 = cndb.query(experienceTab.nrmLocation.label('nrmloc')) \
+                     .join(profileTab) \
+                     .filter(profileTab.indexedOn >= fromdate,
+                             profileTab.indexedOn < todate)
         else:
-            q1 = cndb.query(LIProfile.nrmLocation.label('nrmloc')) \
-                     .filter(LIProfile.crawledOn >= fromdate,
-                             LIProfile.crawledOn < todate)
-            q2 = cndb.query(LIExperience.nrmLocation.label('nrmloc')) \
-                     .join(LIProfile) \
-                     .filter(LIProfile.crawledOn >= fromdate,
-                             LIProfile.crawledOn < todate)
+            q1 = cndb.query(profileTab.nrmLocation.label('nrmloc')) \
+                     .filter(profileTab.crawledOn >= fromdate,
+                             profileTab.crawledOn < todate)
+            q2 = cndb.query(experienceTab.nrmLocation.label('nrmloc')) \
+                     .join(profileTab) \
+                     .filter(profileTab.crawledOn >= fromdate,
+                             profileTab.crawledOn < todate)
 
-        q1 = q1.filter(LIProfile.nrmLocation >= fromlocation)
-        q2 = q2.filter(LIExperience.nrmLocation >= fromlocation)
+        q1 = q1.filter(profileTab.nrmLocation >= fromlocation)
+        q2 = q2.filter(experienceTab.nrmLocation >= fromlocation)
         if tolocation is not None:
-            q1 = q1.filter(LIProfile.nrmLocation < tolocation)
-            q2 = q2.filter(LIExperience.nrmLocation < tolocation)
+            q1 = q1.filter(profileTab.nrmLocation < tolocation)
+            q2 = q2.filter(experienceTab.nrmLocation < tolocation)
 
         q = q1.union(q2)
 
@@ -107,8 +116,8 @@ def run(args, maxretry):
 
     splitProcess(q, processLocations, args.batchsize, njobs=args.njobs,
                  args=[args.from_date, args.to_date, args.by_index_date,
-                       args.retry, maxretry],
-                 logger=logger, workdir='jobs', prefix='geoupdate_linkedin')
+                       args.source, args.retry, maxretry],
+                 logger=logger, workdir='jobs', prefix='canonical_geoupdate')
     
 
 
