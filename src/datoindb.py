@@ -11,6 +11,8 @@ __all__ = [
     'UWExperience',
     'UWEducation',
     'UWTest',
+    'MUProfile',
+    'MULink',
     'DatoinDB',
     ]
 
@@ -215,8 +217,35 @@ class UWTest(SQLBase):
                          index=True)
     name        = Column(Unicode(STR_MAX))
     score       = Column(Float)
+
+class MUProfile(SQLBase):
+    __tablename__ = 'muprofile'
+    id                     = Column(String(STR_MAX), primary_key=True)
+    name                   = Column(Unicode(STR_MAX))
+    country                = Column(Unicode(STR_MAX))
+    city                   = Column(Unicode(STR_MAX))
+    status                 = Column(Unicode(STR_MAX))
+    description            = Column(Unicode(STR_MAX))
+    profileUrl             = Column(String(STR_MAX))
+    profilePictureId       = Column(String(STR_MAX))
+    profilePictureUrl      = Column(String(STR_MAX))
+    profileHQPictureUrl    = Column(String(STR_MAX))
+    profileThumbPictureUrl = Column(String(STR_MAX))
+    categories             = Column(Array(Unicode(STR_MAX)))
+    indexedOn              = Column(BigInteger, index=True)
+    crawledDate            = Column(BigInteger, index=True)
     
-    
+    links                  = relationship('MULink',
+                                          cascade='all, delete-orphan')
+
+class MULink(SQLBase):
+    __tablename__ = 'mulink'
+    id            = Column(BigInteger, primary_key=True)
+    parentId      = Column(String(STR_MAX),
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    type          = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
     
 class DatoinDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):

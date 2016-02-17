@@ -862,6 +862,185 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
     dtdb.addFromDict(uwprofile, UWProfile)
     return True
 
+def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
+    # check sourceId
+    if muprofiledoc.get('sourceId', '') != 'meetup':
+        logger.log('invalid profile sourceId\n')
+        return False
+
+    # check type
+    if muprofiledoc.get('type', '') != 'profile':
+        logger.log('invalid profile type\n')
+        return False
+    
+    # get id
+    if 'id' not in muprofiledoc:
+        logger.log('invalid profile id\n')
+        return False
+    muprofile_id = muprofiledoc['id']
+
+    # get name
+    name = muprofiledoc.get('name', '')
+    if not name or type(name) is not str:
+        return False
+
+    # get country
+    country = muprofiledoc.get('country', None)
+    if country is not None and type(country) is not str:
+        logger.log('invalid profile country\n')
+        return False
+
+    # get city
+    city = muprofiledoc.get('city', None)
+    if city is not None and type(city) is not str:
+        logger.log('invalid profile city\n')
+        return False
+
+    # get title
+    status = muprofiledoc.get('status', None)
+    if status is not None and type(status) is not str:
+        logger.log('invalid profile status\n')
+        return False    
+
+    # get description
+    description = muprofiledoc.get('description', None)
+    if description is not None and type(description) is not str:
+        logger.log('invalid profile description\n')
+        return False
+    
+    # get muprofile url
+    if 'profileUrl' not in muprofiledoc:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    profileUrl = muprofiledoc['profileUrl']
+    if profileUrl is not None and type(profileUrl) is not str:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    try:
+        if profileUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileUrl\n')
+        return False
+
+    # get description
+    profilePictureId = muprofiledoc.get('profilePictureId', None)
+    if profilePictureId is not None and type(profilePictureId) is not str:
+        logger.log('invalid profilePictureId\n')
+        return False
+
+    # get muprofiledoc picture url
+    profilePictureUrl = muprofiledoc.get('profilePictureUrl', None)
+    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+    try:
+        if profilePictureUrl is not None and \
+           profilePictureUrl[:4].lower() != 'http':
+            logger.log('invalid profile profilePictureUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+
+    # get muprofiledoc HQ picture url
+    profileHQPictureUrl = muprofiledoc.get('profileHQPictureUrl', None)
+    if profileHQPictureUrl is not None and type(profileHQPictureUrl) is not str:
+        logger.log('invalid profile profileHQPictureUrl\n')
+        return False
+    try:
+        if profileHQPictureUrl is not None and \
+           profileHQPictureUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileHQPictureUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileHQPictureUrl\n')
+        return False
+    
+    # get muprofiledoc thumb picture url
+    profileThumbPictureUrl = muprofiledoc.get('profileThumbPictureUrl', None)
+    if profileThumbPictureUrl is not None \
+       and type(profileThumbPictureUrl) is not str:
+        logger.log('invalid profile profileThumbPictureUrl\n')
+        return False
+    try:
+        if profileThumbPictureUrl is not None and \
+           profileThumbPictureUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileThumbPictureUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileThumbPictureUrl\n')
+        return False
+    
+    # get timestamp
+    if 'indexedOn' not in muprofiledoc:
+        logger.log('invalid profile indexedOn\n')
+        return False
+    indexedOn = muprofiledoc['indexedOn']
+    if type(indexedOn) is not int:
+        logger.log('invalid profile indexedOn\n')
+        return False
+
+    # get crawl date
+    crawledDate = muprofiledoc.get('crawledDate', None)
+    if crawledDate is not None and type(crawledDate) is not int:
+        logger.log('invalid profile crawledDate\n')
+        return False
+    
+    # get skills
+    categories = muprofiledoc.get('categories', [])
+    if type(categories) is not list:
+        logger.log('invalid profile categories\n')
+        return False
+    for skill in categories:
+        if type(skill) is not str:
+            logger.log('invalid profile categories\n')
+            return False
+
+    muprofile = {
+        'id'                     : muprofile_id,
+        'name'                   : name,
+        'country'                : country,
+        'city'                   : city,
+        'status'                 : status,
+        'description'            : description,
+        'profileUrl'             : profileUrl,
+        'profilePictureId'       : profilePictureId,
+        'profilePictureUrl'      : profilePictureUrl,
+        'profileHQPictureUrl'    : profileHQPictureUrl,
+        'profileThumbPictureUrl' : profileThumbPictureUrl,
+        'indexedOn'              : indexedOn,
+        'crawledDate'            : crawledDate,
+        'categories'             : categories,
+        'links'                  : []
+        }
+
+
+    # parse links
+    
+    for link in muprofiledoc.get('otherProfiles', []):
+        # get sector
+        linktype = link.get('type', None)
+        if type(linktype) is not str:
+            logger.log('invalid link type\n')
+            return False
+
+        # get url
+        url = link.get('url', None)
+        if type(url) is not str:
+            logger.log('invalid profile url\n')
+            return False
+
+        muprofile['links'].append({'type' : linktype,
+                                   'url'  : url})
+        
+
+    # add muprofile
+    dtdb.addFromDict(muprofile, MUProfile)
+    return True
+
+
 
 def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
     if conf.MAX_PROFILES is not None:
@@ -885,6 +1064,8 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
         addProfile = addINProfile
     elif sourceId == 'upwork':
         addProfile = addUWProfile
+    elif sourceId == 'meetup':
+        addProfile = addMUProfile
     else:
         raise ValueError('Invalid source id.')
     
@@ -951,6 +1132,9 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Upwork profiles.\n')
         downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'upwork',
+                      offset=offset, maxoffset=maxoffset)
+        logger.log('Downloading Meetup profiles.\n')
+        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'meetup',
                       offset=offset, maxoffset=maxoffset)
         return
     
@@ -1037,7 +1221,7 @@ if __name__ == '__main__':
     parser.add_argument('--to-offset', type=int, help=
                         'Stop processing at this offset.')
     parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork'],
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup'],
                         help=
                         'Source type to process. If not specified all sources are\n'
                         'processed.')
