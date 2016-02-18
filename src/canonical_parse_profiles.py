@@ -512,9 +512,8 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         if not name:
             return
 
-        if muprofile.city and muprofile.country:
-            location = ', '.join(s for s in \
-                                 [muprofile.city, muprofile.country] if s)
+        location = ', '.join(s for s in [muprofile.city, muprofile.country] \
+                             if s)
         if not location:
             location = None
 
@@ -575,6 +574,8 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
         parseProfiles(fromTs, toTs, fromid, 'indeed', byIndexedOn,
                       skillextractor)
         parseProfiles(fromTs, toTs, fromid, 'upwork', byIndexedOn,
+                      skillextractor)
+        parseProfiles(fromTs, toTs, fromid, 'meetup', byIndexedOn,
                       skillextractor)
         return
     elif sourceId == 'linkedin':
