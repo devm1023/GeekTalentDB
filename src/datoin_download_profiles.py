@@ -1041,6 +1041,201 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
     return True
 
 
+def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
+    # check sourceId
+    if ghprofiledoc.get('sourceId', '') != 'github':
+        logger.log('invalid profile sourceId\n')
+        return False
+
+    # check type
+    if ghprofiledoc.get('type', '') != 'profile':
+        logger.log('invalid profile type\n')
+        return False
+    
+    # get id
+    if 'id' not in ghprofiledoc:
+        logger.log('invalid profile id\n')
+        return False
+    ghprofile_id = ghprofiledoc['id']
+
+    # get name
+    name = ghprofiledoc.get('name', '')
+    if name is not None and type(name) is not str:
+        return False
+
+    # get country
+    country = ghprofiledoc.get('country', None)
+    if country is not None and type(country) is not str:
+        logger.log('invalid profile country\n')
+        return False
+
+    # get city
+    city = ghprofiledoc.get('city', None)
+    if city is not None and type(city) is not str:
+        logger.log('invalid profile city\n')
+        return False
+
+    # get company
+    company = ghprofiledoc.get('company', None)
+    if company is not None and type(company) is not str:
+        logger.log('invalid profile company\n')
+        return False
+    
+    # get description
+    description = ghprofiledoc.get('description', None)
+    if description is not None and type(description) is not str:
+        logger.log('invalid profile description\n')
+        return False
+
+    # get created date
+    createdDate = ghprofiledoc.get('createdDate', None)
+    if createdDate is not None and type(createdDate) is not int:
+        logger.log('invalid profile createdDate\n')
+        return False
+    
+    # get ghprofile url
+    if 'profileUrl' not in ghprofiledoc:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    profileUrl = ghprofiledoc['profileUrl']
+    if profileUrl is not None and type(profileUrl) is not str:
+        logger.log('invalid profile profileUrl\n')
+        return False
+    try:
+        if profileUrl[:4].lower() != 'http':
+            logger.log('invalid profile profileUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profileUrl\n')
+        return False
+
+    # get ghprofiledoc picture url
+    profilePictureUrl = ghprofiledoc.get('profilePictureUrl', None)
+    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+    try:
+        if profilePictureUrl is not None and \
+           profilePictureUrl[:4].lower() != 'http':
+            logger.log('invalid profile profilePictureUrl\n')
+            return False
+    except IndexError:
+        logger.log('invalid profile profilePictureUrl\n')
+        return False
+
+    # get login
+    login = ghprofiledoc.get('login', None)
+    if login is not None and type(login) is not str:
+        logger.log('invalid profile login\n')
+        return False
+
+    # get email
+    email = ghprofiledoc.get('email', None)
+    if email is not None and type(email) is not str:
+        logger.log('invalid profile email\n')
+        return False
+
+    # get contributionsCount
+    contributionsCount = ghprofiledoc.get('contributionsCount', None)
+    if contributionsCount is not None and type(contributionsCount) is not int:
+        logger.log('invalid profile contributionsCount\n')
+        return False
+
+    # get followersCount
+    followersCount = ghprofiledoc.get('followersCount', None)
+    if followersCount is not None and type(followersCount) is not int:
+        logger.log('invalid profile followersCount\n')
+        return False
+
+    # get followingCount
+    followingCount = ghprofiledoc.get('followingCount', None)
+    if followingCount is not None and type(followingCount) is not int:
+        logger.log('invalid profile followingCount\n')
+        return False
+
+    # get publicRepoCount
+    publicRepoCount = ghprofiledoc.get('publicRepoCount', None)
+    if publicRepoCount is not None and type(publicRepoCount) is not int:
+        logger.log('invalid profile publicRepoCount\n')
+        return False
+
+    # get publicGistCount
+    publicGistCount = ghprofiledoc.get('publicGistCount', None)
+    if publicGistCount is not None and type(publicGistCount) is not int:
+        logger.log('invalid profile publicGistCount\n')
+        return False
+    
+    # get timestamp
+    if 'indexedOn' not in ghprofiledoc:
+        logger.log('invalid profile indexedOn\n')
+        return False
+    indexedOn = ghprofiledoc['indexedOn']
+    if type(indexedOn) is not int:
+        logger.log('invalid profile indexedOn\n')
+        return False
+
+    # get crawl date
+    crawledDate = ghprofiledoc.get('crawledDate', None)
+    if crawledDate is not None and type(crawledDate) is not int:
+        logger.log('invalid profile crawledDate\n')
+        return False
+    
+    # get skills
+    categories = ghprofiledoc.get('categories', [])
+    if type(categories) is not list:
+        logger.log('invalid profile categories\n')
+        return False
+    for skill in categories:
+        if type(skill) is not str:
+            logger.log('invalid profile categories\n')
+            return False
+
+    ghprofile = {
+        'id'                     : ghprofile_id,
+        'name'                   : name,
+        'country'                : country,
+        'city'                   : city,
+        'company'                : company,
+        'description'            : description,
+        'profileUrl'             : profileUrl,
+        'profilePictureUrl'      : profilePictureUrl,
+        'login'                  : login,
+        'email'                  : email,
+        'contributionsCount'     : contributionsCount,
+        'followersCount'         : followersCount,
+        'followingCount'         : followingCount,
+        'publicRepoCount'        : publicRepoCount,
+        'publicGistCount'        : publicGistCount,
+        'indexedOn'              : indexedOn,
+        'crawledDate'            : crawledDate,
+        'categories'             : categories,
+        'links'                  : []
+        }
+
+
+    # parse links
+    
+    for link in ghprofiledoc.get('otherProfiles', []):
+        # get sector
+        linktype = link.get('type', None)
+        if type(linktype) is not str:
+            logger.log('invalid link type\n')
+            return False
+
+        # get url
+        url = link.get('url', None)
+        if type(url) is not str:
+            logger.log('invalid profile url\n')
+            return False
+
+        ghprofile['links'].append({'type' : linktype,
+                                   'url'  : url})
+        
+
+    # add ghprofile
+    dtdb.addFromDict(ghprofile, GHProfile)
+    return True
+
 
 def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
     if conf.MAX_PROFILES is not None:
@@ -1066,6 +1261,8 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
         addProfile = addUWProfile
     elif sourceId == 'meetup':
         addProfile = addMUProfile
+    elif sourceId == 'github':
+        addProfile = addGHProfile
     else:
         raise ValueError('Invalid source id.')
     
@@ -1135,6 +1332,9 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Meetup profiles.\n')
         downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'meetup',
+                      offset=offset, maxoffset=maxoffset)
+        logger.log('Downloading GitHub profiles.\n')
+        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'github',
                       offset=offset, maxoffset=maxoffset)
         return
     
@@ -1221,7 +1421,8 @@ if __name__ == '__main__':
     parser.add_argument('--to-offset', type=int, help=
                         'Stop processing at this offset.')
     parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork', 'meetup'],
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
+                                 'github'],
                         help=
                         'Source type to process. If not specified all sources are\n'
                         'processed.')

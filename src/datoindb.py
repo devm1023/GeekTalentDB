@@ -13,6 +13,8 @@ __all__ = [
     'UWTest',
     'MUProfile',
     'MULink',
+    'GHProfile',
+    'GHLink',
     'DatoinDB',
     ]
 
@@ -246,7 +248,42 @@ class MULink(SQLBase):
                            index=True)
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
+
+class GHProfile(SQLBase):
+    __tablename__ = 'ghprofile'
+    id                     = Column(String(STR_MAX), primary_key=True)
+    name                   = Column(Unicode(STR_MAX))
+    country                = Column(Unicode(STR_MAX))
+    city                   = Column(Unicode(STR_MAX))
+    company                = Column(Unicode(STR_MAX))
+    description            = Column(Unicode(STR_MAX))
+    createdDate            = Column(BigInteger)
+    profileUrl             = Column(String(STR_MAX))
+    profilePictureUrl      = Column(String(STR_MAX))
+    login                  = Column(String(STR_MAX))
+    email                  = Column(String(STR_MAX))
+    contributionsCount     = Column(Integer)
+    followersCount         = Column(Integer)
+    followingCount         = Column(Integer)
+    publicRepoCount        = Column(Integer)
+    publicGistCount        = Column(Integer)
+    categories             = Column(Array(Unicode(STR_MAX)))
+    indexedOn              = Column(BigInteger, index=True)
+    crawledDate            = Column(BigInteger, index=True)
     
+    links                  = relationship('GHLink',
+                                          cascade='all, delete-orphan')
+
+class GHLink(SQLBase):
+    __tablename__ = 'ghlink'
+    id            = Column(BigInteger, primary_key=True)
+    parentId      = Column(String(STR_MAX),
+                           ForeignKey('ghprofile.id'),
+                           index=True)
+    type          = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+
+
 class DatoinDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
