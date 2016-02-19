@@ -10,6 +10,17 @@ __all__ = [
     'INEducation',
     'INProfileSkill',
     'INExperienceSkill',
+    'UWProfile',
+    'UWExperience',
+    'UWEducation',
+    'UWProfileSkill',
+    'UWExperienceSkill',
+    'MUProfile',
+    'MUProfileSkill',
+    'MULink',
+    'GHProfile',
+    'GHProfileSkill',
+    'GHLink',
     'Location',
     'CanonicalDB',
     ]
@@ -42,6 +53,7 @@ from phraseextract import PhraseExtractor
 from textnormalization import tokenizedSkill
 import time
 import random
+from pprint import pprint
 
 
 STR_MAX = 100000
@@ -410,6 +422,83 @@ class MULink(SQLBase):
     id            = Column(BigInteger, primary_key=True)
     muprofileId   = Column(BigInteger,
                            ForeignKey('muprofile.id'),
+                           index=True)
+    type          = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+
+class GHProfile(SQLBase):
+    __tablename__ = 'ghprofile'
+    id                     = Column(BigInteger, primary_key=True)
+    datoinId               = Column(String(STR_MAX), index=True)
+    language               = Column(String(20))
+    name                   = Column(Unicode(STR_MAX))
+    location               = Column(Unicode(STR_MAX))
+    nrmLocation            = Column(Unicode(STR_MAX), index=True)
+    company                = Column(Unicode(STR_MAX))
+    nrmCompany             = Column(Unicode(STR_MAX))
+    createdDate            = Column(DateTime)
+    url                    = Column(String(STR_MAX))
+    pictureUrl             = Column(String(STR_MAX))
+    login                  = Column(String(STR_MAX))
+    email                  = Column(String(STR_MAX))
+    contributionsCount     = Column(Integer)
+    followersCount         = Column(Integer)
+    followingCount         = Column(Integer)
+    publicRepoCount        = Column(Integer)
+    publicGistCount        = Column(Integer)
+    indexedOn              = Column(DateTime, index=True)
+    crawledOn              = Column(DateTime, index=True)
+
+    skills            = relationship('GHProfileSkill',
+                                     order_by='GHProfileSkill.nrmName',
+                                     cascade='all, delete-orphan')
+    links             = relationship('GHLink',
+                                     order_by='GHLink.url',
+                                     cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('datoinId'),)
+
+class GHProfileSkill(SQLBase):
+    __tablename__ = 'ghprofile_skill'
+    id          = Column(BigInteger, primary_key=True)
+    ghprofileId = Column(BigInteger,
+                         ForeignKey('ghprofile.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
+    score       = Column(Float)
+
+class GHRepository(SQLBase):
+    __tablename__ = 'ghrepository'
+    id              = Column(BigInteger, primary_key=True)
+    ghprofileId     = Column(BigInteger,
+                             ForeignKey('ghprofile.id'),
+                             index=True)    
+    name            = Column(String(STR_MAX))
+    url             = Column(String(STR_MAX))
+    stargazersCount = Column(Integer)
+    forksCount      = Column(Integer)
+    
+    tags            = relationship('GHRepositorySkill')    
+
+class GHRepositorySkill(SQLBase):
+    __tablename__  = 'ghrepository_skill'
+    ghrepositoryId = Column(BigInteger,
+                            ForeignKey('ghrepository.id'),
+                            primary_key=True,
+                            index=True)
+    skillId        = Column(BigInteger,
+                            ForeignKey('ghprofile_skill.id'),
+                            primary_key=True,
+                            index=True)
+    skill          = relationship('GHProfileSkill')
+    
+class GHLink(SQLBase):
+    __tablename__ = 'ghlink'
+    id            = Column(BigInteger, primary_key=True)
+    ghprofileId   = Column(BigInteger,
+                           ForeignKey('ghprofile.id'),
                            index=True)
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
@@ -786,6 +875,36 @@ def _makeMUProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
+    
+def _makeGHProfile(ghprofile, now):
+    # get profile language
+    language = ghprofile.get('language', None)
+
+    # normalize fields
+    ghprofile['nrmLocation'] = normalizedLocation(ghprofile['location'])
+    ghprofile['nrmCompany'] = normalizedCompany(language,
+                                                ghprofile['company'])
+
+    # add skills
+    skills = set()
+    for repo in ghprofile['repositories']:
+        if repo['tags']:
+            skills.update(repo['tags'])
+    ghprofile['skills'] = [_makeGHProfileSkill(skill, language) \
+                           for skill in skills]
+
+    return ghprofile
+
+def _makeGHProfileSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName,
+                'score'      : 0.0}
+    
 
 class GooglePlacesError(Exception):
     pass
@@ -802,7 +921,7 @@ class CanonicalDB(SQLDatabase):
         elif source == 'upwork':
             experienceSkillTab = UWExperienceSkill
             experienceIdKey = 'uwexperienceId'
-        elif source == 'meetup':
+        elif source in ['meetup', 'github']:
             pass
         else:
             raise ValueError('Invalid source type.')
@@ -817,7 +936,7 @@ class CanonicalDB(SQLDatabase):
                                             removebrackets=False)
 
         # extract from profile text
-        if source == 'meetup':
+        if source in ['meetup', 'github']:
             profiletext = profile.description
         else:
             profiletext = _joinfields(profile.title, profile.description)
@@ -1256,6 +1375,87 @@ class CanonicalDB(SQLDatabase):
 
         return muprofile
     
+    def addGHProfile(self, ghprofiledict, now):
+        """Add a GitHub profile to the database (or update if it exists).
+
+        Args:
+          ghprofile (dict): Description of the profile. Must contain the
+            following fields:
+
+              ``'datoinId'``
+                The profile ID from DATOIN.
+
+              ``'language'``
+                The language of the profile.
+
+              ``'name'``
+                The name of the LinkedIn user.
+
+              ``'location'``
+                A string describing the location of the user.
+
+              ``'company'``
+                The user's company.
+
+              ``'description'``
+                The profile summary.
+
+              ``'url'``
+                The URL of the profile.
+
+              ``'pictureUrl'``
+                The URL of the profile picture.
+
+              ``'indexedOn'``
+                The date when the profile was indexed.
+
+              ``'crawledOn'``
+                The date when the profile was crawled.
+
+              ``'skills'``
+                Interests listed by the user. This should be a list of 
+                strings.
+
+        Returns:
+          The GHProfile object that was added to the database.
+
+        """
+        ghprofileId = self.query(GHProfile.id) \
+                          .filter(GHProfile.datoinId == \
+                                  ghprofiledict['datoinId']) \
+                          .first()
+        if ghprofileId is not None:
+            ghprofiledict['id'] = ghprofileId[0]
+            ghrepositoryIds \
+                = [id for id, in self.query(GHRepository.id) \
+                   .filter(GHRepository.ghprofileId == ghprofileId[0])]
+            if ghrepositoryIds:
+                self.query(GHRepositorySkill) \
+                    .filter(GHRepositorySkill.ghrepositoryId \
+                            .in_(ghrepositoryIds)) \
+                    .delete(synchronize_session=False)
+                self.query(GHRepository) \
+                    .filter(GHRepository.ghprofileId == ghprofileId[0]) \
+                    .delete(synchronize_session=False)
+        ghprofiledict = _makeGHProfile(ghprofiledict, now)
+        repositories = ghprofiledict.pop('repositories')
+        ghprofile = self.addFromDict(ghprofiledict, GHProfile)
+        self.flush()
+
+        skills = dict((skill.name, skill) for skill in ghprofile.skills)
+        for repositorydict in repositories:
+            tags = repositorydict.pop('tags', None)
+            repositorydict['ghprofileId'] = ghprofile.id
+            repository = self.addFromDict(repositorydict, GHRepository)
+            self.flush()
+            if tags:
+                for tag in tags:
+                    self.add(GHRepositorySkill(ghrepositoryId=repository.id,
+                                               skillId=skills[tag].id))
+                    skills[tag].score += 1.0
+
+        return ghprofile
+
     def addLocation(self, nrmName, retry=False, logger=Logger(None)):
         """Add a location to the database.
 

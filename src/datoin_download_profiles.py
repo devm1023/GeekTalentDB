@@ -1059,7 +1059,7 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
     ghprofile_id = ghprofiledoc['id']
 
     # get name
-    name = ghprofiledoc.get('name', '')
+    name = ghprofiledoc.get('name', None)
     if name is not None and type(name) is not str:
         return False
 
@@ -1081,12 +1081,6 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
         logger.log('invalid profile company\n')
         return False
     
-    # get description
-    description = ghprofiledoc.get('description', None)
-    if description is not None and type(description) is not str:
-        logger.log('invalid profile description\n')
-        return False
-
     # get created date
     createdDate = ghprofiledoc.get('createdDate', None)
     if createdDate is not None and type(createdDate) is not int:
@@ -1179,16 +1173,6 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
     if crawledDate is not None and type(crawledDate) is not int:
         logger.log('invalid profile crawledDate\n')
         return False
-    
-    # get skills
-    categories = ghprofiledoc.get('categories', [])
-    if type(categories) is not list:
-        logger.log('invalid profile categories\n')
-        return False
-    for skill in categories:
-        if type(skill) is not str:
-            logger.log('invalid profile categories\n')
-            return False
 
     ghprofile = {
         'id'                     : ghprofile_id,
@@ -1196,7 +1180,6 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
         'country'                : country,
         'city'                   : city,
         'company'                : company,
-        'description'            : description,
         'profileUrl'             : profileUrl,
         'profilePictureUrl'      : profilePictureUrl,
         'login'                  : login,
@@ -1208,8 +1191,8 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
         'publicGistCount'        : publicGistCount,
         'indexedOn'              : indexedOn,
         'crawledDate'            : crawledDate,
-        'categories'             : categories,
-        'links'                  : []
+        'links'                  : [],
+        'repositories'           : []
         }
 
 
@@ -1232,6 +1215,50 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
                                    'url'  : url})
         
 
+    # parse repositories
+
+    for subdocument in ghprofiledoc.get('subDocuments', []):
+        if 'type' not in subdocument:
+            logger.log('type field missing in sub-document.\n')
+            return False
+
+        if subdocument['type'] == 'repository':
+            repository = subdocument
+
+            name = repository.get('name', None)
+            if type(name) is not str:
+                logger.log('invalid repository name\n')
+                return False
+            
+            url = repository.get('url', None)
+            if type(url) is not str:
+                logger.log('invalid repository url\n')
+                return False
+
+            stargazersCount = repository.get('stargazersCount', None)
+            if type(stargazersCount) is not int:
+                logger.log('invalid repository stargazersCount\n')
+                return False
+                
+            forksCount = repository.get('forksCount', None)
+            if type(forksCount) is not int:
+                logger.log('invalid repository forksCount\n')
+                return False
+
+            tags = repository.get('tags', None)
+            if tags is not None and type(tags) is not dict:
+                logger.log('invalid repository tags\n')
+                return False
+            if tags is not None:
+                tags = tags['myArrayList']
+
+            ghprofile['repositories'].append(
+                {'name'            : name,
+                 'url'             : url,
+                 'stargazersCount' : stargazersCount,
+                 'forksCount'      : forksCount,
+                 'tags'            : tags})
+            
     # add ghprofile
     dtdb.addFromDict(ghprofile, GHProfile)
     return True

@@ -3,6 +3,7 @@ import canonicaldb as nf
 from windowquery import splitProcess, processDb
 from phraseextract import PhraseExtractor
 from textnormalization import tokenizedSkill
+from sqldb import dictFromRow
 from sqlalchemy import and_
 import conf
 import sys
@@ -565,6 +566,93 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
 
     processDb(q, addMUProfile, cndb, logger=logger)
 
+
+def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+                    skillextractor):
+    logger = Logger(sys.stdout)
+    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+
+    q = dtdb.query(GHProfile).filter(GHProfile.id >= fromid)
+    if byIndexedOn:
+        q = q.filter(GHProfile.indexedOn >= fromTs,
+                     GHProfile.indexedOn < toTs)
+    else:
+        q = q.filter(GHProfile.crawledDate >= fromTs,
+                     GHProfile.crawledDate < toTs)
+                                     
+    if toid is not None:
+        q = q.filter(GHProfile.id < toid)
+
+    def addGHProfile(ghprofile):
+        name = ghprofile.name
+        if not name:
+            name = None
+
+        location = ', '.join(s for s in [ghprofile.city, ghprofile.country] \
+                             if s)
+        if not location:
+            location = None
+
+        if ghprofile.indexedOn:
+            indexedOn = timestamp0 + timedelta(milliseconds=ghprofile.indexedOn)
+        else:
+            indexedOn = None
+
+        if ghprofile.crawledDate:
+            crawledOn = timestamp0 \
+                        + timedelta(milliseconds=ghprofile.crawledDate)
+        else:
+            crawledOn = None
+
+        if ghprofile.createdDate:
+            createdDate = timestamp0 \
+                          + timedelta(milliseconds=ghprofile.createdDate)
+        else:
+            createdDate = None
+            
+        links = [{'type' : l.type, 'url' : l.url} for l in ghprofile.links]
+
+        repositories = []
+        for repo in ghprofile.repositories:
+            repodict = dictFromRow(repo)
+            repodict.pop('id')
+            repodict.pop('parentId')
+            repositories.append(repodict)
+
+        profiledict = {
+            'datoinId'           : ghprofile.id,
+            'name'               : name,
+            'location'           : location,
+            'company'            : ghprofile.company,
+            'createdDate'        : createdDate,
+            'url'                : ghprofile.profileUrl,
+            'pictureUrl'         : ghprofile.profilePictureUrl,
+            'login'              : ghprofile.login,
+            'email'              : ghprofile.email,
+            'contributionsCount' : ghprofile.contributionsCount,
+            'followersCount'     : ghprofile.followersCount,
+            'followingCount'     : ghprofile.followingCount,
+            'publicRepoCount'    : ghprofile.publicRepoCount,
+            'publicGistCount'    : ghprofile.publicGistCount,
+            'indexedOn'          : indexedOn,
+            'crawledOn'          : crawledOn,
+            'links'              : links,
+            'repositories'       : repositories
+            
+        }
+
+        # determine language
+            
+        profiledict['language'] = 'en'
+        
+        
+        # add profile
+        
+        cndb.addGHProfile(profiledict, now)
+
+    processDb(q, addGHProfile, cndb, logger=logger)
+    
     
 def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
     logger = Logger(sys.stdout)
@@ -576,6 +664,8 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
         parseProfiles(fromTs, toTs, fromid, 'upwork', byIndexedOn,
                       skillextractor)
         parseProfiles(fromTs, toTs, fromid, 'meetup', byIndexedOn,
+                      skillextractor)
+        parseProfiles(fromTs, toTs, fromid, 'github', byIndexedOn,
                       skillextractor)
         return
     elif sourceId == 'linkedin':
@@ -598,6 +688,11 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
         table = MUProfile
         parsefunc = parseMUProfiles
         prefix = 'canonical_parse_meetup'
+    elif sourceId == 'github':
+        logger.log('Parsing GitHub profiles.\n')
+        table = GHProfile
+        parsefunc = parseGHProfiles
+        prefix = 'canonical_parse_github'
     else:
         raise ValueError('Invalid source type.')
     
@@ -639,7 +734,8 @@ if __name__ == '__main__':
                         'Start processing from this datoin ID. Useful for\n'
                         'crash recovery.')
     parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork', 'meetup'],
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
+                                 'github'],
                         help=
                         'Source type to process. If not specified all sources are\n'
                         'processed.')

@@ -256,7 +256,6 @@ class GHProfile(SQLBase):
     country                = Column(Unicode(STR_MAX))
     city                   = Column(Unicode(STR_MAX))
     company                = Column(Unicode(STR_MAX))
-    description            = Column(Unicode(STR_MAX))
     createdDate            = Column(BigInteger)
     profileUrl             = Column(String(STR_MAX))
     profilePictureUrl      = Column(String(STR_MAX))
@@ -267,11 +266,12 @@ class GHProfile(SQLBase):
     followingCount         = Column(Integer)
     publicRepoCount        = Column(Integer)
     publicGistCount        = Column(Integer)
-    categories             = Column(Array(Unicode(STR_MAX)))
     indexedOn              = Column(BigInteger, index=True)
     crawledDate            = Column(BigInteger, index=True)
     
     links                  = relationship('GHLink',
+                                          cascade='all, delete-orphan')
+    repositories           = relationship('GHRepository',
                                           cascade='all, delete-orphan')
 
 class GHLink(SQLBase):
@@ -283,6 +283,18 @@ class GHLink(SQLBase):
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
 
+class GHRepository(SQLBase):
+    __tablename__ = 'ghrepository'
+    id            = Column(BigInteger, primary_key=True)
+    parentId      = Column(String(STR_MAX),
+                           ForeignKey('ghprofile.id'),
+                           index=True)    
+    name            = Column(String(STR_MAX))
+    url             = Column(String(STR_MAX))
+    stargazersCount = Column(Integer)
+    forksCount      = Column(Integer)
+    tags            = Column(Array(Unicode(STR_MAX)))
+    
 
 class DatoinDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
