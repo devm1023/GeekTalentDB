@@ -1236,14 +1236,18 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
                 return False
 
             stargazersCount = repository.get('stargazersCount', None)
-            if type(stargazersCount) is not int:
-                logger.log('invalid repository stargazersCount\n')
-                return False
+            if stargazersCount is not None:
+                try:
+                    stargazersCount = int(stargazersCount)
+                except ValueError:
+                    stargazersCount = None
                 
             forksCount = repository.get('forksCount', None)
-            if type(forksCount) is not int:
-                logger.log('invalid repository forksCount\n')
-                return False
+            if forksCount is not None:
+                try:
+                    forksCount = int(forksCount)
+                except ValueError:
+                    forksCount = None
 
             tags = repository.get('tags', None)
             if tags is not None and type(tags) is not dict:
@@ -1330,7 +1334,7 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
             except StopIteration:
                 new_failed_offsets.append(offset)
                 continue
-            if not addLIProfile(dtdb, liprofiledoc, dtsession, logger):
+            if not addProfile(dtdb, liprofiledoc, dtsession, logger):
                 new_failed_offsets.append(offset)
 
             if count % BATCH_SIZE == 0:
