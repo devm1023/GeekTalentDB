@@ -1226,7 +1226,7 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
             repository = subdocument
 
             name = repository.get('name', None)
-            if type(name) is not str:
+            if name is not None and type(name) is not str:
                 logger.log('invalid repository name\n')
                 return False
             
