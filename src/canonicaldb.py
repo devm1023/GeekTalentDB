@@ -1486,14 +1486,24 @@ class CanonicalDB(SQLDatabase):
                 r = requests.get(conf.PLACES_API,
                                  params={'key' : conf.PLACES_KEY,
                                          'query' : nrmName})
-                url = r.url
-                r = r.json()
             except KeyboardInterrupt:
                 raise
             except:
+                if attempts > maxattempts:
+                    logger.log('Failed request for query {0:s}\n' \
+                               .format(repr(nrmName)))
+                    raise
                 logger.log('Request failed. Retrying.\n')
                 time.sleep(2)
                 continue
+
+            url = r.url
+            try:
+                r = r.json()
+            except:
+                logger.log('Failed parsing response for URL {0:s}\n' \
+                           .format(url))
+                r = {'status' : 'ZERO_RESULTS', 'results' : []}
 
             if 'status' not in r:
                 raise GooglePlacesError('Status missing in response.')
