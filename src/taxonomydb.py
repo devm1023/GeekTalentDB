@@ -69,7 +69,7 @@ class TaxonomyDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
-    def getTaxonomies(self, ids):
+    def getTaxonomies(self, ids, taxonomyNames):
         q = self.query(LIProfile.id,
                        LIProfile.ibm_tax1,
                        LIProfile.ibm_tax1_cfscore,
@@ -84,35 +84,32 @@ class TaxonomyDB(SQLDatabase):
         iddict = dict((id, []) for id in ids)
         for id, tax1, score1, cf1, tax2, score2, cf2, tax3, score3, cf3 in q:
             if tax1 is not None and score1 is not None and cf1 is not None:
-                iddict[id].append({'name'        : _taxonomyFromLTree(tax1),
+                iddict[id].append({'name'        : taxonomyNames[tax1],
                                    'score'       : score1,
                                    'isConfident' : cf1})
             if tax2 is not None and score2 is not None and cf2 is not None:
-                iddict[id].append({'name'        : _taxonomyFromLTree(tax2),
+                iddict[id].append({'name'        : taxonomyNames[tax2],
                                    'score'       : score2,
                                    'isConfident' : cf2})
             if tax3 is not None and score3 is not None and cf3 is not None:
-                iddict[id].append({'name'        : _taxonomyFromLTree(tax3),
+                iddict[id].append({'name'        : taxonomyNames[tax3],
                                    'score'       : score3,
                                    'isConfident' : cf3})
                 
         return [{'id' : id, 'taxonomies' : taxonomies} \
                 for id, taxonomies in iddict.items()]
 
-    def getUsers(self, taxonomies, nusers, randomize):
+    def getUsers(self, taxonomies, nusers, randomize, taxonomyIds):
         taxonomies = list(set(taxonomies))
         limit = nusers if not randomize else 1000
-        ltrees = [_ltreeFromTaxonomy(t) for t in taxonomies]
+        ltrees = [taxonomyIds[t] for t in taxonomies]
         results = []
         for ltree, taxonomy in zip(ltrees, taxonomies):
             result = {'taxonomy' : taxonomy, 'ids' : []}
             q = self.query(LIProfile.id) \
-                    .filter((LIProfile.ibm_tax1.descendant_of(ltree) \
-                             & LIProfile.ibm_tax1_cf) | \
-                            (LIProfile.ibm_tax2.descendant_of(ltree) \
-                             & LIProfile.ibm_tax2_cf) | \
-                            (LIProfile.ibm_tax3.descendant_of(ltree) \
-                             & LIProfile.ibm_tax3_cf)) \
+                    .filter(LIProfile.ibm_tax1.descendant_of(ltree) | \
+                            LIProfile.ibm_tax2.descendant_of(ltree) | \
+                            LIProfile.ibm_tax3.descendant_of(ltree)) \
                     .limit(limit)
             ids = [id for id, in q]
             if randomize and ids:

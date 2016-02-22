@@ -4,9 +4,21 @@ from urllib.parse import urlparse, parse_qs
 import json
 from taxonomydb import *
 import conf
+import csv
 
 
 class TaxonomyHTTPServer(HTTPServer):
+    def __init__(self, address, handler):
+        HTTPServer.__init__(self, address, handler)
+        self.taxonomyNames = {}
+        self.taxonomyIds = {}
+        with open('taxonomy_ids.csv', 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                name, id = tuple(row)
+                self.taxonomyNames[id] = name
+                self.taxonomyIds[name] = id
+
     def process_request(self, request, address):
         thread = threading.Thread(target=self._new_request,
                                   args=(TaxonomyRequestHandler, request,
@@ -41,9 +53,16 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
                             ' parameters.')
                 return
             txdb = TaxonomyDB(conf.DATOIN2_DB)
-            results = txdb.getTaxonomies(query['id'])
+            try:
+                results = txdb.getTaxonomies(query['id'],
+                                             self.server.taxonomyNames)
+            except KeyError:
+                self._reply({'messages' : 'Invalid taxonomy encountered.',
+                             'request' : self.path})
+                return
 
             self._reply({'messages' : 'OK',
+                         'request' : self.path,
                          'results'  : results})
 
         elif 'taxonomy' in query:
@@ -55,9 +74,16 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
             randomize = query.get('randomize', 'true') != 'false'
             
             txdb = TaxonomyDB(conf.DATOIN2_DB)
-            results = txdb.getUsers(query['taxonomy'], nusers, randomize)
+            try:
+                results = txdb.getUsers(query['taxonomy'], nusers, randomize,
+                                        self.server.taxonomyIds)
+            except KeyError:
+                self._reply({'messages' : 'Invalid taxonomy encountered.',
+                             'request' : self.path})
+                return
 
             self._reply({'messages' : 'OK',
+                         'request'  : self.path,
                          'results'  : results})
 
         else:
