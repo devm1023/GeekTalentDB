@@ -70,8 +70,19 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
                 self._error('Request can\'t contain both `id` and `taxonomy`'
                             ' parameters.')
                 return
-            nusers = query.get('nusers', 10)
-            randomize = query.get('randomize', 'true') != 'false'
+            try:
+                nusers = int(query.get('nusers', [10])[0])
+            except (KeyError, ValueError):
+                self._reply({'messages' : 'Invalid `nusers` argument.',
+                             'request' : self.path})
+            try:
+                randomize = query.get('randomize', ['true'])[0]
+                if randomize not in ['true', 'false']:
+                    raise ValueError('Invalid `randomize` argument.')
+            except (KeyError, ValueError):
+                self._reply({'messages' : 'Invalid `randomize` argument.',
+                             'request' : self.path})
+            randomize = randomize == 'true'
             
             txdb = TaxonomyDB(conf.DATOIN2_DB)
             try:
