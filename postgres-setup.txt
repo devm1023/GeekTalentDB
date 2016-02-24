@@ -37,7 +37,7 @@ Edit /etc/postgresql/9.4/main/postgresql.conf and change
 
 to
 
-#listen_addresses = '*'
+listen_addresses = '*'
 
 Then do
 

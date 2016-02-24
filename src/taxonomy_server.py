@@ -83,11 +83,19 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
                 self._reply({'messages' : 'Invalid `randomize` argument.',
                              'request' : self.path})
             randomize = randomize == 'true'
+
+            try:
+                confidence = float(query.get('confidence', [0.0])[0])
+                if confidence < 0 or confidence > 1:
+                    raise ValueError('Invalid confidence level.')
+            except (KeyError, ValueError):
+                self._reply({'messages' : 'Invalid `confidence` argument.',
+                             'request' : self.path})
             
             txdb = TaxonomyDB(conf.DATOIN2_DB)
             try:
                 results = txdb.getUsers(query['taxonomy'], nusers, randomize,
-                                        self.server.taxonomyIds)
+                                        confidence, self.server.taxonomyIds)
             except KeyError:
                 self._reply({'messages' : 'Invalid taxonomy encountered.',
                              'request' : self.path})

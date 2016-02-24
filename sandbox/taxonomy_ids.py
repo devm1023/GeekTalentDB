@@ -1,4 +1,5 @@
 import csv
+import re
 
 def makeIds(taxonomy):
     taxonomy = taxonomy[:]
@@ -7,11 +8,8 @@ def makeIds(taxonomy):
     
     dirs = []
     for t in taxonomy:
-        t = t.replace(' ', '_') \
-             .replace(',', '') \
-             .replace('-', '') \
-             .replace('\'', '') \
-             .replace('+', '')
+        t = t.replace(' ', '_')
+        t = re.sub(r'[^a-zA-Z0-9_]', '', t)
         if t:
             dirs.append(t)
 

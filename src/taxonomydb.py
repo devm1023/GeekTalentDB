@@ -99,23 +99,44 @@ class TaxonomyDB(SQLDatabase):
         return [{'id' : id, 'taxonomies' : taxonomies} \
                 for id, taxonomies in iddict.items()]
 
-    def getUsers(self, taxonomies, nusers, randomize, taxonomyIds):
+    def getUsers(self, taxonomies, nusers, randomize, confidence, taxonomyIds):
         taxonomies = list(set(taxonomies))
         limit = nusers if not randomize else 1000
         ltrees = [taxonomyIds[t] for t in taxonomies]
         results = []
         for ltree, taxonomy in zip(ltrees, taxonomies):
             result = {'taxonomy' : taxonomy, 'ids' : []}
-            q = self.query(LIProfile.id) \
-                    .filter(LIProfile.ibm_tax1.descendant_of(ltree) | \
-                            LIProfile.ibm_tax2.descendant_of(ltree) | \
-                            LIProfile.ibm_tax3.descendant_of(ltree)) \
-                    .limit(limit)
-            ids = [id for id, in q]
+            q1 = self.query(LIProfile.id, LIProfile.ibm_tax1_cfscore) \
+                     .filter(LIProfile.ibm_tax1.descendant_of(ltree),
+                             LIProfile.ibm_tax1_cfscore >= confidence) \
+                     .order_by(LIProfile.ibm_tax1_cfscore) \
+                     .limit(limit)
+            q2 = self.query(LIProfile.id, LIProfile.ibm_tax2_cfscore) \
+                     .filter(LIProfile.ibm_tax2.descendant_of(ltree),
+                             LIProfile.ibm_tax2_cfscore >= confidence) \
+                     .order_by(LIProfile.ibm_tax2_cfscore) \
+                     .limit(limit)
+            q3 = self.query(LIProfile.id, LIProfile.ibm_tax3_cfscore) \
+                     .filter(LIProfile.ibm_tax3.descendant_of(ltree),
+                             LIProfile.ibm_tax3_cfscore >= confidence) \
+                     .order_by(LIProfile.ibm_tax3_cfscore) \
+                     .limit(limit)
+
+            scores = {}
+            for q in [q1, q2, q3]:
+                for id, score in q:
+                    scores[id] = max(scores.get(id, 0.0), score)
+            scores = list(scores.items())
+            scores.sort(key=lambda x: -x[1])
+            
+            if len(scores) > limit:
+                scores = scores[:limit]
+            ids = [id for id, score in scores]
             if randomize and ids:
                 ids = np.array(ids)
                 size = min(nusers, len(ids))
                 ids = list(np.random.choice(ids, (size,), replace=False))
+
             results.append({'taxonomy' : taxonomy, 'ids' : ids})
         return results
                        
