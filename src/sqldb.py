@@ -27,6 +27,13 @@ class SQLDatabase:
         self.add = session.add
         self.execute = session.execute
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.session.close()
+        return False
+
     def drop_all(self):
         self.metadata.drop_all(self.session.bind)
 

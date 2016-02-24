@@ -52,18 +52,18 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
                 self._error('Request can\'t contain both `id` and `taxonomy`'
                             ' parameters.')
                 return
-            txdb = TaxonomyDB(conf.DATOIN2_DB)
-            try:
-                results = txdb.getTaxonomies(query['id'],
-                                             self.server.taxonomyNames)
-            except KeyError:
-                self._reply({'messages' : 'Invalid taxonomy encountered.',
-                             'request' : self.path})
-                return
+            with TaxonomyDB(conf.DATOIN2_DB) as txdb:
+                try:
+                    results = txdb.getTaxonomies(query['id'],
+                                                 self.server.taxonomyNames)
+                except KeyError:
+                    self._reply({'messages' : 'Invalid taxonomy encountered.',
+                                 'request' : self.path})
+                    return
 
-            self._reply({'messages' : 'OK',
-                         'request' : self.path,
-                         'results'  : results})
+                self._reply({'messages' : 'OK',
+                             'request' : self.path,
+                             'results'  : results})
 
         elif 'taxonomy' in query:
             if 'id' in query:
@@ -92,18 +92,19 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
                 self._reply({'messages' : 'Invalid `confidence` argument.',
                              'request' : self.path})
             
-            txdb = TaxonomyDB(conf.DATOIN2_DB)
-            try:
-                results = txdb.getUsers(query['taxonomy'], nusers, randomize,
-                                        confidence, self.server.taxonomyIds)
-            except KeyError:
-                self._reply({'messages' : 'Invalid taxonomy encountered.',
-                             'request' : self.path})
-                return
+            with TaxonomyDB(conf.DATOIN2_DB) as txdb:
+                try:
+                    results = txdb.getUsers(query['taxonomy'], nusers,
+                                            randomize, confidence,
+                                            self.server.taxonomyIds)
+                except KeyError:
+                    self._reply({'messages' : 'Invalid taxonomy encountered.',
+                                 'request' : self.path})
+                    return
 
-            self._reply({'messages' : 'OK',
-                         'request'  : self.path,
-                         'results'  : results})
+                self._reply({'messages' : 'OK',
+                             'request'  : self.path,
+                             'results'  : results})
 
         else:
             self._error('Request must contain either `id` or `taxonomy` '
