@@ -108,17 +108,20 @@ class TaxonomyDB(SQLDatabase):
             result = {'taxonomy' : taxonomy, 'ids' : []}
             q1 = self.query(LIProfile.id, LIProfile.ibm_tax1_cfscore) \
                      .filter(LIProfile.ibm_tax1.descendant_of(ltree),
-                             LIProfile.ibm_tax1_cfscore >= confidence) \
+                             LIProfile.ibm_tax1_cfscore >= confidence,
+                             LIProfile.ibm_tax1_cf) \
                      .order_by(LIProfile.ibm_tax1_cfscore) \
                      .limit(limit)
             q2 = self.query(LIProfile.id, LIProfile.ibm_tax2_cfscore) \
                      .filter(LIProfile.ibm_tax2.descendant_of(ltree),
-                             LIProfile.ibm_tax2_cfscore >= confidence) \
+                             LIProfile.ibm_tax2_cfscore >= confidence,
+                             LIProfile.ibm_tax2_cf) \
                      .order_by(LIProfile.ibm_tax2_cfscore) \
                      .limit(limit)
             q3 = self.query(LIProfile.id, LIProfile.ibm_tax3_cfscore) \
                      .filter(LIProfile.ibm_tax3.descendant_of(ltree),
-                             LIProfile.ibm_tax3_cfscore >= confidence) \
+                             LIProfile.ibm_tax3_cfscore >= confidence,
+                             LIProfile.ibm_tax3_cf) \
                      .order_by(LIProfile.ibm_tax3_cfscore) \
                      .limit(limit)
 
