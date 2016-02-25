@@ -5,6 +5,7 @@ import json
 from taxonomydb import *
 import conf
 import csv
+import sys
 
 
 class TaxonomyHTTPServer(HTTPServer):
@@ -39,7 +40,11 @@ class TaxonomyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def _reply(self, jsonobj):
-        self.wfile.write(json.dumps(jsonobj).encode('utf-8'))
+        response = json.dumps(jsonobj)
+        sys.stdout.write(response)
+        sys.stdout.write('\n\n')
+        sys.stdout.flush()
+        self.wfile.write(response.encode('utf-8'))
         
     def _error(self, msg):
         self._reply({'messages' : msg})
