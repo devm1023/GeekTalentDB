@@ -9,296 +9,163 @@ from parallelize import ParallelFunction
 import itertools
 import argparse
 
+class FieldError(Exception):
+    pass
 
-def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
-    # check sourceId
-    if liprofiledoc.get('sourceId', '') != 'linkedin':
-        logger.log('invalid profile sourceId\n')
-        return False
+def getField(d, name, fieldtype, required=False, default=None,
+             docname='profile'):
+    logger = Logger(sys.stdout)
+    isPresent = name in d
+    if required and not isPresent:
+        msg = 'Missing field `{0:s}` in {1:s} documnent.' \
+              .format(name, docname)
+        logger.log(msg+'\n')
+        raise FieldError(msg)
+    isList = False
+    if isinstance(fieldtype, list):
+        fieldtype = fieldtype[0]
+        isList = True
+    isUrl = False
+    if fieldtype == 'url':
+        fieldtype = str
+        isUrl = True
 
-    # check type
-    if liprofiledoc.get('type', '') != 'profile':
-        logger.log('invalid profile type\n')
-        return False
-    
-    # get id
-    if 'id' not in liprofiledoc:
-        logger.log('invalid profile id\n')
-        return False
-    liprofile_id = liprofiledoc['id']
+    result = d.get(name, default)
 
-    # get last name
-    lastName = liprofiledoc.get('lastName', '')
-    if type(lastName) is not str:
-        logger.log('invalid profile lastName\n')
-        return False
+    # workaround for API bug
+    if isList and isinstance(result, dict) and len(result) == 1 \
+       and 'myArrayList' in result:
+        result = result['myArrayList']
+        
+    if isPresent and isList and not isinstance(result, list):
+        msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} documnent.' \
+              .format(repr(result), name, docname)
+        logger.log(msg+'\n')
+        raise FieldError(msg)
 
-    # get first name
-    firstName = liprofiledoc.get('firstName', '')
-    if type(firstName) is not str:
-        logger.log('invalid profile firstName\n')
-        return False
-    
-    # get name
-    name = liprofiledoc.get('name', '')
-    if not name:
-        name = ' '.join([firstName, lastName])
-    if name == ' ':
-        logger.log('invalid profile name\n')
-        return False
-    if not firstName:
-        firstName = None
-    if not lastName:
-        lastName = None
-
-    # get country
-    country = liprofiledoc.get('country', None)
-    if country is not None and type(country) is not str:
-        logger.log('invalid profile country\n')
-        return False
-
-    # get city
-    city = liprofiledoc.get('city', None)
-    if city is not None and type(city) is not str:
-        logger.log('invalid profile city\n')
-        return False
-
-    # get sector
-    sector = liprofiledoc.get('sector', None)
-    if sector is not None and type(sector) is not str:
-        logger.log('invalid profile sector\n')
-        return False
-    
-    # get title
-    title = liprofiledoc.get('title', None)
-    if title is not None and type(title) is not str:
-        logger.log('invalid profile title\n')
-        return False    
-
-    # get description
-    description = liprofiledoc.get('description', None)
-    if description is not None and type(description) is not str:
-        logger.log('invalid profile description\n')
-        return False
-    
-    # get liprofile url
-    if 'profileUrl' not in liprofiledoc:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    profileUrl = liprofiledoc['profileUrl']
-    if profileUrl is not None and type(profileUrl) is not str:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    try:
-        if profileUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileUrl\n')
-        return False
-
-    # get liprofiledoc picture url
-    profilePictureUrl = liprofiledoc.get('profilePictureUrl', None)
-    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-    try:
-        if profilePictureUrl is not None and \
-           profilePictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profilePictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-
-    # get timestamp
-    if 'indexedOn' not in liprofiledoc:
-        logger.log('invalid profile indexedOn\n')
-        return False
-    indexedOn = liprofiledoc['indexedOn']
-    if type(indexedOn) is not int:
-        logger.log('invalid profile indexedOn\n')
-        return False
-
-    # get crawl date
-    crawledDate = liprofiledoc.get('crawledDate', None)
-    if crawledDate is not None and type(crawledDate) is not int:
-        logger.log('invalid profile crawledDate\n')
-        return False
-    
-    # get connections
-    connections = liprofiledoc.get('connections', None)
-    if connections is not None and type(connections) is not str:
-        logger.log('invalid profile connections\n')
-        return False
-
-    # get skills
-    categories = liprofiledoc.get('categories', [])
-    if type(categories) is not list:
-        logger.log('invalid profile categories\n')
-        return False
-    for skill in categories:
-        if type(skill) is not str:
-            logger.log('invalid profile categories\n')
-            return False
-
-    liprofile = {
-        'id'                : liprofile_id,
-        'lastName'          : lastName,
-        'firstName'         : firstName,
-        'name'              : name,
-        'country'           : country,
-        'city'              : city,
-        'sector'            : sector,
-        'title'             : title,
-        'description'       : description,
-        'profileUrl'        : profileUrl,
-        'profilePictureUrl' : profilePictureUrl,
-        'indexedOn'         : indexedOn,
-        'crawledDate'       : crawledDate,
-        'connections'       : connections,
-        'categories'        : categories,
-        'experiences'       : [],
-        'educations'        : [],
-        'groups'            : []
-        }
-
-
-    # parse experiences and educations
-    
-    if 'subDocuments' not in liprofiledoc:
-        dtdb.addFromDict(liprofile, LIProfile)
-        return True
-    
-    for subdocument in liprofiledoc['subDocuments']:
-        if 'type' not in subdocument:
-            logger.log('type field missing in sub-document.\n')
-            return False
-
-        if subdocument['type'] == 'profile-experience':
-            experience = subdocument
-            
-            # get job title
-            name = experience.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid name field in experience.\n')
-                return False
-
-            # get company
-            company = experience.get('company', None)
-            if company is not None and type(company) is not str:
-                logger.log('invalid company field in experience.\n')
-                return False
-
-            # get country
-            country = experience.get('country', None)
-            if country is not None and type(country) is not str:
-                logger.log('invalid country field in experience.\n')
-                return False
-
-            # get city
-            city = experience.get('city', None)
-            if city is not None and type(city) is not str:
-                logger.log('invalid city field in experience.\n')
-                return False
-
-            # get start date
-            dateFrom = experience.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in experience.\n')
-                return False
-
-            # get end date
-            dateTo = experience.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in experience.\n')
-                return False
-
-            # get description
-            description = experience.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in experience.\n')
-                return False
-
-            liprofile['experiences'].append({
-                'name'        : name,
-                'company'     : company,
-                'country'     : country,
-                'city'        : city,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-            
-        elif subdocument['type'] == 'profile-education':
-            education = subdocument
-
-            # get institute
-            institute = education.get('name', None)
-            if institute is not None and type(institute) is not str:
-                logger.log('invalid institute field in education.\n')
-                return False
-
-            # get degree
-            degree = education.get('degree', None)
-            if degree is not None and type(degree) is not str:
-                logger.log('invalid degree field in education.\n')
-                return False
-
-            # get area
-            area = education.get('area', None)
-            if area is not None and type(area) is not str:
-                logger.log('invalid area field in education.\n')
-                return False
-
-            # get start date
-            dateFrom = education.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in education.\n')
-                return False
-
-            # get end date
-            dateTo = education.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in education.\n')
-                return False
-
-            # get description
-            description = education.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in education.\n')
-                return False
-
-            liprofile['educations'].append({
-                'institute'   : institute,
-                'degree'      : degree,
-                'area'        : area,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-
-        elif subdocument['type'] == 'profile-group':
-            group = subdocument
-            
-            # get name
-            name = group.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid name field in group.\n')
-                return False
-
-            # get degree
-            url = group.get('url', None)
-            if url is not None and type(url) is not str:
-                logger.log('invalid url field in group.\n')
-                return False
-
-            liprofile['groups'].append({
-                'name'     : name,
-                'url'      : url})
-
+    if isPresent:
+        if isList:
+            vals = result
         else:
-            logger.log('unknown sub-document type `{0:s}`.\n' \
-                       .format(subdocument['type']))
-            return False
+            vals = [result]
+    else:
+        vals = []
+    for r in vals:
+        if fieldtype is float and isinstance(r, int):
+            r = float(r)
+        if not isinstance(r, fieldtype):
+            msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} documnent.' \
+                  .format(repr(r), name, docname)
+            logger.log(msg+'\n')
+            raise FieldError(msg)
+        if isUrl:
+            if len(r) < 4 or r[:4] != 'http':
+                msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} '
+                'documnent.'.format(repr(result), name, docname)
+                logger.log(msg+'\n')
+                raise FieldError(msg)
+
+    return result
+
+def checkField(d, name, value=None, docname='profile'):
+    logger = Logger(sys.stdout)
+    if name not in d:
+        msg = 'Missing field `{0:s}` in {1:s} documnent.' \
+              .format(name, docname)
+        logger.log(msg+'\n')
+        raise FieldError(msg)
+    if value is not None and not isinstance(value, list):
+        value = [value]
+    if value is not None and d[name] not in value:
+        msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} documnent.' \
+              .format(repr(d[name]), name, docname)
+        logger.log(msg+'\n')
+        raise FieldError(msg)
+
+def nonEmpty(d):
+    return not all(v is None for v in d.values())
+
+    
+def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
+    try:
+        checkField(liprofiledoc, 'sourceId', 'linkedin')
+        checkField(liprofiledoc, 'type', 'profile')
+        liprofile = {}
+        for name, fieldtype, required in \
+            [('id',          str,   True),
+             ('name',        str,   True),
+             ('firstName',   str,   False),
+             ('lastName',    str,   False),
+             ('country',     str,   False),
+             ('city',        str,   False),
+             ('sector',      str,   False),
+             ('title',       str,   False),
+             ('description', str,   False),
+             ('profileUrl',  'url', False),
+             ('profilePictureUrl', 'url', False),
+             ('connections', str,   False),
+             ('categories',  [str], False),
+             ('indexedOn',   int,   True),
+             ('crawledDate', int,   True),
+            ]:
+            liprofile[name] = getField(liprofiledoc, name, fieldtype,
+                                       required=required)
+
+        liprofile['experiences'] = []
+        liprofile['educations']  = []
+        liprofile['groups']      = []
+        for subdocument in liprofiledoc.get('subDocuments', []):
+            checkField(subdocument, 'type',
+                       ['profile-experience',
+                        'profile-education',
+                        'profile-group'])
+            if subdocument['type'] == 'profile-experience':
+                experience = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('company',     str,   False),
+                     ('country',     str,   False),
+                     ('city',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    experience[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='experience')
+                if nonEmpty(experience):
+                    liprofile['experiences'].append(experience)
+                    
+            elif subdocument['type'] == 'profile-education':
+                education = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('degree',      str,   False),
+                     ('area',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    education[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='education')
+                if nonEmpty(education):
+                    liprofile['educations'].append(education)
+
+            elif subdocument['type'] == 'profile-group':
+                group = {}
+                for name, fieldtype, required in \
+                    [('name',      str,   True),
+                     ('url',       'url', False),
+                    ]:
+                    group[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='group')
+                if nonEmpty(group):
+                    liprofile['groups'].append(group)
+                        
+    except FieldError:
+        return False
 
     # add liprofile
     dtdb.addFromDict(liprofile, LIProfile)
@@ -306,963 +173,388 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
 
 
 def addINProfile(dtdb, inprofiledoc, dtsession, logger):
-    # check sourceId
-    if inprofiledoc.get('sourceId', '') != 'indeed':
-        logger.log('invalid profile sourceId\n')
-        return False
-
-    # check type
-    if inprofiledoc.get('type', '') != 'profile':
-        logger.log('invalid profile type\n')
-        return False
-    
-    # get id
-    if 'id' not in inprofiledoc:
-        logger.log('invalid profile id\n')
-        return False
-    inprofile_id = inprofiledoc['id']
-
-    # get last name
-    lastName = inprofiledoc.get('lastName', '')
-    if type(lastName) is not str:
-        logger.log('invalid profile lastName\n')
-        return False
-
-    # get first name
-    firstName = inprofiledoc.get('firstName', '')
-    if type(firstName) is not str:
-        logger.log('invalid profile firstName\n')
-        return False
-    
-    # get name
-    name = inprofiledoc.get('name', '')
-    if not name:
-        name = ' '.join([firstName, lastName])
-    if name == ' ':
-        logger.log('invalid profile name\n')
-        return False
-    if not firstName:
-        firstName = None
-    if not lastName:
-        lastName = None
-
-    # get country
-    country = inprofiledoc.get('country', None)
-    if country is not None and type(country) is not str:
-        logger.log('invalid profile country\n')
-        return False
-
-    # get city
-    city = inprofiledoc.get('city', None)
-    if city is not None and type(city) is not str:
-        logger.log('invalid profile city\n')
-        return False
-
-    # get title
-    title = inprofiledoc.get('title', None)
-    if title is not None and type(title) is not str:
-        logger.log('invalid profile title\n')
-        return False    
-
-    # get description
-    description = inprofiledoc.get('description', None)
-    if description is not None and type(description) is not str:
-        logger.log('invalid profile description\n')
-        return False
-    
-    # get inprofile url
-    if 'profileUrl' not in inprofiledoc:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    profileUrl = inprofiledoc['profileUrl']
-    if profileUrl is not None and type(profileUrl) is not str:
-        logger.log('invalid profile profileUrl\n')
-        return False
     try:
-        if profileUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileUrl\n')
+        checkField(inprofiledoc, 'sourceId', 'indeed')
+        checkField(inprofiledoc, 'type', 'profile')
+        inprofile = {}
+        for name, fieldtype, required in \
+            [('id',          str,   True),
+             ('name',        str,   True),
+             ('firstName',   str,   False),
+             ('lastName',    str,   False),
+             ('country',     str,   False),
+             ('city',        str,   False),
+             ('title',       str,   False),
+             ('description', str,   False),
+             ('additionalInformation', str, False),
+             ('profileUrl',  'url', False),
+             ('profileUpdatedDate', int, False),
+             ('indexedOn',   int,   True),
+             ('crawledDate', int,   True),
+            ]:
+            inprofile[name] = getField(inprofiledoc, name, fieldtype,
+                                       required=required)
+
+        inprofile['experiences']    = []
+        inprofile['educations']     = []
+        inprofile['certifications'] = []
+        for subdocument in inprofiledoc.get('subDocuments', []):
+            checkField(subdocument, 'type',
+                       ['profile-experience',
+                        'profile-education',
+                        'profile-certification'])
+            if subdocument['type'] == 'profile-experience':
+                experience = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('company',     str,   False),
+                     ('country',     str,   False),
+                     ('city',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    experience[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='experience')
+                if nonEmpty(experience):
+                    inprofile['experiences'].append(experience)
+                    
+            elif subdocument['type'] == 'profile-education':
+                education = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('degree',      str,   False),
+                     ('area',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    education[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='education')
+                if nonEmpty(education):
+                    inprofile['educations'].append(education)
+
+            elif subdocument['type'] == 'profile-certification':
+                certification = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   True),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    certification[name] = getField(subdocument, name, fieldtype,
+                                                   required=required,
+                                                   docname='certification')
+                if nonEmpty(certification):
+                    inprofile['certifications'].append(certification)
+                        
+    except FieldError:
         return False
-
-    # get timestamp
-    if 'indexedOn' not in inprofiledoc:
-        logger.log('invalid profile indexedOn\n')
-        return False
-    indexedOn = inprofiledoc['indexedOn']
-    if type(indexedOn) is not int:
-        logger.log('invalid profile indexedOn\n')
-        return False
-
-    # get crawl date
-    crawledDate = inprofiledoc.get('crawledDate', None)
-    if crawledDate is not None and type(crawledDate) is not int:
-        logger.log('invalid profile crawledDate\n')
-        return False
-
-    inprofile = {
-        'id'                : inprofile_id,
-        'lastName'          : lastName,
-        'firstName'         : firstName,
-        'name'              : name,
-        'country'           : country,
-        'city'              : city,
-        'title'             : title,
-        'description'       : description,
-        'profileUrl'        : profileUrl,
-        'indexedOn'         : indexedOn,
-        'crawledDate'       : crawledDate,
-        'experiences'       : [],
-        'educations'        : [],
-        'certifications'    : []
-        }
-
-
-    # parse experiences and educations
-    
-    if 'subDocuments' not in inprofiledoc:
-        dtdb.addFromDict(inprofile, INProfile)
-        return True
-    
-    for subdocument in inprofiledoc['subDocuments']:
-        if 'type' not in subdocument:
-            logger.log('type field missing in sub-document.\n')
-            return False
-
-        if subdocument['type'] == 'profile-experience':
-            experience = subdocument
-            
-            # get job title
-            name = experience.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid name field in experience.\n')
-                return False
-
-            # get company
-            company = experience.get('company', None)
-            if company is not None and type(company) is not str:
-                logger.log('invalid company field in experience.\n')
-                return False
-
-            # get country
-            country = experience.get('country', None)
-            if country is not None and type(country) is not str:
-                logger.log('invalid country field in experience.\n')
-                return False
-
-            # get city
-            city = experience.get('city', None)
-            if city is not None and type(city) is not str:
-                logger.log('invalid city field in experience.\n')
-                return False
-
-            # get start date
-            dateFrom = experience.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in experience.\n')
-                return False
-
-            # get end date
-            dateTo = experience.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in experience.\n')
-                return False
-
-            # get description
-            description = experience.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in experience.\n')
-                return False
-
-            inprofile['experiences'].append({
-                'name'        : name,
-                'company'     : company,
-                'country'     : country,
-                'city'        : city,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-            
-        elif subdocument['type'] == 'profile-education':
-            education = subdocument
-
-            # get institute
-            institute = education.get('name', None)
-            if institute is not None and type(institute) is not str:
-                logger.log('invalid institute field in education.\n')
-                return False
-
-            # get degree
-            degree = education.get('degree', None)
-            if degree is not None and type(degree) is not str:
-                logger.log('invalid degree field in education.\n')
-                return False
-
-            # get area
-            area = education.get('area', None)
-            if area is not None and type(area) is not str:
-                logger.log('invalid area field in education.\n')
-                return False
-
-            # get start date
-            dateFrom = education.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in education.\n')
-                return False
-
-            # get end date
-            dateTo = education.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in education.\n')
-                return False
-
-            # get description
-            description = education.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in education.\n')
-                return False
-
-            inprofile['educations'].append({
-                'institute'   : institute,
-                'degree'      : degree,
-                'area'        : area,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-            
-        elif subdocument['type'] == 'profile-certification':
-            certification = subdocument
-
-            # get institute
-            institute = certification.get('name', None)
-            if institute is not None and type(institute) is not str:
-                logger.log('invalid institute field in certification.\n')
-                return False
-
-            # get degree
-            degree = certification.get('degree', None)
-            if degree is not None and type(degree) is not str:
-                logger.log('invalid degree field in certification.\n')
-                return False
-
-            # get area
-            area = certification.get('area', None)
-            if area is not None and type(area) is not str:
-                logger.log('invalid area field in certification.\n')
-                return False
-
-            # get start date
-            dateFrom = certification.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in certification.\n')
-                return False
-
-            # get end date
-            dateTo = certification.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in certification.\n')
-                return False
-
-            # get description
-            description = certification.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in certification.\n')
-                return False
-
-            inprofile['certifications'].append({
-                'name'        : name,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-            
-        else:
-            logger.log('unknown sub-document type `{0:s}`.\n' \
-                       .format(subdocument['type']))
-            return False
 
     # add inprofile
     dtdb.addFromDict(inprofile, INProfile)
     return True
 
+
 def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
-    # check sourceId
-    if uwprofiledoc.get('sourceId', '') != 'upwork':
-        logger.log('invalid profile sourceId\n')
-        return False
-
-    # check type
-    if uwprofiledoc.get('type', '') != 'profile':
-        logger.log('invalid profile type\n')
-        return False
-    
-    # get id
-    if 'id' not in uwprofiledoc:
-        logger.log('invalid profile id\n')
-        return False
-    uwprofile_id = uwprofiledoc['id']
-
-    # get last name
-    lastName = uwprofiledoc.get('lastName', '')
-    if type(lastName) is not str:
-        logger.log('invalid profile lastName\n')
-        return False
-
-    # get first name
-    firstName = uwprofiledoc.get('firstName', '')
-    if type(firstName) is not str:
-        logger.log('invalid profile firstName\n')
-        return False
-    
-    # get name
-    name = uwprofiledoc.get('name', '')
-    if not name:
-        name = ' '.join([firstName, lastName])
-    if name == ' ':
-        logger.log('invalid profile name\n')
-        return False
-    if not firstName:
-        firstName = None
-    if not lastName:
-        lastName = None
-
-    # get country
-    country = uwprofiledoc.get('country', None)
-    if country is not None and type(country) is not str:
-        logger.log('invalid profile country\n')
-        return False
-
-    # get city
-    city = uwprofiledoc.get('city', None)
-    if city is not None and type(city) is not str:
-        logger.log('invalid profile city\n')
-        return False
-
-    # get title
-    title = uwprofiledoc.get('title', None)
-    if title is not None and type(title) is not str:
-        logger.log('invalid profile title\n')
-        return False    
-
-    # get description
-    description = uwprofiledoc.get('description', None)
-    if description is not None and type(description) is not str:
-        logger.log('invalid profile description\n')
-        return False
-    
-    # get uwprofile url
-    if 'profileUrl' not in uwprofiledoc:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    profileUrl = uwprofiledoc['profileUrl']
-    if profileUrl is not None and type(profileUrl) is not str:
-        logger.log('invalid profile profileUrl\n')
-        return False
     try:
-        if profileUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileUrl\n')
+        checkField(uwprofiledoc, 'sourceId', 'upwork')
+        checkField(uwprofiledoc, 'type', 'profile')
+        uwprofile = {}
+        for name, fieldtype, required in \
+            [('id',          str,   True),
+             ('name',        str,   True),
+             ('firstName',   str,   False),
+             ('lastName',    str,   False),
+             ('country',     str,   False),
+             ('city',        str,   False),
+             ('title',       str,   False),
+             ('description', str,   False),
+             ('profileUrl',  'url', False),
+             ('profilePictureUrl', 'url', False),
+             ('categories',  [str], False),
+             ('indexedOn',   int,   True),
+             ('crawledDate', int,   True),
+            ]:
+            uwprofile[name] = getField(uwprofiledoc, name, fieldtype,
+                                       required=required)
+
+        uwprofile['experiences']    = []
+        uwprofile['educations']     = []
+        uwprofile['tests']          = []
+        for subdocument in uwprofiledoc.get('subDocuments', []):
+            checkField(subdocument, 'type',
+                       ['profile-experience',
+                        'profile-education',
+                        'profile-test'])
+            if subdocument['type'] == 'profile-experience':
+                experience = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('company',     str,   False),
+                     ('country',     str,   False),
+                     ('city',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    experience[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='experience')
+                if nonEmpty(experience):
+                    uwprofile['experiences'].append(experience)
+                    
+            elif subdocument['type'] == 'profile-education':
+                education = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('degree',      str,   False),
+                     ('area',        str,   False),
+                     ('dateFrom',    int,   False),
+                     ('dateTo',      int,   False),
+                     ('description', str,   False),
+                    ]:
+                    education[name] = getField(subdocument, name, fieldtype,
+                                               required=required,
+                                               docname='education')
+                if nonEmpty(education):
+                    uwprofile['educations'].append(education)
+
+            elif subdocument['type'] == 'profile-test':
+                test = {}
+                for name, fieldtype, required in \
+                    [('name',        str,   False),
+                     ('score',       float, False),
+                    ]:
+                    test[name] = getField(subdocument, name, fieldtype,
+                                          required=required,
+                                          docname='test')
+                if nonEmpty(test):
+                    uwprofile['tests'].append(test)
+                        
+    except FieldError:
         return False
-
-    # get uwprofiledoc picture url
-    profilePictureUrl = uwprofiledoc.get('profilePictureUrl', None)
-    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-    try:
-        if profilePictureUrl is not None and \
-           profilePictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profilePictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-
-    # get skills
-    categories = uwprofiledoc.get('categories', [])
-    if type(categories) is not list:
-        logger.log('invalid profile categories\n')
-        return False
-    for skill in categories:
-        if type(skill) is not str:
-            logger.log('invalid profile categories\n')
-            return False
-
-    # get timestamp
-    if 'indexedOn' not in uwprofiledoc:
-        logger.log('invalid profile indexedOn\n')
-        return False
-    indexedOn = uwprofiledoc['indexedOn']
-    if type(indexedOn) is not int:
-        logger.log('invalid profile indexedOn\n')
-        return False
-
-    # get crawl date
-    crawledDate = uwprofiledoc.get('crawledDate', None)
-    if crawledDate is not None and type(crawledDate) is not int:
-        logger.log('invalid profile crawledDate\n')
-        return False
-
-    uwprofile = {
-        'id'                : uwprofile_id,
-        'lastName'          : lastName,
-        'firstName'         : firstName,
-        'name'              : name,
-        'country'           : country,
-        'city'              : city,
-        'title'             : title,
-        'description'       : description,
-        'profileUrl'        : profileUrl,
-        'profilePictureUrl' : profilePictureUrl,
-        'categories'        : categories,
-        'indexedOn'         : indexedOn,
-        'crawledDate'       : crawledDate,
-        'experiences'       : [],
-        'educations'        : [],
-        'tests'             : []
-        }
-
-
-    # parse experiences and educations
-    
-    if 'subDocuments' not in uwprofiledoc:
-        dtdb.addFromDict(uwprofile, UWProfile)
-        return True
-    
-    for subdocument in uwprofiledoc['subDocuments']:
-        if 'type' not in subdocument:
-            logger.log('type field missing in sub-document.\n')
-            return False
-
-        if subdocument['type'] == 'profile-experience':
-            experience = subdocument
-            
-            # get job title
-            name = experience.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid name field in experience.\n')
-                return False
-
-            # get company
-            company = experience.get('company', None)
-            if company is not None and type(company) is not str:
-                logger.log('invalid company field in experience.\n')
-                return False
-
-            # get country
-            country = experience.get('country', None)
-            if country is not None and type(country) is not str:
-                logger.log('invalid country field in experience.\n')
-                return False
-
-            # get city
-            city = experience.get('city', None)
-            if city is not None and type(city) is not str:
-                logger.log('invalid city field in experience.\n')
-                return False
-
-            # get start date
-            dateFrom = experience.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in experience.\n')
-                return False
-
-            # get end date
-            dateTo = experience.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in experience.\n')
-                return False
-
-            # get description
-            description = experience.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in experience.\n')
-                return False
-
-            uwprofile['experiences'].append({
-                'name'        : name,
-                'company'     : company,
-                'country'     : country,
-                'city'        : city,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-            
-        elif subdocument['type'] == 'profile-education':
-            education = subdocument
-
-            # get institute
-            institute = education.get('name', None)
-            if institute is not None and type(institute) is not str:
-                logger.log('invalid institute field in education.\n')
-                return False
-
-            # get degree
-            degree = education.get('degree', None)
-            if degree is not None and type(degree) is not str:
-                logger.log('invalid degree field in education.\n')
-                return False
-
-            # get area
-            area = education.get('area', None)
-            if area is not None and type(area) is not str:
-                logger.log('invalid area field in education.\n')
-                return False
-
-            # get start date
-            dateFrom = education.get('dateFrom', None)
-            if dateFrom is not None and type(dateFrom) is not int:
-                logger.log('invalid dateFrom field in education.\n')
-                return False
-
-            # get end date
-            dateTo = education.get('dateTo', None)
-            if dateTo is not None and type(dateTo) is not int:
-                logger.log('invalid dateTo field in education.\n')
-                return False
-
-            # get description
-            description = education.get('description', None)
-            if description is not None and type(description) is not str:
-                logger.log('invalid description field in education.\n')
-                return False
-
-            uwprofile['educations'].append({
-                'institute'   : institute,
-                'degree'      : degree,
-                'area'        : area,
-                'dateFrom'    : dateFrom,
-                'dateTo'      : dateTo,
-                'description' : description})
-
-        elif subdocument['type'] == 'profile-test':
-            # get name
-            name = test.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid name field in test.\n')
-                return False
-
-            # get score
-            score = test.get('score', None)
-            if score is not None and type(score) is not float:
-                logger.log('invalid score field in test.\n')
-                return False
-
-            uwprofile['tests'].append({
-                'name'        : name,
-                'score'       : score})
-            
-        else:
-            logger.log('unknown sub-document type.\n')
-            return False
 
     # add uwprofile
     dtdb.addFromDict(uwprofile, UWProfile)
     return True
 
 def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
-    # check sourceId
-    if muprofiledoc.get('sourceId', '') != 'meetup':
-        logger.log('invalid profile sourceId\n')
-        return False
-
-    # check type
-    if muprofiledoc.get('type', '') != 'profile':
-        logger.log('invalid profile type\n')
-        return False
-    
-    # get id
-    if 'id' not in muprofiledoc:
-        logger.log('invalid profile id\n')
-        return False
-    muprofile_id = muprofiledoc['id']
-
-    # get name
-    name = muprofiledoc.get('name', '')
-    if not name or type(name) is not str:
-        return False
-
-    # get country
-    country = muprofiledoc.get('country', None)
-    if country is not None and type(country) is not str:
-        logger.log('invalid profile country\n')
-        return False
-
-    # get city
-    city = muprofiledoc.get('city', None)
-    if city is not None and type(city) is not str:
-        logger.log('invalid profile city\n')
-        return False
-
-    # get title
-    status = muprofiledoc.get('status', None)
-    if status is not None and type(status) is not str:
-        logger.log('invalid profile status\n')
-        return False    
-
-    # get description
-    description = muprofiledoc.get('description', None)
-    if description is not None and type(description) is not str:
-        logger.log('invalid profile description\n')
-        return False
-    
-    # get muprofile url
-    if 'profileUrl' not in muprofiledoc:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    profileUrl = muprofiledoc['profileUrl']
-    if profileUrl is not None and type(profileUrl) is not str:
-        logger.log('invalid profile profileUrl\n')
-        return False
     try:
-        if profileUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileUrl\n')
-        return False
+        checkField(muprofiledoc, 'sourceId', 'meetup')
+        checkField(muprofiledoc, 'type', 'profile')
+        muprofile = {}
+        for name, fieldtype, required in \
+            [('id',          str,   True),
+             ('name',        str,   True),
+             ('country',     str,   False),
+             ('city',        str,   False),
+             ('status',      str,   False),
+             ('description', str,   False),
+             ('profileUrl',  'url', False),
+             ('profilePictureId', str, False),
+             ('profilePictureUrl', 'url', False),
+             ('profileHQPictureUrl', 'url', False),
+             ('profileThumbPictureUrl', 'url', False),
+             ('categories',  [str], False),
+             ('indexedOn',   int,   True),
+             ('crawledDate', int,   True),
+            ]:
+            muprofile[name] = getField(muprofiledoc, name, fieldtype,
+                                       required=required)
 
-    # get description
-    profilePictureId = muprofiledoc.get('profilePictureId', None)
-    if profilePictureId is not None and type(profilePictureId) is not str:
-        logger.log('invalid profilePictureId\n')
-        return False
+        muprofile['groups']     = []
+        muprofile['events']     = []
+        muprofile['comments']   = []
+        muprofile['links']      = []        
+        for subdocument in muprofiledoc.get('subDocuments', []):
+            checkField(subdocument, 'type',
+                       ['member-group', 'group', 'event', 'comment'])
+            if subdocument['type'] in ['member-group', 'group']:
+                group = {}
+                for name, fieldtype, required in \
+                    [('country',     str,   False),
+                     ('city',        str,   False),
+                     ('latitude',    float, False),
+                     ('longitude',   float, False),
+                     ('timezone',    str,   False),
+                     ('utcOffset',   int,   False),
+                     ('name',        str,   False),
+                     ('categoryName', str, False),
+                     ('categoryShortname', str, False),
+                     ('categoryId',  int,   False),
+                     ('description', str,   False),
+                     ('url',         'url', False),
+                     ('urlname',     str,   False),
+                     ('pictureUrl',  'url', False),
+                     ('pictureId',   int,   False),
+                     ('HQPictureUrl', 'url', False),
+                     ('thumbPictureUrl', 'url', False),
+                     ('joinMode',    str,   False),
+                     ('rating',      float, False),
+                     ('organizerName', str, False),
+                     ('organizerId', str,   False),
+                     ('members',     int,   False),
+                     ('state',       str,   False),
+                     ('visibility',  str,   False),
+                     ('who',         str,   False),
+                     ('categories',  [str], False),
+                     ('createdDate', int,   False),
+                    ]:
+                    group[name] = getField(subdocument, name, fieldtype,
+                                           required=required,
+                                           docname='group')
+                if nonEmpty(group):
+                    muprofile['groups'].append(group)
 
-    # get muprofiledoc picture url
-    profilePictureUrl = muprofiledoc.get('profilePictureUrl', None)
-    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-    try:
-        if profilePictureUrl is not None and \
-           profilePictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profilePictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
+            elif subdocument['type'] == 'event':
+                event = {}
+                for name, fieldtype, required in \
+                    [('country',      str,   False),
+                     ('city',         str,   False),
+                     ('addressLine1', str,   False),
+                     ('addressLine2', str,   False),
+                     ('latitude',     float, False),
+                     ('longitude',    float, False),
+                     ('phone',        str,   False),
+                     ('name',         str,   False),
+                     ('description',  str,   False),
+                     ('url',          'url', False),
+                     ('time',         int,   False),
+                     ('utcOffset',    int,   False),
+                     ('status',       str,   False),
+                     ('headcount',    int,   False),
+                     ('visibility',   str,   False),
+                     ('rsvpLimit',    int,   False),
+                     ('yesRsvpCount', int,   False),
+                     ('maybeRsvpCount', int, False),
+                     ('waitlistCount', int,  False),
+                     ('ratingCount',  int,   False),
+                     ('ratingCount',  int,   False),
+                     ('ratingAverage', float, False),
+                     ('feeRequired',  str,   False),
+                     ('feeCurrency',  str,   False),
+                     ('feeLabel',     str,   False),
+                     ('feeDescription', str, False),
+                     ('feeAccepts',   str,   False),
+                     ('feeAmount',    float, False),
+                     ('createdDate',  int,   False),
+                    ]:
+                    event[name] = getField(subdocument, name, fieldtype,
+                                           required=required,
+                                           docname='event')
+                if nonEmpty(event):
+                    muprofile['events'].append(event)
 
-    # get muprofiledoc HQ picture url
-    profileHQPictureUrl = muprofiledoc.get('profileHQPictureUrl', None)
-    if profileHQPictureUrl is not None and type(profileHQPictureUrl) is not str:
-        logger.log('invalid profile profileHQPictureUrl\n')
-        return False
-    try:
-        if profileHQPictureUrl is not None and \
-           profileHQPictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileHQPictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileHQPictureUrl\n')
-        return False
-    
-    # get muprofiledoc thumb picture url
-    profileThumbPictureUrl = muprofiledoc.get('profileThumbPictureUrl', None)
-    if profileThumbPictureUrl is not None \
-       and type(profileThumbPictureUrl) is not str:
-        logger.log('invalid profile profileThumbPictureUrl\n')
-        return False
-    try:
-        if profileThumbPictureUrl is not None and \
-           profileThumbPictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileThumbPictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileThumbPictureUrl\n')
-        return False
-    
-    # get timestamp
-    if 'indexedOn' not in muprofiledoc:
-        logger.log('invalid profile indexedOn\n')
-        return False
-    indexedOn = muprofiledoc['indexedOn']
-    if type(indexedOn) is not int:
-        logger.log('invalid profile indexedOn\n')
-        return False
+            elif subdocument['type'] == 'comment':
+                comment = {}
+                for name, fieldtype, required in \
+                    [('createdDate', int,   False),
+                     ('inReplyTo',   str,   False),
+                     ('description', str,   False),
+                     ('url',         'url', False),
+                    ]:
+                    comment[name] = getField(subdocument, name, fieldtype,
+                                          required=required,
+                                          docname='comment')
+                if nonEmpty(comment):
+                    muprofile['comments'].append(comment)
 
-    # get crawl date
-    crawledDate = muprofiledoc.get('crawledDate', None)
-    if crawledDate is not None and type(crawledDate) is not int:
-        logger.log('invalid profile crawledDate\n')
+        for subdocument in muprofiledoc.get('otherProfiles', []):
+            link = {}
+            for name, fieldtype, required in \
+                    [('type',        str,   True),
+                     ('url',         str,   True),
+                    ]:
+                link[name] = getField(subdocument, name, fieldtype,
+                                      required=required,
+                                      docname='link')
+            if nonEmpty(link):
+                muprofile['links'].append(link)
+
+    except FieldError:
         return False
-    
-    # get skills
-    categories = muprofiledoc.get('categories', [])
-    if type(categories) is not list:
-        logger.log('invalid profile categories\n')
-        return False
-    for skill in categories:
-        if type(skill) is not str:
-            logger.log('invalid profile categories\n')
-            return False
-
-    muprofile = {
-        'id'                     : muprofile_id,
-        'name'                   : name,
-        'country'                : country,
-        'city'                   : city,
-        'status'                 : status,
-        'description'            : description,
-        'profileUrl'             : profileUrl,
-        'profilePictureId'       : profilePictureId,
-        'profilePictureUrl'      : profilePictureUrl,
-        'profileHQPictureUrl'    : profileHQPictureUrl,
-        'profileThumbPictureUrl' : profileThumbPictureUrl,
-        'indexedOn'              : indexedOn,
-        'crawledDate'            : crawledDate,
-        'categories'             : categories,
-        'links'                  : []
-        }
-
-
-    # parse links
-    
-    for link in muprofiledoc.get('otherProfiles', []):
-        # get sector
-        linktype = link.get('type', None)
-        if type(linktype) is not str:
-            logger.log('invalid link type\n')
-            return False
-
-        # get url
-        url = link.get('url', None)
-        if type(url) is not str:
-            logger.log('invalid profile url\n')
-            return False
-
-        muprofile['links'].append({'type' : linktype,
-                                   'url'  : url})
-        
 
     # add muprofile
-    dtdb.addFromDict(muprofile, MUProfile)
+    muprofile = dtdb.addFromDict(muprofile, MUProfile)
+    dtdb.commit()
     return True
 
 
 def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
-    # check sourceId
-    if ghprofiledoc.get('sourceId', '') != 'github':
-        logger.log('invalid profile sourceId\n')
-        return False
-
-    # check type
-    if ghprofiledoc.get('type', '') != 'profile':
-        logger.log('invalid profile type\n')
-        return False
-    
-    # get id
-    if 'id' not in ghprofiledoc:
-        logger.log('invalid profile id\n')
-        return False
-    ghprofile_id = ghprofiledoc['id']
-
-    # get name
-    name = ghprofiledoc.get('name', None)
-    if name is not None and type(name) is not str:
-        return False
-
-    # get country
-    country = ghprofiledoc.get('country', None)
-    if country is not None and type(country) is not str:
-        logger.log('invalid profile country\n')
-        return False
-
-    # get city
-    city = ghprofiledoc.get('city', None)
-    if city is not None and type(city) is not str:
-        logger.log('invalid profile city\n')
-        return False
-
-    # get company
-    company = ghprofiledoc.get('company', None)
-    if company is not None and type(company) is not str:
-        logger.log('invalid profile company\n')
-        return False
-    
-    # get created date
-    createdDate = ghprofiledoc.get('createdDate', None)
-    if createdDate is not None and type(createdDate) is not int:
-        logger.log('invalid profile createdDate\n')
-        return False
-    
-    # get ghprofile url
-    if 'profileUrl' not in ghprofiledoc:
-        logger.log('invalid profile profileUrl\n')
-        return False
-    profileUrl = ghprofiledoc['profileUrl']
-    if profileUrl is not None and type(profileUrl) is not str:
-        logger.log('invalid profile profileUrl\n')
-        return False
     try:
-        if profileUrl[:4].lower() != 'http':
-            logger.log('invalid profile profileUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profileUrl\n')
+        checkField(ghprofiledoc, 'sourceId', 'github')
+        checkField(ghprofiledoc, 'type', 'profile')
+        ghprofile = {}
+        for name, fieldtype, required in \
+            [('id',          str,   True),
+             ('name',        str,   False),
+             ('country',     str,   False),
+             ('city',        str,   False),
+             ('company',     str,   False),
+             ('createdDate', int,   False),
+             ('profileUrl',  'url', False),
+             ('profilePictureUrl', 'url', False),
+             ('login',       str,   False),
+             ('email',       str,   False),
+             ('contributionsCount', int, False),
+             ('followersCount', int, False),
+             ('followingCount', int, False),
+             ('publicRepoCount', int, False),
+             ('publicGistCount', int, False),
+             ('indexedOn',   int,   True),
+             ('crawledDate', int,   True),
+            ]:
+            ghprofile[name] = getField(ghprofiledoc, name, fieldtype,
+                                       required=required)
+
+        ghprofile['repositories']     = []
+        ghprofile['links']            = []
+        for subdocument in ghprofiledoc.get('subDocuments', []):
+            checkField(subdocument, 'type', ['repository'])
+            if subdocument['type'] == 'repository':
+                repository = {}
+                for name, fieldtype, required in \
+                    [('name',         str,   False),
+                     ('description',  str,   False),
+                     ('fullName',     str,   False),
+                     ('url',          'url', False),
+                     ('gitUrl',       str,   False),
+                     ('sshUrl',       str,   False),
+                     ('createdDate',  int,   False),
+                     ('pushedDate',   int,   False),
+                     ('size',         int,   False),
+                     ('defaultBranch', str,  False),
+                     ('viewCount',    int,  False),
+                     ('subscribersCount', int,  False),
+                     ('forksCount',   int,  False),
+                     ('stargazersCount', int, False),
+                     ('openIssuesCount', int, False),
+                     ('tags',         [str], False),
+                    ]:
+                    repository[name] = getField(subdocument, name, fieldtype,
+                                                required=required,
+                                                docname='repository')
+                if nonEmpty(repository):
+                    ghprofile['repositories'].append(repository)
+
+        for subdocument in ghprofiledoc.get('otherProfiles', []):
+            link = {}
+            for name, fieldtype, required in \
+                    [('type',        str,   True),
+                     ('url',         str,   True),
+                    ]:
+                link[name] = getField(subdocument, name, fieldtype,
+                                      required=required,
+                                      docname='link')
+            if nonEmpty(link):
+                ghprofile['links'].append(link)
+
+    except FieldError:
         return False
 
-    # get ghprofiledoc picture url
-    profilePictureUrl = ghprofiledoc.get('profilePictureUrl', None)
-    if profilePictureUrl is not None and type(profilePictureUrl) is not str:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-    try:
-        if profilePictureUrl is not None and \
-           profilePictureUrl[:4].lower() != 'http':
-            logger.log('invalid profile profilePictureUrl\n')
-            return False
-    except IndexError:
-        logger.log('invalid profile profilePictureUrl\n')
-        return False
-
-    # get login
-    login = ghprofiledoc.get('login', None)
-    if login is not None and type(login) is not str:
-        logger.log('invalid profile login\n')
-        return False
-
-    # get email
-    email = ghprofiledoc.get('email', None)
-    if email is not None and type(email) is not str:
-        logger.log('invalid profile email\n')
-        return False
-
-    # get contributionsCount
-    contributionsCount = ghprofiledoc.get('contributionsCount', None)
-    if contributionsCount is not None and type(contributionsCount) is not int:
-        logger.log('invalid profile contributionsCount\n')
-        return False
-
-    # get followersCount
-    followersCount = ghprofiledoc.get('followersCount', None)
-    if followersCount is not None and type(followersCount) is not int:
-        logger.log('invalid profile followersCount\n')
-        return False
-
-    # get followingCount
-    followingCount = ghprofiledoc.get('followingCount', None)
-    if followingCount is not None and type(followingCount) is not int:
-        logger.log('invalid profile followingCount\n')
-        return False
-
-    # get publicRepoCount
-    publicRepoCount = ghprofiledoc.get('publicRepoCount', None)
-    if publicRepoCount is not None and type(publicRepoCount) is not int:
-        logger.log('invalid profile publicRepoCount\n')
-        return False
-
-    # get publicGistCount
-    publicGistCount = ghprofiledoc.get('publicGistCount', None)
-    if publicGistCount is not None and type(publicGistCount) is not int:
-        logger.log('invalid profile publicGistCount\n')
-        return False
-    
-    # get timestamp
-    if 'indexedOn' not in ghprofiledoc:
-        logger.log('invalid profile indexedOn\n')
-        return False
-    indexedOn = ghprofiledoc['indexedOn']
-    if type(indexedOn) is not int:
-        logger.log('invalid profile indexedOn\n')
-        return False
-
-    # get crawl date
-    crawledDate = ghprofiledoc.get('crawledDate', None)
-    if crawledDate is not None and type(crawledDate) is not int:
-        logger.log('invalid profile crawledDate\n')
-        return False
-
-    ghprofile = {
-        'id'                     : ghprofile_id,
-        'name'                   : name,
-        'country'                : country,
-        'city'                   : city,
-        'company'                : company,
-        'profileUrl'             : profileUrl,
-        'profilePictureUrl'      : profilePictureUrl,
-        'login'                  : login,
-        'email'                  : email,
-        'contributionsCount'     : contributionsCount,
-        'followersCount'         : followersCount,
-        'followingCount'         : followingCount,
-        'publicRepoCount'        : publicRepoCount,
-        'publicGistCount'        : publicGistCount,
-        'indexedOn'              : indexedOn,
-        'crawledDate'            : crawledDate,
-        'links'                  : [],
-        'repositories'           : []
-        }
-
-
-    # parse links
-    
-    for link in ghprofiledoc.get('otherProfiles', []):
-        # get sector
-        linktype = link.get('type', None)
-        if type(linktype) is not str:
-            logger.log('invalid link type\n')
-            return False
-
-        # get url
-        url = link.get('url', None)
-        if type(url) is not str:
-            logger.log('invalid profile url\n')
-            return False
-
-        ghprofile['links'].append({'type' : linktype,
-                                   'url'  : url})
-        
-
-    # parse repositories
-
-    for subdocument in ghprofiledoc.get('subDocuments', []):
-        if 'type' not in subdocument:
-            logger.log('type field missing in sub-document.\n')
-            return False
-
-        if subdocument['type'] == 'repository':
-            repository = subdocument
-
-            name = repository.get('name', None)
-            if name is not None and type(name) is not str:
-                logger.log('invalid repository name\n')
-                return False
-            
-            url = repository.get('url', None)
-            if type(url) is not str:
-                logger.log('invalid repository url\n')
-                return False
-
-            stargazersCount = repository.get('stargazersCount', None)
-            if stargazersCount is not None:
-                try:
-                    stargazersCount = int(stargazersCount)
-                except ValueError:
-                    stargazersCount = None
-                
-            forksCount = repository.get('forksCount', None)
-            if forksCount is not None:
-                try:
-                    forksCount = int(forksCount)
-                except ValueError:
-                    forksCount = None
-
-            tags = repository.get('tags', None)
-            if tags is not None and type(tags) is not dict:
-                logger.log('invalid repository tags\n')
-                return False
-            if tags is not None:
-                tags = tags['myArrayList']
-
-            ghprofile['repositories'].append(
-                {'name'            : name,
-                 'url'             : url,
-                 'stargazersCount' : stargazersCount,
-                 'forksCount'      : forksCount,
-                 'tags'            : tags})
-            
     # add ghprofile
     dtdb.addFromDict(ghprofile, GHProfile)
     return True
