@@ -61,29 +61,33 @@ STR_MAX = 100000
 SQLBase = sqlbase()
 
 
+# LinkedIn
+
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
+    lastName          = Column(Unicode(STR_MAX))
+    firstName         = Column(Unicode(STR_MAX))
     isCompany         = Column(Boolean)
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)
+    sector            = Column(Unicode(STR_MAX))
+    nrmSector         = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
     parsedTitle       = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
     titlePrefix       = Column(Unicode(STR_MAX))
-    sector            = Column(Unicode(STR_MAX))
-    nrmSector         = Column(Unicode(STR_MAX), index=True)
     company           = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     connections       = Column(Integer)
-    firstExperienceStart = Column(Date)
-    lastExperienceStart  = Column(Date)
-    firstEducationStart  = Column(Date)
-    lastEducationStart   = Column(Date)
+    firstExperienceStart = Column(DateTime)
+    lastExperienceStart  = Column(DateTime)
+    firstEducationStart  = Column(DateTime)
+    lastEducationStart   = Column(DateTime)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
@@ -107,7 +111,6 @@ class LIProfile(SQLBase):
 class LIExperience(SQLBase):
     __tablename__ = 'liexperience'
     id             = Column(BigInteger, primary_key=True)
-    datoinId       = Column(String(STR_MAX))
     liprofileId    = Column(BigInteger,
                             ForeignKey('liprofile.id'),
                             index=True)
@@ -120,8 +123,8 @@ class LIExperience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
     location       = Column(Unicode(STR_MAX))
     nrmLocation    = Column(Unicode(STR_MAX), index=True)
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
 
@@ -132,7 +135,6 @@ class LIExperience(SQLBase):
 class LIEducation(SQLBase):
     __tablename__ = 'lieducation'
     id          = Column(BigInteger, primary_key=True)
-    datoinId    = Column(String(STR_MAX))
     liprofileId = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
@@ -143,8 +145,8 @@ class LIEducation(SQLBase):
     nrmDegree      = Column(Unicode(STR_MAX))
     subject        = Column(Unicode(STR_MAX))
     nrmSubject     = Column(Unicode(STR_MAX))
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     description    = Column(Unicode(STR_MAX))
 
 class LIGroup(SQLBase):
@@ -156,7 +158,6 @@ class LIGroup(SQLBase):
     language      = Column(String(20))
     name          = Column(Unicode(STR_MAX))
     url           = Column(Unicode(STR_MAX), index=True)
-    
     
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
@@ -180,12 +181,17 @@ class LIExperienceSkill(SQLBase):
                             index=True)
     skill          = relationship('LIProfileSkill')
 
+
+# Indeed
+    
 class INProfile(SQLBase):
     __tablename__ = 'inprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
+    lastName          = Column(Unicode(STR_MAX))
+    firstName         = Column(Unicode(STR_MAX))
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
@@ -195,11 +201,13 @@ class INProfile(SQLBase):
     company           = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
-    firstExperienceStart = Column(Date)
-    lastExperienceStart  = Column(Date)
-    firstEducationStart  = Column(Date)
-    lastEducationStart   = Column(Date)
+    additionalInformation = Column(Unicode(STR_MAX))
+    firstExperienceStart = Column(DateTime)
+    lastExperienceStart  = Column(DateTime)
+    firstEducationStart  = Column(DateTime)
+    lastEducationStart   = Column(DateTime)
     url               = Column(String(STR_MAX))
+    updatedOn         = Column(DateTime)
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
 
@@ -208,6 +216,9 @@ class INProfile(SQLBase):
                                      cascade='all, delete-orphan')
     educations        = relationship('INEducation',
                                      order_by='INEducation.start',
+                                     cascade='all, delete-orphan')
+    certifications    = relationship('INCertification',
+                                     order_by='INCertification.name',
                                      cascade='all, delete-orphan')
     skills            = relationship('INProfileSkill',
                                      order_by='INProfileSkill.nrmName',
@@ -218,7 +229,6 @@ class INProfile(SQLBase):
 class INExperience(SQLBase):
     __tablename__ = 'inexperience'
     id             = Column(BigInteger, primary_key=True)
-    datoinId       = Column(String(STR_MAX))
     inprofileId    = Column(BigInteger,
                             ForeignKey('inprofile.id'),
                             index=True)
@@ -231,8 +241,8 @@ class INExperience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
     location       = Column(Unicode(STR_MAX))
     nrmLocation    = Column(Unicode(STR_MAX), index=True)
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
 
@@ -243,7 +253,6 @@ class INExperience(SQLBase):
 class INEducation(SQLBase):
     __tablename__ = 'ineducation'
     id          = Column(BigInteger, primary_key=True)
-    datoinId    = Column(String(STR_MAX))
     inprofileId = Column(BigInteger,
                          ForeignKey('inprofile.id'),
                          index=True)
@@ -254,9 +263,20 @@ class INEducation(SQLBase):
     nrmDegree      = Column(Unicode(STR_MAX))
     subject        = Column(Unicode(STR_MAX))
     nrmSubject     = Column(Unicode(STR_MAX))
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     description    = Column(Unicode(STR_MAX))
+
+class INCertification(SQLBase):
+    __tablename__ = 'incertification'
+    id          = Column(BigInteger, primary_key=True)
+    inprofileId = Column(BigInteger,
+                         ForeignKey('inprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    start       = Column(DateTime)
+    end         = Column(DateTime)
+    description = Column(Unicode(STR_MAX))
 
 class INProfileSkill(SQLBase):
     __tablename__ = 'inprofile_skill'
@@ -280,12 +300,17 @@ class INExperienceSkill(SQLBase):
                             index=True)
     skill          = relationship('INProfileSkill')
 
+
+# Upwork
+
 class UWProfile(SQLBase):
     __tablename__ = 'uwprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
+    lastName          = Column(Unicode(STR_MAX))
+    firstName         = Column(Unicode(STR_MAX))
     location          = Column(Unicode(STR_MAX))
     nrmLocation       = Column(Unicode(STR_MAX), index=True)
     title             = Column(Unicode(STR_MAX))
@@ -293,10 +318,10 @@ class UWProfile(SQLBase):
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
     titlePrefix       = Column(Unicode(STR_MAX))
     description       = Column(Unicode(STR_MAX))
-    firstExperienceStart = Column(Date)
-    lastExperienceStart  = Column(Date)
-    firstEducationStart  = Column(Date)
-    lastEducationStart   = Column(Date)
+    firstExperienceStart = Column(DateTime)
+    lastExperienceStart  = Column(DateTime)
+    firstEducationStart  = Column(DateTime)
+    lastEducationStart   = Column(DateTime)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
@@ -308,6 +333,9 @@ class UWProfile(SQLBase):
     educations        = relationship('UWEducation',
                                      order_by='UWEducation.start',
                                      cascade='all, delete-orphan')
+    tests             = relationship('UWTest',
+                                     order_by='UWTest.name',
+                                     cascade='all, delete-orphan')
     skills            = relationship('UWProfileSkill',
                                      order_by='UWProfileSkill.nrmName',
                                      cascade='all, delete-orphan')
@@ -317,7 +345,6 @@ class UWProfile(SQLBase):
 class UWExperience(SQLBase):
     __tablename__ = 'uwexperience'
     id             = Column(BigInteger, primary_key=True)
-    datoinId       = Column(String(STR_MAX))
     uwprofileId    = Column(BigInteger,
                             ForeignKey('uwprofile.id'),
                             index=True)
@@ -330,8 +357,8 @@ class UWExperience(SQLBase):
     nrmCompany     = Column(Unicode(STR_MAX), index=True)
     location       = Column(Unicode(STR_MAX))
     nrmLocation    = Column(Unicode(STR_MAX), index=True)
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     duration       = Column(Integer) # duration in days
     description    = Column(Unicode(STR_MAX))
 
@@ -342,7 +369,6 @@ class UWExperience(SQLBase):
 class UWEducation(SQLBase):
     __tablename__ = 'uweducation'
     id          = Column(BigInteger, primary_key=True)
-    datoinId    = Column(String(STR_MAX))
     uwprofileId = Column(BigInteger,
                          ForeignKey('uwprofile.id'),
                          index=True)
@@ -353,9 +379,18 @@ class UWEducation(SQLBase):
     nrmDegree      = Column(Unicode(STR_MAX))
     subject        = Column(Unicode(STR_MAX))
     nrmSubject     = Column(Unicode(STR_MAX))
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     description    = Column(Unicode(STR_MAX))
+
+class UWTest(SQLBase):
+    __tablename__ = 'uwtest'
+    id          = Column(BigInteger, primary_key=True)
+    uwprofileId = Column(BigInteger,
+                         ForeignKey('uwprofile.id'),
+                         index=True)
+    name        = Column(Unicode(STR_MAX))
+    score       = Column(Float)
 
 class UWProfileSkill(SQLBase):
     __tablename__ = 'uwprofile_skill'
@@ -379,14 +414,18 @@ class UWExperienceSkill(SQLBase):
                             index=True)
     skill          = relationship('UWProfileSkill')
 
+
+# Meetup
+    
 class MUProfile(SQLBase):
     __tablename__ = 'muprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
-    location          = Column(Unicode(STR_MAX))
-    nrmLocation       = Column(Unicode(STR_MAX), index=True)
+    country           = Column(Unicode(STR_MAX))
+    city              = Column(Unicode(STR_MAX))
+    geo               = Column(Geometry('POINT'))
     status            = Column(Unicode(STR_MAX))
     description       = Column(Unicode(STR_MAX))
     url               = Column(String(STR_MAX))
@@ -397,6 +436,12 @@ class MUProfile(SQLBase):
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
 
+    groups            = relationship('MUGroup',
+                                     cascade='all, delete-orphan')
+    events            = relationship('MUEvent',
+                                     cascade='all, delete-orphan')
+    comments          = relationship('MUComment',
+                                     cascade='all, delete-orphan')
     skills            = relationship('MUProfileSkill',
                                      order_by='MUProfileSkill.nrmName',
                                      cascade='all, delete-orphan')
@@ -406,6 +451,96 @@ class MUProfile(SQLBase):
     
     __table_args__ = (UniqueConstraint('datoinId'),)
 
+class MUGroup(SQLBase):
+    __tablename__ = 'mugroup'
+    id            = Column(BigInteger, primary_key=True)
+    muprofileId   = Column(BigInteger,
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    country       = Column(Unicode(STR_MAX))
+    city          = Column(Unicode(STR_MAX))
+    geo           = Column(Geometry('POINT'))
+    timezone      = Column(Unicode(STR_MAX))
+    utcOffset     = Column(Integer)
+    name          = Column(Unicode(STR_MAX))
+    categoryName  = Column(Unicode(STR_MAX))
+    categoryShortname = Column(Unicode(STR_MAX))
+    categoryId    = Column(Integer)
+    description   = Column(Unicode(STR_MAX))
+    url           = Column(String(STR_MAX))
+    urlname       = Column(String(STR_MAX))
+    pictureUrl    = Column(String(STR_MAX))
+    pictureId     = Column(BigInteger)
+    hqPictureUrl  = Column(String(STR_MAX))
+    thumbPictureUrl = Column(String(STR_MAX))
+    joinMode      = Column(Unicode(STR_MAX))
+    rating        = Column(Float)
+    organizerName = Column(Unicode(STR_MAX))
+    organizerId   = Column(String(STR_MAX))
+    members       = Column(Integer)
+    state         = Column(Unicode(STR_MAX))
+    visibility    = Column(Unicode(STR_MAX))
+    who           = Column(Unicode(STR_MAX))
+    createdOn     = Column(DateTime)
+
+    skills            = relationship('MUGroupSkill',
+                                     order_by='MUGroupSkill.nrmName',
+                                     cascade='all, delete-orphan')
+
+class MUEvent(SQLBase):
+    __tablename__ = 'muevent'
+    id            = Column(BigInteger, primary_key=True)
+    muprofileId   = Column(BigInteger,
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    country       = Column(Unicode(STR_MAX))
+    city          = Column(Unicode(STR_MAX))
+    addressLine1  = Column(Unicode(STR_MAX))
+    addressLine2  = Column(Unicode(STR_MAX))
+    geo           = Column(Geometry('POINT'))
+    phone         = Column(String(STR_MAX))
+    name          = Column(Unicode(STR_MAX))
+    description   = Column(Unicode(STR_MAX))
+    url           = Column(Unicode(STR_MAX))
+    time          = Column(DateTime)
+    utcOffset     = Column(Integer)
+    status        = Column(Unicode(STR_MAX))
+    headcount     = Column(Integer)
+    visibility    = Column(Unicode(STR_MAX))
+    rsvpLimit     = Column(Integer)
+    yesRsvpCount  = Column(Integer)
+    maybeRsvpCount = Column(Integer)
+    waitlistCount = Column(Integer)
+    ratingCount   = Column(Integer)
+    ratingAverage = Column(Float)
+    feeRequired   = Column(Unicode(STR_MAX))
+    feeCurrency   = Column(Unicode(STR_MAX))
+    feeLabel      = Column(Unicode(STR_MAX))
+    feeDescription = Column(Unicode(STR_MAX))
+    feeAccepts    = Column(Unicode(STR_MAX))
+    feeAmount     = Column(Float)
+    createdOn     = Column(DateTime)
+
+class MUComment(SQLBase):
+    __tablename__ = 'mucomment'
+    id            = Column(BigInteger, primary_key=True)
+    muprofileId   = Column(BigInteger,
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    createdOn     = Column(DateTime)
+    inReplyTo     = Column(String(STR_MAX))
+    description   = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+    
+class MULink(SQLBase):
+    __tablename__ = 'mulink'
+    id            = Column(BigInteger, primary_key=True)
+    muprofileId   = Column(BigInteger,
+                           ForeignKey('muprofile.id'),
+                           index=True)
+    type          = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+    
 class MUProfileSkill(SQLBase):
     __tablename__ = 'muprofile_skill'
     id          = Column(BigInteger, primary_key=True)
@@ -417,15 +552,19 @@ class MUProfileSkill(SQLBase):
     nrmName     = Column(Unicode(STR_MAX), index=True)
     reenforced  = Column(Boolean)
 
-class MULink(SQLBase):
-    __tablename__ = 'mulink'
-    id            = Column(BigInteger, primary_key=True)
-    muprofileId   = Column(BigInteger,
-                           ForeignKey('muprofile.id'),
-                           index=True)
-    type          = Column(String(STR_MAX))
-    url           = Column(String(STR_MAX))
+class MUGroupSkill(SQLBase):
+    __tablename__ = 'mugroup_skill'
+    id          = Column(BigInteger, primary_key=True)
+    muprofileId = Column(BigInteger,
+                         ForeignKey('mugroup.id'),
+                         index=True)
+    language    = Column(String(20))
+    name        = Column(Unicode(STR_MAX))
+    nrmName     = Column(Unicode(STR_MAX), index=True)
 
+
+# GitHub
+    
 class GHProfile(SQLBase):
     __tablename__ = 'ghprofile'
     id                     = Column(BigInteger, primary_key=True)
@@ -436,7 +575,7 @@ class GHProfile(SQLBase):
     nrmLocation            = Column(Unicode(STR_MAX), index=True)
     company                = Column(Unicode(STR_MAX))
     nrmCompany             = Column(Unicode(STR_MAX))
-    createdDate            = Column(DateTime)
+    createdOn              = Column(DateTime)
     url                    = Column(String(STR_MAX))
     pictureUrl             = Column(String(STR_MAX))
     login                  = Column(String(STR_MAX))
@@ -471,15 +610,26 @@ class GHProfileSkill(SQLBase):
 
 class GHRepository(SQLBase):
     __tablename__ = 'ghrepository'
-    id              = Column(BigInteger, primary_key=True)
+    id            = Column(BigInteger, primary_key=True)
     ghprofileId     = Column(BigInteger,
                              ForeignKey('ghprofile.id'),
                              index=True)    
-    name            = Column(String(STR_MAX))
+    name            = Column(Unicode(STR_MAX))
+    description     = Column(Unicode(STR_MAX))
+    fullName        = Column(Unicode(STR_MAX))
     url             = Column(String(STR_MAX))
-    stargazersCount = Column(Integer)
+    gitUrl          = Column(String(STR_MAX))
+    sshUrl          = Column(String(STR_MAX))
+    createdOn       = Column(DateTime)
+    pushedOn        = Column(DateTime)
+    size            = Column(Integer)
+    defaultBranch   = Column(String(STR_MAX))
+    viewCount       = Column(Integer)
+    subscribersCount = Column(Integer)
     forksCount      = Column(Integer)
-    
+    stargazersCount = Column(Integer)
+    openIssuesCount = Column(Integer)
+
     tags            = relationship('GHRepositorySkill')    
 
 class GHRepositorySkill(SQLBase):
@@ -502,6 +652,9 @@ class GHLink(SQLBase):
                            index=True)
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
+
+
+# Locations
     
 class Location(SQLBase):
     __tablename__ = 'location'
@@ -520,7 +673,10 @@ class Location(SQLBase):
 def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
-def _makeLIExperience(liexperience, language, now):
+
+# LinkedIn
+
+def _makeLIExperience(liexperience, language):
     liexperience = deepcopy(liexperience)
     liexperience['language']     = language
     liexperience['parsedTitle']  = parsedTitle(language, liexperience['title'])
@@ -533,29 +689,22 @@ def _makeLIExperience(liexperience, language, now):
     liexperience['nrmLocation']  = normalizedLocation(liexperience['location'])
 
     # work out duration
-    duration = None        
+    liexperience['duration'] = None        
     if liexperience['start'] is not None and liexperience['end'] is not None:
-        if liexperience['start'] < liexperience['end']:
-            duration = (liexperience['end'] - liexperience['start']).days
-        else:
-            liexperience['end'] = None
-    if liexperience['start'] is None:
-        liexperience['end'] = None
+        liexperience['duration'] \
+            = (liexperience['end'] - liexperience['start']).days
 
     return liexperience
 
 def _makeLIEducation(lieducation, language):
     lieducation = deepcopy(lieducation)
-    lieducation['language']       = language
-    lieducation['nrmInstitute']   = normalizedInstitute(language,
+    lieducation['language']     = language
+    lieducation['nrmInstitute'] = normalizedInstitute(language,
                                                       lieducation['institute'])
-    lieducation['nrmDegree']      = normalizedDegree(language,
+    lieducation['nrmDegree']    = normalizedDegree(language,
                                                    lieducation['degree'])
-    lieducation['nrmSubject']     = normalizedSubject(language,
+    lieducation['nrmSubject']   = normalizedSubject(language,
                                                     lieducation['subject'])
-
-    if lieducation['start'] is None:
-        lieducation['end'] = None
     
     return lieducation
 
@@ -584,7 +733,7 @@ def _isCompany(language, name):
     tokens = clean(name, lowercase=True, tokenize=True)
     return ('limited' in tokens or 'ltd' in tokens)
     
-def _makeLIProfile(liprofile, now):
+def _makeLIProfile(liprofile):
     # determine current company
     company = None
     currentexperiences = [e for e in liprofile['experiences'] \
@@ -615,7 +764,7 @@ def _makeLIProfile(liprofile, now):
     liprofile['isCompany']       = _isCompany(language, liprofile['name'])
     
     # update experiences
-    liprofile['experiences'] = [_makeLIExperience(e, language, now) \
+    liprofile['experiences'] = [_makeLIExperience(e, language) \
                                 for e in liprofile['experiences']]
     startdates = [e['start'] for e in liprofile['experiences'] \
                   if e['start'] is not None]
@@ -648,7 +797,10 @@ def _makeLIProfile(liprofile, now):
 
     return liprofile
 
-def _makeINExperience(inexperience, language, now):
+
+# Indeed
+
+def _makeINExperience(inexperience, language):
     inexperience = deepcopy(inexperience)
     inexperience['language']     = language
     inexperience['parsedTitle']  = parsedTitle(language, inexperience['title'])
@@ -661,14 +813,10 @@ def _makeINExperience(inexperience, language, now):
     inexperience['nrmLocation']  = normalizedLocation(inexperience['location'])
 
     # work out duration
-    duration = None        
+    inexperience['duration'] = None
     if inexperience['start'] is not None and inexperience['end'] is not None:
-        if inexperience['start'] < inexperience['end']:
-            duration = (inexperience['end'] - inexperience['start']).days
-        else:
-            inexperience['end'] = None
-    if inexperience['start'] is None:
-        inexperience['end'] = None
+        inexperience['duration'] \
+            = (inexperience['end'] - inexperience['start']).days
         
     return inexperience
 
@@ -681,9 +829,6 @@ def _makeINEducation(ineducation, language):
                                                    ineducation['degree'])
     ineducation['nrmSubject']     = normalizedSubject(language,
                                                     ineducation['subject'])
-
-    if ineducation['start'] is None:
-        ineducation['end'] = None
     
     return ineducation
 
@@ -698,7 +843,7 @@ def _makeINProfileSkill(skillname, language, reenforced):
                 'reenforced' : reenforced,
                 'score'      : 1.0 if reenforced else 0.0}
 
-def _makeINProfile(inprofile, now):
+def _makeINProfile(inprofile):
     # determine current company
     company = None
     currentexperiences = [e for e in inprofile['experiences'] \
@@ -725,7 +870,7 @@ def _makeINProfile(inprofile, now):
     inprofile['nrmCompany']      = normalizedCompany(language, company)
     
     # update experiences
-    inprofile['experiences'] = [_makeINExperience(e, language, now) \
+    inprofile['experiences'] = [_makeINExperience(e, language) \
                                 for e in inprofile['experiences']]
     startdates = [e['start'] for e in inprofile['experiences'] \
                   if e['start'] is not None]
@@ -762,7 +907,9 @@ def _makeINProfile(inprofile, now):
     return inprofile
 
 
-def _makeUWExperience(uwexperience, language, now):
+# Upwork
+
+def _makeUWExperience(uwexperience, language):
     uwexperience = deepcopy(uwexperience)
     uwexperience['language']     = language
     uwexperience['parsedTitle']  = parsedTitle(language, uwexperience['title'])
@@ -811,7 +958,7 @@ def _makeUWProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
-def _makeUWProfile(uwprofile, now):
+def _makeUWProfile(uwprofile):
     # get profile language
     language = uwprofile.get('language', None)
 
@@ -823,7 +970,7 @@ def _makeUWProfile(uwprofile, now):
                                                          uwprofile['title'])
     
     # update experiences
-    uwprofile['experiences'] = [_makeUWExperience(e, language, now) \
+    uwprofile['experiences'] = [_makeUWExperience(e, language) \
                                 for e in uwprofile['experiences']]
     startdates = [e['start'] for e in uwprofile['experiences'] \
                   if e['start'] is not None]
@@ -852,16 +999,21 @@ def _makeUWProfile(uwprofile, now):
 
     return uwprofile
 
-def _makeMUProfile(muprofile, now):
+
+# Meetup
+
+def _makeMUProfile(muprofile):
     # get profile language
     language = muprofile.get('language', None)
 
-    # normalize fields
-    muprofile['nrmLocation'] = normalizedLocation(muprofile['location'])
-
-    # add skills
+    # add profile skills
     muprofile['skills'] = [_makeMUProfileSkill(skill, language) \
                            for skill in muprofile['skills']]
+
+    # add group skills
+    for group in muprofile['groups']:
+        group['skills'] = [_makeMUGroupSkill(skill, language) \
+                           for skill in group['skills']]
 
     return muprofile
 
@@ -875,8 +1027,19 @@ def _makeMUProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
+def _makeMUGroupSkill(skillname, language):
+    nrmName = normalizedSkill(language, skillname)
+    if not nrmName:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrmName'    : nrmName}
     
-def _makeGHProfile(ghprofile, now):
+
+# GitHub
+    
+def _makeGHProfile(ghprofile):
     # get profile language
     language = ghprofile.get('language', None)
 
@@ -967,90 +1130,46 @@ class CanonicalDB(SQLDatabase):
                 skill.score = scores[skill.nrmName]
 
                 
-    def addLIProfile(self, liprofile, now):
+    def addLIProfile(self, liprofile):
         """Add a LinkedIn profile to the database (or update if it exists).
 
         Args:
           liprofile (dict): Description of the profile. Must contain the
             following fields:
 
-              ``'datoinId'``
-                The profile ID from DATOIN.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'location'``
-                A string describing the location of the user.
-
-              ``'title'``
-                The profile title, e.g. ``'Web developer at Geek Talent'``
-
-              ``'description'``
-                The profile summary.
-
-              ``'profileUrl'``
-                The URL of the profile.
-
-              ``'profilePictureUrl'``
-                The URL of the profile picture.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'crawledOn'``
-                The date when the profile was crawled.
-
-              ``'skills'``
-                The skill tags listed by the user. This should be a list of 
-                strings.
-
-              ``'experiences'``
-                The work experiences of the user. This should be a list of
-                ``dict``s with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'title'``
-                    The role/job title of the work experience.
-
-                  ``'company'``
-                    The name of the company where the person worked.
-
-                  ``'start'``
-                    The start date of the work experience.
-
-                  ``'end'``
-                    The end date of the work experience.
-
-                  ``'description'``
-                    A free-text description of the work experience.
-
-              ``'educations'``
-                The educations of the user. This should be a list of ``dict``s
-                with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'institute'``
-                    The name of the educational institute.
-
-                  ``'degree'``
-                    The name of the accomplished degree.
-
-                  ``'subject'``
-                    The name of the studied subject.
-
-                  ``'start'``
-                    The start date of the education.
-
-                  ``'end'``
-                    The end date of the education.
-
-                  ``'description'``
-                    A free-text description of the education.
+              datoinId
+              language
+              name
+              lastName
+              firstName
+              location
+              sector
+              title
+              company
+              description
+              connections
+              url
+              pictureUrl
+              indexedOn
+              crawledOn
+              experiences (list of dict)
+                title
+                company
+                location
+                start
+                end
+                description
+              educations (list of dict)
+                institute
+                degree
+                subject
+                start
+                end
+                description
+              skills (list of str)
+              groups (list of dict)
+                name
+                url
 
         Returns:
           The LIProfile object that was added to the database.
@@ -1069,98 +1188,54 @@ class CanonicalDB(SQLDatabase):
                     .filter(LIExperienceSkill.liexperienceId \
                             .in_(liexperienceIds)) \
                     .delete(synchronize_session=False)
-        liprofile = _makeLIProfile(liprofile, now)
+        liprofile = _makeLIProfile(liprofile)
         liprofile = self.addFromDict(liprofile, LIProfile)
         self.flush()
         self.rankSkills(liprofile, 'linkedin')
 
         return liprofile
 
-    def addINProfile(self, inprofiledict, now):
+    def addINProfile(self, inprofiledict):
         """Add a LinkedIn profile to the database (or update if it exists).
 
         Args:
           inprofile (dict): Description of the profile. Must contain the
             following fields:
 
-              ``'datoinId'``
-                The profile ID from DATOIN.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'location'``
-                A string describing the location of the user.
-
-              ``'title'``
-                The profile title, e.g. ``'Web developer at Geek Talent'``
-
-              ``'description'``
-                The profile summary.
-
-              ``'profileUrl'``
-                The URL of the profile.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'crawledOn'``
-                The date when the profile was crawled.
-
-              ``'skills'``
-                The skills mentioned in the main profile. This should be a list
-                of strings.
-
-              ``'experiences'``
-                The work experiences of the user. This should be a list of
-                ``dict``s with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'title'``
-                    The role/job title of the work experience.
-
-                  ``'company'``
-                    The name of the company where the person worked.
-
-                  ``'start'``
-                    The start date of the work experience.
-
-                  ``'end'``
-                    The end date of the work experience.
-
-                  ``'description'``
-                    A free-text description of the work experience.
-
-                  ``'skills'``
-                    The skills mentioned in the experience record. This should
-                    be a list of strings.
-
-              ``'educations'``
-                The educations of the user. This should be a list of ``dict``s
-                with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'institute'``
-                    The name of the educational institute.
-
-                  ``'degree'``
-                    The name of the accomplished degree.
-
-                  ``'subject'``
-                    The name of the studied subject.
-
-                  ``'start'``
-                    The start date of the education.
-
-                  ``'end'``
-                    The end date of the education.
-
-                  ``'description'``
-                    A free-text description of the education.
+              datoinId
+              language
+              name
+              lastName
+              firstName
+              location
+              title
+              company
+              description
+              additionalInformation
+              url
+              updatedOn
+              indexedOn
+              crawledOn
+              experiences (list of dict)
+                title
+                company
+                location
+                start
+                end
+                description
+              education (list of dict)
+                institute
+                degree
+                subject
+                start
+                end
+                description
+              skills (list of str)
+              certifications (list of dict)
+                name
+                start
+                end
+                description
 
         Returns:
           The INProfile object that was added to the database.
@@ -1180,7 +1255,7 @@ class CanonicalDB(SQLDatabase):
                     .filter(INExperienceSkill.inexperienceId \
                             .in_(inexperienceIds)) \
                     .delete(synchronize_session=False)
-        inprofiledict = _makeINProfile(inprofiledict, now)
+        inprofiledict = _makeINProfile(inprofiledict)
         inexperiences = inprofiledict.pop('experiences')
         inprofile = self.addFromDict(inprofiledict, INProfile)
         self.flush()
@@ -1203,90 +1278,43 @@ class CanonicalDB(SQLDatabase):
 
         return inprofile
 
-    def addUWProfile(self, uwprofile, now):
+    def addUWProfile(self, uwprofile):
         """Add a LinkedIn profile to the database (or update if it exists).
 
         Args:
           liprofile (dict): Description of the profile. Must contain the
             following fields:
 
-              ``'datoinId'``
-                The profile ID from DATOIN.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'location'``
-                A string describing the location of the user.
-
-              ``'title'``
-                The profile title, e.g. ``'Web developer at Geek Talent'``
-
-              ``'description'``
-                The profile summary.
-
-              ``'profileUrl'``
-                The URL of the profile.
-
-              ``'profilePictureUrl'``
-                The URL of the profile picture.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'crawledOn'``
-                The date when the profile was crawled.
-
-              ``'skills'``
-                The skill tags listed by the user. This should be a list of 
-                strings.
-
-              ``'experiences'``
-                The work experiences of the user. This should be a list of
-                ``dict``s with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'title'``
-                    The role/job title of the work experience.
-
-                  ``'company'``
-                    The name of the company where the person worked.
-
-                  ``'start'``
-                    The start date of the work experience.
-
-                  ``'end'``
-                    The end date of the work experience.
-
-                  ``'description'``
-                    A free-text description of the work experience.
-
-              ``'educations'``
-                The educations of the user. This should be a list of ``dict``s
-                with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'institute'``
-                    The name of the educational institute.
-
-                  ``'degree'``
-                    The name of the accomplished degree.
-
-                  ``'subject'``
-                    The name of the studied subject.
-
-                  ``'start'``
-                    The start date of the education.
-
-                  ``'end'``
-                    The end date of the education.
-
-                  ``'description'``
-                    A free-text description of the education.
+              datoinId
+              language
+              name
+              lastName
+              firstName
+              location
+              title
+              description
+              url
+              pictureUrl
+              indexedOn
+              crawledOn
+              experiences (list of dict)
+                title
+                company
+                location
+                start
+                end
+                description
+              education (list of dict)
+                institute
+                degree
+                subject
+                start
+                end
+                description
+              tests (list of dict)
+                name
+                score
+              skills (list of str)
 
         Returns:
           The UWProfile object that was added to the database.
@@ -1305,59 +1333,99 @@ class CanonicalDB(SQLDatabase):
                     .filter(UWExperienceSkill.uwexperienceId \
                             .in_(uwexperienceIds)) \
                     .delete(synchronize_session=False)
-        uwprofile = _makeUWProfile(uwprofile, now)
+        uwprofile = _makeUWProfile(uwprofile)
         uwprofile = self.addFromDict(uwprofile, UWProfile)
         self.flush()
         self.rankSkills(uwprofile, 'upwork')
 
         return uwprofile
 
-    def addMUProfile(self, muprofile, now):
+    def addMUProfile(self, muprofile):
         """Add a Meetup profile to the database (or update if it exists).
 
         Args:
           muprofile (dict): Description of the profile. Must contain the
             following fields:
 
-              ``'datoinId'``
-                The profile ID from DATOIN.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'location'``
-                A string describing the location of the user.
-
-              ``'status'``
-                The profile status
-
-              ``'description'``
-                The profile summary.
-
-              ``'url'``
-                The URL of the profile.
-
-              ``'pictureId'``
-                The ID of the profile picture.
-
-              ``'pictureUrl'``
-                The URL of the profile picture.
-
-              ``'hqPictureUrl'``
-                The URL of the high quality profile picture.
-
-              ``'thumbPictureUrl'``
-                The URL of the profile picture thumbnail.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'crawledOn'``
-                The date when the profile was crawled.
-
-              ``'skills'``
-                Interests listed by the user. This should be a list of 
-                strings.
+              datoinId
+              language
+              name
+              country
+              city
+              geo (wkt format)
+              status
+              description
+              url
+              pictureId
+              pictureUrl
+              hqPictureUrl
+              thumbPictureUrl
+              indexedOn
+              crawledOn
+              groups (list of dict)
+                country
+                city
+                geo (wkt format)
+                timezone
+                utcOffset
+                name
+                categoryName
+                categoryShortname
+                categoryId
+                description
+                url
+                urlname
+                pictureUrl
+                pictureId
+                hqPictureUrl
+                thumbPictureUrl
+                joinMode
+                rating
+                organizerName
+                organizerId
+                members
+                state
+                visibility
+                who
+                createdOn
+                skills (list of str)
+              events (list of dict)
+                country
+                city
+                addressLine1
+                addressLine2
+                geo (wkt format)
+                phone
+                name
+                description
+                url
+                time
+                utcOffset
+                status
+                headcount
+                visibility
+                rsvpLimit
+                yesRsvpCount
+                maybeRsvpCount
+                waitlistCount
+                ratingCount
+                ratingAverage
+                feeRequired
+                feeCurrency
+                feeLabel
+                feeDescription
+                feeAccepts
+                feeAmount
+                createdOn
+              comments (list of dict)
+                createdOn
+                inReplyTo
+                description
+                url
+              links (list of dict)
+                type
+                url
+              skills (list of str)
 
         Returns:
           The MUProfile object that was added to the database.
@@ -1368,53 +1436,54 @@ class CanonicalDB(SQLDatabase):
                           .first()
         if muprofileId is not None:
             muprofile['id'] = muprofileId[0]
-        muprofile = _makeMUProfile(muprofile, now)
+        muprofile = _makeMUProfile(muprofile)
         muprofile = self.addFromDict(muprofile, MUProfile)
         self.flush()
         self.rankSkills(muprofile, 'meetup')
 
         return muprofile
     
-    def addGHProfile(self, ghprofiledict, now):
+    def addGHProfile(self, ghprofiledict):
         """Add a GitHub profile to the database (or update if it exists).
 
         Args:
           ghprofile (dict): Description of the profile. Must contain the
             following fields:
 
-              ``'datoinId'``
-                The profile ID from DATOIN.
-
-              ``'language'``
-                The language of the profile.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'location'``
-                A string describing the location of the user.
-
-              ``'company'``
-                The user's company.
-
-              ``'description'``
-                The profile summary.
-
-              ``'url'``
-                The URL of the profile.
-
-              ``'pictureUrl'``
-                The URL of the profile picture.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'crawledOn'``
-                The date when the profile was crawled.
-
-              ``'skills'``
-                Interests listed by the user. This should be a list of 
-                strings.
+              datoinId
+              language
+              name
+              location
+              company
+              createdOn
+              url
+              pictureUrl
+              login
+              email
+              contributionsCount
+              followersCount
+              followingCount
+              publicRepoCount
+              publicGistCount
+              indexedOn
+              crawledOn
+              repositories (list of dict)
+                name
+                description
+                fullName
+                url
+                gitUrl
+                sshUrl
+                createdOn
+                pushedOn
+                size
+                defaultBranch
+                viewCount
+                subscribersCount
+                forksCount
+                stargazersCount
+                openIssuesCount
+                tags (list of str)
 
         Returns:
           The GHProfile object that was added to the database.
@@ -1437,7 +1506,7 @@ class CanonicalDB(SQLDatabase):
                 self.query(GHRepository) \
                     .filter(GHRepository.ghprofileId == ghprofileId[0]) \
                     .delete(synchronize_session=False)
-        ghprofiledict = _makeGHProfile(ghprofiledict, now)
+        ghprofiledict = _makeGHProfile(ghprofiledict)
         repositories = ghprofiledict.pop('repositories')
         ghprofile = self.addFromDict(ghprofiledict, GHProfile)
         self.flush()

@@ -25,6 +25,35 @@ countryLanguages = {
     'Nederland'      : 'nl',
 }
 
+def makeLocation(city, country):
+    location = ', '.join(s for s in [city, country] if s)
+    if not location:
+        location = None
+    return location
+
+def makeDateTime(ts, offset=0):
+    if ts:
+        result = timestamp0 + timedelta(milliseconds=ts+offset)
+    else:
+        result = None
+    return result
+
+def makeDateRange(tsFrom, tsTo, offset=0):
+    start = makeDateTime(tsFrom, offset=offset)
+    end = makeDateTime(tsTo, offset=offset)
+    if start is not None and end is not None and end < start:
+        start = None
+        end = None
+    if start is None:
+        end = None
+
+    return start, end
+
+def makeGeo(longitude, latitude):
+    if longitude is None or latitude is None:
+        return None
+    return 'POINT({0:f} {1:f})'.format(lon, lat)
+
 
 def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                     skillextractor):
@@ -44,130 +73,51 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         q = q.filter(LIProfile.id < toid)
 
     def addLIProfile(liprofile):
-        if liprofile.name:
-            name = liprofile.name
-        elif liprofile.firstName and liprofile.lastName:
-            name = ' '.join([liprofile.firstName, liprofile.lastName])
-        elif liprofile.lastName:
-            name = liprofile.lastName
-        elif liprofile.firstName:
-            name = liprofile.firstName
-        else:
-            return
+        profiledict = dictFromRow(liprofile)
+        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict['indexedOn'] \
+            = makeDateTime(profiledict.pop('indexedOn', None))
+        profiledict['crawledOn'] \
+            = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['location'] \
+            = makeLocation(profiledict.pop('city', None),
+                           profiledict.pop('country', None))
+        profiledict['url'] = profiledict.pop('profileUrl', None)
+        profiledict['pictureUrl'] = profiledict.pop('profilePictureUrl', None)
 
-        if liprofile.city and liprofile.country:
-            location = ', '.join([liprofile.city, liprofile.country])
-        elif liprofile.country:
-            location = liprofile.country
-        elif liprofile.city:
-            location = liprofile.city
-        else:
-            location = None
-
-        if liprofile.indexedOn:
-            indexedOn = timestamp0 + timedelta(milliseconds=liprofile.indexedOn)
-        else:
-            indexedOn = None
-
-        if liprofile.crawledDate:
-            crawledOn = timestamp0 \
-                        + timedelta(milliseconds=liprofile.crawledDate)
-        else:
-            crawledOn = None
-
-        connections = liprofile.connections
+        connections = profiledict.pop('connections', None)
         if connections is not None:
             connections = connectionspatt.match(connections)
         if connections is not None:
             connections = int(connections.group(1))
+        profiledict['connections'] = connections
 
-        skills = []
-        if liprofile.categories:
-            skills = [s for s in liprofile.categories \
-                      if not skillbuttonpatt.match(s)]
+        skills = profiledict.pop('categories', [])
+        if not skills:
+            skills = []
+        skills = [s for s in skills if not skillbuttonpatt.match(s)]
+        profiledict['skills'] = skills
 
-        groups = []
-        if liprofile.groups:
-            groups = list(liprofile.groups)
-        
-        profiledict = {
-            'datoinId'    : liprofile.id,
-            'name'        : name,
-            'location'    : location,
-            'title'       : liprofile.title,
-            'description' : liprofile.description,
-            'sector'      : liprofile.sector,
-            'url'         : liprofile.profileUrl,
-            'pictureUrl'  : liprofile.profilePictureUrl,
-            'connections' : connections,
-            'indexedOn'   : indexedOn,
-            'crawledOn'   : crawledOn,
-            'experiences' : [],
-            'educations'  : [],
-            'skills'      : skills,
-            'groups'      : groups
-        }
+        if not profiledict['experiences']:
+            profiledict['experiences'] = []
+        for experiencedict in profiledict['experiences']:
+            experiencedict['title'] = experiencedict.pop('name', None)
+            experiencedict['location'] \
+                = makeLocation(experiencedict.pop('city', None),
+                               experiencedict.pop('country', None))
+            experiencedict['start'], experiencedict['end'] \
+                = makeDateRange(experiencedict.pop('dateFrom', None),
+                                experiencedict.pop('dateTo', None))
 
-        for liexperience in dtdb.query(LIExperience) \
-                              .filter(LIExperience.parentId == liprofile.id):
-            if liexperience.city and liexperience.country:
-                location = ', '.join([liexperience.city, liexperience.country])
-            elif liexperience.country:
-                location = liexperience.country
-            elif liexperience.city:
-                location = liexperience.city
-            else:
-                location = None
-
-            if liexperience.dateFrom:
-                start = timestamp0 + timedelta(milliseconds=liexperience.dateFrom)
-            else:
-                start = None
-            if start is not None and liexperience.dateTo:
-                end = timestamp0 + timedelta(milliseconds=liexperience.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            liexperiencedict = {
-                'datoinId'       : liexperience.id,
-                'title'          : liexperience.name,
-                'company'        : liexperience.company,
-                'location'       : location,
-                'start'          : start,
-                'end'            : end,
-                'description'    : liexperience.description,
-                }
-            profiledict['experiences'].append(liexperiencedict)
-
-        for lieducation in dtdb.query(LIEducation) \
-                             .filter(LIEducation.parentId == liprofile.id):
-            if lieducation.dateFrom:
-                start = timestamp0 \
-                        + timedelta(milliseconds=lieducation.dateFrom)
-            else:
-                start = None
-            if start is not None and lieducation.dateTo:
-                end = timestamp0 + timedelta(milliseconds=lieducation.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            lieducationdict = {
-                'datoinId'       : lieducation.id,
-                'institute'      : lieducation.institute,
-                'degree'         : lieducation.degree,
-                'subject'        : lieducation.area,
-                'start'          : start,
-                'end'            : end,
-                'description'    : lieducation.description,
-                }
-            profiledict['educations'].append(lieducationdict)
-
+        if not profiledict['educations']:
+            profiledict['educations'] = []
+        for educationdict in profiledict['educations']:
+            educationdict['institute'] = educationdict.pop('name', None)
+            educationdict['subject'] = educationdict.pop('area', None)
+            educationdict['start'], educationdict['end'] \
+                = makeDateRange(educationdict.pop('dateFrom', None),
+                                educationdict.pop('dateTo', None))
+            
         
         # determine language
 
@@ -197,7 +147,7 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         
         # add profile
         
-        cndb.addLIProfile(profiledict, now)
+        cndb.addLIProfile(profiledict)
 
     processDb(q, addLIProfile, cndb, logger=logger)
 
@@ -219,104 +169,47 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         q = q.filter(INProfile.id < toid)
 
     def addINProfile(inprofile):
-        if inprofile.name:
-            name = inprofile.name
-        elif inprofile.firstName or inprofile.lastName:
-            name = ' '.join(s for s in \
-                            [inprofile.firstName, inprofile.lastName] if s)
-        else:
-            return
+        profiledict = dictFromRow(inprofile)
+        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict['indexedOn'] \
+            = makeDateTime(profiledict.pop('indexedOn', None))
+        profiledict['crawledOn'] \
+            = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['updatedOn'] \
+            = makeDateTime(profiledict.pop('profileUpdatedDate', None))
+        profiledict['location'] \
+            = makeLocation(profiledict.pop('city', None),
+                           profiledict.pop('country', None))
+        profiledict['url'] = profiledict.pop('profileUrl', None)
+        profiledict['skills'] = []
 
-        if inprofile.city or inprofile.country:
-            location = ', '.join(s for s in \
-                                 [inprofile.city, inprofile.country] if s)
-        else:
-            location = None
+        if not profiledict['experiences']:
+            profiledict['experiences'] = []
+        for experiencedict in profiledict['experiences']:
+            experiencedict['title'] = experiencedict.pop('name', None)
+            experiencedict['location'] \
+                = makeLocation(experiencedict.pop('city', None),
+                               experiencedict.pop('country', None))
+            experiencedict['start'], experiencedict['end'] \
+                = makeDateRange(experiencedict.pop('dateFrom', None),
+                                experiencedict.pop('dateTo', None))
 
-        if inprofile.indexedOn:
-            indexedOn = timestamp0 + timedelta(milliseconds=inprofile.indexedOn)
-        else:
-            indexedOn = None
+        if not profiledict['educations']:
+            profiledict['educations'] = []
+        for educationdict in profiledict['educations']:
+            educationdict['institute'] = educationdict.pop('name', None)
+            educationdict['subject'] = educationdict.pop('area', None)
+            educationdict['start'], educationdict['end'] \
+                = makeDateRange(educationdict.pop('dateFrom', None),
+                                educationdict.pop('dateTo', None))
 
-        if inprofile.crawledDate:
-            crawledOn = timestamp0 \
-                        + timedelta(milliseconds=inprofile.crawledDate)
-        else:
-            crawledOn = None
+        if not profiledict['certifications']:
+            profiledict['certifications'] = []
+        for certificationdict in profiledict['certifications']:
+            certificationdict['start'], certificationdict['end'] \
+                = makeDateRange(certificationdict.pop('dateFrom', None),
+                                certificationdict.pop('dateTo', None))
             
-        profiledict = {
-            'datoinId'    : inprofile.id,
-            'name'        : name,
-            'location'    : location,
-            'title'       : inprofile.title,
-            'description' : inprofile.description,
-            'url'         : inprofile.profileUrl,
-            'skills'      : [],
-            'indexedOn'   : indexedOn,
-            'crawledOn'   : crawledOn,
-            'experiences' : [],
-            'educations'  : []
-        }
-
-        for inexperience in dtdb.query(INExperience) \
-                                .filter(INExperience.parentId == inprofile.id):
-            if inexperience.city or inexperience.country:
-                location = ', '.join(s for s in \
-                                     [inexperience.city, inexperience.country] \
-                                     if s)
-            else:
-                location = None
-
-            if inexperience.dateFrom:
-                start = timestamp0 + timedelta(milliseconds=inexperience.dateFrom)
-            else:
-                start = None
-            if start is not None and inexperience.dateTo:
-                end = timestamp0 + timedelta(milliseconds=inexperience.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            inexperiencedict = {
-                'datoinId'       : inexperience.id,
-                'title'          : inexperience.name,
-                'company'        : inexperience.company,
-                'location'       : location,
-                'start'          : start,
-                'end'            : end,
-                'description'    : inexperience.description,
-                'skills'         : []
-                }
-            profiledict['experiences'].append(inexperiencedict)
-
-        for ineducation in dtdb.query(INEducation) \
-                               .filter(INEducation.parentId == inprofile.id):
-            if ineducation.dateFrom:
-                start = timestamp0 \
-                        + timedelta(milliseconds=ineducation.dateFrom)
-            else:
-                start = None
-            if start is not None and ineducation.dateTo:
-                end = timestamp0 + timedelta(milliseconds=ineducation.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            ineducationdict = {
-                'datoinId'       : ineducation.id,
-                'institute'      : ineducation.institute,
-                'degree'         : ineducation.degree,
-                'subject'        : ineducation.area,
-                'start'          : start,
-                'end'            : end,
-                'description'    : ineducation.description,
-                }
-            profiledict['educations'].append(ineducationdict)
-
         
         # determine language
 
@@ -380,113 +273,41 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         q = q.filter(UWProfile.id < toid)
 
     def addUWProfile(uwprofile):
-        if uwprofile.name:
-            name = uwprofile.name
-        else:
-            name = ' '.join(s for s in \
-                            [uwprofile.firstName, uwprofile.lastName] if s)
-        if not name:
-            return
-
-        location = ', '.join(s for s in \
-                             [uwprofile.city, uwprofile.country] if s)
-        if not location:
-            location = None
-
-        if uwprofile.indexedOn:
-            indexedOn = timestamp0 + timedelta(milliseconds=uwprofile.indexedOn)
-        else:
-            indexedOn = None
-
-        if uwprofile.crawledDate:
-            crawledOn = timestamp0 \
-                        + timedelta(milliseconds=uwprofile.crawledDate)
-        else:
-            crawledOn = None
-
-        skills = []
-        if uwprofile.categories:
-            skills = [s for s in uwprofile.categories \
-                      if not skillbuttonpatt.match(s)]
-
-        profiledict = {
-            'datoinId'    : uwprofile.id,
-            'name'        : name,
-            'location'    : location,
-            'title'       : uwprofile.title,
-            'description' : uwprofile.description,
-            'url'         : uwprofile.profileUrl,
-            'pictureUrl'  : uwprofile.profilePictureUrl,
-            'indexedOn'   : indexedOn,
-            'crawledOn'   : crawledOn,
-            'experiences' : [],
-            'educations'  : [],
-            'skills'      : skills
-        }
-
-        for uwexperience in dtdb.query(UWExperience) \
-                              .filter(UWExperience.parentId == uwprofile.id):
-            location = ', '.join(s for s in \
-                                 [uwexperience.city, uwexperience.country] if s)
-            if not location:
-                location = None
-
-            if uwexperience.dateFrom:
-                start = timestamp0 \
-                        + timedelta(milliseconds=uwexperience.dateFrom)
-            else:
-                start = None
-            if start is not None and uwexperience.dateTo:
-                end = timestamp0 + timedelta(milliseconds=uwexperience.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            uwexperiencedict = {
-                'title'          : uwexperience.name,
-                'company'        : uwexperience.company,
-                'location'       : location,
-                'start'          : start,
-                'end'            : end,
-                'description'    : uwexperience.description,
-                }
-            profiledict['experiences'].append(uwexperiencedict)
-
-        for uweducation in dtdb.query(UWEducation) \
-                             .filter(UWEducation.parentId == uwprofile.id):
-            if uweducation.dateFrom:
-                start = timestamp0 \
-                        + timedelta(milliseconds=uweducation.dateFrom)
-            else:
-                start = None
-            if start is not None and uweducation.dateTo:
-                end = timestamp0 + timedelta(milliseconds=uweducation.dateTo)
-            else:
-                end = None
-            if start and end and start > end:
-                start = None
-                end = None
-
-            uweducationdict = {
-                'institute'      : uweducation.institute,
-                'degree'         : uweducation.degree,
-                'subject'        : uweducation.area,
-                'start'          : start,
-                'end'            : end,
-                'description'    : uweducation.description,
-                }
-            profiledict['educations'].append(uweducationdict)
-
+        profiledict = dictFromRow(uwprofile)
+        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict['indexedOn'] \
+            = makeDateTime(profiledict.pop('indexedOn', None))
+        profiledict['crawledOn'] \
+            = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['location'] \
+            = makeLocation(profiledict.pop('city', None),
+                           profiledict.pop('country', None))
+        profiledict['skills'] = profiledict.pop('categories', None)
         
-        # determine language
+        if not profiledict['experiences']:
+            profiledict['experiences'] = []
+        for experiencedict in profiledict['experiences']:
+            experiencedict['title'] = experiencedict.pop('name', None)
+            experiencedict['location'] \
+                = makeLocation(experiencedict.pop('city', None),
+                               experiencedict.pop('country', None))
+            experiencedict['start'], experiencedict['end'] \
+                = makeDateRange(experiencedict.pop('dateFrom', None),
+                                experiencedict.pop('dateTo', None))
 
+        if not profiledict['educations']:
+            profiledict['educations'] = []
+        for educationdict in profiledict['educations']:
+            educationdict['institute'] = educationdict.pop('name', None)
+            educationdict['subject'] = educationdict.pop('area', None)
+            educationdict['start'], educationdict['end'] \
+                = makeDateRange(educationdict.pop('dateFrom', None),
+                                educationdict.pop('dateTo', None))
+                            
+        # determine language
         profiledict['language'] = 'en'
         
-        
         # add profile
-        
         cndb.addUWProfile(profiledict, now)
 
     processDb(q, addUWProfile, cndb, logger=logger)
@@ -509,59 +330,50 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         q = q.filter(MUProfile.id < toid)
 
     def addMUProfile(muprofile):
-        name = muprofile.name
-        if not name:
-            return
-
-        location = ', '.join(s for s in [muprofile.city, muprofile.country] \
-                             if s)
-        if not location:
-            location = None
-
-        if muprofile.indexedOn:
-            indexedOn = timestamp0 + timedelta(milliseconds=muprofile.indexedOn)
-        else:
-            indexedOn = None
-
-        if muprofile.crawledDate:
-            crawledOn = timestamp0 \
-                        + timedelta(milliseconds=muprofile.crawledDate)
-        else:
-            crawledOn = None
-
-        skills = []
-        if muprofile.categories:
-            skills = [s for s in muprofile.categories \
-                      if not skillbuttonpatt.match(s)]
-
-        links = []
-        if muprofile.links:
-            links = [{'type' : l.type, 'url' : l.url} for l in muprofile.links]
-
-        profiledict = {
-            'datoinId'        : muprofile.id,
-            'name'            : name,
-            'location'        : location,
-            'status'          : muprofile.status,
-            'description'     : muprofile.description,
-            'url'             : muprofile.profileUrl,
-            'pictureId'       : muprofile.profilePictureId,
-            'pictureUrl'      : muprofile.profilePictureUrl,
-            'hqPictureUrl'    : muprofile.profileHQPictureUrl,
-            'thumbPictureUrl' : muprofile.profileThumbPictureUrl,
-            'indexedOn'       : indexedOn,
-            'crawledOn'       : crawledOn,
-            'skills'          : skills,
-            'links'           : links
-        }
-
-        # determine language
-            
-        profiledict['language'] = 'en'
+        profiledict = dictFromRow(muprofile)
+        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict['indexedOn'] \
+            = makeDateTime(profiledict.pop('indexedOn', None))
+        profiledict['crawledOn'] \
+            = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['pictureId'] \
+            = profiledict.pop('profilePictureId', None)
+        profiledict['pictureUrl'] \
+            = profiledict.pop('profilePictureUrl', None)
+        profiledict['hqPictureUrl'] \
+            = profiledict.pop('profileHQPictureUrl', None)
+        profiledict['thumbPictureUrl'] \
+            = profiledict.pop('profileThumbPictureUrl', None)
+        profiledict['geo'] = makeGeo(profiledict.pop('longitude', None),
+                                     profiledict.pop('latitude', None))
         
+        if not profiledict['groups']:
+            profiledict['groups'] = []
+        for groupdict in profiledict['groups']:
+            groupdict['createdOn'] \
+                = makeDateTime(groupdict.pop('createdDate', None))
+            groupdict['hqPictureUrl'] = groupdict.pop('HQPictureUrl', None)
+            groupdict['geo'] = makeGeo(groupdict.pop('longitude', None),
+                                       groupdict.pop('latitude', None))
+
+        if not profiledict['events']:
+            profiledict['events'] = []
+        for eventdict in profiledict['events']:
+            eventdict['createdOn'] \
+                = makeDateTime(eventdict.pop('createdDate', None))
+            eventdict['geo'] = makeGeo(eventdict.pop('longitude', None),
+                                       eventdict.pop('latitude', None))
+
+        if not profiledict['events']:
+            profiledict['events'] = []
+        for eventdict in profiledict['events']:
+            eventdict['createdOn'] \
+                = makeDateTime(eventdict.pop('createdDate', None))
+                        
+        # determine language
+        profiledict['language'] = 'en'        
         
         # add profile
-        
         cndb.addMUProfile(profiledict, now)
 
     processDb(q, addMUProfile, cndb, logger=logger)
@@ -585,70 +397,32 @@ def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         q = q.filter(GHProfile.id < toid)
 
     def addGHProfile(ghprofile):
-        name = ghprofile.name
-        if not name:
-            name = None
+        profiledict = dictFromRow(ghprofile)
+        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict['indexedOn'] \
+            = makeDateTime(profiledict.pop('indexedOn', None))
+        profiledict['crawledOn'] \
+            = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['createdOn'] \
+            = makeDateTime(profiledict.pop('createdDate', None))
+        profiledict['location'] \
+            = makeLocation(profiledict.pop('city', None),
+                           profiledict.pop('country', None))
+        profiledict['url'] = profiledict.pop('profileUrl', None)
+        profiledict['pictureUrl'] = profiledict.pop('profilePictureUrl', None)
 
-        location = ', '.join(s for s in [ghprofile.city, ghprofile.country] \
-                             if s)
-        if not location:
-            location = None
-
-        if ghprofile.indexedOn:
-            indexedOn = timestamp0 + timedelta(milliseconds=ghprofile.indexedOn)
-        else:
-            indexedOn = None
-
-        if ghprofile.crawledDate:
-            crawledOn = timestamp0 \
-                        + timedelta(milliseconds=ghprofile.crawledDate)
-        else:
-            crawledOn = None
-
-        if ghprofile.createdDate:
-            createdDate = timestamp0 \
-                          + timedelta(milliseconds=ghprofile.createdDate)
-        else:
-            createdDate = None
+        if not profiledict['groups']:
+            profiledict['groups'] = []
+        for groupdict in profiledict['groups']:
+            groupdict['createdOn'] \
+                = makeDateTime(groupdict.pop('createdDate', None))
+            groupdict['pushedOn'] \
+                = makeDateTime(groupdict.pop('pushedDate', None))
             
-        links = [{'type' : l.type, 'url' : l.url} for l in ghprofile.links]
-
-        repositories = []
-        for repo in ghprofile.repositories:
-            repodict = dictFromRow(repo)
-            repodict.pop('id')
-            repodict.pop('parentId')
-            repositories.append(repodict)
-
-        profiledict = {
-            'datoinId'           : ghprofile.id,
-            'name'               : name,
-            'location'           : location,
-            'company'            : ghprofile.company,
-            'createdDate'        : createdDate,
-            'url'                : ghprofile.profileUrl,
-            'pictureUrl'         : ghprofile.profilePictureUrl,
-            'login'              : ghprofile.login,
-            'email'              : ghprofile.email,
-            'contributionsCount' : ghprofile.contributionsCount,
-            'followersCount'     : ghprofile.followersCount,
-            'followingCount'     : ghprofile.followingCount,
-            'publicRepoCount'    : ghprofile.publicRepoCount,
-            'publicGistCount'    : ghprofile.publicGistCount,
-            'indexedOn'          : indexedOn,
-            'crawledOn'          : crawledOn,
-            'links'              : links,
-            'repositories'       : repositories
-            
-        }
-
-        # determine language
-            
+        # determine language            
         profiledict['language'] = 'en'
-        
-        
-        # add profile
-        
+
+        # add profile        
         cndb.addGHProfile(profiledict, now)
 
     processDb(q, addGHProfile, cndb, logger=logger)

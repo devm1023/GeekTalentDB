@@ -351,6 +351,8 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
              ('name',        str,   True),
              ('country',     str,   False),
              ('city',        str,   False),
+             ('latitude',    float, False),
+             ('longitude',   float, False),
              ('status',      str,   False),
              ('description', str,   False),
              ('profileUrl',  'url', False),

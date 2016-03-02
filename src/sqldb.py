@@ -40,10 +40,9 @@ class SQLDatabase:
     def create_all(self):
         self.metadata.create_all(self.session.bind)
 
-    def addFromDict(self, d, table, update=True):
+    def addFromDict(self, d, table, update=True, flush=False):
         if d is None:
             return None
-        d = deepcopy(d)
         pkeycols, pkey = _getPkey(d, table)
         if pkey is not None and None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
@@ -61,10 +60,35 @@ class SQLDatabase:
                 self.add(row)
             else:
                 updateRowFromDict(row, d)
-
+                
+        if flush:
+            self.flush()
+            _updateIds(d, row)
         return row
 
-
+def _updateIds(d, row, fkeynames=[]):
+    mapper = inspect(type(row))
+    pkeycols = mapper.primary_key
+    for c in pkeycols:
+        d[c.key] = getattr(row, c.key)
+    for k in fkeynames:
+        d[k] = getattr(row, k)
+    for relation in mapper.relationships:
+        if relation.key not in d:
+            continue
+        fkeynames = []
+        for l, r in relation.local_remote_pairs:
+            fkeynames.append(r.key)
+            d[l.key] = getattr(row, l.key)
+        subdicts = d[relation.key]
+        subrows = getattr(row, relation.key)
+        if isinstance(subdicts, list):
+            subdicts = [s for s in subdicts if s is not None]
+            for subdict, subrow in zip(subdicts, subrows):
+                _updateIds(subdict, subrow, fkeynames)
+        else:
+            _updateIds(subdicts, subrows, fkeynames)
+    
 def _getPkey(d, table):
     pkeycols = inspect(table).primary_key
     pkeynames = [c.key for c in pkeycols]
@@ -142,7 +166,7 @@ def _mergeLists(rows, dicts, rowtype):
             continue
         nipkey = tuple(d.get(k, None) for k in nipkeynames)
         if nipkey in keymap:
-            row = keymap[nipkey].pop()
+            row = keymap[nipkey].pop(0)
             for aipkey in aipkeynames:
                 if d.get(aipkey, None) is None:
                     d[aipkey] = getattr(row, aipkey)
