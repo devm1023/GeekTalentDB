@@ -3,7 +3,8 @@ import nltk.corpus
 import unicodedata
 import re
 
-_stopwords_en = set(nltk.corpus.stopwords.words('english'))
+_stopwords_en = set(nltk.corpus.stopwords.words('english')) \
+                - set(['it', 's', 't', 'can', 'do'])
 _stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
 
 _stemmer_en = nltk.stem.snowball.SnowballStemmer('english')
@@ -14,7 +15,7 @@ _conf = {
         'stemmer' : _stemmer_en.stem,
 
         'skillStemmer' : _stemmer_en.stem,
-        'skillStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'skillStopwords' : _stopwords_en,
         'skillReplace' : [
             ('.net', ' dotnet'),
             ('c++', 'cplusplus'),
@@ -24,7 +25,7 @@ _conf = {
             ('co-ordin', 'coordin'),
             ],
         
-        'titleStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'titleStopwords' : _stopwords_en,
         'titleSeparators' : [
             ' at ',
             ' for ',
@@ -52,16 +53,16 @@ _conf = {
             ('co-ordin', 'coordin'),
         ],
 
-        'sectorStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'sectorStopwords' : _stopwords_en,
 
-        'companyStopwords' : (_stopwords_en - set(['it', 's', 't'])) | \
+        'companyStopwords' : _stopwords_en | \
             set(['limited', 'ltd', 'inc', 'plc', 'uk']),
 
         
         'instituteRegexReplace' : [
             (r'\bu\.', 'university'),
         ],
-        'instituteStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'instituteStopwords' : _stopwords_en,
 
         'degreeRegexReplace' : [
             (r'\b[0-9]+((st)|(nd)|(rd)|(th))?\b', ''),
@@ -74,12 +75,12 @@ _conf = {
             (r'\bm\.?\s*phil\b', 'master of philosophy'),
             (r'\bph\.?\s*d\b', 'doctor of philosophy'),
         ],
-        'degreeStopwords' : (_stopwords_en - set(['it', 's', 't', 'a', 'as'])) \
+        'degreeStopwords' : (_stopwords_en - set(['a', 'as'])) \
             | set(['degree', 'hons', 'honours', 'honors', 'first', 'class']),
         
-        'subjectStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'subjectStopwords' : _stopwords_en,
 
-        'groupStopwords' : _stopwords_en - set(['it', 's', 't']),
+        'groupStopwords' : _stopwords_en,
     },
 
     'nl' : {

@@ -7,9 +7,11 @@ __all__ = [
 ]
 
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.collections import bulk_replace
 from sqlalchemy.ext.declarative import declarative_base as sqlbase
 from sqlalchemy import create_engine, inspect
 from copy import deepcopy
+from pprint import pprint
 
 class SQLDatabase:
     def __init__(self, metadata, url=None, session=None, engine=None):
@@ -196,12 +198,12 @@ def updateRowFromDict(row, d):
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
-                collection[:] \
-                    = _mergeLists(getattr(row, relation.key), val, remotetype)
+                newcollection = _mergeLists(collection, val, remotetype)
+                setattr(row, relation.key, newcollection)
             elif val is not None:
                 setattr(row, relation.key, rowFromDict(val, remotetype))
             else:
                 setattr(row, relation.key, None)
-    
+
     return row
 

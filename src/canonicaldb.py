@@ -677,7 +677,8 @@ def _joinfields(*args):
 # LinkedIn
 
 def _makeLIExperience(liexperience, language):
-    liexperience = deepcopy(liexperience)
+    liexperience.pop('id', None)
+    liexperience.pop('liprofileId', None)
     liexperience['language']     = language
     liexperience['parsedTitle']  = parsedTitle(language, liexperience['title'])
     liexperience['nrmTitle']     = normalizedTitle(language,
@@ -697,7 +698,8 @@ def _makeLIExperience(liexperience, language):
     return liexperience
 
 def _makeLIEducation(lieducation, language):
-    lieducation = deepcopy(lieducation)
+    lieducation.pop('id', None)
+    lieducation.pop('liprofileId', None)
     lieducation['language']     = language
     lieducation['nrmInstitute'] = normalizedInstitute(language,
                                                       lieducation['institute'])
@@ -718,14 +720,15 @@ def _makeLIProfileSkill(skillname, language):
                 'nrmName'    : nrmName,
                 'reenforced' : False}
 
-def _makeLIGroup(groupname, language):
-    nrmName = normalizedGroup(language, groupname)
+def _makeLIGroup(group, language):
+    group.pop('id', None)
+    group.pop('liprofileId', None)
+    nrmName = normalizedGroup(language, group.get('name', None))
     if not nrmName:
         return None
-    else:
-        return {'language'   : language,
-                'name'       : groupname,
-                'nrmName'    : nrmName}
+    group['language'] = language
+    group['nrmName'] = nrmName
+    return group
     
 def _isCompany(language, name):
     if language != 'en':
@@ -734,6 +737,8 @@ def _isCompany(language, name):
     return ('limited' in tokens or 'ltd' in tokens)
     
 def _makeLIProfile(liprofile):
+    liprofile = deepcopy(liprofile)
+    
     # determine current company
     company = None
     currentexperiences = [e for e in liprofile['experiences'] \
@@ -801,7 +806,8 @@ def _makeLIProfile(liprofile):
 # Indeed
 
 def _makeINExperience(inexperience, language):
-    inexperience = deepcopy(inexperience)
+    inexperience.pop('id', None)
+    inexperience.pop('inprofileId', None)
     inexperience['language']     = language
     inexperience['parsedTitle']  = parsedTitle(language, inexperience['title'])
     inexperience['nrmTitle']     = normalizedTitle(language,
@@ -821,7 +827,8 @@ def _makeINExperience(inexperience, language):
     return inexperience
 
 def _makeINEducation(ineducation, language):
-    ineducation = deepcopy(ineducation)
+    ineducation.pop('id', None)
+    ineducation.pop('inprofileId', None)
     ineducation['language']       = language
     ineducation['nrmInstitute']   = normalizedInstitute(language,
                                                       ineducation['institute'])
@@ -844,6 +851,8 @@ def _makeINProfileSkill(skillname, language, reenforced):
                 'score'      : 1.0 if reenforced else 0.0}
 
 def _makeINProfile(inprofile):
+    inprofile = deepcopy(inprofile)
+    
     # determine current company
     company = None
     currentexperiences = [e for e in inprofile['experiences'] \
@@ -891,13 +900,18 @@ def _makeINProfile(inprofile):
         inprofile['lastEducationStart'] = max(startdates)
     else:
         inprofile['firstEducationStart'] = None
-        inprofile['lastEducationStart'] = None    
+        inprofile['lastEducationStart'] = None
+
+    # update certifications
+    for certification in inprofile['certifications']:
+        certification.pop('id', None)
+        certification.pop('inprofileId', None)
 
     # add skills
     profileskills = set(inprofile['skills'])
     allskills = set(inprofile['skills'])
     for inexperience in inprofile['experiences']:
-        allskills.update(inexperience['skills'])
+        allskills.update(inexperience.get('skills', []))
     inprofile['skills'] = []
     for skill in allskills:
         inprofile['skills'] \
@@ -911,6 +925,8 @@ def _makeINProfile(inprofile):
 
 def _makeUWExperience(uwexperience, language):
     uwexperience = deepcopy(uwexperience)
+    uwexperience.pop('id', None)
+    uwexperience.pop('uwprofileId', None)
     uwexperience['language']     = language
     uwexperience['parsedTitle']  = parsedTitle(language, uwexperience['title'])
     uwexperience['nrmTitle']     = normalizedTitle(language,
@@ -932,6 +948,8 @@ def _makeUWExperience(uwexperience, language):
 
 def _makeUWEducation(uweducation, language):
     uweducation = deepcopy(uweducation)
+    uweducation.pop('id', None)
+    uweducation.pop('uwprofileId', None)
     uweducation['language']     = language
     uweducation['nrmInstitute'] = normalizedInstitute(language,
                                                       uweducation['institute'])
@@ -1003,6 +1021,8 @@ def _makeUWProfile(uwprofile):
 # Meetup
 
 def _makeMUProfile(muprofile):
+    muprofile = deepcopy(muprofile)
+    
     # get profile language
     language = muprofile.get('language', None)
 
@@ -1010,11 +1030,28 @@ def _makeMUProfile(muprofile):
     muprofile['skills'] = [_makeMUProfileSkill(skill, language) \
                            for skill in muprofile['skills']]
 
-    # add group skills
+    # update groups
     for group in muprofile['groups']:
+        group.pop('id', None)
+        group.pop('muprofileId', None)
         group['skills'] = [_makeMUGroupSkill(skill, language) \
                            for skill in group['skills']]
 
+    # update events
+    for event in muprofile['events']:
+        event.pop('id', None)
+        event.pop('muprofileId', None)
+
+    # update comments
+    for comment in muprofile['comments']:
+        comment.pop('id', None)
+        comment.pop('muprofileId', None)
+
+    # update links
+    for link in muprofile['links']:
+        link.pop('id', None)
+        link.pop('muprofileId', None)
+        
     return muprofile
 
 def _makeMUProfileSkill(skillname, language):
@@ -1266,7 +1303,7 @@ class CanonicalDB(SQLDatabase):
         for inexperiencedict in inexperiences:
             inexperiencedict['inprofileId'] = inprofile.id
             skills = []
-            for skillname in inexperiencedict['skills']:
+            for skillname in inexperiencedict.get('skills', []):
                 skills.append({'skillId' : skillIds[skillname]})
                 scores[skillname] += 1.0
             inexperiencedict['skills'] = skills
@@ -1436,6 +1473,8 @@ class CanonicalDB(SQLDatabase):
                           .first()
         if muprofileId is not None:
             muprofile['id'] = muprofileId[0]
+        else:
+            muprofile.pop('id', None)
         muprofile = _makeMUProfile(muprofile)
         muprofile = self.addFromDict(muprofile, MUProfile)
         self.flush()

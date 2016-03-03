@@ -18,6 +18,7 @@ import argparse
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
 skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
+truncatedpatt = re.compile(r'.*\.\.\.')
 connectionspatt = re.compile(r'[^0-9]*([0-9]+)[^0-9]*')
 countryLanguages = {
     'United Kingdom' : 'en',
@@ -52,7 +53,13 @@ def makeDateRange(tsFrom, tsTo, offset=0):
 def makeGeo(longitude, latitude):
     if longitude is None or latitude is None:
         return None
-    return 'POINT({0:f} {1:f})'.format(lon, lat)
+    return 'POINT({0:f} {1:f})'.format(longitude, latitude)
+
+def makeList(val):
+    if not val:
+        return []
+    else:
+        return val
 
 
 def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
@@ -92,10 +99,9 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             connections = int(connections.group(1))
         profiledict['connections'] = connections
 
-        skills = profiledict.pop('categories', [])
-        if not skills:
-            skills = []
-        skills = [s for s in skills if not skillbuttonpatt.match(s)]
+        skills = makeList(profiledict.pop('categories', None))
+        skills = [s for s in skills if not skillbuttonpatt.match(s) \
+                  and not truncatedpatt.match(s)]
         profiledict['skills'] = skills
 
         if not profiledict['experiences']:
@@ -241,7 +247,9 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
 
         if skillextractor is not None and language == 'en':
             text = ' '.join(s for s in [profiledict['title'],
-                                        profiledict['description']] if s)
+                                        profiledict['description'],
+                                        profiledict['additionalInformation']] \
+                            if s)
             profiledict['skills'] = list(set(skillextractor(text)))
             for inexperience in profiledict['experiences']:
                 text = ' '.join(s for s in [inexperience['title'],
@@ -251,7 +259,7 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         
         # add profile
         
-        cndb.addINProfile(profiledict, now)
+        cndb.addINProfile(profiledict)
 
     processDb(q, addINProfile, cndb, logger=logger)
 
@@ -282,7 +290,8 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         profiledict['location'] \
             = makeLocation(profiledict.pop('city', None),
                            profiledict.pop('country', None))
-        profiledict['skills'] = profiledict.pop('categories', None)
+        profiledict['url'] = profiledict.pop('profileUrl', None)
+        profiledict['skills'] = makeList(profiledict.pop('categories', None))
         
         if not profiledict['experiences']:
             profiledict['experiences'] = []
@@ -308,7 +317,7 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         profiledict['language'] = 'en'
         
         # add profile
-        cndb.addUWProfile(profiledict, now)
+        cndb.addUWProfile(profiledict)
 
     processDb(q, addUWProfile, cndb, logger=logger)
 
@@ -346,6 +355,7 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             = profiledict.pop('profileThumbPictureUrl', None)
         profiledict['geo'] = makeGeo(profiledict.pop('longitude', None),
                                      profiledict.pop('latitude', None))
+        profiledict['skills'] = makeList(profiledict.pop('categories', None))
         
         if not profiledict['groups']:
             profiledict['groups'] = []
@@ -355,26 +365,29 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             groupdict['hqPictureUrl'] = groupdict.pop('HQPictureUrl', None)
             groupdict['geo'] = makeGeo(groupdict.pop('longitude', None),
                                        groupdict.pop('latitude', None))
+            groupdict['skills'] = makeList(groupdict.pop('categories', None))
 
         if not profiledict['events']:
             profiledict['events'] = []
         for eventdict in profiledict['events']:
             eventdict['createdOn'] \
                 = makeDateTime(eventdict.pop('createdDate', None))
+            eventdict['time'] = makeDateTime(eventdict.get('time', None))
             eventdict['geo'] = makeGeo(eventdict.pop('longitude', None),
                                        eventdict.pop('latitude', None))
 
-        if not profiledict['events']:
-            profiledict['events'] = []
-        for eventdict in profiledict['events']:
-            eventdict['createdOn'] \
-                = makeDateTime(eventdict.pop('createdDate', None))
+        profiledict['comments'] = profiledict.pop('comments', None)
+        if not profiledict['comments']:
+            profiledict['comments'] = []
+        for commentdict in profiledict['comments']:
+            commentdict['createdOn'] \
+                = makeDateTime(commentdict.pop('createdDate', None))
                         
         # determine language
         profiledict['language'] = 'en'        
         
         # add profile
-        cndb.addMUProfile(profiledict, now)
+        cndb.addMUProfile(profiledict)
 
     processDb(q, addMUProfile, cndb, logger=logger)
 
@@ -411,19 +424,19 @@ def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         profiledict['url'] = profiledict.pop('profileUrl', None)
         profiledict['pictureUrl'] = profiledict.pop('profilePictureUrl', None)
 
-        if not profiledict['groups']:
-            profiledict['groups'] = []
-        for groupdict in profiledict['groups']:
-            groupdict['createdOn'] \
-                = makeDateTime(groupdict.pop('createdDate', None))
-            groupdict['pushedOn'] \
-                = makeDateTime(groupdict.pop('pushedDate', None))
+        if not profiledict['repositories']:
+            profiledict['repositories'] = []
+        for repositorydict in profiledict['repositories']:
+            repositorydict['createdOn'] \
+                = makeDateTime(repositorydict.pop('createdDate', None))
+            repositorydict['pushedOn'] \
+                = makeDateTime(repositorydict.pop('pushedDate', None))
             
         # determine language            
         profiledict['language'] = 'en'
 
         # add profile        
-        cndb.addGHProfile(profiledict, now)
+        cndb.addGHProfile(profiledict)
 
     processDb(q, addGHProfile, cndb, logger=logger)
     
