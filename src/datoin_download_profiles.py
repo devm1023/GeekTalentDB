@@ -106,7 +106,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
              ('connections', str,   False),
              ('categories',  [str], False),
              ('indexedOn',   int,   True),
-             ('crawledDate', int,   True),
+             ('crawledDate', int,   False),
             ]:
             liprofile[name] = getField(liprofiledoc, name, fieldtype,
                                        required=required)
