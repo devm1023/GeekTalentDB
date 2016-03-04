@@ -26,6 +26,14 @@ countryLanguages = {
     'Nederland'      : 'nl',
 }
 
+def makeName(name, firstName, lastName):
+    if name:
+        return name
+    name = ' '.join(s for s in [firstName, lastName] if s)
+    if not name:
+        return None
+    return name
+
 def makeLocation(city, country):
     location = ', '.join(s for s in [city, country] if s)
     if not location:
@@ -86,6 +94,9 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
             = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['name'] = makeName(profiledict.get('name', None),
+                                       profiledict.get('firstName', None),
+                                       profiledict.get('lastName', None))
         profiledict['location'] \
             = makeLocation(profiledict.pop('city', None),
                            profiledict.pop('country', None))
@@ -181,6 +192,9 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
             = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['name'] = makeName(profiledict.get('name', None),
+                                       profiledict.get('firstName', None),
+                                       profiledict.get('lastName', None))
         profiledict['updatedOn'] \
             = makeDateTime(profiledict.pop('profileUpdatedDate', None))
         profiledict['location'] \
@@ -287,6 +301,9 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
             = makeDateTime(profiledict.pop('crawledDate', None))
+        profiledict['name'] = makeName(profiledict.get('name', None),
+                                       profiledict.get('firstName', None),
+                                       profiledict.get('lastName', None))
         profiledict['location'] \
             = makeLocation(profiledict.pop('city', None),
                            profiledict.pop('country', None))

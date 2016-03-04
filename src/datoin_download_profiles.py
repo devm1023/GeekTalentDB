@@ -93,7 +93,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         liprofile = {}
         for name, fieldtype, required in \
             [('id',          str,   True),
-             ('name',        str,   True),
+             ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
              ('country',     str,   False),
@@ -179,7 +179,7 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         inprofile = {}
         for name, fieldtype, required in \
             [('id',          str,   True),
-             ('name',        str,   True),
+             ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
              ('country',     str,   False),
@@ -265,7 +265,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         uwprofile = {}
         for name, fieldtype, required in \
             [('id',          str,   True),
-             ('name',        str,   True),
+             ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
              ('country',     str,   False),
@@ -348,7 +348,7 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
         muprofile = {}
         for name, fieldtype, required in \
             [('id',          str,   True),
-             ('name',        str,   True),
+             ('name',        str,   False),
              ('country',     str,   False),
              ('city',        str,   False),
              ('latitude',    float, False),

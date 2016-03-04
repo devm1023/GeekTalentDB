@@ -84,6 +84,7 @@ class LIProfile(SQLBase):
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     connections       = Column(Integer)
+    textLength        = Column(Integer)
     firstExperienceStart = Column(DateTime)
     lastExperienceStart  = Column(DateTime)
     firstEducationStart  = Column(DateTime)
@@ -202,6 +203,7 @@ class INProfile(SQLBase):
     nrmCompany        = Column(Unicode(STR_MAX), index=True)
     description       = Column(Unicode(STR_MAX))
     additionalInformation = Column(Unicode(STR_MAX))
+    textLength        = Column(Integer)
     firstExperienceStart = Column(DateTime)
     lastExperienceStart  = Column(DateTime)
     firstEducationStart  = Column(DateTime)
@@ -318,6 +320,7 @@ class UWProfile(SQLBase):
     nrmTitle          = Column(Unicode(STR_MAX), index=True)
     titlePrefix       = Column(Unicode(STR_MAX))
     description       = Column(Unicode(STR_MAX))
+    textLength        = Column(Integer)
     firstExperienceStart = Column(DateTime)
     lastExperienceStart  = Column(DateTime)
     firstEducationStart  = Column(DateTime)
@@ -673,6 +676,30 @@ class Location(SQLBase):
 def _joinfields(*args):
     return ' '.join([a for a in args if a])
 
+def _getLength(d, *fields):
+    if not d:
+        return 0
+    count = 0
+    for field in fields:
+        if isinstance(field, list):
+            if len(field) == 1:
+                field = field[0]
+            elif len(field) == 0:
+                continue
+            elif d.get(field[0], None):
+                for subd in d[field[0]]:
+                    count += _getLength(subd, field[1:])
+                continue
+        if isinstance(field, str):
+            text = d.get(field, None)
+            if text is None:
+                continue
+            if not isinstance(text, str):
+                raise ValueError('Field `{0:s}` of type {1:s} (must be str).' \
+                                 .format(field, repr(type(text))))
+            count += len(text)
+    return count
+            
 
 # LinkedIn
 
@@ -800,6 +827,12 @@ def _makeLIProfile(liprofile):
     liprofile['groups'] = [_makeLIGroup(group, language) \
                            for group in liprofile['groups']]
 
+    # determine text length
+    liprofile['textLength'] = _getLength(liprofile, 'title', 'description',
+                                         ['experiences', 'title'],
+                                         ['experiences', 'description'],
+                                         ['skills', 'name'])
+
     return liprofile
 
 
@@ -918,6 +951,13 @@ def _makeINProfile(inprofile):
             .append(_makeINProfileSkill(skill, language,
                                         skill in profileskills))
 
+    # determine text length
+    inprofile['textLength'] = _getLength(inprofile, 'title', 'description',
+                                         'additionalInformation',
+                                         ['experiences', 'title'],
+                                         ['experiences', 'description'],
+                                         ['skills', 'name'])
+        
     return inprofile
 
 
@@ -1015,6 +1055,12 @@ def _makeUWProfile(uwprofile):
     uwprofile['skills'] = [_makeUWProfileSkill(skill, language) \
                            for skill in uwprofile['skills']]
 
+    # determine text length
+    inprofile['textLength'] = _getLength(inprofile, 'title', 'description',
+                                         ['experiences', 'title'],
+                                         ['experiences', 'description'],
+                                         ['skills', 'name'])
+    
     return uwprofile
 
 
