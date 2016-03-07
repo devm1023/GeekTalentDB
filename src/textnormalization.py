@@ -265,12 +265,12 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
         return ' '.join(s)
 
 
-def makeNrmName(language, name):
-    return ':'.join([language, name])
+def makeNrmName(tpe, source, language, name):
+    return ':'.join([tpe, source, language, name])
 
 def splitNrmName(nrmName):
     splitname = nrmName.split(':')
-    if len(splitname) != 2:
+    if len(splitname) != 4:
         raise ValueError('Invalid normalized name.')
     return tuple(splitname)
 
@@ -290,7 +290,7 @@ def tokenizedSkill(language, name, removebrackets=False):
                  replace=conf['skillReplace'],
                  stem=conf['skillStemmer'])
 
-def normalizedSkill(language, name):
+def normalizedSkill(source, language, name):
     """Normalize a string describing a skill.
 
     """
@@ -298,7 +298,7 @@ def normalizedSkill(language, name):
     if not tokens:
         return None
     nname = ' '.join(tokens)
-    return makeNrmName(language, nname)
+    return makeNrmName('skill', source, language, nname)
 
 def parsedTitle(language, name):
     """Extract the job title from a LinkedIn profile or experience title.
@@ -351,7 +351,7 @@ def _splitTitle(language, words):
         prefix = None
     return prefix, main
 
-def normalizedTitle(language, name):
+def normalizedTitle(source, language, name):
     """Normalize a string describing a job title.
 
     """
@@ -373,7 +373,7 @@ def normalizedTitle(language, name):
                   stopwords=conf['titleStopwords'],
                   replace=conf['titleReplace'],
                   stem=conf['stemmer'])
-    return makeNrmName(language, title)
+    return makeNrmName('title', source, language, title)
 
 def normalizedTitlePrefix(language, name):
     nname = parsedTitle(language, name)
@@ -399,9 +399,9 @@ def normalizedSector(name):
                   stem=conf['stemmer'])
     if not nname:
         return None
-    return nname
+    return makeNrmName('sector', 'linkedin', 'en', nname)
 
-def normalizedCompany(language, name):
+def normalizedCompany(source, language, name):
     """Normalize a string describing a company.
 
     """
@@ -424,7 +424,7 @@ def normalizedCompany(language, name):
     nname = clean(nname, keep='&')
     if not nname:
         return None
-    return makeNrmName(language, nname)
+    return makeNrmName('company', source, language, nname)
 
 def normalizedLocation(name):
     """Normalize a string describing a location.
@@ -439,7 +439,7 @@ def normalizedLocation(name):
         return None
     return nname
 
-def normalizedInstitute(language, name):
+def normalizedInstitute(source, language, name):
     """Normalize a string describing an educational institute.
 
     """
@@ -459,9 +459,9 @@ def normalizedInstitute(language, name):
                   sort=True)
     if not nname:
         return None
-    return makeNrmName(language, nname)
+    return makeNrmName('institute', source, language, nname)
 
-def normalizedDegree(language, name):
+def normalizedDegree(source, language, name):
     """Normalize a string describing a degree.
 
     """
@@ -481,9 +481,9 @@ def normalizedDegree(language, name):
                   stem=conf['stemmer'])
     if not nname:
         return None
-    return makeNrmName(language, nname)
+    return makeNrmName('degree', source, language, nname)
 
-def normalizedSubject(language, name):
+def normalizedSubject(source, language, name):
     if not name:
         return None
     if language not in _conf:
@@ -499,20 +499,5 @@ def normalizedSubject(language, name):
                   stem=conf['stemmer'])
     if not nname:
         return None
-    return makeNrmName(language, nname)
+    return makeNrmName('subject', source, language, nname)
 
-def normalizedGroup(language, name):
-    if not name:
-        return None
-    if language not in _conf:
-        raise ValueError('Invalid language: '+repr(language))
-    conf = _conf[language]
-
-    nname = clean(name,
-                  nospace='\'’.',
-                  lowercase=True,
-                  stopwords=conf['groupStopwords'],
-                  stem=conf['stemmer'])
-    if not nname:
-        return None
-    return makeNrmName(language, nname)

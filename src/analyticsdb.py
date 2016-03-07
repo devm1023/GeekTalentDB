@@ -9,24 +9,12 @@ __all__ = [
     'INEducation',
     'INProfileSkill',
     'INExperienceSkill',
-    'Skill',
-    'SkillWord',
-    'Title',
-    'TitleWord',
-    'Sector',
-    'Company',
-    'CompanyWord',
+    'Entity',
+    'Word',
+    'EntityEntity',
     'Location',
     'Postcode',
     'PostcodeWord',
-    'Institute',
-    'Degree',
-    'Subject',
-    'Word',
-    'TitleSkill',
-    'CompanySkill',
-    'SkillSkill',
-    'CareerStep',
     'AnalyticsDB',
     'skillScore',
     ]
@@ -59,6 +47,9 @@ STR_MAX = 100000
 
 SQLBase = sqlbase()
 
+
+# LinkedIn
+
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
@@ -68,36 +59,36 @@ class LIProfile(SQLBase):
     placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
     rawTitle          = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX),
-                               ForeignKey('title.nrmName'),
-                               nullable=True,
+                               ForeignKey('entity.nrmName'),
                                index=True)
     titlePrefix       = Column(Unicode(STR_MAX))
     rawSector         = Column(Unicode(STR_MAX))
     nrmSector         = Column(Unicode(STR_MAX),
-                               ForeignKey('sector.nrmName'),
-                               nullable=True,
+                               ForeignKey('entity.nrmName'),
                                index=True)
     rawCompany        = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX),
-                               ForeignKey('company.nrmName'),
-                               nullable=True,
+                               ForeignKey('entity.nrmName'),
                                index=True)
     description       = Column(Unicode(STR_MAX))
     connections       = Column(Integer)
-    firstExperienceStart = Column(Date)
-    lastExperienceStart  = Column(Date)
-    lastExperienceEnd    = Column(Date)
-    firstEducationStart  = Column(Date)
-    lastEducationStart   = Column(Date)
-    lastEducationEnd     = Column(Date)
+    firstExperienceStart = Column(DateTime)
+    lastExperienceStart  = Column(DateTime)
+    lastExperienceEnd    = Column(DateTime)
+    firstEducationStart  = Column(DateTime)
+    lastEducationStart   = Column(DateTime)
+    lastEducationEnd     = Column(DateTime)
     url               = Column(String(STR_MAX))
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
 
-    title = relationship('Title')
-    sector = relationship('Sector')
-    company = relationship('Company')
+    title = relationship('Entity',
+                         primaryjoin='LIProfile.nrmTitle==Entity.nrmName')
+    sector = relationship('Entity',
+                          primaryjoin='LIProfile.nrmSector==Entity.nrmName')
+    company = relationship('Entity',
+                           primaryjoin='LIProfile.nrmCompany==Entity.nrmName')
     location = relationship('Location')
     skills = relationship('LIProfileSkill',
                           order_by='LIProfileSkill.nrmName',
@@ -121,22 +112,24 @@ class LIExperience(SQLBase):
     language       = Column(String(20))
     rawTitle       = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX),
-                            ForeignKey('title.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     titlePrefix    = Column(Unicode(STR_MAX))
     rawCompany     = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX),
-                            ForeignKey('company.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     placeId        = Column(String(STR_MAX), ForeignKey('location.placeId'))
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-    title = relationship('Title')
-    company = relationship('Company')
+    title = relationship('Entity',
+                         primaryjoin='LIExperience.nrmTitle==Entity.nrmName')
+    company = relationship('Entity',
+                         primaryjoin='LIExperience.nrmCompany==Entity.nrmName')
     skills = relationship('LIExperienceSkill',
                           order_by='LIExperienceSkill.nrmSkill',
                           cascade='all, delete-orphan')
@@ -151,25 +144,28 @@ class LIEducation(SQLBase):
     language       = Column(String(20))
     rawInstitute   = Column(Unicode(STR_MAX))
     nrmInstitute   = Column(Unicode(STR_MAX),
-                            ForeignKey('institute.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     rawdegree      = Column(Unicode(STR_MAX))
     nrmDegree      = Column(Unicode(STR_MAX),
-                            ForeignKey('degree.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     rawsubject     = Column(Unicode(STR_MAX))
     nrmSubject     = Column(Unicode(STR_MAX),
-                            ForeignKey('subject.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-    institute = relationship('Institute')
-    degree = relationship('Degree')
-    subject = relationship('Subject')
-    
+    institute \
+        = relationship('Entity',
+                       primaryjoin='LIEducation.nrmInstitute==Entity.nrmName')
+    degree = relationship('Entity',
+                          primaryjoin='LIEducation.nrmDegree==Entity.nrmName')
+    subject = relationship('Entity',
+                           primaryjoin='LIEducation.nrmSubject==Entity.nrmName')
     
 class LIProfileSkill(SQLBase):
     __tablename__ = 'liprofile_skill'
@@ -179,13 +175,13 @@ class LIProfileSkill(SQLBase):
                          index=True,
                          autoincrement=False)
     nrmName     = Column(Unicode(STR_MAX),
-                         ForeignKey('skill.nrmName'),
+                         ForeignKey('entity.nrmName'),
                          primary_key=True,
                          index=True,
                          autoincrement=False)
     reenforced  = Column(Boolean)
 
-    skill = relationship('Skill')
+    skill = relationship('Entity')
 
 class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
@@ -195,13 +191,16 @@ class LIExperienceSkill(SQLBase):
                             index=True,
                             autoincrement=False)
     nrmSkill     = Column(Unicode(STR_MAX),
-                          ForeignKey('skill.nrmName'),
+                          ForeignKey('entity.nrmName'),
                           primary_key=True,
                           index=True,
                           autoincrement=False)
     
-    skill = relationship('Skill')
+    skill = relationship('Entity')
 
+
+# Indeed
+    
 class INProfile(SQLBase):
     __tablename__ = 'inprofile'
     id                = Column(BigInteger, primary_key=True)
@@ -211,28 +210,30 @@ class INProfile(SQLBase):
     placeId           = Column(String(STR_MAX), ForeignKey('location.placeId'))
     rawTitle          = Column(Unicode(STR_MAX))
     nrmTitle          = Column(Unicode(STR_MAX),
-                               ForeignKey('title.nrmName'),
+                               ForeignKey('entity.nrmName'),
                                nullable=True,
                                index=True)
     titlePrefix       = Column(Unicode(STR_MAX))
     rawCompany        = Column(Unicode(STR_MAX))
     nrmCompany        = Column(Unicode(STR_MAX),
-                               ForeignKey('company.nrmName'),
+                               ForeignKey('entity.nrmName'),
                                nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
-    firstExperienceStart = Column(Date)
-    lastExperienceStart  = Column(Date)
-    lastExperienceEnd    = Column(Date)
-    firstEducationStart  = Column(Date)
-    lastEducationStart   = Column(Date)
-    lastEducationEnd     = Column(Date)
+    firstExperienceStart = Column(DateTime)
+    lastExperienceStart  = Column(DateTime)
+    lastExperienceEnd    = Column(DateTime)
+    firstEducationStart  = Column(DateTime)
+    lastEducationStart   = Column(DateTime)
+    lastEducationEnd     = Column(DateTime)
     url               = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
 
-    title = relationship('Title')
-    company = relationship('Company')
+    title = relationship('Entity',
+                         primaryjoin='INProfile.nrmTitle==Entity.nrmName')
+    company = relationship('Entity',
+                           primaryjoin='INProfile.nrmCompany==Entity.nrmName')
     location = relationship('Location')
     skills = relationship('INProfileSkill',
                           order_by='INProfileSkill.nrmName',
@@ -256,22 +257,24 @@ class INExperience(SQLBase):
     language       = Column(String(20))
     rawTitle       = Column(Unicode(STR_MAX))
     nrmTitle       = Column(Unicode(STR_MAX),
-                            ForeignKey('title.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     titlePrefix    = Column(Unicode(STR_MAX))
     rawCompany     = Column(Unicode(STR_MAX))
     nrmCompany     = Column(Unicode(STR_MAX),
-                            ForeignKey('company.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     placeId        = Column(String(STR_MAX), ForeignKey('location.placeId'))
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     duration       = Column(Integer)
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-    title = relationship('Title')
-    company = relationship('Company')
+    title = relationship('Entity',
+                         primaryjoin='INExperience.nrmTitle==Entity.nrmName')
+    company = relationship('Entity', primaryjoin \
+                           ='INExperience.nrmCompany==Entity.nrmName')
     skills = relationship('INExperienceSkill',
                           order_by='INExperienceSkill.nrmSkill',
                           cascade='all, delete-orphan')
@@ -286,24 +289,28 @@ class INEducation(SQLBase):
     language       = Column(String(20))
     rawInstitute   = Column(Unicode(STR_MAX))
     nrmInstitute   = Column(Unicode(STR_MAX),
-                            ForeignKey('institute.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     rawdegree      = Column(Unicode(STR_MAX))
     nrmDegree      = Column(Unicode(STR_MAX),
-                            ForeignKey('degree.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
     rawsubject     = Column(Unicode(STR_MAX))
     nrmSubject     = Column(Unicode(STR_MAX),
-                            ForeignKey('subject.nrmName'),
+                            ForeignKey('entity.nrmName'),
                             index=True)
-    start          = Column(Date)
-    end            = Column(Date)
+    start          = Column(DateTime)
+    end            = Column(DateTime)
     description    = Column(Unicode(STR_MAX))
     indexedOn      = Column(DateTime)
 
-    institute = relationship('Institute')
-    degree = relationship('Degree')
-    subject = relationship('Subject')
+    institute \
+        = relationship('Entity',
+                       primaryjoin='INEducation.nrmInstitute==Entity.nrmName')
+    degree = relationship('Entity',
+                          primaryjoin='INEducation.nrmDegree==Entity.nrmName')
+    subject = relationship('Entity',
+                           primaryjoin='INEducation.nrmSubject==Entity.nrmName')
     
 class INProfileSkill(SQLBase):
     __tablename__ = 'inprofile_skill'
@@ -313,13 +320,13 @@ class INProfileSkill(SQLBase):
                          index=True,
                          autoincrement=False)
     nrmName     = Column(Unicode(STR_MAX),
-                         ForeignKey('skill.nrmName'),
+                         ForeignKey('entity.nrmName'),
                          primary_key=True,
                          index=True,
                          autoincrement=False)
     reenforced  = Column(Boolean)
 
-    skill = relationship('Skill')
+    skill = relationship('Entity')
 
 class INExperienceSkill(SQLBase):
     __tablename__ = 'inexperience_skill'
@@ -329,99 +336,61 @@ class INExperienceSkill(SQLBase):
                             index=True,
                             autoincrement=False)
     nrmSkill     = Column(Unicode(STR_MAX),
-                          ForeignKey('skill.nrmName'),
+                          ForeignKey('entity.nrmName'),
                           primary_key=True,
                           index=True,
                           autoincrement=False)
     
-    skill = relationship('Skill')
+    skill = relationship('Entity')
+
+
+# entities
     
-class Skill(SQLBase):
-    __tablename__ = 'skill'
+class Entity(SQLBase):
+    __tablename__ = 'entity'
     nrmName           = Column(Unicode(STR_MAX),
                                primary_key=True,
                                autoincrement=False)
-    language          = Column(String(20))
+    type              = Column(String(20), index=True)
+    source            = Column(String(20), index=True)
+    language          = Column(String(20), index=True)
     name              = Column(Unicode(STR_MAX))
     profileCount      = Column(BigInteger)
-    experienceCount   = Column(BigInteger)
+    subDocumentCount  = Column(BigInteger)
 
-class SkillWord(SQLBase):
-    __tablename__ = 'skill_word'
-    language      = Column(String(20),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
+class Word(SQLBase):
+    __tablename__ = 'word'
     word          = Column(Unicode(STR_MAX),
                            index=True,
                            primary_key=True,
                            autoincrement=False)
     nrmName       = Column(Unicode(STR_MAX),
-                           ForeignKey('skill.nrmName'),
+                           ForeignKey('entity.nrmName'),
                            index=True,
                            primary_key=True,
                            autoincrement=False)
+    type          = Column(String(20), index=True)
+    source        = Column(String(20), index=True)
+    language      = Column(String(20), index=True)
 
-class Title(SQLBase):
-    __tablename__ = 'title'
-    nrmName   = Column(Unicode(STR_MAX),
-                       primary_key=True,
-                       autoincrement=False)
-    language  = Column(String(20))
-    name      = Column(Unicode(STR_MAX))
-    profileCount    = Column(BigInteger)
-    experienceCount = Column(BigInteger)
+class EntityEntity(SQLBase):
+    __tablename__ = 'entity_entity'
+    nrmName1           = Column(Unicode(STR_MAX),
+                                primary_key=True,
+                                autoincrement=False)
+    nrmName2           = Column(Unicode(STR_MAX),
+                                primary_key=True,
+                                autoincrement=False)
+    source            = Column(String(20), index=True)
+    language          = Column(String(20), index=True)
+    type1             = Column(String(20), index=True)
+    type2             = Column(String(20), index=True)
+    profileCount      = Column(BigInteger)
+    subDocumentCount  = Column(BigInteger)
 
-class TitleWord(SQLBase):
-    __tablename__ = 'title_word'
-    language      = Column(String(20),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
-    word          = Column(Unicode(STR_MAX),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
-    nrmName       = Column(Unicode(STR_MAX),
-                           ForeignKey('title.nrmName'),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
+
+# locations
     
-class Sector(SQLBase):
-    __tablename__ = 'sector'
-    nrmName   = Column(Unicode(STR_MAX),
-                       primary_key=True,
-                       autoincrement=False)
-    name      = Column(Unicode(STR_MAX))
-    liCount   = Column(BigInteger)
-
-class Company(SQLBase):
-    __tablename__ = 'company'
-    nrmName   = Column(Unicode(STR_MAX),
-                       primary_key=True,
-                       autoincrement=False)
-    language  = Column(String(20))
-    name      = Column(Unicode(STR_MAX))
-    profileCount    = Column(BigInteger)
-    experienceCount = Column(BigInteger)
-
-class CompanyWord(SQLBase):
-    __tablename__ = 'company_word'
-    language      = Column(String(20),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
-    word          = Column(Unicode(STR_MAX),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
-    nrmName       = Column(Unicode(STR_MAX),
-                           ForeignKey('company.nrmName'),
-                           index=True,
-                           primary_key=True,
-                           autoincrement=False)
-
 class Location(SQLBase):
     __tablename__ = 'location'
     placeId   = Column(String(STR_MAX),
@@ -452,113 +421,27 @@ class PostcodeWord(SQLBase):
                            index=True,
                            autoincrement=False)
     type          = Column(String(20))
-    country       = Column(Unicode(STR_MAX),
-                           index=True)
+    country       = Column(Unicode(STR_MAX))
 
-class Institute(SQLBase):
-    __tablename__ = 'institute'
-    nrmName         = Column(Unicode(STR_MAX),
-                             primary_key=True,
-                             autoincrement=False)
-    language        = Column(String(20))
-    name            = Column(Unicode(STR_MAX))
-    count           = Column(BigInteger)
-
-class Degree(SQLBase):
-    __tablename__ = 'degree'
-    nrmName         = Column(Unicode(STR_MAX),
-                             primary_key=True,
-                             autoincrement=False)
-    language        = Column(String(20))
-    name            = Column(Unicode(STR_MAX))
-    count           = Column(BigInteger)
-
-class Subject(SQLBase):
-    __tablename__ = 'subject'
-    nrmName         = Column(Unicode(STR_MAX),
-                             primary_key=True,
-                             autoincrement=False)
-    language        = Column(String(20))
-    name            = Column(Unicode(STR_MAX))
-    count           = Column(BigInteger)
-
-class Word(SQLBase):
-    __tablename__ = 'word'
-    language                 = Column(String(20),
-                                      primary_key=True)
-    word                     = Column(Unicode(STR_MAX),
-                                      primary_key=True)
-    profileSkillCount        = Column(BigInteger)
-    experienceSkillCount     = Column(BigInteger)
-    profileTitleCount        = Column(BigInteger)
-    experienceTitleCount     = Column(BigInteger)
-    profileCompanyCount      = Column(BigInteger)
-    experienceCompanyCount   = Column(BigInteger)
-
-class TitleSkill(SQLBase):
-    __tablename__ = 'title_skill'
-    nrmTitle          = Column(String(STR_MAX),
-                               ForeignKey('title.nrmName'),
-                               primary_key=True,
-                               autoincrement=False,
-                               index=True)
-    nrmSkill          = Column(String(STR_MAX),
-                               ForeignKey('skill.nrmName'),
-                               primary_key=True,
-                               autoincrement=False,
-                               index=True)
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
-
-class CompanySkill(SQLBase):
-    __tablename__ = 'company_skill'
-    nrmCompany        = Column(String(STR_MAX),
-                               ForeignKey('company.nrmName'),
-                               primary_key=True,
-                               autoincrement=False,
-                               index=True)
-    nrmSkill          = Column(String(STR_MAX),
-                               ForeignKey('skill.nrmName'),
-                               primary_key=True,
-                               autoincrement=False,
-                               index=True)
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
-
-class SkillSkill(SQLBase):
-    __tablename__ = 'skill_skill'
-    nrmSkill1          = Column(String(STR_MAX),
-                                ForeignKey('skill.nrmName'),
-                                primary_key=True,
-                                autoincrement=False,
-                                index=True)
-    nrmSkill2          = Column(String(STR_MAX),
-                                ForeignKey('skill.nrmName'),
-                                primary_key=True,
-                                autoincrement=False,
-                                index=True)
-    liprofileCount    = Column(BigInteger)
-    liexperienceCount = Column(BigInteger)
-
-class CareerStep(SQLBase):
-    __tablename__ = 'career_step'
-    id            = Column(BigInteger, primary_key=True)
-    titlePrefix1  = Column(String(STR_MAX),
-                           index=True)
-    title1        = Column(String(STR_MAX),
-                           ForeignKey('title.nrmName'),
-                           index=True)
-    titlePrefix2  = Column(String(STR_MAX),
-                           index=True)
-    title2        = Column(String(STR_MAX),
-                           ForeignKey('title.nrmName'),
-                           index=True)
-    titlePrefix3  = Column(String(STR_MAX),
-                           index=True)
-    title3        = Column(String(STR_MAX),
-                           ForeignKey('title.nrmName'),
-                           index=True)
-    count         = Column(BigInteger)
+# class CareerStep(SQLBase):
+#     __tablename__ = 'career_step'
+#     id            = Column(BigInteger, primary_key=True)
+#     titlePrefix1  = Column(String(STR_MAX),
+#                            index=True)
+#     title1        = Column(String(STR_MAX),
+#                            ForeignKey('title.nrmName'),
+#                            index=True)
+#     titlePrefix2  = Column(String(STR_MAX),
+#                            index=True)
+#     title2        = Column(String(STR_MAX),
+#                            ForeignKey('title.nrmName'),
+#                            index=True)
+#     titlePrefix3  = Column(String(STR_MAX),
+#                            index=True)
+#     title3        = Column(String(STR_MAX),
+#                            ForeignKey('title.nrmName'),
+#                            index=True)
+#     count         = Column(BigInteger)
     
 
 def skillScore(coincidenceCount, categoryCount, skillCount, nrecords):
@@ -591,83 +474,18 @@ class AnalyticsDB(SQLDatabase):
         """Add a LinkedIn profile to the database.
 
         Args:
-          liprofile (dict): A ``dict`` describing the LinkedIn profile. It must
-            contain the following fields:
+          liprofile (dict): A ``dict`` describing the LinkedIn profile. Valid
+            fields are:
 
-              ``'datoinId'``
-                The ID of the profile from DATOIN.
-
-              ``'language'``
-                The language of the profile.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'placeId'``
-                The Google Place ID for the user's location.
-
-              ``'nrmTitle'``
-                The normalized profile title.
-
-              ``'nrmCompany'``
-                The normalized name of the user's current company.
-
-              ``'description'``
-                The profile summary.
-
-              ``'totalExperience'``
-                The total work experience in days.
-
-              ``'profileUrl'``
-                The URL of the profile.
-
-              ``'profilePictureUrl'``
-                The URL of the profile picture.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'skills'``
-                The skills declared by the user. This should be a list of 
-                ``dict``s with the following fields:
-
-                  ``'nrmName'``
-                    The normalized name of the skill.
-
-                  ``'rank'``
-                    The rank of the skill.
-
-              ``'experiences'``
-                The work experiences of the user. This should be a list of
-                ``dict``s with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'title'``
-                    The role/job title of the work experience.
-
-                  ``'company'``
-                    The name of the company where the person worked.
-
-                  ``'placeId'``
-                    The Google Place ID for the experience location.
-
-                  ``'start'``
-                    The start date of the work experience.
-
-                  ``'end'``
-                    The end date of the work experience.
-
-                  ``'description'``
-                    A free-text description of the work experience.
-
-                  ``'indexedOn'``
-                    The date when the record was indexed.
-
-                  ``'skills'``
-                    The skills that are explicitely mentioned in this experience
-                    record. This should be a list of normalized skill names.
+              * all columns of LIProfile *
+              skills (list of dict)
+                nrmName
+              experiences (list of dict)
+                * all columns of LIExperience *
+                skills (list of str)
+                  nrmName
+              education (list of dict)
+                * all columns of LIEducation *
               
         Returns:
           The ``LIProfile`` object that was added to the database.
@@ -728,80 +546,15 @@ class AnalyticsDB(SQLDatabase):
           inprofile (dict): A ``dict`` describing the LinkedIn profile. It must
             contain the following fields:
 
-              ``'datoinId'``
-                The ID of the profile from DATOIN.
-
-              ``'language'``
-                The language of the profile.
-
-              ``'name'``
-                The name of the LinkedIn user.
-
-              ``'placeId'``
-                The Google Place ID for the user's location.
-
-              ``'nrmTitle'``
-                The normalized profile title.
-
-              ``'nrmCompany'``
-                The normalized name of the user's current company.
-
-              ``'description'``
-                The profile summary.
-
-              ``'totalExperience'``
-                The total work experience in days.
-
-              ``'profileUrl'``
-                The URL of the profile.
-
-              ``'profilePictureUrl'``
-                The URL of the profile picture.
-
-              ``'indexedOn'``
-                The date when the profile was indexed.
-
-              ``'skills'``
-                The skills declared by the user. This should be a list of 
-                ``dict``s with the following fields:
-
-                  ``'nrmName'``
-                    The normalized name of the skill.
-
-                  ``'rank'``
-                    The rank of the skill.
-
-              ``'experiences'``
-                The work experiences of the user. This should be a list of
-                ``dict``s with the following fields:
-
-                  ``'datoinId'``
-                    The ID of the experience record from DATOIN.
-
-                  ``'title'``
-                    The role/job title of the work experience.
-
-                  ``'company'``
-                    The name of the company where the person worked.
-
-                  ``'placeId'``
-                    The Google Place ID for the experience location.
-
-                  ``'start'``
-                    The start date of the work experience.
-
-                  ``'end'``
-                    The end date of the work experience.
-
-                  ``'description'``
-                    A free-text description of the work experience.
-
-                  ``'indexedOn'``
-                    The date when the record was indexed.
-
-                  ``'skills'``
-                    The skills that are explicitely mentioned in this experience
-                    record. This should be a list of normalized skill names.
+              * all columns of INProfile *
+              skills (list of dict)
+                nrmName
+              experiences (list of dict)
+                * all columns of INExperience *
+                skills (list of str)
+                  nrmName
+              education (list of dict)
+                * all columns of INEducation *
               
         Returns:
           The ``INProfile`` object that was added to the database.
@@ -853,61 +606,48 @@ class AnalyticsDB(SQLDatabase):
                     
         return self.addFromDict(inprofile, INProfile)
     
-    def addCareerStep(self,
-                      prefix1, title1,
-                      prefix2, title2,
-                      prefix3, title3):
-        careerstep = self.query(CareerStep) \
-                         .filter(CareerStep.titlePrefix1 == prefix1,
-                                 CareerStep.title1       == title1,
-                                 CareerStep.titlePrefix2 == prefix2,
-                                 CareerStep.title2       == title2,
-                                 CareerStep.titlePrefix3 == prefix3,
-                                 CareerStep.title3       == title3) \
-                         .first()
-        if careerstep is None:
-            careerstep = CareerStep(titlePrefix1=prefix1,
-                                    title1=title1,
-                                    titlePrefix2=prefix2,
-                                    title2=title2,
-                                    titlePrefix3=prefix3,
-                                    title3=title3,
-                                    count=0)
-            self.add(careerstep)
+    # def addCareerStep(self,
+    #                   prefix1, title1,
+    #                   prefix2, title2,
+    #                   prefix3, title3):
+    #     careerstep = self.query(CareerStep) \
+    #                      .filter(CareerStep.titlePrefix1 == prefix1,
+    #                              CareerStep.title1       == title1,
+    #                              CareerStep.titlePrefix2 == prefix2,
+    #                              CareerStep.title2       == title2,
+    #                              CareerStep.titlePrefix3 == prefix3,
+    #                              CareerStep.title3       == title3) \
+    #                      .first()
+    #     if careerstep is None:
+    #         careerstep = CareerStep(titlePrefix1=prefix1,
+    #                                 title1=title1,
+    #                                 titlePrefix2=prefix2,
+    #                                 title2=title2,
+    #                                 titlePrefix3=prefix3,
+    #                                 title3=title3,
+    #                                 count=0)
+    #         self.add(careerstep)
 
-        careerstep.count += 1
+    #     careerstep.count += 1
         
     def findEntities(self, querytype, language, querytext, exact=False):
         if querytype == 'title':
-            wordtable = TitleWord
-            wordcountcols = [Word.liexperienceTitleCount,
-                             Word.liprofileTitleCount]
-            entitytable = Title
-            entitycountcols = [Title.liexperienceCount, Title.liprofileCount]
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
-            wordtable = SkillWord
-            wordcountcols = [Word.liexperienceSkillCount,
-                             Word.liprofileSkillCount]
-            entitytable = Skill
-            entitycountcols = [Skill.liexperienceCount, Skill.liprofileCount]
             nrmfunc = normalizedSkill
         elif querytype == 'company':
-            wordtable = CompanyWord
-            wordcountcols = [Word.liexperienceCompanyCount,
-                             Word.liprofileCompanyCount]
-            entitytable = Company
-            entitycountcols = [Company.liexperienceCount,
-                               Company.liprofileCount]
             nrmfunc = normalizedCompany
 
-
-        words = splitNrmName(nrmfunc(language, querytext))[1].split()
+        words = splitNrmName(nrmfunc(language, querytext))[-1].split()
         words = list(set(words))
-        wordcounts = self.query(Word.word, *wordcountcols) \
+        wordcounts = self.query(Word.word,
+                                Word.profileCount,
+                                Word.subDocumentCount) \
                          .filter(Word.word.in_(words),
+                                 Word.type == querytype,
                                  Word.language == language,
-                                 or_(*[c > 0 for c in wordcountcols])) \
+                                 (Word.profileCount > 0) \
+                                 | (Word.subDocumentCount > 0)) \
                          .all()
         if exact and len(wordcounts) < len(words):
             return [], [w[0] for w in wordcounts]
@@ -916,11 +656,11 @@ class AnalyticsDB(SQLDatabase):
         entitynames = []
         for i in range(len(wordcounts), 0, -1):
             words = [wc[0] for wc in wordcounts[:i]]
-            wordcountcol = func.count(wordtable.word).label('wordcount')
-            q = self.query(wordtable.nrmName) \
-                    .filter(wordtable.language == language,
-                            wordtable.word.in_(words)) \
-                    .group_by(wordtable.nrmName) \
+            wordcountcol = func.count(Word.word).label('wordcount')
+            q = self.query(Word.nrmName) \
+                    .filter(Word.language == language,
+                            Word.word.in_(words)) \
+                    .group_by(Word.nrmName) \
                     .having(wordcountcol == len(words))
             entitynames = [name for name, in q]
             if entitynames or exact:
@@ -928,9 +668,10 @@ class AnalyticsDB(SQLDatabase):
 
         entities = []
         if entitynames:
-            for rec in self.query(entitytable.nrmName,
-                                  entitytable.name,
-                                  *entitycountcols) \
+            for rec in self.query(Entity.nrmName,
+                                  Entity.name,
+                                  Entity.profileCount,
+                                  Entity.subDocumentCount) \
                            .filter(entitytable.nrmName.in_(entitynames)):
                 entities.append((rec[0], rec[1], sum(rec[2:])))
         entities.sort(key=lambda x: -x[-1])

@@ -708,12 +708,12 @@ def _makeLIExperience(liexperience, language):
     liexperience.pop('liprofileId', None)
     liexperience['language']     = language
     liexperience['parsedTitle']  = parsedTitle(language, liexperience['title'])
-    liexperience['nrmTitle']     = normalizedTitle(language,
+    liexperience['nrmTitle']     = normalizedTitle('linkedin', language,
                                                    liexperience['title'])
     liexperience['titlePrefix']  = normalizedTitlePrefix(language,
-                                                       liexperience['title'])
-    liexperience['nrmCompany']   = normalizedCompany(language,
-                                                   liexperience['company'])
+                                                         liexperience['title'])
+    liexperience['nrmCompany']   = normalizedCompany('linkedin', language,
+                                                     liexperience['company'])
     liexperience['nrmLocation']  = normalizedLocation(liexperience['location'])
 
     # work out duration
@@ -728,17 +728,17 @@ def _makeLIEducation(lieducation, language):
     lieducation.pop('id', None)
     lieducation.pop('liprofileId', None)
     lieducation['language']     = language
-    lieducation['nrmInstitute'] = normalizedInstitute(language,
+    lieducation['nrmInstitute'] = normalizedInstitute('linkedin', language,
                                                       lieducation['institute'])
-    lieducation['nrmDegree']    = normalizedDegree(language,
+    lieducation['nrmDegree']    = normalizedDegree('linkedin', language,
                                                    lieducation['degree'])
-    lieducation['nrmSubject']   = normalizedSubject(language,
+    lieducation['nrmSubject']   = normalizedSubject('linkedin', language,
                                                     lieducation['subject'])
     
     return lieducation
 
 def _makeLIProfileSkill(skillname, language):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('linkedin', language, skillname)
     if not nrmName:
         return None
     else:
@@ -750,11 +750,7 @@ def _makeLIProfileSkill(skillname, language):
 def _makeLIGroup(group, language):
     group.pop('id', None)
     group.pop('liprofileId', None)
-    nrmName = normalizedGroup(language, group.get('name', None))
-    if not nrmName:
-        return None
     group['language'] = language
-    group['nrmName'] = nrmName
     return group
     
 def _isCompany(language, name):
@@ -785,12 +781,14 @@ def _makeLIProfile(liprofile):
     # normalize fields
     liprofile['nrmLocation']     = normalizedLocation(liprofile['location'])
     liprofile['parsedTitle']     = parsedTitle(language, liprofile['title'])
-    liprofile['nrmTitle']        = normalizedTitle(language, liprofile['title'])
+    liprofile['nrmTitle']        = normalizedTitle('linkedin', language,
+                                                   liprofile['title'])
     liprofile['titlePrefix']     = normalizedTitlePrefix(language,
                                                          liprofile['title'])
     liprofile['nrmSector']       = normalizedSector(liprofile['sector'])
     liprofile['company']         = company
-    liprofile['nrmCompany']      = normalizedCompany(language, company)
+    liprofile['nrmCompany']      = normalizedCompany('linkedin', language,
+                                                     company)
 
     # tag company profiles
     liprofile['isCompany']       = _isCompany(language, liprofile['name'])
@@ -843,12 +841,12 @@ def _makeINExperience(inexperience, language):
     inexperience.pop('inprofileId', None)
     inexperience['language']     = language
     inexperience['parsedTitle']  = parsedTitle(language, inexperience['title'])
-    inexperience['nrmTitle']     = normalizedTitle(language,
+    inexperience['nrmTitle']     = normalizedTitle('indeed', language,
                                                    inexperience['title'])
     inexperience['titlePrefix']  = normalizedTitlePrefix(language,
-                                                       inexperience['title'])
-    inexperience['nrmCompany']   = normalizedCompany(language,
-                                                   inexperience['company'])
+                                                         inexperience['title'])
+    inexperience['nrmCompany']   = normalizedCompany('indeed', language,
+                                                     inexperience['company'])
     inexperience['nrmLocation']  = normalizedLocation(inexperience['location'])
 
     # work out duration
@@ -862,18 +860,18 @@ def _makeINExperience(inexperience, language):
 def _makeINEducation(ineducation, language):
     ineducation.pop('id', None)
     ineducation.pop('inprofileId', None)
-    ineducation['language']       = language
-    ineducation['nrmInstitute']   = normalizedInstitute(language,
+    ineducation['language']     = language
+    ineducation['nrmInstitute'] = normalizedInstitute('indeed', language,
                                                       ineducation['institute'])
-    ineducation['nrmDegree']      = normalizedDegree(language,
+    ineducation['nrmDegree']    = normalizedDegree('indeed', language,
                                                    ineducation['degree'])
-    ineducation['nrmSubject']     = normalizedSubject(language,
+    ineducation['nrmSubject']   = normalizedSubject('indeed', language,
                                                     ineducation['subject'])
     
     return ineducation
 
 def _makeINProfileSkill(skillname, language, reenforced):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('indeed', language, skillname)
     if not nrmName:
         return None
     else:
@@ -905,11 +903,13 @@ def _makeINProfile(inprofile):
     # normalize fields
     inprofile['nrmLocation']     = normalizedLocation(inprofile['location'])
     inprofile['parsedTitle']     = parsedTitle(language, inprofile['title'])
-    inprofile['nrmTitle']        = normalizedTitle(language, inprofile['title'])
+    inprofile['nrmTitle']        = normalizedTitle('indeed', language,
+                                                   inprofile['title'])
     inprofile['titlePrefix']     = normalizedTitlePrefix(language,
                                                          inprofile['title'])
     inprofile['company']         = company
-    inprofile['nrmCompany']      = normalizedCompany(language, company)
+    inprofile['nrmCompany']      = normalizedCompany('indeed', language,
+                                                     company)
     
     # update experiences
     inprofile['experiences'] = [_makeINExperience(e, language) \
@@ -969,11 +969,11 @@ def _makeUWExperience(uwexperience, language):
     uwexperience.pop('uwprofileId', None)
     uwexperience['language']     = language
     uwexperience['parsedTitle']  = parsedTitle(language, uwexperience['title'])
-    uwexperience['nrmTitle']     = normalizedTitle(language,
+    uwexperience['nrmTitle']     = normalizedTitle('upwork', language,
                                                    uwexperience['title'])
     uwexperience['titlePrefix']  = normalizedTitlePrefix(language,
                                                          uwexperience['title'])
-    uwexperience['nrmCompany']   = normalizedCompany(language,
+    uwexperience['nrmCompany']   = normalizedCompany('upwork', language,
                                                      uwexperience['company'])
     uwexperience['nrmLocation']  = normalizedLocation(uwexperience['location'])
 
@@ -991,11 +991,11 @@ def _makeUWEducation(uweducation, language):
     uweducation.pop('id', None)
     uweducation.pop('uwprofileId', None)
     uweducation['language']     = language
-    uweducation['nrmInstitute'] = normalizedInstitute(language,
+    uweducation['nrmInstitute'] = normalizedInstitute('upwork', language,
                                                       uweducation['institute'])
-    uweducation['nrmDegree']    = normalizedDegree(language,
+    uweducation['nrmDegree']    = normalizedDegree('upwork', language,
                                                    uweducation['degree'])
-    uweducation['nrmSubject']   = normalizedSubject(language,
+    uweducation['nrmSubject']   = normalizedSubject('upwork', language,
                                                     uweducation['subject'])
 
     if uweducation['start'] is not None and uweducation['end'] is not None:
@@ -1007,7 +1007,7 @@ def _makeUWEducation(uweducation, language):
     return uweducation
 
 def _makeUWProfileSkill(skillname, language):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('upwork', language, skillname)
     if not nrmName:
         return None
     else:
@@ -1023,7 +1023,8 @@ def _makeUWProfile(uwprofile):
     # normalize fields
     uwprofile['nrmLocation']     = normalizedLocation(uwprofile['location'])
     uwprofile['parsedTitle']     = parsedTitle(language, uwprofile['title'])
-    uwprofile['nrmTitle']        = normalizedTitle(language, uwprofile['title'])
+    uwprofile['nrmTitle']        = normalizedTitle('upwork', language,
+                                                   uwprofile['title'])
     uwprofile['titlePrefix']     = normalizedTitlePrefix(language,
                                                          uwprofile['title'])
     
@@ -1101,7 +1102,7 @@ def _makeMUProfile(muprofile):
     return muprofile
 
 def _makeMUProfileSkill(skillname, language):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('meetup', language, skillname)
     if not nrmName:
         return None
     else:
@@ -1111,7 +1112,7 @@ def _makeMUProfileSkill(skillname, language):
                 'reenforced' : False}
 
 def _makeMUGroupSkill(skillname, language):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('meetup', language, skillname)
     if not nrmName:
         return None
     else:
@@ -1128,7 +1129,7 @@ def _makeGHProfile(ghprofile):
 
     # normalize fields
     ghprofile['nrmLocation'] = normalizedLocation(ghprofile['location'])
-    ghprofile['nrmCompany'] = normalizedCompany(language,
+    ghprofile['nrmCompany'] = normalizedCompany('github', language,
                                                 ghprofile['company'])
 
     # add skills
@@ -1142,7 +1143,7 @@ def _makeGHProfile(ghprofile):
     return ghprofile
 
 def _makeGHProfileSkill(skillname, language):
-    nrmName = normalizedSkill(language, skillname)
+    nrmName = normalizedSkill('github', language, skillname)
     if not nrmName:
         return None
     else:
@@ -1176,7 +1177,7 @@ class CanonicalDB(SQLDatabase):
                         for s in profile.skills if s.nrmName)
         reenforced = dict((s, False) for s in skillIds.keys())
         scores = dict((s, 0.0) for s in skillIds.keys())
-        tokenize = lambda x: splitNrmName(x)[1].split()
+        tokenize = lambda x: splitNrmName(x)[-1].split()
         skillextractor = PhraseExtractor(skillIds.keys(), tokenize=tokenize)
         tokenize = lambda x: tokenizedSkill(profile.language, x,
                                             removebrackets=False)

@@ -8,6 +8,7 @@ from logger import Logger
 import sys
 from windowquery import splitProcess, processDb
 from textnormalization import splitNrmName
+from collections import OrderedDict
 import argparse
 
 
@@ -71,44 +72,56 @@ def entities2(q):
     elif bestprofilename:
         yield currententity, bestprofilename, profilecount, experiencecount
 
-def addSkills(batchsize):
+def addSkills(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
-    
-    liq = cndb.query(LIProfileSkill.nrmName,
-                     LIProfileSkill.name)
-    inq = cndb.query(INProfileSkill.nrmName,
-                     INProfileSkill.name)
-    subq = liq.union_all(inq).subquery()
-    nrmcol, rawcol = tuple(subq.columns)
+
+    if sourceId == 'linkedin':
+        nrmcol = LIProfileSkill.nrmName
+        rawcol = LIProfileSkill.name
+    elif sourceId == 'indeed':
+        nrmcol = INProfileSkill.nrmName
+        rawcol = INProfileSkill.name
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
     q = cndb.query(nrmcol, rawcol, func.count()) \
+            .filter(nrmcol != None) \
             .group_by(nrmcol, rawcol) \
             .order_by(nrmcol)
 
     def addProfileSkill(rec):
         nrmName, bestname, liprofileCount = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'           : nrmName,
-            'language'          : splitNrmName(nrmName)[0],
+            'type'              : tpe,
+            'source'            : source,
+            'language'          : language,
             'name'              : bestname,
             'profileCount'      : liprofileCount,
             'experienceCount'   : 0,
-        }, analyticsdb.Skill)
+        }, analyticsdb.Entity)
 
     logger.log('Scanning profiles.\n')
     processDb(entities(q), addProfileSkill, andb, batchsize=batchsize,
               logger=logger)
 
-    liq = cndb.query(LIExperienceSkill.liexperienceId,
-                     LIProfileSkill.nrmName.label('nrm')) \
-              .join(LIProfileSkill)
-    inq = cndb.query(INExperienceSkill.inexperienceId,
-                     INProfileSkill.nrmName.label('nrm')) \
-              .join(INProfileSkill)
-    subq = liq.union_all(inq).subquery()
-    idcol, nrmcol = tuple(subq.columns)
-    q = cndb.query(func.count(), nrmcol) \
+    if sourceId == 'linkedin':
+        jointable = LIProfileSkill
+        nrmcol    = LIProfileSkill.nrmName
+        idcol     = LIExperienceSkill.liexperienceId
+    elif sourceId == 'indeed':
+        jointable = INProfileSkill
+        nrmcol    = INProfileSkill.nrmName
+        idcol     = INExperienceSkill.inexperienceId
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
+    q = cndb.query(func.count(idcol), nrmcol) \
+            .join(jointable) \
+            .filter(nrmcol != None) \
             .group_by(nrmcol)
     
     def addLIExperienceSkill(rec):
@@ -116,30 +129,35 @@ def addSkills(batchsize):
         andb.addFromDict({
             'nrmName'           : nrmName,
             'experienceCount'   : experienceCount,
-        }, analyticsdb.Skill)
+        }, analyticsdb.Entity)
 
     logger.log('Scanning experiences.\n')
     processDb(q, addLIExperienceSkill, andb, batchsize=batchsize, logger=logger)
 
 
-def addTitles(batchsize):
+def addTitles(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
+
+    if sourceId == 'linkedin':
+        nrmcol1    = LIProfile.nrmTitle
+        parsedcol1 = LIProfile.parsedTitle
+        nrmcol2    = LIExperience.nrmTitle
+        parsedcol2 = LIExperience.parsedTitle
+    elif sourceId == 'indeed':
+        nrmcol1    = INProfile.nrmTitle
+        parsedcol1 = INProfile.parsedTitle
+        nrmcol2    = INExperience.nrmTitle
+        parsedcol2 = INExperience.parsedTitle
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
     
-    liq1 = cndb.query(LIProfile.nrmTitle,
-                      LIProfile.parsedTitle,
-                      literal_column('1').label('type'))
-    liq2 = cndb.query(LIExperience.nrmTitle,
-                      LIExperience.parsedTitle,
-                      literal_column('2').label('type'))
-    inq1 = cndb.query(INProfile.nrmTitle,
-                      INProfile.parsedTitle,
-                      literal_column('1').label('type'))
-    inq2 = cndb.query(INExperience.nrmTitle,
-                      INExperience.parsedTitle,
-                      literal_column('2').label('type'))
-    subq = liq1.union_all(liq2).union_all(inq1).union_all(inq2).subquery()
+    q1 = cndb.query(nrmcol1, parsedcol1, literal_column('1').label('type')) \
+             .filter(nrmcol1 != None)
+    q2 = cndb.query(nrmcol2, parsedcol2, literal_column('2').label('type')) \
+             .filter(nrmcol2 != None)
+    subq = q1.union_all(q2).subquery()
     nrmcol, parsedcol, typecol = tuple(subq.columns)
     q = cndb.query(nrmcol, parsedcol, typecol, func.count()) \
             .group_by(nrmcol, parsedcol, typecol) \
@@ -147,35 +165,43 @@ def addTitles(batchsize):
 
     def addTitle(rec):
         nrmName, name, profileCount, experienceCount = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'           : nrmName,
-            'language'          : splitNrmName(nrmName)[0],
+            'type'              : tpe,
+            'source'            : source,
+            'language'          : language,
             'name'              : name,
             'profileCount'      : profileCount,
             'experienceCount'   : experienceCount,
-            }, analyticsdb.Title)
+            }, analyticsdb.Entity)
     
     processDb(entities2(q), addTitle, andb, batchsize=batchsize, logger=logger)
 
 
-def addCompanies(batchsize):
+def addCompanies(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    liq1 = cndb.query(LIProfile.nrmCompany,
-                      LIProfile.company,
-                      literal_column('1').label('type'))
-    liq2 = cndb.query(LIExperience.nrmCompany,
-                      LIExperience.company,
-                      literal_column('2').label('type'))
-    inq1 = cndb.query(INProfile.nrmCompany,
-                      INProfile.company,
-                      literal_column('1').label('type'))
-    inq2 = cndb.query(INExperience.nrmCompany,
-                      INExperience.company,
-                      literal_column('2').label('type'))
-    subq = liq1.union_all(liq2).union_all(inq1).union_all(inq2).subquery()
+    if sourceId == 'linkedin':
+        nrmcol1 = LIProfile.nrmCompany
+        rawcol1 = LIProfile.company
+        nrmcol2 = LIExperience.nrmCompany
+        rawcol2 = LIExperience.company
+    elif sourceId == 'indeed':
+        nrmcol1 = INProfile.nrmCompany
+        rawcol1 = INProfile.company
+        nrmcol2 = INExperience.nrmCompany
+        rawcol2 = INExperience.company
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
+    q1 = cndb.query(nrmcol1, rawcol1, literal_column('1').label('type')) \
+             .filter(nrmcol1 != None)
+    q2 = cndb.query(nrmcol2, rawcol2, literal_column('2').label('type')) \
+             .filter(nrmcol2 != None)
+    subq = q1.union_all(q2).subquery()
     nrmcol, rawcol, typecol = tuple(subq.columns)
     q = cndb.query(nrmcol, rawcol, typecol, func.count()) \
             .group_by(nrmcol, rawcol, typecol) \
@@ -183,13 +209,16 @@ def addCompanies(batchsize):
 
     def addCompany(rec):
         nrmName, name, profileCount, experienceCount = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'           : nrmName,
-            'language'          : splitNrmName(nrmName)[0],
+            'type'              : tpe,
+            'source'            : source,
+            'language'          : language,
             'name'              : name,
             'profileCount'      : profileCount,
             'experienceCount'   : experienceCount,
-            }, analyticsdb.Company)
+            }, analyticsdb.Entity)
     
     processDb(entities2(q), addCompany, andb, batchsize=batchsize,
               logger=logger)
@@ -206,12 +235,16 @@ def addSectors(batchsize):
          .order_by(LIProfile.nrmSector)
 
     def addSector(rec):
-        nrmName, name, liCount = rec
+        nrmName, name, count = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'         : nrmName,
+            'type'            : tpe,
+            'source'          : source,
+            'language'        : language,
             'name'            : name,
-            'liCount'         : liCount,
-        }, analyticsdb.Sector)
+            'profileCount'    : count,
+        }, analyticsdb.Entity)
 
     processDb(q, addSector, andb, batchsize=batchsize, logger=logger) 
 
@@ -237,132 +270,146 @@ def addLocations(batchsize):
     processDb(q, addLocation, andb, batchsize=batchsize, logger=logger) 
 
 
-def addInstitutes(batchsize):
+def addInstitutes(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    liq = cndb.query(LIEducation.nrmInstitute,
-                     LIEducation.institute)
-    inq = cndb.query(INEducation.nrmInstitute,
-                     INEducation.institute)
-    subq = liq.union_all(inq).subquery()
-    nrmcol, rawcol = tuple(subq.columns)
+    if sourceId == 'linkedin':
+        nrmcol = LIEducation.nrmInstitute
+        rawcol = LIEducation.institute
+    elif sourceId == 'indeed':
+        nrmcol = INEducation.nrmInstitute
+        rawcol = INEducation.institute
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
     q = cndb.query(nrmcol, rawcol, func.count()) \
-        .group_by(nrmcol, rawcol) \
-        .order_by(nrmcol)
+            .filter(nrmcol != None) \
+            .group_by(nrmcol, rawcol) \
+            .order_by(nrmcol)
 
     def addInstitute(rec):
         nrmName, name, count = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
-            'nrmName'         : nrmName,
-            'language'        : splitNrmName(nrmName)[0],
-            'name'            : name,
-            'count'           : count,
-            }, analyticsdb.Institute)
+            'nrmName'          : nrmName,
+            'type'             : tpe,
+            'source'           : source,
+            'language'         : language,
+            'name'             : name,
+            'subDocumentCount' : count,
+            }, analyticsdb.Entity)
     
     processDb(entities(q), addInstitute, andb, batchsize=batchsize,
               logger=logger)
 
 
-def addDegrees(batchsize):
+def addDegrees(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    liq = cndb.query(LIEducation.nrmDegree,
-                     LIEducation.degree)
-    inq = cndb.query(INEducation.nrmDegree,
-                     INEducation.degree)
-    subq = liq.union_all(inq).subquery()
-    nrmcol, rawcol = tuple(subq.columns)
+    if sourceId == 'linkedin':
+        nrmcol = LIEducation.nrmDegree
+        rawcol = LIEducation.degree
+    elif sourceId == 'indeed':
+        nrmcol = INEducation.nrmDegree
+        rawcol = INEducation.degree
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
     q = cndb.query(nrmcol, rawcol, func.count()) \
-        .group_by(nrmcol, rawcol) \
-        .order_by(nrmcol)
+            .filter(nrmcol != None) \
+            .group_by(nrmcol, rawcol) \
+            .order_by(nrmcol)
 
     def addDegree(rec):
         nrmName, name, count = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
-            'nrmName'         : nrmName,
-            'language'        : splitNrmName(nrmName)[0],
-            'name'            : name,
-            'count'           : count,
-            }, analyticsdb.Degree)
+            'nrmName'          : nrmName,
+            'type'             : tpe,
+            'source'           : source,
+            'language'         : language,
+            'name'             : name,
+            'subDocumentCount' : count,
+            }, analyticsdb.Entity)
     
     processDb(entities(q), addDegree, andb, batchsize=batchsize, logger=logger)
 
 
-def addSubjects(batchsize):
+def addSubjects(batchsize, sourceId):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
     
-    liq = cndb.query(LIEducation.nrmSubject,
-                     LIEducation.subject)
-    inq = cndb.query(INEducation.nrmSubject,
-                     INEducation.subject)
-    subq = liq.union_all(inq).subquery()
-    nrmcol, rawcol = tuple(subq.columns)
+    if sourceId == 'linkedin':
+        nrmcol = LIEducation.nrmSubject
+        rawcol = LIEducation.subject
+    elif sourceId == 'indeed':
+        nrmcol = INEducation.nrmSubject
+        rawcol = INEducation.subject
+    else:
+        raise ValueError('Invalid source type `{0:s}`.'.format(sourceId))
+
     q = cndb.query(nrmcol, rawcol, func.count()) \
-        .group_by(nrmcol, rawcol) \
-        .order_by(nrmcol)
+            .filter(nrmcol != None) \
+            .group_by(nrmcol, rawcol) \
+            .order_by(nrmcol)
 
     def addSubject(rec):
         nrmName, name, count = rec
+        tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
-            'nrmName'         : nrmName,
-            'language'        : splitNrmName(nrmName)[0],
-            'name'            : name,
-            'count'           : count,
-            }, analyticsdb.Subject)
+            'nrmName'          : nrmName,
+            'type'             : tpe,
+            'source'           : source,
+            'language'         : language,
+            'name'             : name,
+            'subDocumentCount' : count,
+            }, analyticsdb.Entity)
     
     processDb(entities(q), addSubject, andb, batchsize=batchsize, logger=logger)
 
 
 if __name__ == '__main__':
+    allcatalogs = OrderedDict([
+        ('skills'     , addSkills),
+        ('titles'     , addTitles),
+        ('sectors'    , addSectors),
+        ('companies'  , addCompanies),
+        ('locations'  , addLocations),
+        ('institutes' , addInstitutes),
+        ('degrees'    , addDegrees),
+        ('subjects'   , addSubjects),
+    ])
+    allsources = ['linkedin', 'indeed']
+    
     parser = argparse.ArgumentParser()
-    parser.add_argument('catalog', help=
+    parser.add_argument('--catalog', help=
                         'The catalog to build. If omitted all are built.',
-                        choices=['skills', 'titles', 'sectors', 'companies',
-                                 'locations', 'institutes', 'degrees',
-                                 'subjects'],
-                        default=None, nargs='?')
+                        choices=list(allcatalogs.keys()), default=None)
+    parser.add_argument('--source', help=
+                        'The data source to build catalogs from. '
+                        'If omitted all are built.',
+                        choices=allsources, default=None)
     parser.add_argument('--batchsize', type=int, default=10000, help=
                         'Number of rows to commit in one batch.')
     args = parser.parse_args()
-    catalog = args.catalog
+    catalogs = list(allcatalogs.keys()) if args.catalog is None \
+               else [args.catalog]
+    sources = allsources if args.source is None else [args.source]
     batchsize = args.batchsize
     
     logger = Logger(sys.stdout)
 
-    if catalog is None or catalog == 'skills':
-        logger.log('\nBuilding skills catalog.\n')
-        addSkills(batchsize)
-
-    if catalog is None or catalog == 'titles':
-        logger.log('\nBuilding titles catalog.\n')
-        addTitles(batchsize)
-        
-    if catalog is None or catalog == 'sectors':
-        logger.log('\nBuilding sectors catalog.\n')
-        addSectors(batchsize)
-
-    if catalog is None or catalog == 'companies':
-        logger.log('\nBuilding companies catalog.\n')
-        addCompanies(batchsize)
-
-    if catalog is None or catalog == 'locations':
-        logger.log('\nBuilding locations catalog.\n')
-        addLocations(batchsize)
-
-    if catalog is None or catalog == 'institutes':
-        logger.log('\nBuilding institutes catalog.\n')
-        addInstitutes(batchsize)
-
-    if catalog is None or catalog == 'degrees':
-        logger.log('\nBuilding degrees catalog.\n')
-        addDegrees(batchsize)
-
-    if catalog is None or catalog == 'subjects':
-        logger.log('\nBuilding subjects catalog.\n')
-        addSubjects(batchsize)
+    for catalog in catalogs:
+        addfunc = allcatalogs[catalog]
+        logger.log('\nBuilding {0:s} catalog.\n'.format(catalog))
+        if catalog in ['sectors', 'locations']:
+            addfunc(batchsize)
+        else:
+            for source in sources:
+                logger.log('Processing {0:s} data.\n'.format(source))
+                addfunc(batchsize, source)
