@@ -101,7 +101,7 @@ def addSkills(batchsize, sourceId):
             'language'          : language,
             'name'              : bestname,
             'profileCount'      : liprofileCount,
-            'experienceCount'   : 0,
+            'subDocumentCount'  : 0,
         }, analyticsdb.Entity)
 
     logger.log('Scanning profiles.\n')
@@ -125,10 +125,10 @@ def addSkills(batchsize, sourceId):
             .group_by(nrmcol)
     
     def addLIExperienceSkill(rec):
-        experienceCount, nrmName = rec
+        subDocumentCount, nrmName = rec
         andb.addFromDict({
             'nrmName'           : nrmName,
-            'experienceCount'   : experienceCount,
+            'subDocumentCount'  : subDocumentCount,
         }, analyticsdb.Entity)
 
     logger.log('Scanning experiences.\n')
@@ -164,7 +164,7 @@ def addTitles(batchsize, sourceId):
             .order_by(nrmcol)
 
     def addTitle(rec):
-        nrmName, name, profileCount, experienceCount = rec
+        nrmName, name, profileCount, subDocumentCount = rec
         tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'           : nrmName,
@@ -173,7 +173,7 @@ def addTitles(batchsize, sourceId):
             'language'          : language,
             'name'              : name,
             'profileCount'      : profileCount,
-            'experienceCount'   : experienceCount,
+            'subDocumentCount'  : subDocumentCount,
             }, analyticsdb.Entity)
     
     processDb(entities2(q), addTitle, andb, batchsize=batchsize, logger=logger)
@@ -208,7 +208,7 @@ def addCompanies(batchsize, sourceId):
             .order_by(nrmcol)
 
     def addCompany(rec):
-        nrmName, name, profileCount, experienceCount = rec
+        nrmName, name, profileCount, subDocumentCount = rec
         tpe, source, language, _ = splitNrmName(nrmName)
         andb.addFromDict({
             'nrmName'           : nrmName,
@@ -217,7 +217,7 @@ def addCompanies(batchsize, sourceId):
             'language'          : language,
             'name'              : name,
             'profileCount'      : profileCount,
-            'experienceCount'   : experienceCount,
+            'subDocumentCount'   : subDocumentCount,
             }, analyticsdb.Entity)
     
     processDb(entities2(q), addCompany, andb, batchsize=batchsize,

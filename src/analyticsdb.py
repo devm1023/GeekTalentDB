@@ -355,8 +355,8 @@ class Entity(SQLBase):
     source            = Column(String(20), index=True)
     language          = Column(String(20), index=True)
     name              = Column(Unicode(STR_MAX))
-    profileCount      = Column(BigInteger)
-    subDocumentCount  = Column(BigInteger)
+    profileCount      = Column(BigInteger, index=True)
+    subDocumentCount  = Column(BigInteger, index=True)
 
 class Word(SQLBase):
     __tablename__ = 'word'
@@ -372,6 +372,7 @@ class Word(SQLBase):
     type          = Column(String(20), index=True)
     source        = Column(String(20), index=True)
     language      = Column(String(20), index=True)
+    
 
 class EntityEntity(SQLBase):
     __tablename__ = 'entity_entity'
@@ -630,7 +631,7 @@ class AnalyticsDB(SQLDatabase):
 
     #     careerstep.count += 1
         
-    def findEntities(self, querytype, language, querytext, exact=False):
+    def findEntities(self, querytype, source, language, querytext):
         if querytype == 'title':
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
@@ -638,44 +639,39 @@ class AnalyticsDB(SQLDatabase):
         elif querytype == 'company':
             nrmfunc = normalizedCompany
 
-        words = splitNrmName(nrmfunc(language, querytext))[-1].split()
+        words = splitNrmName(nrmfunc(source, language, querytext))[-1] \
+                .split()
         words = list(set(words))
-        wordcounts = self.query(Word.word,
-                                Word.profileCount,
-                                Word.subDocumentCount) \
-                         .filter(Word.word.in_(words),
-                                 Word.type == querytype,
-                                 Word.language == language,
-                                 (Word.profileCount > 0) \
-                                 | (Word.subDocumentCount > 0)) \
-                         .all()
-        if exact and len(wordcounts) < len(words):
-            return [], [w[0] for w in wordcounts]
-        wordcounts = [(w[0], sum(w[1:])) for w in wordcounts]
-        wordcounts.sort(key=lambda x: x[1])
-        entitynames = []
-        for i in range(len(wordcounts), 0, -1):
-            words = [wc[0] for wc in wordcounts[:i]]
-            wordcountcol = func.count(Word.word).label('wordcount')
-            q = self.query(Word.nrmName) \
-                    .filter(Word.language == language,
-                            Word.word.in_(words)) \
-                    .group_by(Word.nrmName) \
-                    .having(wordcountcol == len(words))
-            entitynames = [name for name, in q]
-            if entitynames or exact:
-                break
+        if not words:
+            return [], []
+        
+        q = self.query(Word.nrmName)
+        filters = [Word.type == querytype,
+                   Word.source == source,
+                   Word.language == language,
+                   Word.word == words[0]]
+        for word in words[1:]:
+            wordAlias = aliased(Word)
+            q = q.join(wordAlias, wordAlias.nrmName == Word.nrmName)
+            filters.append(wordAlias.word == word)
+        q = q.filter(*filters).distinct()
+        entitynames = [entity for entity, in q]
 
         entities = []
         if entitynames:
-            for rec in self.query(Entity.nrmName,
-                                  Entity.name,
-                                  Entity.profileCount,
-                                  Entity.subDocumentCount) \
-                           .filter(entitytable.nrmName.in_(entitynames)):
-                entities.append((rec[0], rec[1], sum(rec[2:])))
-        entities.sort(key=lambda x: -x[-1])
-        
-        return entities, words
+            for nrmName, name, profileCount, subDocumentCount \
+                in self.query(Entity.nrmName,
+                              Entity.name,
+                              Entity.profileCount,
+                              Entity.subDocumentCount) \
+                       .filter(Entity.nrmName.in_(entitynames)):
+                if not profileCount:
+                    profileCount = 0
+                if not subDocumentCount:
+                    subDocumentCount = 0
+                entities.append((nrmName, name, profileCount, subDocumentCount))
+        entities.sort(key=lambda x: -x[-1]-x[-2])
+                
+        return entities
 
 
