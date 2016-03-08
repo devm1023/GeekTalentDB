@@ -631,46 +631,57 @@ class AnalyticsDB(SQLDatabase):
 
     #     careerstep.count += 1
         
-    def findEntities(self, querytype, source, language, querytext):
+    def findEntities(self, querytype, source, language, querytext,
+                     minProfileCount=None, minSubDocumentCount=None,
+                     exact=False):
         if querytype == 'title':
             nrmfunc = normalizedTitle
         elif querytype == 'skill':
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             nrmfunc = normalizedCompany
+        else:
+            raise ValueError('Unsupported query type `{0:s}`.' \
+                             .format(querytype))
 
-        words = splitNrmName(nrmfunc(source, language, querytext))[-1] \
-                .split()
-        words = list(set(words))
-        if not words:
-            return [], []
-        
-        q = self.query(Word.nrmName)
-        filters = [Word.type == querytype,
-                   Word.source == source,
-                   Word.language == language,
-                   Word.word == words[0]]
-        for word in words[1:]:
-            wordAlias = aliased(Word)
-            q = q.join(wordAlias, wordAlias.nrmName == Word.nrmName)
-            filters.append(wordAlias.word == word)
-        q = q.filter(*filters).distinct()
-        entitynames = [entity for entity, in q]
+        if exact:
+            entitynames = [nrmfunc(source, language, querytext)]
+        else:
+            words = splitNrmName(nrmfunc(source, language, querytext))[-1] \
+                    .split()
+            words = list(set(words))
+            if not words:
+                return [], []
+
+            q = self.query(Word.nrmName)
+            filters = [Word.type == querytype,
+                       Word.source == source,
+                       Word.language == language,
+                       Word.word == words[0]]
+            for word in words[1:]:
+                wordAlias = aliased(Word)
+                q = q.join(wordAlias, wordAlias.nrmName == Word.nrmName)
+                filters.append(wordAlias.word == word)
+            q = q.filter(*filters).distinct()
+            entitynames = [entity for entity, in q]
 
         entities = []
         if entitynames:
-            for nrmName, name, profileCount, subDocumentCount \
-                in self.query(Entity.nrmName,
-                              Entity.name,
-                              Entity.profileCount,
-                              Entity.subDocumentCount) \
-                       .filter(Entity.nrmName.in_(entitynames)):
+            q = self.query(Entity.nrmName,
+                           Entity.name,
+                           Entity.profileCount,
+                           Entity.subDocumentCount) \
+                    .filter(Entity.nrmName.in_(entitynames))
+            if minProfileCount is not None:
+                q = q.filter(Entity.profileCount >= minProfileCount)
+            if minSubDocumentCount is not None:
+                q = q.filter(Entity.subDocumentCount >= minSubDocumentCount)
+            for nrmName, name, profileCount, subDocumentCount in q:
                 if not profileCount:
                     profileCount = 0
                 if not subDocumentCount:
                     subDocumentCount = 0
                 entities.append((nrmName, name, profileCount, subDocumentCount))
-        entities.sort(key=lambda x: -x[-1]-x[-2])
                 
         return entities
 

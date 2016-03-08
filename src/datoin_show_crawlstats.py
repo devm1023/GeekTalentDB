@@ -25,9 +25,11 @@ indexHist.plot(xconvert=lambda x: fromDate + x, drawstyle='steps',
                label='indexed')
 crawlHist.plot(xconvert=lambda x: fromDate + x, drawstyle='steps',
                label='crawled')
+plt.xticks(rotation=20)
 plt.xlabel('date')
 plt.ylabel('LinkedIn profiles')
 plt.legend(loc='lower right')
+plt.subplots_adjust(bottom=0.15)
 if pdf:
     pdf.savefig()
     plt.close()
