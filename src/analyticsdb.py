@@ -72,6 +72,7 @@ class LIProfile(SQLBase):
                                index=True)
     description       = Column(Unicode(STR_MAX))
     connections       = Column(Integer)
+    textLength        = Column(Integer)
     firstExperienceStart = Column(DateTime)
     lastExperienceStart  = Column(DateTime)
     lastExperienceEnd    = Column(DateTime)
@@ -220,6 +221,7 @@ class INProfile(SQLBase):
                                nullable=True,
                                index=True)
     description       = Column(Unicode(STR_MAX))
+    textLength        = Column(Integer)
     firstExperienceStart = Column(DateTime)
     lastExperienceStart  = Column(DateTime)
     lastExperienceEnd    = Column(DateTime)
