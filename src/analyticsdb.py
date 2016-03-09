@@ -39,7 +39,7 @@ from sqlalchemy import \
     Boolean, \
     func, \
     or_
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, aliased
 from geoalchemy2 import Geometry
 
 
