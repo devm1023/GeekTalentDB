@@ -33,6 +33,10 @@ ANALYTICS_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/analytics'
 # GeekMaps Database
 GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'
 
+# CareerHacker Database
+CAREERHACKER_DB \
+    = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/careerhacker'
+
 
 # Datoin SOLR endpoints:
 # public domains: gt.datoin.com, gt1.datoin.com
