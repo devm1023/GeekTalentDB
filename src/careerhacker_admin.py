@@ -49,11 +49,15 @@ class CareerSkill(db.Model):
 
 class CareerView(sqla.ModelView):
     inline_models = [CareerSkill]
+    column_filters = ['sector', 'name']
+
+class CareerSkillView(sqla.ModelView):
+    column_filters = ['career', 'name']
     
 # Create admin
 admin = admin.Admin(app, name='CareeHackerDB', template_mode='bootstrap3')
 admin.add_view(CareerView(Career, db.session))
-admin.add_view(sqla.ModelView(CareerSkill, db.session))
+admin.add_view(CareerSkillView(CareerSkill, db.session))
 
 if __name__ == '__main__':
 
