@@ -24,6 +24,8 @@ import numpy as np
 
 STR_MAX = 100000
 
+FPS_POWER = 1.0
+
 SQLBase = sqlbase()
 
 class LIProfile(SQLBase):
@@ -125,24 +127,31 @@ class TaxonomyDB(SQLDatabase):
                      .order_by(LIProfile.ibm_tax3_cfscore) \
                      .limit(limit)
 
-            scores = {}
+            scoredict = {}
             for q in [q1, q2, q3]:
                 for id, score in q:
-                    scores[id] = max(scores.get(id, 0.0), score)
-            scores = list(scores.items())
-            scores.sort(key=lambda x: -x[1])
+                    scoredict[id] = max(scoredict.get(id, 0.0), score)
             
-            if len(scores) > limit:
-                scores = scores[:limit]
-            ids = [id for id, score in scores]
-            if randomize and ids:
+            if randomize and scoredict:
+                ids = []
+                probs = []
+                for id, score in scoredict.items():
+                    ids.append(id)
+                    probs.append(score**FPS_POWER)
                 ids = np.array(ids)
+                probs = np.array(probs)
+                probs /= probs.sum()                
                 size = min(nusers, len(ids))
-                ids = list(np.random.choice(ids, (size,), replace=False))
+                ids = list(np.random.choice(ids, (size,), replace=False,
+                                            p=probs))
+            else:
+                scores = list(scoredict.items())
+                scores.sort(key=lambda x: -x[1])
+                ids = [id for id, score in scores[:limit]]
 
             results.append({'taxonomy' : taxonomy, 'ids' : ids})
         return results
-                       
+
 
 if __name__ == '__main__':
     ids = ['linkedin:profile:35f5c600df114af76710136e4530d5e682d1639a',
