@@ -34,8 +34,8 @@ ANALYTICS_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/analytics'
 GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'
 
 # CareerHacker Database
-CAREERHACKER_DB \
-    = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/careerhacker'
+CAREERDEFINITION_DB \
+    = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/careerdefinition'
 
 
 # Datoin SOLR endpoints:

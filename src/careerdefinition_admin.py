@@ -14,7 +14,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456790'
 
 # Create in-memory database
-app.config['SQLALCHEMY_DATABASE_URI'] = conf.CAREERHACKER_DB
+app.config['SQLALCHEMY_DATABASE_URI'] = conf.CAREERDEFINITION_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -28,9 +28,12 @@ def index():
 class Career(db.Model):
     __tablename__ = 'career'
     id            = db.Column(db.BigInteger, primary_key=True)
-    name          = db.Column(db.Unicode(STR_MAX))
-    sector        = db.Column(db.Unicode(STR_MAX))
+    name          = db.Column(db.Unicode(STR_MAX), nullable=False)
+    sector        = db.Column(db.Unicode(STR_MAX), nullable=False)
     description   = db.Column(db.Text)
+
+    skills = db.relationship('CareerSkill', backref='career',
+                             cascade='all, delete-orphan')
 
     def __str__(self):
         return self.name
@@ -38,11 +41,12 @@ class Career(db.Model):
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
     id            = db.Column(db.BigInteger, primary_key=True)
-    careerId      = db.Column(db.BigInteger, db.ForeignKey('career.id'))
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
     name          = db.Column(db.Unicode(STR_MAX))
     score         = db.Column(db.Float)
-
-    career        = db.relation(Career, backref='skills')
 
     def __str__(self):
         return self.name
@@ -55,7 +59,7 @@ class CareerSkillView(sqla.ModelView):
     column_filters = ['career', 'name']
     
 # Create admin
-admin = admin.Admin(app, name='CareeHackerDB', template_mode='bootstrap3')
+admin = admin.Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
 admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))
 

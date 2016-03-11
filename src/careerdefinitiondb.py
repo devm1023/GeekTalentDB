@@ -1,7 +1,7 @@
 __all__ = [
     'Career',
     'CareerSkill',
-    'CareerHackerDB',
+    'CareerDefinitionDB',
     ]
 
 import conf
@@ -33,7 +33,7 @@ SQLBase = sqlbase()
 
 class Career(SQLBase):
     __tablename__ = 'career'
-    id            = Column(BigInteger, primay_key=True)
+    id            = Column(BigInteger, primary_key=True)
     name          = Column(Unicode(STR_MAX), index=True)
     sector        = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
@@ -41,6 +41,8 @@ class Career(SQLBase):
     skills = relationship('CareerSkill',
                           order_by='CareerSkill.score',
                           cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('sector', 'name'),)
 
 class CareerSkill(SQLBase):
     __tablename__ = 'career_skill'
@@ -50,10 +52,21 @@ class CareerSkill(SQLBase):
     name          = Column(Unicode(STR_MAX), index=True)
     score         = Column(Float)
     
+    __table_args__ = (UniqueConstraint('careerId', 'name'),)
 
-class CareerHackerDB(SQLDatabase):
+class CareerDefinitionDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
+    def addCareer(self, careerdict, update=False):
+        id = self.query(Career.id) \
+                 .filter(Career.sector == careerdict['sector'],
+                         Career.name == careerdict['name']).first()
+        if id is not None:
+            if not update:
+                return None
+            else:
+                careerdict['id'] = id[0]
 
+        return self.addFromDict(careerdict)

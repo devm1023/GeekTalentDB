@@ -5,7 +5,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('database',
                     choices=['datoin', 'canonical', 'analytics', 'geekmaps',
-                             'careerhacker'],
+                             'careerdefinition'],
                     help='The database to initialize.')
 parser.add_argument('--no-create', action='store_true',
                     help='Do not create new tables.')
@@ -44,10 +44,10 @@ elif args.database == 'geekmaps':
         gmdb.drop_all()
     if not nocreate:
         gmdb.create_all()
-elif args.database == 'careerhacker':
-    from careerhackerdb import CareerHackerDB
-    chdb = CareerHackerDB(url=conf.CAREERHACKER_DB)
+elif args.database == 'careerdefinition':
+    from careerdefinitiondb import CareerDefinitionDB
+    cddb = CareerDefinitionDB(url=conf.CAREERDEFINITION_DB)
     if not nodelete:
-        chdb.drop_all()
+        cddb.drop_all()
     if not nocreate:
-        chdb.create_all()
+        cddb.create_all()
