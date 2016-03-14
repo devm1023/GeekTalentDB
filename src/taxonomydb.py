@@ -24,7 +24,7 @@ import numpy as np
 
 STR_MAX = 100000
 
-FPS_POWER = 1.0
+FPS_POWER = 2.0
 
 SQLBase = sqlbase()
 
@@ -105,6 +105,7 @@ class TaxonomyDB(SQLDatabase):
         taxonomies = list(set(taxonomies))
         limit = nusers if not randomize else 1000
         ltrees = [taxonomyIds[t] for t in taxonomies]
+        confidence = 0.6
         results = []
         for ltree, taxonomy in zip(ltrees, taxonomies):
             result = {'taxonomy' : taxonomy, 'ids' : []}
@@ -127,28 +128,28 @@ class TaxonomyDB(SQLDatabase):
                      .order_by(LIProfile.ibm_tax3_cfscore) \
                      .limit(limit)
 
-            scoredict = {}
+            ids = {}
             for q in [q1, q2, q3]:
                 for id, score in q:
-                    scoredict[id] = max(scoredict.get(id, 0.0), score)
+                    ids[id] = max(ids.get(id, 0.0), score)
+            ids = list(ids.items())
             
-            if randomize and scoredict:
-                ids = []
-                probs = []
-                for id, score in scoredict.items():
-                    ids.append(id)
-                    probs.append(score**FPS_POWER)
-                ids = np.array(ids)
+            size = min(nusers, len(ids))
+            if randomize and ids:
+                probs = [score**FPS_POWER for id, score in ids]
+                a = np.empty(len(ids), dtype=object)
+                for i, pair in enumerate(ids):
+                    a[i] = pair
                 probs = np.array(probs)
                 probs /= probs.sum()                
-                size = min(nusers, len(ids))
-                ids = list(np.random.choice(ids, (size,), replace=False,
+                ids = list(np.random.choice(a, (size,), replace=False,
                                             p=probs))
             else:
-                scores = list(scoredict.items())
-                scores.sort(key=lambda x: -x[1])
-                ids = [id for id, score in scores[:limit]]
+                ids.sort(key=lambda x: -x[1])
+                ids = ids[:size]
 
+            print([score for id, score in ids])
+            ids = [id for id, score in ids]
             results.append({'taxonomy' : taxonomy, 'ids' : ids})
         return results
 

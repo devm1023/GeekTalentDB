@@ -69,12 +69,13 @@ def relevanceScores(totalcount, categorycount, entitiesq, coincidenceq,
     q = coincidenceq.group_by(entitycol).having(countcol >= mincount)
     counts = dict(q)
 
-    for row in entitiesq(counts.keys()):
-        entity = row[0]
-        entitycount = row[-1]
-        count = counts[entity]
-        score, err = _score(totalcount, categorycount, entitycount, count)
-        yield row[:-1] + (entitycount, count, score, err)
+    if counts:
+        for row in entitiesq(counts.keys()):
+            entity = row[0]
+            entitycount = row[-1]
+            count = counts[entity]
+            score, err = _score(totalcount, categorycount, entitycount, count)
+            yield row[:-1] + (entitycount, count, score, err)
 
 def getSkillCloud(entitytype, categorytype, query,
                   entityThreshold=1, categoryThreshold=1, countThreshold=1,

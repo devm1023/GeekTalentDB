@@ -16,8 +16,22 @@ LIMIT = 10
 MIN_SIGNIFICANCE = 2
 
 
-totalcount = andb.query(LIProfile.id).count()
+def sortEntities(entities, limit=None, minSignificance=None):
+    entities = list(entities)
+    entities.sort(key=lambda x: -x[-2])
+    newentities = []
+    for row in entities:
+        score = row[-2]
+        error = row[-1]
+        if limit is not None and len(newentities) > limit:
+            break
+        if minSignificance is not None and score < minSignificance*error:
+            continue
+        newentities.append(row)
 
+    return newentities
+
+totalcount = andb.query(LIProfile.id).count()
 nrmSectors = {}
 joblists = {}
 countcol = func.count().label('counts')
@@ -36,19 +50,39 @@ for sector in SECTORS:
                   .filter(Entity.nrmName.in_(entities))
     coincidenceq = andb.query(LIProfile.nrmTitle, countcol) \
                        .filter(LIProfile.nrmSector == nrmSector)
-    entities = list(relevanceScores(totalcount, categorycount,
-                                    entityq, coincidenceq))
-    entities.sort(key=lambda x: -x[-2])
-    
-    joblists[sector] = []
-    for nrmTitle, title, entitycount, count, score, error in entities:
-        if len(joblists[sector]) >= LIMIT:
-            break
-        if score < MIN_SIGNIFICANCE*error:
-            continue
-        joblists[sector].append((nrmTitle, title, score))
-    
+    joblists[sector] = sortEntities(relevanceScores(totalcount, categorycount,
+                                                    entityq, coincidenceq),
+                                    limit=LIMIT,
+                                    minSignificance=MIN_SIGNIFICANCE)
+
+totalcount = andb.query(LIExperience.id).count()
+skillclouds = {}
 for sector, jobs in joblists.items():
     print(sector)
-    for nrmTitle, title, score in jobs:
+    for nrmTitle, title, entitycount, count, score, error in jobs:
         print('    {0:>3.0f}% {1:s}'.format(score*100, title))
+        categorycount = andb.query(LIExperience.id) \
+                            .join(LIProfile) \
+                            .filter(LIProfile.nrmSector == nrmSectors[sector],
+                                    LIExperience.nrmTitle == nrmTitle) \
+                            .count()
+        entityq = lambda entities: \
+                  andb.query(Entity.nrmName,
+                             Entity.name,
+                             Entity.subDocumentCount) \
+                      .filter(Entity.nrmName.in_(entities))
+        coincidenceq = andb.query(LIExperienceSkill.nrmSkill, countcol) \
+                           .join(LIExperience) \
+                           .join(LIProfile) \
+                           .filter(LIProfile.nrmSector == nrmSectors[sector],
+                                   LIExperience.nrmTitle == nrmTitle)
+        skillclouds[sector, title] \
+            = sortEntities(relevanceScores(totalcount, categorycount,
+                                           entityq, coincidenceq),
+                           minSignificance=MIN_SIGNIFICANCE)
+        for _, skill, _, _, score, _ in skillclouds[sector, title]:
+            print('        {0:>3.0f}% {1:s}'.format(score*100, skill))
+        
+# for sector, jobs in joblists.items():
+#     print(sector)
+#     for nrmTitle, title, entitycount, count, score, error in jobs:
