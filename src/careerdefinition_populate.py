@@ -5,6 +5,7 @@ from careerdefinitiondb import CareerDefinitionDB
 from sqlalchemy import func
 
 andb = AnalyticsDB(conf.ANALYTICS_DB)
+cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
 
 
 SECTORS = [
@@ -78,6 +79,16 @@ for sector, jobs in joblists.items():
                       sectortitlec/sectorc*100.0,
                       (titlec-sectortitlec)/(profilec-sectorc)*100.0,
                       title))
+        careerdict = {'name' : title,
+                      'sector' : sector,
+                      'totalCount' : profilec,
+                      'sectorCount' : sectorc,
+                      'careerCount' : titlec,
+                      'count' : sectortitlec,
+                      'score' : score,
+                      'skills' : []
+        }
+        
         sectortitlec = andb.query(LIExperience.id) \
                            .join(LIProfile) \
                            .filter(LIProfile.nrmSector == nrmSectors[sector],
@@ -93,18 +104,28 @@ for sector, jobs in joblists.items():
                            .join(LIProfile) \
                            .filter(LIProfile.nrmSector == nrmSectors[sector],
                                    LIExperience.nrmTitle == nrmTitle)
-        skillclouds[sector, title] \
+        skillcloud \
             = sortEntities(relevanceScores(experiencec, sectortitlec,
                                            entityq, coincidenceq),
                            minSignificance=MIN_SIGNIFICANCE)
-        for _, skill, skillc, sectortitleskillc, score, _ \
-            in skillclouds[sector, title]:
-            print('        {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
-                  .format(score*100,
-                          sectortitleskillc/sectortitlec*100.0,
-                          (skillc-sectortitleskillc) \
-                          /(experiencec-sectortitlec)*100.0,
-                          skill))
+        for _, skill, skillc, sectortitleskillc, score, _ in skillcloud:
+            careerdict['skills'].append({
+                'name' : skill,
+                'totalCount' : experiencec,
+                'careerCount' : sectortitlec,
+                'skillCount' : skillc,
+                'count' : sectortitleskillc,
+                'score' : score,
+            })
+            # print('        {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
+            #       .format(score*100,
+            #               sectortitleskillc/sectortitlec*100.0,
+            #               (skillc-sectortitleskillc) \
+            #               /(experiencec-sectortitlec)*100.0,
+            #               skill))
+
+        cddb.addCareer(careerdict, update=True)
+        cddb.commit()
         
 # for sector, jobs in joblists.items():
 #     print(sector)

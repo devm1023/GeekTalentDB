@@ -24,6 +24,7 @@ from sqlalchemy import \
     or_
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
+from pprint import pprint
 
 
 STR_MAX = 100000
@@ -37,6 +38,11 @@ class Career(SQLBase):
     name          = Column(Unicode(STR_MAX), index=True)
     sector        = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
+    totalCount    = Column(BigInteger)
+    sectorCount   = Column(BigInteger)
+    careerCount   = Column(BigInteger)
+    count         = Column(BigInteger)
+    score         = Column(Float)
 
     skills = relationship('CareerSkill',
                           order_by='CareerSkill.score',
@@ -50,6 +56,11 @@ class CareerSkill(SQLBase):
     careerId      = Column(BigInteger, ForeignKey('career.id'),
                            index=True)
     name          = Column(Unicode(STR_MAX), index=True)
+    description   = Column(Unicode(STR_MAX))
+    totalCount    = Column(BigInteger)
+    careerCount   = Column(BigInteger)
+    skillCount    = Column(BigInteger)
+    count         = Column(BigInteger)
     score         = Column(Float)
     
     __table_args__ = (UniqueConstraint('careerId', 'name'),)
@@ -67,6 +78,16 @@ class CareerDefinitionDB(SQLDatabase):
             if not update:
                 return None
             else:
-                careerdict['id'] = id[0]
+                id = id[0]
+                careerdict['id'] = id
 
-        return self.addFromDict(careerdict)
+        for skill in careerdict.get('skills', []):
+            skillid = self.query(CareerSkill.id) \
+                          .filter(CareerSkill.careerId == id,
+                                  CareerSkill.name == skill.get('name', None)) \
+                          .first()
+            if skillid is not None:
+                skill['id'] = skillid[0]
+                skill['careerId'] = id
+
+        return self.addFromDict(careerdict, Career)

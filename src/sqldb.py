@@ -146,46 +146,54 @@ def rowFromDict(d, rowtype):
 
     return result
 
-def _mergeLists(rows, dicts, rowtype):
+def _mergeLists(rows, dicts, rowtype, strict=False):
     if not rows:
         return [rowFromDict(d, rowtype) for d in dicts]
     mapper = inspect(rowtype)
-    nipkeynames = [c.key for c in mapper.primary_key if not c.autoincrement]
-    aipkeynames = [c.key for c in mapper.primary_key if c.autoincrement]
+    pkeynames = [c.key for c in mapper.primary_key]
 
     keymap = {}
+    unmatched = []
     for row in rows:
-        nipkey = tuple(getattr(row, k) for k in nipkeynames)
-        if all(k is not None for k in nipkey):
-            if nipkey in keymap:
-                keymap[nipkey].insert(0, row)
-            else:
-                keymap[nipkey] = [row]
-            
+        pkey = tuple(getattr(row, k) for k in pkeynames)
+        keymap[pkey] = row
+
     newrows = []
+    unmatcheddicts = []
     for d in dicts:
         if d is None:
             continue
-        nipkey = tuple(d.get(k, None) for k in nipkeynames)
-        if nipkey in keymap:
-            row = keymap[nipkey].pop(0)
-            for aipkey in aipkeynames:
-                if d.get(aipkey, None) is None:
-                    d[aipkey] = getattr(row, aipkey)
-            newrows.append(updateRowFromDict(row, d))
-            if not keymap[nipkey]:
-                del keymap[nipkey]
+        pkey = tuple(d.get(k, None) for k in pkeynames)
+        if any(k is None for k in pkey) and any(k is not None for k in pkey):
+            raise ValueError('Primary key must be fully specified or fully '
+                             'unspecified.')
+        if pkey in keymap:
+            row = keymap.pop(pkey)
+            newrows.append(updateRowFromDict(row, d, strict=strict))
         else:
-            newrows.append(rowFromDict(d, rowtype))
+            unmatcheddicts.append(d)
 
+    keymap = list(keymap.items())
+    for d in unmatcheddicts:
+        if keymap:
+            pkey, row = keymap.pop()
+            for name, val in zip(pkeynames, pkey):
+                d[name] = val
+        else:
+            row = rowtype()
+        newrows.append(updateRowFromDict(row, d, strict=True))
+    
     return newrows
 
-def updateRowFromDict(row, d):
+
+def updateRowFromDict(row, d, strict=False):
     mapper = inspect(type(row))
     
     for c in mapper.column_attrs:
         if c.key in d:
             setattr(row, c.key, d[c.key])
+        elif strict:
+            setattr(row, c.key, None)
 
     for relation in mapper.relationships:
         if relation.key in d:
@@ -198,12 +206,15 @@ def updateRowFromDict(row, d):
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
-                newcollection = _mergeLists(collection, val, remotetype)
+                newcollection = _mergeLists(collection, val, remotetype,
+                                            strict=strict)
                 setattr(row, relation.key, newcollection)
             elif val is not None:
                 setattr(row, relation.key, rowFromDict(val, remotetype))
             else:
                 setattr(row, relation.key, None)
+        elif strict:
+            setattr(row, relation.key, None)
 
     return row
 

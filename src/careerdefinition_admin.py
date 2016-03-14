@@ -45,18 +45,30 @@ class CareerSkill(db.Model):
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    name          = db.Column(db.Unicode(STR_MAX))
+    name          = db.Column(db.Unicode(STR_MAX), nullable=False)
+    description   = db.Column(db.Text)
     score         = db.Column(db.Float)
 
     def __str__(self):
         return self.name
 
+
+_textAreaStyle = {
+    'rows' : 5,
+    'style' : 'font-family:"Lucida Console", Monaco, monospace;'
+}
 class CareerView(sqla.ModelView):
-    inline_models = [CareerSkill]
+    form_widget_args = {'description' : _textAreaStyle}
+    inline_models = [(CareerSkill,
+                      {'form_widget_args' : {
+                          'score' : {'readonly' : True},
+                          'description' : _textAreaStyle
+                      }})]
     column_filters = ['sector', 'name']
 
 class CareerSkillView(sqla.ModelView):
     column_filters = ['career', 'name']
+    
     
 # Create admin
 admin = admin.Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
