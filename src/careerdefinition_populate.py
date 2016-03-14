@@ -12,7 +12,7 @@ SECTORS = [
     'Hospital & Health Care',
     'Financial Services',
 ]
-LIMIT = 10
+LIMIT = 25
 MIN_SIGNIFICANCE = 2
 
 
@@ -31,14 +31,16 @@ def sortEntities(entities, limit=None, minSignificance=None):
 
     return newentities
 
-totalcount = andb.query(LIProfile.id) \
-                 .filter(LIProfile.nrmSector != None) \
-                 .count()
+profilec = andb.query(LIProfile.id) \
+               .filter(LIProfile.nrmSector != None) \
+               .count()
+print('TOTAL PROFILE COUNT: {0:d}'.format(profilec))
 nrmSectors = {}
 joblists = {}
+sectorcounts = {}
 countcol = func.count().label('counts')
 for sector in SECTORS:
-    nrmSector, categorycount \
+    nrmSector, sectorc \
         = andb.query(Entity.nrmName, Entity.profileCount) \
               .filter(Entity.type == 'sector',
                       Entity.source == 'linkedin',
@@ -46,6 +48,7 @@ for sector in SECTORS:
                       Entity.name == sector) \
               .first()
     nrmSectors[sector] = nrmSector
+    sectorcounts[sector] = sectorc
     
     entityq = lambda entities: \
               andb.query(LIProfile.nrmTitle, Entity.name, countcol) \
@@ -55,25 +58,31 @@ for sector in SECTORS:
                   .group_by(LIProfile.nrmTitle, Entity.name)
     coincidenceq = andb.query(LIProfile.nrmTitle, countcol) \
                        .filter(LIProfile.nrmSector == nrmSector)
-    joblists[sector] = sortEntities(relevanceScores(totalcount, categorycount,
+    joblists[sector] = sortEntities(relevanceScores(profilec, sectorc,
                                                     entityq, coincidenceq),
                                     limit=LIMIT,
                                     minSignificance=MIN_SIGNIFICANCE)
 
-totalcount = andb.query(LIExperience.id) \
-                 .join(LIProfile) \
-                 .filter(LIProfile.nrmSector != None) \
-                 .count()
+experiencec = andb.query(LIExperience.id) \
+                  .join(LIProfile) \
+                  .filter(LIProfile.nrmSector != None) \
+                  .count()
+print('TOTAL EXPERIENCE COUNT: {0:d}'.format(experiencec))
 skillclouds = {}
 for sector, jobs in joblists.items():
-    print(sector)
-    for nrmTitle, title, entitycount, count, score, error in jobs:
-        print('    {0:>3.0f}% {1:s}'.format(score*100, title))
-        categorycount = andb.query(LIExperience.id) \
-                            .join(LIProfile) \
-                            .filter(LIProfile.nrmSector == nrmSectors[sector],
-                                    LIExperience.nrmTitle == nrmTitle) \
-                            .count()
+    print('{0:d} {1:s}'.format(sectorcounts[sector], sector))
+    sectorc = sectorcounts[sector]
+    for nrmTitle, title, titlec, sectortitlec, score, error in jobs:
+        print('    {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
+              .format(score*100,
+                      sectortitlec/sectorc*100.0,
+                      (titlec-sectortitlec)/(profilec-sectorc)*100.0,
+                      title))
+        sectortitlec = andb.query(LIExperience.id) \
+                           .join(LIProfile) \
+                           .filter(LIProfile.nrmSector == nrmSectors[sector],
+                                   LIExperience.nrmTitle == nrmTitle) \
+                         .count()
         entityq = lambda entities: \
                   andb.query(Entity.nrmName,
                              Entity.name,
@@ -85,11 +94,17 @@ for sector, jobs in joblists.items():
                            .filter(LIProfile.nrmSector == nrmSectors[sector],
                                    LIExperience.nrmTitle == nrmTitle)
         skillclouds[sector, title] \
-            = sortEntities(relevanceScores(totalcount, categorycount,
+            = sortEntities(relevanceScores(experiencec, sectortitlec,
                                            entityq, coincidenceq),
                            minSignificance=MIN_SIGNIFICANCE)
-        for _, skill, _, _, score, _ in skillclouds[sector, title]:
-            print('        {0:>3.0f}% {1:s}'.format(score*100, skill))
+        for _, skill, skillc, sectortitleskillc, score, _ \
+            in skillclouds[sector, title]:
+            print('        {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
+                  .format(score*100,
+                          sectortitleskillc/sectortitlec*100.0,
+                          (skillc-sectortitleskillc) \
+                          /(experiencec-sectortitlec)*100.0,
+                          skill))
         
 # for sector, jobs in joblists.items():
 #     print(sector)
