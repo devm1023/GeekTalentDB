@@ -31,7 +31,9 @@ def sortEntities(entities, limit=None, minSignificance=None):
 
     return newentities
 
-totalcount = andb.query(LIProfile.id).count()
+totalcount = andb.query(LIProfile.id) \
+                 .filter(LIProfile.nrmSector != None) \
+                 .count()
 nrmSectors = {}
 joblists = {}
 countcol = func.count().label('counts')
@@ -46,8 +48,11 @@ for sector in SECTORS:
     nrmSectors[sector] = nrmSector
     
     entityq = lambda entities: \
-              andb.query(Entity.nrmName, Entity.name, Entity.profileCount) \
-                  .filter(Entity.nrmName.in_(entities))
+              andb.query(LIProfile.nrmTitle, Entity.name, countcol) \
+                  .join(Entity, Entity.nrmName == LIProfile.nrmTitle) \
+                  .filter(LIProfile.nrmTitle.in_(entities),
+                          LIProfile.nrmSector != None) \
+                  .group_by(LIProfile.nrmTitle, Entity.name)
     coincidenceq = andb.query(LIProfile.nrmTitle, countcol) \
                        .filter(LIProfile.nrmSector == nrmSector)
     joblists[sector] = sortEntities(relevanceScores(totalcount, categorycount,
@@ -55,7 +60,10 @@ for sector in SECTORS:
                                     limit=LIMIT,
                                     minSignificance=MIN_SIGNIFICANCE)
 
-totalcount = andb.query(LIExperience.id).count()
+totalcount = andb.query(LIExperience.id) \
+                 .join(LIProfile) \
+                 .filter(LIProfile.nrmSector != None) \
+                 .count()
 skillclouds = {}
 for sector, jobs in joblists.items():
     print(sector)
