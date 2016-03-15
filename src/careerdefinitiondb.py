@@ -35,20 +35,20 @@ SQLBase = sqlbase()
 class Career(SQLBase):
     __tablename__ = 'career'
     id            = Column(BigInteger, primary_key=True)
-    careerName    = Column(Unicode(STR_MAX), index=True)
+    title         = Column(Unicode(STR_MAX), index=True)
     linkedinSector = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
     totalCount    = Column(BigInteger)
     sectorCount   = Column(BigInteger)
-    careerCount   = Column(BigInteger)
-    careerSectorCount = Column(BigInteger)
+    titleCount    = Column(BigInteger)
+    count         = Column(BigInteger)
     relevanceScore = Column(Float)
 
     skillCloud = relationship('CareerSkill',
                               order_by='CareerSkill.relevanceScore',
                               cascade='all, delete-orphan')
 
-    __table_args__ = (UniqueConstraint('linkedinSector', 'careerName'),)
+    __table_args__ = (UniqueConstraint('linkedinSector', 'title'),)
 
 class CareerSkill(SQLBase):
     __tablename__ = 'career_skill'
@@ -58,9 +58,9 @@ class CareerSkill(SQLBase):
     skillName     = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
     totalCount    = Column(BigInteger)
-    careerCount   = Column(BigInteger)
+    titleCount    = Column(BigInteger)
     skillCount    = Column(BigInteger)
-    skillCareerCount = Column(BigInteger)
+    count         = Column(BigInteger)
     relevanceScore = Column(Float)
     
     __table_args__ = (UniqueConstraint('careerId', 'skillName'),)
@@ -74,8 +74,8 @@ class CareerDefinitionDB(SQLDatabase):
         id = self.query(Career.id) \
                  .filter(Career.linkedinSector \
                          == careerdict['linkedinSector'],
-                         Career.careerName \
-                         == careerdict['careerName']).first()
+                         Career.title \
+                         == careerdict['title']).first()
         if id is not None:
             if not update:
                 return None
@@ -101,7 +101,7 @@ class CareerDefinitionDB(SQLDatabase):
         if sectors:
             q = q.filter(Career.linkedinSector.in_(sectors))
         if titles:
-            q = q.filter(Career.careerName.in_(titles))
+            q = q.filter(Career.title.in_(titles))
         for career in q:
             careerdict = dictFromRow(career)
             careerdict.pop('id')

@@ -3,18 +3,26 @@ from analyticsdb import *
 from analytics_get_entitycloud import relevanceScores
 from careerdefinitiondb import CareerDefinitionDB
 from sqlalchemy import func
-
-andb = AnalyticsDB(conf.ANALYTICS_DB)
-cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
-
+import argparse
 
 SECTORS = [
     'Information Technology and Services',
     'Hospital & Health Care',
     'Financial Services',
 ]
-LIMIT = 25
-MIN_SIGNIFICANCE = 3
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--limit', type=int, default=25,
+                    help='Maximum number of careers per sector.')
+parser.add_argument('--sigma', type=int, default=3,
+                    help='Minimal significance of relevance scores.')
+parser.add_argument('sector', nargs='*', default=SECTORS,
+                    help='The LinkedIn sectors to scan.')
+args = parser.parse_args()
+
+
+andb = AnalyticsDB(conf.ANALYTICS_DB)
+cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
 
 
 def sortEntities(entities, limit=None, minSignificance=None):
@@ -40,7 +48,7 @@ nrmSectors = {}
 joblists = {}
 sectorcounts = {}
 countcol = func.count().label('counts')
-for sector in SECTORS:
+for sector in args.sector:
     nrmSector, sectorc \
         = andb.query(Entity.nrmName, Entity.profileCount) \
               .filter(Entity.type == 'sector',
@@ -61,8 +69,8 @@ for sector in SECTORS:
                        .filter(LIProfile.nrmSector == nrmSector)
     joblists[sector] = sortEntities(relevanceScores(profilec, sectorc,
                                                     entityq, coincidenceq),
-                                    limit=LIMIT,
-                                    minSignificance=MIN_SIGNIFICANCE)
+                                    limit=args.limit,
+                                    minSignificance=args.sigma)
 
 experiencec = andb.query(LIExperience.id) \
                   .join(LIProfile) \
@@ -79,12 +87,12 @@ for sector, jobs in joblists.items():
                       sectortitlec/sectorc*100.0,
                       (titlec-sectortitlec)/(profilec-sectorc)*100.0,
                       title))
-        careerdict = {'careerName' : title,
+        careerdict = {'title' : title,
                       'linkedinSector' : sector,
                       'totalCount' : profilec,
                       'sectorCount' : sectorc,
-                      'careerCount' : titlec,
-                      'careerSectorCount' : sectortitlec,
+                      'titleCount' : titlec,
+                      'count' : sectortitlec,
                       'relevanceScore' : score,
                       'skillCloud' : []
         }
@@ -107,26 +115,16 @@ for sector, jobs in joblists.items():
         skillcloud \
             = sortEntities(relevanceScores(experiencec, sectortitlec,
                                            entityq, coincidenceq),
-                           minSignificance=MIN_SIGNIFICANCE)
+                           minSignificance=args.sigma)
         for _, skill, skillc, sectortitleskillc, score, _ in skillcloud:
             careerdict['skillCloud'].append({
                 'skillName' : skill,
                 'totalCount' : experiencec,
-                'careerCount' : sectortitlec,
+                'titleCount' : sectortitlec,
                 'skillCount' : skillc,
-                'skillCareerCount' : sectortitleskillc,
+                'count' : sectortitleskillc,
                 'relevanceScore' : score,
             })
-            # print('        {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
-            #       .format(score*100,
-            #               sectortitleskillc/sectortitlec*100.0,
-            #               (skillc-sectortitleskillc) \
-            #               /(experiencec-sectortitlec)*100.0,
-            #               skill))
 
         cddb.addCareer(careerdict, update=True)
         cddb.commit()
-        
-# for sector, jobs in joblists.items():
-#     print(sector)
-#     for nrmTitle, title, entitycount, count, score, error in jobs:

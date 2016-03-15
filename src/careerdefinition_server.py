@@ -57,15 +57,17 @@ def get_careers():
 class Career(db.Model):
     __tablename__ = 'career'
     id            = db.Column(db.BigInteger, primary_key=True)
-    careerName    = db.Column(db.Unicode(STR_MAX), nullable=False)
+    title         = db.Column(db.Unicode(STR_MAX), nullable=False)
     linkedinSector = db.Column(db.Unicode(STR_MAX), nullable=False)
     description   = db.Column(db.Text)
+    count         = db.Column(db.BigInteger)
+    relevanceScore = db.Column(db.Float)
 
     skillCloud = db.relationship('CareerSkill', backref='career',
                                  cascade='all, delete-orphan')
 
     def __str__(self):
-        return self.careerName
+        return self.title
 
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
@@ -76,6 +78,7 @@ class CareerSkill(db.Model):
                                             ondelete='CASCADE'))
     skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
     description   = db.Column(db.Text)
+    count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
 
     def __str__(self):
@@ -99,13 +102,18 @@ _textAreaStyle = {
     'style' : 'font-family:"Lucida Console", Monaco, monospace;'
 }
 class CareerView(ModelView):
-    form_widget_args = {'description' : _textAreaStyle}
+    form_widget_args = {
+        'description' : _textAreaStyle,
+        'count' : {'readonly' : True},
+        'relevanceScore' : {'readonly' : True},
+    }
     inline_models = [(CareerSkill,
                       {'form_widget_args' : {
                           'relevanceScore' : {'readonly' : True},
+                          'count' : {'readonly' : True},
                           'description' : _textAreaStyle
                       }})]
-    column_filters = ['linkedinSector', 'careerName']
+    column_filters = ['linkedinSector', 'title']
 
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skillName']
