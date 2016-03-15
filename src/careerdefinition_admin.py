@@ -3,6 +3,9 @@ from flask_sqlalchemy import SQLAlchemy
 
 import flask_admin as admin
 from flask_admin.contrib import sqla
+from flask import request, Response
+from werkzeug.exceptions import HTTPException
+
 
 import conf
 
@@ -16,6 +19,7 @@ app.config['SECRET_KEY'] = '123456790'
 # Create in-memory database
 app.config['SQLALCHEMY_DATABASE_URI'] = conf.CAREERDEFINITION_DB
 app.config['SQLALCHEMY_ECHO'] = True
+app.config['ADMIN_CREDENTIALS'] = ('geektalent', 'PythonRulez')
 db = SQLAlchemy(app)
 
 STR_MAX = 100000
@@ -53,11 +57,23 @@ class CareerSkill(db.Model):
         return self.name
 
 
+class ModelView(sqla.ModelView):
+    def is_accessible(self):
+        auth = request.authorization or \
+               request.environ.get('REMOTE_USER')  # workaround for APACHE
+        if not auth or \
+           (auth.username, auth.password) != app.config['ADMIN_CREDENTIALS']:
+            raise HTTPException('', Response(
+                "Please log in.", 401,
+                {'WWW-Authenticate': 'Basic realm="Login Required"'}
+            ))
+        return True
+    
 _textAreaStyle = {
     'rows' : 5,
     'style' : 'font-family:"Lucida Console", Monaco, monospace;'
 }
-class CareerView(sqla.ModelView):
+class CareerView(ModelView):
     form_widget_args = {'description' : _textAreaStyle}
     inline_models = [(CareerSkill,
                       {'form_widget_args' : {
@@ -66,7 +82,7 @@ class CareerView(sqla.ModelView):
                       }})]
     column_filters = ['sector', 'name']
 
-class CareerSkillView(sqla.ModelView):
+class CareerSkillView(ModelView):
     column_filters = ['career', 'name']
     
     
