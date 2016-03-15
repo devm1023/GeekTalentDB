@@ -79,14 +79,14 @@ for sector, jobs in joblists.items():
                       sectortitlec/sectorc*100.0,
                       (titlec-sectortitlec)/(profilec-sectorc)*100.0,
                       title))
-        careerdict = {'name' : title,
-                      'sector' : sector,
+        careerdict = {'careerName' : title,
+                      'linkedinSector' : sector,
                       'totalCount' : profilec,
                       'sectorCount' : sectorc,
                       'careerCount' : titlec,
-                      'count' : sectortitlec,
-                      'score' : score,
-                      'skills' : []
+                      'careerSectorCount' : sectortitlec,
+                      'relevanceScore' : score,
+                      'skillCloud' : []
         }
         
         sectortitlec = andb.query(LIExperience.id) \
@@ -109,13 +109,13 @@ for sector, jobs in joblists.items():
                                            entityq, coincidenceq),
                            minSignificance=MIN_SIGNIFICANCE)
         for _, skill, skillc, sectortitleskillc, score, _ in skillcloud:
-            careerdict['skills'].append({
-                'name' : skill,
+            careerdict['skillCloud'].append({
+                'skillName' : skill,
                 'totalCount' : experiencec,
                 'careerCount' : sectortitlec,
                 'skillCount' : skillc,
-                'count' : sectortitleskillc,
-                'score' : score,
+                'skillCareerCount' : sectortitleskillc,
+                'relevanceScore' : score,
             })
             # print('        {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}' \
             #       .format(score*100,

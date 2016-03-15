@@ -1,22 +1,25 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
 import flask_admin as admin
 from flask_admin.contrib import sqla
-from flask import request, Response
+from flask import request, Response, jsonify
 from werkzeug.exceptions import HTTPException
 
-
 import conf
+from careerdefinitiondb import CareerDefinitionDB
+from datetime import datetime
 
 # Create application
 app = Flask(__name__)
+
+# Create database session
+cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
 
 
 # Create dummy secrey key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'
 
-# Create in-memory database
+# Configure app and create database view
 app.config['SQLALCHEMY_DATABASE_URI'] = conf.CAREERDEFINITION_DB
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['ADMIN_CREDENTIALS'] = ('geektalent', 'PythonRulez')
@@ -29,18 +32,32 @@ STR_MAX = 100000
 def index():
     return '<a href="/admin/">Click me to get to Admin!</a>'
 
+@app.route('/careers/', methods=['GET'])
+def get_careers():
+    start = datetime.now()
+    sectors = request.args.getlist('sector')
+    titles = request.args.getlist('title')
+    results = cddb.getCareers(sectors, titles)
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
 class Career(db.Model):
     __tablename__ = 'career'
     id            = db.Column(db.BigInteger, primary_key=True)
-    name          = db.Column(db.Unicode(STR_MAX), nullable=False)
-    sector        = db.Column(db.Unicode(STR_MAX), nullable=False)
+    careerName    = db.Column(db.Unicode(STR_MAX), nullable=False)
+    linkedinSector = db.Column(db.Unicode(STR_MAX), nullable=False)
     description   = db.Column(db.Text)
 
-    skills = db.relationship('CareerSkill', backref='career',
-                             cascade='all, delete-orphan')
+    skillCloud = db.relationship('CareerSkill', backref='career',
+                                 cascade='all, delete-orphan')
 
     def __str__(self):
-        return self.name
+        return self.careerName
 
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
@@ -49,12 +66,12 @@ class CareerSkill(db.Model):
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    name          = db.Column(db.Unicode(STR_MAX), nullable=False)
+    skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
     description   = db.Column(db.Text)
-    score         = db.Column(db.Float)
+    relevanceScore = db.Column(db.Float)
 
     def __str__(self):
-        return self.name
+        return self.skillName
 
 
 class ModelView(sqla.ModelView):
@@ -77,13 +94,13 @@ class CareerView(ModelView):
     form_widget_args = {'description' : _textAreaStyle}
     inline_models = [(CareerSkill,
                       {'form_widget_args' : {
-                          'score' : {'readonly' : True},
+                          'relevanceScore' : {'readonly' : True},
                           'description' : _textAreaStyle
                       }})]
-    column_filters = ['sector', 'name']
+    column_filters = ['linkedinSector', 'careerName']
 
 class CareerSkillView(ModelView):
-    column_filters = ['career', 'name']
+    column_filters = ['career', 'skillName']
     
     
 # Create admin
