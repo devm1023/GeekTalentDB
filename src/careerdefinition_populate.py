@@ -14,7 +14,7 @@ SECTORS = [
     'Financial Services',
 ]
 LIMIT = 25
-MIN_SIGNIFICANCE = 2
+MIN_SIGNIFICANCE = 3
 
 
 def sortEntities(entities, limit=None, minSignificance=None):

@@ -8,6 +8,14 @@ from werkzeug.exceptions import HTTPException
 import conf
 from careerdefinitiondb import CareerDefinitionDB
 from datetime import datetime
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true',
+                    help='Enable debug mode.')
+args = parser.parse_args()
+
+
 
 # Create application
 app = Flask(__name__)
@@ -109,7 +117,8 @@ admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))
 
 if __name__ == '__main__':
-
-    # Start app
-    app.run(debug=True)
+    if args.debug:
+        app.run(debug=True)
+    else:
+        app.run(host='0.0.0.0')
 
