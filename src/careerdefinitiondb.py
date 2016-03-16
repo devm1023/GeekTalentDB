@@ -45,8 +45,17 @@ class Career(SQLBase):
     relevanceScore = Column(Float)
 
     skillCloud = relationship('CareerSkill',
-                              order_by='CareerSkill.relevanceScore',
+                              order_by='desc(CareerSkill.relevanceScore)',
                               cascade='all, delete-orphan')
+    companyCloud = relationship('CareerCompany',
+                              order_by='desc(CareerCompany.relevanceScore)',
+                              cascade='all, delete-orphan')
+    educationSubjects = relationship('CareerSubject',
+                                     order_by='desc(CareerSubject.count)',
+                                     cascade='all, delete-orphan')
+    educationInstitutes = relationship('CareerInstitute',
+                                       order_by='desc(CareerInstitute.count)',
+                                       cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('linkedinSector', 'title'),)
 
@@ -64,6 +73,41 @@ class CareerSkill(SQLBase):
     relevanceScore = Column(Float)
     
     __table_args__ = (UniqueConstraint('careerId', 'skillName'),)
+
+class CareerCompany(SQLBase):
+    __tablename__ = 'career_company'
+    id            = Column(BigInteger, primary_key=True)
+    careerId      = Column(BigInteger, ForeignKey('career.id'),
+                           index=True)
+    companyName   = Column(Unicode(STR_MAX), index=True)
+    totalCount    = Column(BigInteger)
+    titleCount    = Column(BigInteger)
+    companyCount  = Column(BigInteger)
+    count         = Column(BigInteger)
+    relevanceScore = Column(Float)
+    
+    __table_args__ = (UniqueConstraint('careerId', 'companyName'),)
+    
+class CareerSubject(SQLBase):
+    __tablename__ = 'career_subject'
+    id            = Column(BigInteger, primary_key=True)
+    careerId      = Column(BigInteger, ForeignKey('career.id'),
+                           index=True)
+    subjectName   = Column(Unicode(STR_MAX), index=True)
+    count         = Column(BigInteger)
+
+    __table_args__ = (UniqueConstraint('careerId', 'subjectName'),)
+    
+class CareerInstitute(SQLBase):
+    __tablename__ = 'career_institute'
+    id            = Column(BigInteger, primary_key=True)
+    careerId      = Column(BigInteger, ForeignKey('career.id'),
+                           index=True)
+    instituteName = Column(Unicode(STR_MAX), index=True)
+    count         = Column(BigInteger)
+    
+    __table_args__ = (UniqueConstraint('careerId', 'instituteName'),)
+    
 
 class CareerDefinitionDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
@@ -93,8 +137,40 @@ class CareerDefinitionDB(SQLDatabase):
                 skill['id'] = skillid[0]
                 skill['careerId'] = id
 
+        for company in careerdict.get('companyCloud', []):
+            companyid = self.query(CareerCompany.id) \
+                          .filter(CareerCompany.careerId == id,
+                                  CareerCompany.companyName \
+                                  == company.get('companyName', None)) \
+                          .first()
+            if companyid is not None:
+                company['id'] = companyid[0]
+                company['careerId'] = id
+                
+        for subject in careerdict.get('educationSubjects', []):
+            subjectid = self.query(CareerSubject.id) \
+                          .filter(CareerSubject.careerId == id,
+                                  CareerSubject.subjectName \
+                                  == subject.get('subjectName', None)) \
+                          .first()
+            if subjectid is not None:
+                subject['id'] = subjectid[0]
+                subject['careerId'] = id
+                
         return self.addFromDict(careerdict, Career)
 
+        for institute in careerdict.get('educationSubjects', []):
+            instituteid = self.query(CareerSubject.id) \
+                          .filter(CareerSubject.careerId == id,
+                                  CareerSubject.instituteName \
+                                  == institute.get('instituteName', None)) \
+                          .first()
+            if instituteid is not None:
+                institute['id'] = instituteid[0]
+                institute['careerId'] = id
+                
+        return self.addFromDict(careerdict, Career)
+    
     def getCareers(self, sectors, titles):
         results = []
         q = self.query(Career)
@@ -108,6 +184,15 @@ class CareerDefinitionDB(SQLDatabase):
             for skilldict in careerdict['skillCloud']:
                 skilldict.pop('id')
                 skilldict.pop('careerId')
+            for companydict in careerdict['companyCloud']:
+                companydict.pop('id')
+                companydict.pop('careerId')
+            for subjectdict in careerdict['educationSubjects']:
+                subjectdict.pop('id')
+                subjectdict.pop('careerId')
+            for institutedict in careerdict['educationInstitutes']:
+                institutedict.pop('id')
+                institutedict.pop('careerId')
             results.append(careerdict)
 
         return results

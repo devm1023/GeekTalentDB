@@ -64,7 +64,18 @@ class Career(db.Model):
     relevanceScore = db.Column(db.Float)
 
     skillCloud = db.relationship('CareerSkill', backref='career',
+                                 order_by='desc(CareerSkill.relevanceScore)',
                                  cascade='all, delete-orphan')
+    companyCloud \
+        = db.relationship('CareerCompany', backref='career',
+                          order_by='desc(CareerCompany.relevanceScore)',
+                          cascade='all, delete-orphan')
+    educationSubjects = db.relationship('CareerSubject', backref='career',
+                                        order_by='desc(CareerSubject.count)',
+                                        cascade='all, delete-orphan')
+    educationInstitutes = db.relationship('CareerInstitute', backref='career',
+                                        order_by='desc(CareerInstitute.count)',
+                                          cascade='all, delete-orphan')
 
     def __str__(self):
         return self.title
@@ -84,6 +95,46 @@ class CareerSkill(db.Model):
     def __str__(self):
         return self.skillName
 
+class CareerCompany(db.Model):
+    __tablename__ = 'career_company'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
+    companyName     = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+    relevanceScore = db.Column(db.Float)
+
+    def __str__(self):
+        return self.companyName
+    
+class CareerSubject(db.Model):
+    __tablename__ = 'career_subject'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
+    subjectName   = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+
+    def __str__(self):
+        return self.subjectName
+
+class CareerInstitute(db.Model):
+    __tablename__ = 'career_institute'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
+    instituteName   = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+
+    def __str__(self):
+        return self.instituteName
+    
 
 class ModelView(sqla.ModelView):
     def is_accessible(self):
@@ -107,22 +158,45 @@ class CareerView(ModelView):
         'count' : {'readonly' : True},
         'relevanceScore' : {'readonly' : True},
     }
-    inline_models = [(CareerSkill,
-                      {'form_widget_args' : {
-                          'relevanceScore' : {'readonly' : True},
-                          'count' : {'readonly' : True},
-                          'description' : _textAreaStyle
-                      }})]
+    inline_models = [
+        (CareerSkill, {'form_widget_args' : {
+            'relevanceScore' : {'readonly' : True},
+            'count' : {'readonly' : True},
+            'description' : _textAreaStyle
+        }}),
+        (CareerCompany, {'form_widget_args' : {
+            'relevanceScore' : {'readonly' : True},
+            'count' : {'readonly' : True}
+        }}),
+        (CareerSubject,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+        (CareerInstitute,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+    ]
     column_filters = ['linkedinSector', 'title']
 
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skillName']
+
+class CareerCompanyView(ModelView):
+    column_filters = ['career', 'companyName']
+    
+class CareerSubjectView(ModelView):
+    column_filters = ['career', 'subjectName']
+    form_widget_args = {'count' : {'readonly' : True}}
+
+class CareerInstituteView(ModelView):
+    column_filters = ['career', 'instituteName']
+    form_widget_args = {'count' : {'readonly' : True}}
     
     
 # Create admin
 admin = admin.Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
 admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))
+admin.add_view(CareerCompanyView(CareerCompany, db.session))
+admin.add_view(CareerSubjectView(CareerSubject, db.session))
+admin.add_view(CareerInstituteView(CareerInstitute, db.session))
 
 if __name__ == '__main__':
     if args.debug:
