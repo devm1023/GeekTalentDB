@@ -266,6 +266,8 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
 
 
 def makeNrmName(tpe, source, language, name):
+    if not tpe or not source or not language or not name:
+        return None
     return ':'.join([tpe, source, language, name])
 
 def splitNrmName(nrmName):
