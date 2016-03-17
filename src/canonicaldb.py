@@ -754,7 +754,7 @@ def _makeLIGroup(group, language):
     return group
     
 def _isCompany(language, name):
-    if language != 'en':
+    if language != 'en' or not name:
         return False
     tokens = clean(name, lowercase=True, tokenize=True)
     return ('limited' in tokens or 'ltd' in tokens)
