@@ -9,7 +9,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('type',
                         help='The query type.',
-                        choices=['skill', 'title', 'company'])
+                        choices=['skill', 'title', 'company',
+                                 'sector', 'institute', 'subject', 'degree'])
     parser.add_argument('source',
                         help='The data source to use.',
                         choices=['linkedin', 'indeed'])

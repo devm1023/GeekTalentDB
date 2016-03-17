@@ -5,16 +5,21 @@ import re
 
 _stopwords_en = set(nltk.corpus.stopwords.words('english')) \
                 - set(['it', 's', 't', 'can', 'do'])
-_stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
-
+_protect_en = set(['hospitality'])
 _stemmer_en = nltk.stem.snowball.SnowballStemmer('english')
+
+_stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
+_protect_nl = set()
 _stemmer_nl = nltk.stem.snowball.SnowballStemmer('dutch')
+
 
 _conf = {
     'en' : {
         'stemmer' : _stemmer_en.stem,
+        'protect' : _protect_en,
 
         'skillStemmer' : _stemmer_en.stem,
+        'skillProtect' : _protect_en,
         'skillStopwords' : _stopwords_en,
         'skillReplace' : [
             ('.net', ' dotnet'),
@@ -85,8 +90,10 @@ _conf = {
 
     'nl' : {
         'stemmer' : _stemmer_nl.stem,
+        'protect' : _protect_nl,
         
         'skillStemmer' : _stemmer_en.stem,
+        'skillProtect' : _protect_en,
         'skillStopwords' : _stopwords_nl,
         'skillReplace' : [
             ('.net', ' dotnet'),
@@ -131,7 +138,8 @@ _conf = {
 
 def clean(s, keep='', nospace='', lowercase=False, removebrackets=False, 
           stopwords=False, sort=False, removeduplicates=False,
-          tokenize=False, regexreplace=[], replace=[], stem=None):
+          tokenize=False, regexreplace=[], replace=[], stem=None,
+          protect=set()):
     """Clean up text.
 
     Note:
@@ -180,6 +188,7 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
         to an empty list.
       stem (callable or None, optional): Function to stem the words in `text`.
         Defaults to ``None``, in which case no stemming is performed.
+      protect (set of str, optional): Set of words which should not be stemmed.
 
     """
     # remove accents and lowercase
@@ -250,7 +259,7 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
 
     # do stemming
     if stem is not None:
-        s = [stem(w) for w in s]
+        s = [(w if w in protect else stem(w)) for w in s]
 
     # sort and remove duplicates
     if sort:
@@ -290,7 +299,8 @@ def tokenizedSkill(language, name, removebrackets=False):
                  removebrackets=removebrackets,
                  tokenize=True,
                  replace=conf['skillReplace'],
-                 stem=conf['skillStemmer'])
+                 stem=conf['skillStemmer'],
+                 protect=conf['skillProtect'])
 
 def normalizedSkill(source, language, name):
     """Normalize a string describing a skill.
@@ -374,7 +384,8 @@ def normalizedTitle(source, language, name):
                   removebrackets=True,
                   stopwords=conf['titleStopwords'],
                   replace=conf['titleReplace'],
-                  stem=conf['stemmer'])
+                  stem=conf['stemmer'],
+                  protect=conf['protect'])
     return makeNrmName('title', source, language, title)
 
 def normalizedTitlePrefix(language, name):
@@ -398,7 +409,8 @@ def normalizedSector(name):
                   lowercase=True,
                   removebrackets=True,
                   stopwords=conf['sectorStopwords'],
-                  stem=conf['stemmer'])
+                  stem=conf['stemmer'],
+                  protect=conf['protect'])
     if not nname:
         return None
     return makeNrmName('sector', 'linkedin', 'en', nname)
@@ -458,6 +470,7 @@ def normalizedInstitute(source, language, name):
                   stopwords=conf['instituteStopwords'],
                   regexreplace=conf['instituteRegexReplace'],
                   stem=conf['stemmer'],
+                  protect=conf['protect'],
                   sort=True)
     if not nname:
         return None
@@ -480,7 +493,8 @@ def normalizedDegree(source, language, name):
                   removebrackets=True,
                   stopwords=conf['degreeStopwords'],
                   regexreplace=conf['degreeRegexReplace'],
-                  stem=conf['stemmer'])
+                  stem=conf['stemmer'],
+                  protect=conf['protect'])
     if not nname:
         return None
     return makeNrmName('degree', source, language, nname)
@@ -498,7 +512,8 @@ def normalizedSubject(source, language, name):
                   lowercase=True,
                   removebrackets=True,
                   stopwords=conf['subjectStopwords'],
-                  stem=conf['stemmer'])
+                  stem=conf['stemmer'],
+                  protect=conf['protect'])
     if not nname:
         return None
     return makeNrmName('subject', source, language, nname)

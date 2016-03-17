@@ -22,7 +22,8 @@ __all__ = [
 import conf
 from sqldb import *
 from textnormalization import normalizedTitle, normalizedCompany, \
-    normalizedSkill, splitNrmName
+    normalizedSkill, normalizedSector, normalizedInstitute, \
+    normalizedSubject, normalizedDegree, splitNrmName
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -642,6 +643,14 @@ class AnalyticsDB(SQLDatabase):
             nrmfunc = normalizedSkill
         elif querytype == 'company':
             nrmfunc = normalizedCompany
+        elif querytype == 'sector':
+            nrmfunc = lambda src, lang, name: normalizedSector(name)
+        elif querytype == 'institute':
+            nrmfunc = normalizedInstitute
+        elif querytype == 'subject':
+            nrmfunc = normalizedSubject
+        elif querytype == 'degree':
+            nrmfunc = normalizedDegree
         else:
             raise ValueError('Unsupported query type `{0:s}`.' \
                              .format(querytype))
