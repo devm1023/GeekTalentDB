@@ -56,6 +56,12 @@ class Career(SQLBase):
     educationInstitutes = relationship('CareerInstitute',
                                        order_by='desc(CareerInstitute.count)',
                                        cascade='all, delete-orphan')
+    previousTitles = relationship('PreviousTitle',
+                                  order_by='desc(PreviousTitle.count)',
+                                  cascade='all, delete-orphan')
+    nextTitles = relationship('NextTitle',
+                              order_by='desc(NextTitle.count)',
+                              cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('linkedinSector', 'title'),)
 
@@ -107,6 +113,26 @@ class CareerInstitute(SQLBase):
     count         = Column(BigInteger)
     
     __table_args__ = (UniqueConstraint('careerId', 'instituteName'),)
+
+class PreviousTitle(SQLBase):
+    __tablename__ = 'previous_title'
+    id            = Column(BigInteger, primary_key=True)
+    careerId      = Column(BigInteger, ForeignKey('career.id'),
+                           index=True)
+    previousTitle = Column(Unicode(STR_MAX), index=True)
+    count         = Column(BigInteger)
+    
+    __table_args__ = (UniqueConstraint('careerId', 'previousTitle'),)
+
+class NextTitle(SQLBase):
+    __tablename__ = 'next_title'
+    id            = Column(BigInteger, primary_key=True)
+    careerId      = Column(BigInteger, ForeignKey('career.id'),
+                           index=True)
+    nextTitle = Column(Unicode(STR_MAX), index=True)
+    count         = Column(BigInteger)
+    
+    __table_args__ = (UniqueConstraint('careerId', 'nextTitle'),)
     
 
 class CareerDefinitionDB(SQLDatabase):
@@ -168,6 +194,26 @@ class CareerDefinitionDB(SQLDatabase):
             if instituteid is not None:
                 institute['id'] = instituteid[0]
                 institute['careerId'] = id
+
+        for previousTitle in careerdict.get('previousTitles', []):
+            titleid = self.query(PreviousTitle.id) \
+                          .filter(PreviousTitle.careerId == id,
+                                  PreviousTitle.previousTitle \
+                                  == previousTitle.get('previousTitle', None)) \
+                          .first()
+            if titleid is not None:
+                previousTitle['id'] = titleid[0]
+                previousTitle['careerId'] = id
+
+        for nextTitle in careerdict.get('nextTitles', []):
+            titleid = self.query(NextTitle.id) \
+                          .filter(NextTitle.careerId == id,
+                                  NextTitle.nextTitle \
+                                  == nextTitle.get('nextTitle', None)) \
+                          .first()
+            if titleid is not None:
+                nextTitle['id'] = titleid[0]
+                nextTitle['careerId'] = id
                 
         return self.addFromDict(careerdict, Career)
     
@@ -193,6 +239,12 @@ class CareerDefinitionDB(SQLDatabase):
             for institutedict in careerdict['educationInstitutes']:
                 institutedict.pop('id')
                 institutedict.pop('careerId')
+            for titledict in careerdict['previousTitles']:
+                titledict.pop('id')
+                titledict.pop('careerId')
+            for titledict in careerdict['nextTitles']:
+                titledict.pop('id')
+                titledict.pop('careerId')
             results.append(careerdict)
 
         return results

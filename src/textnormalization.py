@@ -45,6 +45,9 @@ _conf = {
             'apprentice',
             'intern',
             'freelance',
+            'trainee',
+            'associate',
+            'staff',
         ]),
         'titleSuffixWords' : set([
             'intern',

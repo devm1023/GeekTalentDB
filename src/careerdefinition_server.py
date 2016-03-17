@@ -74,8 +74,14 @@ class Career(db.Model):
                                         order_by='desc(CareerSubject.count)',
                                         cascade='all, delete-orphan')
     educationInstitutes = db.relationship('CareerInstitute', backref='career',
-                                        order_by='desc(CareerInstitute.count)',
+                                          order_by='desc(CareerInstitute.count)',
                                           cascade='all, delete-orphan')
+    previousTitles = db.relationship('PreviousTitle', backref='career',
+                                     order_by='desc(PreviousTitle.count)',
+                                     cascade='all, delete-orphan')
+    nextTitles = db.relationship('NextTitle', backref='career',
+                                 order_by='desc(NextTitle.count)',
+                                 cascade='all, delete-orphan')
 
     def __str__(self):
         return self.title
@@ -134,6 +140,32 @@ class CareerInstitute(db.Model):
 
     def __str__(self):
         return self.instituteName
+
+class PreviousTitle(db.Model):
+    __tablename__ = 'previous_title'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
+    previousTitle = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+
+    def __str__(self):
+        return self.previousTitle
+
+class NextTitle(db.Model):
+    __tablename__ = 'next_title'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    careerId      = db.Column(db.BigInteger,
+                              db.ForeignKey('career.id',
+                                            onupdate='CASCADE',
+                                            ondelete='CASCADE'))
+    nextTitle = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+
+    def __str__(self):
+        return self.nextTitle
     
 
 class ModelView(sqla.ModelView):
@@ -172,6 +204,10 @@ class CareerView(ModelView):
          {'form_widget_args' : {'count' : {'readonly' : True}}}),
         (CareerInstitute,
          {'form_widget_args' : {'count' : {'readonly' : True}}}),
+        (PreviousTitle,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+        (NextTitle,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
     ]
     column_filters = ['linkedinSector', 'title']
 
@@ -188,6 +224,14 @@ class CareerSubjectView(ModelView):
 class CareerInstituteView(ModelView):
     column_filters = ['career', 'instituteName']
     form_widget_args = {'count' : {'readonly' : True}}
+
+class PreviousTitleView(ModelView):
+    column_filters = ['career', 'previousTitle']
+    form_widget_args = {'count' : {'readonly' : True}}
+
+class NextTitleView(ModelView):
+    column_filters = ['career', 'nextTitle']
+    form_widget_args = {'count' : {'readonly' : True}}
     
     
 # Create admin
@@ -197,6 +241,8 @@ admin.add_view(CareerSkillView(CareerSkill, db.session))
 admin.add_view(CareerCompanyView(CareerCompany, db.session))
 admin.add_view(CareerSubjectView(CareerSubject, db.session))
 admin.add_view(CareerInstituteView(CareerInstitute, db.session))
+admin.add_view(PreviousTitleView(PreviousTitle, db.session))
+admin.add_view(NextTitleView(NextTitle, db.session))
 
 if __name__ == '__main__':
     if args.debug:

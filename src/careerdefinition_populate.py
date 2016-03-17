@@ -117,6 +117,45 @@ def getCompanyCloud(andb, experiencec, nrmSector, nrmTitle, sigma):
         })
     return result
 
+def getCareerSteps(andb, nrmSector, nrmTitle, mincount=1):
+    previousTitles = {}
+    nextTitles = {}
+    q = andb.query(LIProfile) \
+            .join(LIExperience) \
+            .filter(LIProfile.nrmSector == nrmSector,
+                    LIExperience.nrmTitle == nrmTitle) \
+            .distinct()
+    for liprofile in q:
+        titles = []
+        for experience in liprofile.experiences:
+            if not experience.nrmTitle or not experience.start:
+                continue
+            if not titles or titles[-1] != experience.nrmTitle:
+                titles.append(experience.nrmTitle)
+        for i, title in enumerate(titles):
+            if title != nrmTitle:
+                continue
+            if i > 0:
+                prevTitle = titles[i-1]
+                previousTitles[prevTitle] = previousTitles.get(prevTitle, 0) + 1
+            if i < len(titles)-1:
+                nextTitle = titles[i+1]
+                nextTitles[nextTitle] = nextTitles.get(nextTitle, 0) + 1
+    previousTitles = [(job, count) for job, count in previousTitles.items() \
+                      if count >= mincount]
+    nextTitles = [(job, count) for job, count in nextTitles.items() \
+                  if count >= mincount]
+    nrmTitles = set(job for l in [previousTitles, nextTitles] for job, _ in l)
+    q = andb.query(Entity.nrmName, Entity.name)
+    if nrmTitles:
+        q = q.filter(Entity.nrmName.in_(nrmTitles))
+    titles = dict(q)
+    previousTitles = [{'previousTitle' : titles[t], 'count' : c} \
+                      for t, c in previousTitles]
+    nextTitles = [{'nextTitle' : titles[t], 'count' : c} for t, c in nextTitles]
+
+    return previousTitles, nextTitles
+
 def getSubjects(andb, profileIds, mincount=1):
     q = andb.query(LIEducation.liprofileId, LIEducation.end,
                    LIEducation.nrmSubject, Entity.name) \
@@ -233,6 +272,11 @@ if __name__ == '__main__':
                 = getSubjects(andb, profileIds, args.mincount)
             careerdict['educationInstitutes'] \
                 = getInstitutes(andb, profileIds, args.mincount)
+
+            previousTitles, nextTitles \
+                = getCareerSteps(andb, nrmSector, nrmTitle, args.mincount)
+            careerdict['previousTitles'] = previousTitles
+            careerdict['nextTitles'] = nextTitles
 
             cddb.addCareer(careerdict, update=True)
             cddb.commit()
