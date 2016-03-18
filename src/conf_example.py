@@ -64,6 +64,15 @@ PLACES_API = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
 # Datascience key: AIzaSyA9rjoaF9BHgl7sC9FrQxlz8DjTjIVVfcI
 PLACES_KEY = 'AIzaSyA9rjoaF9BHgl7sC9FrQxlz8DjTjIVVfcI'
 
+# Watson concept insights graph url
+WATSON_CONCEPT_INSIGHTS_GRAPH_URL \
+    = 'https://gateway.watsonplatform.net/concept-insights/api/v2/graphs' \
+      '/wikipedia/en-latest/'
+# Watson username
+WATSON_USERNAME = '8d4b1f2e-7878-45be-8eaa-4207e29df6e7'
+# Watson password
+WATSON_PASSWORD = 'SLtaOke1oa2p'
+
 # maximum number of profiles which get added to the DB
 MAX_PROFILES    = None
 

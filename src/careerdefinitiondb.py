@@ -1,6 +1,12 @@
 __all__ = [
     'Career',
     'CareerSkill',
+    'CareerCompany',
+    'CareerSubject',
+    'CareerInstitute',
+    'PreviousTitle',
+    'NextTitle',
+    'EntityDescription',
     'CareerDefinitionDB',
     ]
 
@@ -24,6 +30,8 @@ from sqlalchemy import \
     or_
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
+import requests
+import conf
 from pprint import pprint
 
 
@@ -37,13 +45,14 @@ class Career(SQLBase):
     id            = Column(BigInteger, primary_key=True)
     title         = Column(Unicode(STR_MAX), index=True)
     linkedinSector = Column(Unicode(STR_MAX), index=True)
-    description   = Column(Unicode(STR_MAX))
+    descriptionId = Column(BigInteger, ForeignKey('entity_description.id'))
     totalCount    = Column(BigInteger)
     sectorCount   = Column(BigInteger)
     titleCount    = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
 
+    description = relationship('EntityDescription')
     skillCloud = relationship('CareerSkill',
                               order_by='desc(CareerSkill.relevanceScore)',
                               cascade='all, delete-orphan')
@@ -71,12 +80,15 @@ class CareerSkill(SQLBase):
     careerId      = Column(BigInteger, ForeignKey('career.id'),
                            index=True)
     skillName     = Column(Unicode(STR_MAX), index=True)
-    description   = Column(Unicode(STR_MAX))
+    descriptionId = Column(BigInteger,
+                           ForeignKey('entity_description.id'))
     totalCount    = Column(BigInteger)
     titleCount    = Column(BigInteger)
     skillCount    = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    
+    description = relationship('EntityDescription')
     
     __table_args__ = (UniqueConstraint('careerId', 'skillName'),)
 
@@ -86,11 +98,15 @@ class CareerCompany(SQLBase):
     careerId      = Column(BigInteger, ForeignKey('career.id'),
                            index=True)
     companyName   = Column(Unicode(STR_MAX), index=True)
+    descriptionId = Column(BigInteger,
+                           ForeignKey('entity_description.id'))
     totalCount    = Column(BigInteger)
     titleCount    = Column(BigInteger)
     companyCount  = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    
+    description = relationship('EntityDescription')
     
     __table_args__ = (UniqueConstraint('careerId', 'companyName'),)
     
@@ -100,8 +116,12 @@ class CareerSubject(SQLBase):
     careerId      = Column(BigInteger, ForeignKey('career.id'),
                            index=True)
     subjectName   = Column(Unicode(STR_MAX), index=True)
+    descriptionId = Column(BigInteger,
+                           ForeignKey('entity_description.id'))
     count         = Column(BigInteger)
 
+    description = relationship('EntityDescription')
+    
     __table_args__ = (UniqueConstraint('careerId', 'subjectName'),)
     
 class CareerInstitute(SQLBase):
@@ -110,7 +130,11 @@ class CareerInstitute(SQLBase):
     careerId      = Column(BigInteger, ForeignKey('career.id'),
                            index=True)
     instituteName = Column(Unicode(STR_MAX), index=True)
+    descriptionId = Column(BigInteger,
+                           ForeignKey('entity_description.id'))
     count         = Column(BigInteger)
+    
+    description = relationship('EntityDescription')
     
     __table_args__ = (UniqueConstraint('careerId', 'instituteName'),)
 
@@ -133,6 +157,21 @@ class NextTitle(SQLBase):
     count         = Column(BigInteger)
     
     __table_args__ = (UniqueConstraint('careerId', 'nextTitle'),)
+
+class EntityDescription(SQLBase):
+    __tablename__ = 'entity_description'
+    id            = Column(BigInteger, primary_key=True)
+    entityType    = Column(String(20), index=True)
+    linkedinSector = Column(Unicode(STR_MAX), index=True)
+    entityName    = Column(Unicode(STR_MAX), index=True)
+    matchCount    = Column(Integer)
+    description   = Column(Unicode(STR_MAX))
+    descriptionUrl = Column(String(STR_MAX))
+    descriptionSource = Column(Unicode(STR_MAX))
+    edited        = Column(Boolean)
+    
+    __table_args__ = (UniqueConstraint('entityType', 'linkedinSector',
+                                       'entityName'),)
     
 
 class CareerDefinitionDB(SQLDatabase):
@@ -140,18 +179,77 @@ class CareerDefinitionDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
+    def _getEntityId(self, entityType, linkedinSector, entityName):
+        entityTypes = [entityType]
+        if entityType is not None:
+            entityTypes.append(None)
+        linkedinSectors = [linkedinSector]
+        if linkedinSector is not None:
+            linkedinSectors.append(None)
+
+        entity = None
+        for entityType in entityTypes:
+            for linkedinSector in linkedinSectors:
+                if entity is not None:
+                    break
+                entity = self.query(EntityDescription) \
+                             .filter(EntityDescription.entityType \
+                                     == entityType,
+                                     EntityDescription.linkedinSector \
+                                     == linkedinSector,
+                                     EntityDescription.entityName \
+                                     == entityName) \
+                             .first()        
+        if entity is not None:
+            return entity[0].id
+                
+        r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'label_search',
+                         params={'query' : entityName,
+                                 'concept_fields' : '{"link":1}',
+                                 'prefix' : 'false',
+                                 'limit' : '1'},
+                         auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD)) \
+                    .json()
+        try:
+            matchCount = len(r['matches'])
+            label = r['matches'][0]['label']
+        except:
+            matchCount = None
+            label = None
+        if not label:
+            return None
+        r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL \
+                         +'concepts/'+label.replace(' ', '_'),
+                         auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD)) \
+                    .json()
+        
+        entity = EntityDescription(entityType=None,
+                                   linkedinSector=None,
+                                   entityName=entityName,
+                                   description=r.get('abstract', None),
+                                   descriptionUrl=r.get('link', None),
+                                   descriptionSource='Wikipedia',
+                                   matchCount=matchCount,
+                                   edited=False)
+        self.add(entity)
+        self.flush()
+        return entity.id
+
     def addCareer(self, careerdict, update=False):
+        linkedinSector = careerdict['linkedinSector']
         id = self.query(Career.id) \
-                 .filter(Career.linkedinSector \
-                         == careerdict['linkedinSector'],
-                         Career.title \
-                         == careerdict['title']).first()
+                 .filter(Career.linkedinSector == linkedinSector,
+                         Career.title == careerdict['title']) \
+                 .first()
         if id is not None:
             if not update:
                 return None
             else:
                 id = id[0]
                 careerdict['id'] = id
+
+        careerdict['descriptionId'] \
+            = self._getEntityId('title', linkedinSector, careerdict['title'])
 
         for skill in careerdict.get('skillCloud', []):
             skillid = self.query(CareerSkill.id) \
@@ -162,6 +260,9 @@ class CareerDefinitionDB(SQLDatabase):
             if skillid is not None:
                 skill['id'] = skillid[0]
                 skill['careerId'] = id
+                skill['descriptionId'] \
+                    = self._getEntityId('skill', linkedinSector,
+                                        skill['skillName'])
 
         for company in careerdict.get('companyCloud', []):
             companyid = self.query(CareerCompany.id) \
@@ -172,6 +273,9 @@ class CareerDefinitionDB(SQLDatabase):
             if companyid is not None:
                 company['id'] = companyid[0]
                 company['careerId'] = id
+                company['descriptionId'] \
+                    = self._getEntityId('company', linkedinSector,
+                                        company['companyName'])
                 
         for subject in careerdict.get('educationSubjects', []):
             subjectid = self.query(CareerSubject.id) \
@@ -182,18 +286,22 @@ class CareerDefinitionDB(SQLDatabase):
             if subjectid is not None:
                 subject['id'] = subjectid[0]
                 subject['careerId'] = id
+                subject['descriptionId'] \
+                    = self._getEntityId('subject', linkedinSector,
+                                        subject['subjectName'])
                 
-        return self.addFromDict(careerdict, Career)
-
-        for institute in careerdict.get('educationSubjects', []):
-            instituteid = self.query(CareerSubject.id) \
-                          .filter(CareerSubject.careerId == id,
-                                  CareerSubject.instituteName \
+        for institute in careerdict.get('educationInstitutes', []):
+            instituteid = self.query(CareerInstitute.id) \
+                          .filter(CareerInstitute.careerId == id,
+                                  CareerInstitute.instituteName \
                                   == institute.get('instituteName', None)) \
                           .first()
             if instituteid is not None:
                 institute['id'] = instituteid[0]
                 institute['careerId'] = id
+                institute['descriptionId'] \
+                    = self._getEntityId('institute', linkedinSector,
+                                        institute['instituteName'])
 
         for previousTitle in careerdict.get('previousTitles', []):
             titleid = self.query(PreviousTitle.id) \
