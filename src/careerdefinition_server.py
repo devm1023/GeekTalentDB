@@ -86,6 +86,14 @@ class Career(db.Model):
     def __str__(self):
         return self.title
 
+class SectorSkill(db.Model):
+    __tablename__ = 'sector_skill'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sectorName    = db.Column(db.Unicode(STR_MAX), nullable=False)
+    skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+    relevanceScore = db.Column(db.Float)
+    
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
     id            = db.Column(db.BigInteger, primary_key=True)
@@ -179,6 +187,9 @@ class ModelView(sqla.ModelView):
                 {'WWW-Authenticate': 'Basic realm="Login Required"'}
             ))
         return True
+
+class SectorSkillView(ModelView):
+    column_filters = ['sectorName', 'skillName']
     
 _textAreaStyle = {
     'rows' : 5,
@@ -236,6 +247,7 @@ class NextTitleView(ModelView):
     
 # Create admin
 admin = admin.Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
+admin.add_view(SectorSkillView(SectorSkill, db.session))
 admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))
 admin.add_view(CareerCompanyView(CareerCompany, db.session))

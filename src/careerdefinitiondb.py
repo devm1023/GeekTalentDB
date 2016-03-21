@@ -40,6 +40,20 @@ STR_MAX = 100000
 SQLBase = sqlbase()
 
 
+class SectorSkill(SQLBase):
+    __tablename__ = 'sector_skill'
+    id            = Column(BigInteger, primary_key=True)
+    sectorName    = Column(Unicode(STR_MAX), index=True)
+    skillName     = Column(Unicode(STR_MAX), index=True)
+    totalCount    = Column(BigInteger)
+    sectorCount   = Column(BigInteger)
+    skillCount    = Column(BigInteger)
+    count         = Column(BigInteger)
+    relevanceScore = Column(Float)
+
+    __table_args__ = (UniqueConstraint('sectorName', 'skillName'),)
+    
+    
 class Career(SQLBase):
     __tablename__ = 'career'
     id            = Column(BigInteger, primary_key=True)
@@ -324,6 +338,17 @@ class CareerDefinitionDB(SQLDatabase):
                 nextTitle['careerId'] = id
                 
         return self.addFromDict(careerdict, Career)
+
+    def addSectorSkill(self, skilldict):
+        id = self.query(SectorSkill.id) \
+                 .filter(SectorSkill.sectorName \
+                         == skilldict.get('sectorName', None),
+                         SectorSkill.skillName \
+                         == skilldict.get('skillName', None)) \
+                 .first()
+        if id is not None:
+            skilldict['id'] = id[0]
+        return self.addFromDict(skilldict, SectorSkill)
     
     def getCareers(self, sectors, titles):
         results = []

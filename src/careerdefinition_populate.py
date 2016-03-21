@@ -157,6 +157,8 @@ def getCareerSteps(andb, nrmSector, nrmTitle, mincount=1):
     return previousTitles, nextTitles
 
 def getSubjects(andb, profileIds, mincount=1):
+    if not profileIds:
+        return []
     q = andb.query(LIEducation.liprofileId, LIEducation.end,
                    LIEducation.nrmSubject, Entity.name) \
             .join(Entity, Entity.nrmName == LIEducation.nrmSubject) \
@@ -169,6 +171,8 @@ def getSubjects(andb, profileIds, mincount=1):
     return results
 
 def getInstitutes(andb, profileIds, mincount=1):
+    if not profileIds:
+        return []
     q = andb.query(LIEducation.liprofileId, LIEducation.end,
                    LIEducation.nrmInstitute, Entity.name) \
             .join(Entity, Entity.nrmName == LIEducation.nrmInstitute) \
@@ -180,6 +184,20 @@ def getInstitutes(andb, profileIds, mincount=1):
                         'count' : count})
     return results
 
+def getSectors(sectors, filename):
+    sectors = set(sectors)
+    if filename:
+        with open(filename, 'r') as sectorfile:
+            for line in sectorfile:
+                row = line.split('|')
+                if not row:
+                    continue
+                sector = row[0].strip()
+                if not sector:
+                    continue
+                sectors.add(sector)
+    return list(sectors)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -190,6 +208,8 @@ if __name__ == '__main__':
     parser.add_argument('--mincount', type=int, default=1,
                         help='Minimal count for subjects and institutes to '
                         'be included.')
+    parser.add_argument('--sectors-from', 
+                        help='Name of file holding sector names.')
     parser.add_argument('sector', nargs='*', default=SECTORS,
                         help='The LinkedIn sectors to scan.')
     args = parser.parse_args()
@@ -202,11 +222,13 @@ if __name__ == '__main__':
                    .filter(LIProfile.nrmSector != None) \
                    .count()
     print('TOTAL PROFILE COUNT: {0:d}'.format(profilec))
+
+    sectors = getSectors(args.sector, args.sectors_from)
     nrmSectors = {}
     joblists = {}
     sectorcounts = {}
     countcol = func.count().label('counts')
-    for sector in args.sector:
+    for sector in sectors:
         nrmSector, sectorc \
             = andb.query(Entity.nrmName, Entity.profileCount) \
                   .filter(Entity.type == 'sector',
@@ -217,6 +239,26 @@ if __name__ == '__main__':
         nrmSectors[sector] = nrmSector
         sectorcounts[sector] = sectorc
 
+        # build skill cloud
+        entityq = lambda entities: \
+                  andb.query(Entity.nrmName, Entity.name, Entity.profileCount) \
+                      .filter(Entity.nrmName.in_(entities))
+        coincidenceq = andb.query(LIProfileSkill.nrmName, countcol) \
+                           .join(LIProfile) \
+                           .filter(LIProfile.nrmSector == nrmSector)
+        for nrmSkill, skill, skillc, sectorskillc, score, error \
+            in relevanceScores(profilec, sectorc, entityq, coincidenceq):
+            if score < args.sigma*error:
+                continue
+            cddb.addSectorSkill({'sectorName' : sector,
+                                 'skillName' : skill,
+                                 'totalCount' : profilec,
+                                 'sectorCount' : sectorc,
+                                 'skillCount' : skillc,
+                                 'count' : sectorskillc,
+                                 'relevanceScore' : score})
+
+        # build title cloud
         entityq = lambda entities: \
                   andb.query(LIProfile.nrmTitle, Entity.name, countcol) \
                       .join(Entity, Entity.nrmName == LIProfile.nrmTitle) \
