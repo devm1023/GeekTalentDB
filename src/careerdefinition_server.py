@@ -54,15 +54,34 @@ def get_careers():
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+class EntityDescription(db.Model):
+    __tablename__ = 'entity_description'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    entityType    = db.Column(db.String(20))
+    linkedinSector = db.Column(db.Unicode(STR_MAX))
+    entityName    = db.Column(db.Unicode(STR_MAX))
+    matchCount    = db.Column(db.Integer)
+    description   = db.Column(db.Text)
+    descriptionUrl = db.Column(db.String(STR_MAX))
+    descriptionSource = db.Column(db.Unicode(STR_MAX))
+    edited        = db.Column(db.Boolean)
+
+    def __str__(self):
+        typestr = self.entityType if self.entityType else '*'
+        sectorstr = self.linkedinSector if self.linkedinSector else '*'
+        return '[{0:s}|{1:s}|{2:s}]'.format(typestr, sectorstr, self.entityName)
+    
 class Career(db.Model):
     __tablename__ = 'career'
     id            = db.Column(db.BigInteger, primary_key=True)
     title         = db.Column(db.Unicode(STR_MAX), nullable=False)
     linkedinSector = db.Column(db.Unicode(STR_MAX), nullable=False)
-    description   = db.Column(db.Text)
+    descriptionId = db.Column(db.BigInteger,
+                              db.ForeignKey('entity_description.id'))
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
 
+    description = db.relationship('EntityDescription')
     skillCloud = db.relationship('CareerSkill', backref='career',
                                  order_by='desc(CareerSkill.relevanceScore)',
                                  cascade='all, delete-orphan')
@@ -102,7 +121,6 @@ class CareerSkill(db.Model):
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
     skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
-    description   = db.Column(db.Text)
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
 
@@ -174,6 +192,7 @@ class NextTitle(db.Model):
 
     def __str__(self):
         return self.nextTitle
+
     
 
 class ModelView(sqla.ModelView):
@@ -197,7 +216,6 @@ _textAreaStyle = {
 }
 class CareerView(ModelView):
     form_widget_args = {
-        'description' : _textAreaStyle,
         'count' : {'readonly' : True},
         'relevanceScore' : {'readonly' : True},
     }
@@ -205,7 +223,6 @@ class CareerView(ModelView):
         (CareerSkill, {'form_widget_args' : {
             'relevanceScore' : {'readonly' : True},
             'count' : {'readonly' : True},
-            'description' : _textAreaStyle
         }}),
         (CareerCompany, {'form_widget_args' : {
             'relevanceScore' : {'readonly' : True},
@@ -221,6 +238,10 @@ class CareerView(ModelView):
          {'form_widget_args' : {'count' : {'readonly' : True}}}),
     ]
     column_filters = ['linkedinSector', 'title']
+
+class EntityDescriptionView(ModelView):
+    column_filters = ['entityType', 'linkedinSector', 'entityName', 'edited']
+    column_exclude_list = ['matchCount', 'descriptionUrl', 'descriptionSource']
 
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skillName']
@@ -255,6 +276,7 @@ admin.add_view(CareerSubjectView(CareerSubject, db.session))
 admin.add_view(CareerInstituteView(CareerInstitute, db.session))
 admin.add_view(PreviousTitleView(PreviousTitle, db.session))
 admin.add_view(NextTitleView(NextTitle, db.session))
+admin.add_view(EntityDescriptionView(EntityDescription, db.session))
 
 if __name__ == '__main__':
     if args.debug:

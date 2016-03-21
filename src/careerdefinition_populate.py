@@ -229,13 +229,15 @@ if __name__ == '__main__':
     sectorcounts = {}
     countcol = func.count().label('counts')
     for sector in sectors:
-        nrmSector, sectorc \
-            = andb.query(Entity.nrmName, Entity.profileCount) \
+        row = andb.query(Entity.nrmName, Entity.profileCount) \
                   .filter(Entity.type == 'sector',
                           Entity.source == 'linkedin',
                           Entity.language == 'en',
                           Entity.name == sector) \
                   .first()
+        if not row:
+            continue
+        nrmSector, sectorc = row
         nrmSectors[sector] = nrmSector
         sectorcounts[sector] = sectorc
 
