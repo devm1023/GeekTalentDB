@@ -201,7 +201,7 @@ class CareerDefinitionDB(SQLDatabase):
                                      == entityName) \
                              .first()        
         if entity is not None:
-            return entity[0].id
+            return entity.id
                 
         r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'label_search',
                          params={'query' : entityName,
