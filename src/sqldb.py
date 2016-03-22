@@ -9,9 +9,8 @@ __all__ = [
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.collections import bulk_replace
 from sqlalchemy.ext.declarative import declarative_base as sqlbase
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, UniqueConstraint
 from copy import deepcopy
-from pprint import pprint
 
 class SQLDatabase:
     def __init__(self, metadata, url=None, session=None, engine=None):
@@ -57,6 +56,19 @@ class SQLDatabase:
             if pkey is not None:
                 whereclauses = [c == v for c, v in zip(pkeycols, pkey)]
                 row = self.query(table).filter(*whereclauses).first()
+            else:
+                for constraint in table.__table__.constraints:
+                    if not isinstance(constraint, UniqueConstraint):
+                        continue
+                    if any(c.nullable for c in constraint.columns):
+                        continue
+                    if any(d.get(c.key, None) is None \
+                           for c in constraint.columns):
+                        continue
+                    whereclauses = [c == d[c.key] for c in constraint.columns]
+                    row = self.query(table).filter(*whereclauses).first()
+                    if row is not None:
+                        break
             if row is None:
                 row = rowFromDict(d, table)
                 self.add(row)
@@ -126,11 +138,12 @@ def rowFromDict(d, rowtype):
         setattr(result, c.key, d.get(c.key, None))
             
     for relation in mapper.relationships:
+        isOneToMany = relation.direction.name == 'ONETOMANY'
         if relation.key in d:
             val = d[relation.key]
             remotetype = relation.mapper.class_
             lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
-            if isinstance(val, list):
+            if isOneToMany:
                 rows = []
                 for v in val:
                     if v is None:
@@ -188,6 +201,9 @@ def _mergeLists(rows, dicts, rowtype, strict=False):
 
 def updateRowFromDict(row, d, strict=False):
     mapper = inspect(type(row))
+
+    for c in mapper.primary_key:
+        d[c.key] = getattr(row, c.key)
     
     for c in mapper.column_attrs:
         if c.key in d:
@@ -196,11 +212,12 @@ def updateRowFromDict(row, d, strict=False):
             setattr(row, c.key, None)
 
     for relation in mapper.relationships:
+        isOneToMany = relation.direction.name == 'ONETOMANY'
         if relation.key in d:
             val = d[relation.key]
             remotetype = relation.mapper.class_
             lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
-            if isinstance(val, list):
+            if isOneToMany:
                 val = [v for v in val if v is not None]
                 for v in val:
                     for l, r in lrpairs:
