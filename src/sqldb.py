@@ -113,20 +113,34 @@ def _getPkey(d, table):
     else:
         return pkeycols, None
 
-def dictFromRow(row):
+def dictFromRow(row, pkeys=True, fkeys=True, exclude=[]):
     if row is None:
         return None
     if isinstance(row, list):
-        return [dictFromRow(r) for r in row]
+        return [dictFromRow(r, pkeys=pkeys, fkeys=fkeys, exclude=exclude) \
+                for r in row]
     
     mapper = inspect(type(row))
     result = {}
 
+    pkeynames = [c.key for c in mapper.primary_key]
+    
     for c in mapper.column_attrs:
+        if not pkeys and c.key in pkeynames:
+            continue
+        if c.key in exclude:
+            continue
         result[c.key] = getattr(row, c.key)
 
-    for r in mapper.relationships:
-        result[r.key] = dictFromRow(getattr(row, r.key))
+    for relation in mapper.relationships:
+        if relation.key in exclude:
+            continue
+        fkeynames = []
+        if not fkeys:
+            fkeynames = [r.key for l, r in relation.local_remote_pairs]
+        result[relation.key] = dictFromRow(getattr(row, relation.key),
+                                           pkeys=pkeys, fkeys=fkeys,
+                                           exclude=fkeynames)
 
     return result
 

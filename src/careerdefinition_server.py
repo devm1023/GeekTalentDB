@@ -76,12 +76,9 @@ class Career(db.Model):
     id            = db.Column(db.BigInteger, primary_key=True)
     title         = db.Column(db.Unicode(STR_MAX), nullable=False)
     linkedinSector = db.Column(db.Unicode(STR_MAX), nullable=False)
-    descriptionId = db.Column(db.BigInteger,
-                              db.ForeignKey('entity_description.id'))
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
 
-    description = db.relationship('EntityDescription')
     skillCloud = db.relationship('CareerSkill', backref='career',
                                  order_by='desc(CareerSkill.relevanceScore)',
                                  cascade='all, delete-orphan')
@@ -242,6 +239,7 @@ class CareerView(ModelView):
 class EntityDescriptionView(ModelView):
     column_filters = ['entityType', 'linkedinSector', 'entityName', 'edited']
     column_exclude_list = ['matchCount', 'descriptionUrl', 'descriptionSource']
+    form_widget_args = {'description' : _textAreaStyle}
 
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skillName']
