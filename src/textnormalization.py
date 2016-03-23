@@ -521,3 +521,22 @@ def normalizedSubject(source, language, name):
         return None
     return makeNrmName('subject', source, language, nname)
 
+def normalizedEntity(type, source, language, name):
+    if type == 'skill':
+        return normalizedSkill(source, language, name)
+    elif type == 'title':
+        return normalizedTitle(source, language, name)
+    elif type == 'company':
+        return normalizedCompany(source, language, name)
+    elif type == 'sector':
+        return normalizedSector(name)
+    elif type == 'institute':
+        return normalizedInstitute(source, language, name)
+    elif type == 'degree':
+        return normalizedDegree(source, language, name)
+    elif type == 'subject':
+        return normalizedSubject(source, language, name)
+    else:
+        raise ValueError('Unknown entity type `{0:s}`.'.format(type))
+
+

@@ -30,7 +30,7 @@ def _score(totalcount, categorycount, entitycount, coincidencecount):
     return score, sqrt(var)
 
 def relevanceScores(totalcount, categorycount, entitiesq, coincidenceq,
-                    mincount=1):
+                    mincount=1, entitymap=None):
     """Extract and score relevant entities for a given category.
 
     Args:
@@ -70,12 +70,28 @@ def relevanceScores(totalcount, categorycount, entitiesq, coincidenceq,
     counts = dict(q)
 
     if counts:
-        for row in entitiesq(counts.keys()):
-            entity = row[0]
-            entitycount = row[-1]
-            count = counts[entity]
-            score, err = _score(totalcount, categorycount, entitycount, count)
-            yield row[:-1] + (entitycount, count, score, err)
+        if entitymap is None:
+            for row in entitiesq(counts.keys()):
+                entity = row[0]
+                entitycount = row[-1]
+                count = counts[entity]
+                score, err = _score(totalcount, categorycount, entitycount,
+                                    count)
+                yield row[:-1] + (entitycount, count, score, err)
+        else:
+            entitycounts = {}
+            mappedcounts = {}
+            for row in entitiesq(counts.keys()):
+                entity = entitymap(row[0])
+                entitycount = row[-1]
+                count = counts[row[0]]
+                entitycounts[entity] = entitycounts.get(entity, 0) + entitycount
+                mappedcounts[entity] = mappedcounts.get(entity, 0) + count
+            for entity, entitycount in entitycounts.items():
+                count = mappedcounts[entity]
+                score, err = _score(totalcount, categorycount, entitycount,
+                                    count)
+                yield (entity, entitycount, count, score, err)
 
 def getSkillCloud(entitytype, categorytype, query,
                   entityThreshold=1, categoryThreshold=1, countThreshold=1,
