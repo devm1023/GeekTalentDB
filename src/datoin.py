@@ -26,41 +26,29 @@ class Session:
 
     def query(self,
               params={},
-              url=conf.DATOIN_SEARCH,
-              rows=None,
-              offset=0,
+              url=conf.DATOIN3_SEARCH,
               batchsize=100,
               maxdelay=1,
               timeout=300):
         maxdelay = max(1, maxdelay)
+        nextPage = None
+        lastPage = False
+        params = params.copy()
 
-        curr_offset=offset
-        if rows is not None:
-            max_offset = offset+rows
-        else:
-            max_offset = None
-
-        while True:
-            if max_offset is not None:
-                if curr_offset >= max_offset:
-                    break
-                curr_batchsize = min(batchsize, max_offset-curr_offset)
-            else:
-                curr_batchsize = batchsize
-            curr_params = params.copy()
-            curr_params['start'] = curr_offset
-            curr_params['rows'] = curr_batchsize
+        while not lastPage:
+            if nextPage:
+                params['nextPage'] = nextPage
 
             delay = 1
             while True:
                 try:
-                    request_url = '?'.join([url, urlencode(curr_params)])
+                    request_url = '?'.join([url, urlencode(params)])
                     r = self._session.get(url,
-                                          params=curr_params,
+                                          params=params,
                                           timeout=timeout)
                     r = r.json()
                     if 'results' not in r:
-                        raise RuntimeError('Invalid reply: '+repr(r))
+                        raise IOError('Invalid reply: '+repr(r))
                     break
                 except (RuntimeError, \
                         ConnectionError, \
@@ -72,23 +60,19 @@ class Session:
                         raise
                     time.sleep(delay)
                     delay *= 2
-            if not r['results']:
-                break
-            else:
-                for d in r['results']:
-                    yield d
+            lastPage = 'nextPageId' not in r
+            if not lastPage:
+                nextPage = r['nextPageId']
+                
+            for d in r['results']:
+                yield d
 
-            curr_offset += batchsize
-
-
-def count(params={}, url=conf.DATOIN_SEARCH, logger=Logger(None)):
+def count(params={}, url=conf.DATOIN3_SEARCH, logger=Logger(None)):
     session = Session(logger=logger)
     return session.count(params=params, url=url)
 
 def query(params={},
-          url=conf.DATOIN_SEARCH,
-          rows=None,
-          offset=0,
+          url=conf.DATOIN3_SEARCH,
           batchsize=100,
           maxdelay=1,
           timeout=300,

@@ -92,7 +92,8 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
         checkField(liprofiledoc, 'type', 'profile')
         liprofile = {}
         for name, fieldtype, required in \
-            [('id',          str,   True),
+            [('profileId',   str,   True),
+             ('crawlNumber', int,   True),
              ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
@@ -123,6 +124,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
                 experience = {}
                 for name, fieldtype, required in \
                     [('name',        str,   False),
+                     ('url',         'url', False),
                      ('company',     str,   False),
                      ('country',     str,   False),
                      ('city',        str,   False),
@@ -140,6 +142,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
                 education = {}
                 for name, fieldtype, required in \
                     [('name',        str,   False),
+                     ('url',         'url', False),
                      ('degree',      str,   False),
                      ('area',        str,   False),
                      ('dateFrom',    int,   False),
@@ -562,14 +565,11 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
     return True
 
 
-def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
-    if conf.MAX_PROFILES is not None:
-        rows = min(rows, conf.MAX_PROFILES)
-    
+def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
     logger = Logger(sys.stdout)
-    BATCH_SIZE = 100
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session(logger=logger)
+    BATCH_SIZE = 100
 
     if byIndexedOn:
         fromKey = 'fromTs'
@@ -591,60 +591,41 @@ def downloadProfiles(fromTs, toTs, offset, rows, byIndexedOn, sourceId):
     else:
         raise ValueError('Invalid source id.')
     
-    logger.log('Downloading {0:d} profiles from offset {1:d}.\n'\
-               .format(rows, offset))
-    failed_offsets = []
+    logger.log('Downloading profiles from timestamp {0:d} to {1:d}.\n'\
+               .format(fromTs, toTs))
     count = 0
-    for liprofiledoc in dtsession.query(url=conf.DATOIN2_SEARCH,
-                                        params=params,
-                                        rows=rows,
-                                        offset=offset):
-        if not addProfile(dtdb, liprofiledoc, dtsession, logger):
-            logger.log('Failed at offset {0:d}.\n'.format(offset+count))
-            failed_offsets.append(offset+count)
+    failedProfiles = []
+    for profiledoc in dtsession.query(url=conf.DATOIN3_SEARCH,
+                                        params=params):
+        if 'profileId' not in profiledoc:
+            raise IOError('Encountered profile without profileId.')
+        profileId = profiledoc['profileId']
+        if 'crawlNumber' not in profiledoc:
+            raise IOError('Encountered profile without crawlNumber.')
+        crawlNumber = profiledoc['crawlNumber']
+        
+        if not addProfile(dtdb, profiledoc, dtsession, logger):
+            logger.log('Failed profile {0:s}|{1:s}.\n' \
+                       .format(str(profileId), str(crawlNumber)))
+            failedProfiles.append((profileId, crawlNumber))
         count += 1
 
         # commit
         if count % BATCH_SIZE == 0:
             logger.log('{0:d} profiles processed.\n'.format(count))
             dtdb.commit()
+        if maxprofiles is not None and count >= maxprofiles:
+            break
+    if count % BATCH_SIZE != 0:
+        logger.log('{0:d} profiles processed.\n'.format(count))
     dtdb.commit()
 
-    for attempt in range(conf.MAX_ATTEMPTS):
-        if not failed_offsets:
-            break
-        logger.log('Re-processing {0:d} profiles.\n' \
-                   .format(len(failed_offsets)))
-        new_failed_offsets = []
-        count = 0
-        for offset in failed_offsets:
-            count += 1
-            try:
-                liprofiledoc \
-                    = next(dtsession.query(url=conf.DATOIN2_SEARCH,
-                                           params=params,
-                                           rows=1,
-                                           offset=offset))
-            except StopIteration:
-                new_failed_offsets.append(offset)
-                continue
-            if not addProfile(dtdb, liprofiledoc, dtsession, logger):
-                new_failed_offsets.append(offset)
-
-            if count % BATCH_SIZE == 0:
-                logger.log('{0:d} profiles processed.\n'.format(count))
-                dtdb.commit()
-        dtdb.commit()
-
-        failed_offsets = new_failed_offsets
-
-    logger.log('failed offsets: {0:s}\n'.format(str(failed_offsets)))
-    return failed_offsets
+    return count, failedProfiles
 
 
-def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
-                  offset=0, maxoffset=None):
+def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId):
     logger = Logger(sys.stdout)
+    njobs = max(njobs, 1)
     if sourceId is None:
         logger.log('Downloading LinkedIn profiles.\n')
         downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'linkedin',
@@ -665,69 +646,59 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId,
     
     fromTs = int((tfrom - timestamp0).total_seconds())
     toTs   = int((tto   - timestamp0).total_seconds())
-    if byIndexedOn:
-        fromKey = 'fromTs'
-        toKey   = 'toTs'
-    else:
+    if not byIndexedOn:
         fromTs *= 1000
-        toTs   *= 1000
-        fromKey = 'crawledFrom'
-        toKey   = 'crawledTo'
-    params = {fromKey : fromTs, toKey : toTs, 'sid' : sourceId}
-    
-    nprofiles = datoin.count(url=conf.DATOIN2_SEARCH, params=params)
-    logger.log(
-        'Range {0:s} (ts {1:d}) to {2:s} (ts {3:d}): {4:d} profiles.\n' \
-        .format(tfrom.strftime('%Y-%m-%d'), fromTs,
-                tto.strftime('%Y-%m-%d'), toTs,
-                nprofiles))
-    if nprofiles <= offset:
-        return
-    if maxoffset is not None:
-        nprofiles = min(nprofiles, maxoffset)
+        toTs *= 1000
+    timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
 
-    offsets = list(range(offset, nprofiles, maxprofiles))
-    offsets.append(nprofiles)
-    for offset1, offset2 in zip(offsets[:-1], offsets[1:]):
-        dlstart = datetime.now()    
-        logger.log('Starting download for offsets {0:d} to {1:d} at {2:s}.\n' \
-                   .format(offset1, offset2-1,
-                           dlstart.strftime('%Y-%m-%d %H:%M:%S%z')))
+    dlstart = datetime.now()
+    logger.log('Downloading time range {0:s} to {1:s}.\n' \
+               .format(tfrom.strftime('%Y-%m-%d'),
+                       tto.strftime('%Y-%m-%d')))
+    logger.log('Starting at {0:s}.\n' \
+               .format(dlstart.strftime('%Y-%m-%d %H:%M:%S%z')))
 
-        ncurrentjobs = min(njobs, offset2-offset1)
-        if ncurrentjobs > 1:
-            poffsets = np.linspace(offset1, offset2, ncurrentjobs+1, dtype=int)
-            args = [(fromTs, toTs, a, b-a, byIndexedOn, sourceId) \
-                    for a, b in zip(poffsets[:-1], poffsets[1:])]
-            results = ParallelFunction(downloadProfiles,
-                                       batchsize=1,
-                                       workdir='jobs',
-                                       prefix='lidownload',
-                                       tries=1)(args)
-            failedoffsets = list(itertools.chain(*results))
-        else:
-            failedoffsets = downloadProfiles(fromTs, toTs, offset1,
-                                             offset2-offset1,
-                                             byIndexedOn, sourceId)
+    if njobs > 1:
+        args = [(ts1, ts2, maxprofiles, byIndexedOn, sourceId) \
+                for ts1, ts2 in zip(timestamps[:-1], timestamps[1:])]
+        results = ParallelFunction(downloadProfiles,
+                                   batchsize=1,
+                                   workdir='jobs',
+                                   prefix='lidownload',
+                                   tries=1)(args)
+        count = 0
+        failedProfiles = []
+        for c, fp in results:
+            count += c
+            failedProfiles.extend(fp)
+    else:
+        count, failedProfiles = downloadProfiles(fromTs, toTs, maxprofiles,
+                                                 byIndexedOn, sourceId)
 
-        dlend = datetime.now()
-        dltime = (dlend-dlstart).total_seconds()
-        logger.log(dlend.strftime('Finished download %Y-%m-%d %H:%M:%S%z'))
-        if dltime > 0:
-            logger.log(' at {0:f} profiles/sec.\n' \
-                       .format((offset2-offset1)/dltime))
-        else:
-            logger.log('.\n')
+    dlend = datetime.now()
+    dltime = (dlend-dlstart).total_seconds()
+    logger.log(dlend.strftime('Finished download %Y-%m-%d %H:%M:%S%z'))
+    if dltime > 0:
+        logger.log(' at {0:f} profiles/sec.\n' \
+                   .format(count/dltime))
+    else:
+        logger.log('.\n')
 
-        if failedoffsets:
-            logger.log('Failed offsets: {0:s}.\n'.format(repr(failedoffsets)))
+    if failedProfiles:
+        logger.log('failed profiles:\n')
+        for profileId, crawlNumber in failedProfiles:
+            logger.log('{0:s}|{0:s}'.format(str(profileId), str(crawlNumber)))
+
+    return count
 
 
 if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('njobs', help='Number of parallel jobs.', type=int)
-    parser.add_argument('batchsize', help='Number of rows per batch.', type=int)
+    parser.add_argument('--jobs', default=1, type=int,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--step-size', default=1, type=int,
+                        help='Time increment in days.')
     parser.add_argument('--from-date', help=
                         'Only process profiles crawled or indexed on or after\n'
                         'this date. Format: YYYY-MM-DD',
@@ -740,11 +711,8 @@ if __name__ == '__main__':
                         '--todate are index dates. Otherwise they are interpreted\n'
                         'as crawl dates.',
                         action='store_true')
-    parser.add_argument('--from-offset', type=int, default=0, help=
-                        'Start processing from this offset. Useful for\n'
-                        'crash recovery.')
-    parser.add_argument('--to-offset', type=int, help=
-                        'Stop processing at this offset.')
+    parser.add_argument('--max-profiles', type=int,
+                        help='Maximum number of profiles to download')
     parser.add_argument('--source',
                         choices=['linkedin', 'indeed', 'upwork', 'meetup',
                                  'github'],
@@ -753,8 +721,7 @@ if __name__ == '__main__':
                         'processed.')
     args = parser.parse_args()
 
-    njobs = max(args.njobs, 1)
-    batchsize = args.batchsize
+    njobs = max(args.jobs, 1)
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
         if not args.to_date:
@@ -765,20 +732,26 @@ if __name__ == '__main__':
         sys.stderr.write('Invalid date format.\n')
         exit(1)
     byIndexedOn = bool(args.by_index_date)
-    offset = args.from_offset
-    maxoffset = args.to_offset
-    sourceId = args.source    
+    maxprofiles = args.max_profiles
+    sourceId = args.source
+    stepSize = args.step_size
         
     timestamp0 = datetime(year=1970, month=1, day=1)
-        
-    if offset == 0 and maxoffset is None:
-        deltat = timedelta(days=1)
-        t = fromdate
+
+    deltat = timedelta(days=stepSize)
+    profilecount = 0
+    t = fromdate
+    if maxprofiles is None:
         while t < todate:
-            downloadRange(t, min(t+deltat, todate), njobs, njobs*batchsize,
-                          byIndexedOn, sourceId)
+            profilecount \
+                += downloadRange(t, min(t+deltat, todate), njobs,
+                                 None, byIndexedOn, sourceId)
             t += deltat
     else:
-        downloadRange(fromdate, todate, njobs, njobs*batchsize,
-                      byIndexedOn, sourceId,
-                      offset=offset, maxoffset=maxoffset)
+        while t < todate and profilecount < maxprofiles:
+            profilecount \
+                += downloadRange(t, min(t+deltat, todate), njobs,
+                                 maxprofiles-profilecount, byIndexedOn,
+                                 sourceId)
+            t += deltat
+

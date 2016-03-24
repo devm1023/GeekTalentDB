@@ -25,6 +25,7 @@ from sqldb import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
+    UniqueConstraint, \
     Integer, \
     BigInteger, \
     Unicode, \
@@ -44,7 +45,9 @@ SQLBase = sqlbase()
 
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
-    id                = Column(String(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(String(STR_MAX), index=True)
+    crawlNumber       = Column(BigInteger, index=True)
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
@@ -59,6 +62,7 @@ class LIProfile(SQLBase):
     categories        = Column(Array(Unicode(STR_MAX)))
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('LIExperience',
                                      cascade='all, delete-orphan')
@@ -66,15 +70,18 @@ class LIProfile(SQLBase):
                                      cascade='all, delete-orphan')
     groups            = relationship('LIGroup',
                                      cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('profileId', 'crawlNumber'),)
     
 class LIExperience(SQLBase):
     __tablename__ = 'liexperience'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
+    url         = Column(String(STR_MAX))
     country     = Column(Unicode(STR_MAX))
     city        = Column(Unicode(STR_MAX))
     dateFrom    = Column(BigInteger)
@@ -84,10 +91,11 @@ class LIExperience(SQLBase):
 class LIEducation(SQLBase):
     __tablename__ = 'lieducation'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
     name        = Column(Unicode(STR_MAX))
+    url         = Column(String(STR_MAX))
     degree      = Column(Unicode(STR_MAX))
     area        = Column(Unicode(STR_MAX))
     dateFrom    = Column(BigInteger)
@@ -97,7 +105,7 @@ class LIEducation(SQLBase):
 class LIGroup(SQLBase):
     __tablename__ = 'ligroup'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
                          index=True)
     name        = Column(Unicode(STR_MAX))
