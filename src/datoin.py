@@ -27,13 +27,14 @@ class Session:
     def query(self,
               params={},
               url=conf.DATOIN3_SEARCH,
-              batchsize=100,
+              batchsize=1000,
               maxdelay=1,
               timeout=300):
         maxdelay = max(1, maxdelay)
         nextPage = None
         lastPage = False
         params = params.copy()
+        params['rows'] = batchsize
 
         while not lastPage:
             if nextPage:
@@ -73,7 +74,7 @@ def count(params={}, url=conf.DATOIN3_SEARCH, logger=Logger(None)):
 
 def query(params={},
           url=conf.DATOIN3_SEARCH,
-          batchsize=100,
+          batchsize=1000,
           maxdelay=1,
           timeout=300,
           logger=Logger(None)):

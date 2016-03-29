@@ -245,7 +245,10 @@ def updateRowFromDict(row, d, strict=False):
             else:
                 setattr(row, relation.key, None)
         elif strict:
-            setattr(row, relation.key, None)
+            if isOneToMany:
+                setattr(row, relation.key, [])
+            else:
+                setattr(row, relation.key, None)
 
     return row
 

@@ -46,8 +46,8 @@ SQLBase = sqlbase()
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
-    profileId         = Column(String(STR_MAX), index=True)
-    crawlNumber       = Column(BigInteger, index=True)
+    profileId         = Column(String(STR_MAX), index=True, nullable=False)
+    crawlNumber       = Column(BigInteger, index=True, nullable=False)
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
@@ -78,6 +78,7 @@ class LIExperience(SQLBase):
     id          = Column(BigInteger, primary_key=True)
     parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
@@ -93,6 +94,7 @@ class LIEducation(SQLBase):
     id          = Column(BigInteger, primary_key=True)
     parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     url         = Column(String(STR_MAX))
@@ -107,6 +109,7 @@ class LIGroup(SQLBase):
     id          = Column(BigInteger, primary_key=True)
     parentId    = Column(BigInteger,
                          ForeignKey('liprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     url         = Column(Unicode(STR_MAX))
@@ -114,7 +117,9 @@ class LIGroup(SQLBase):
 
 class INProfile(SQLBase):
     __tablename__ = 'inprofile'
-    id                = Column(String(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(String(STR_MAX), index=True, nullable=False)
+    crawlNumber       = Column(BigInteger, index=True, nullable=False)
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
@@ -127,6 +132,7 @@ class INProfile(SQLBase):
     profileUpdatedDate = Column(BigInteger)
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('INExperience',
                                      cascade='all, delete-orphan')
@@ -134,12 +140,15 @@ class INProfile(SQLBase):
                                      cascade='all, delete-orphan')
     certifications    = relationship('INCertification',
                                      cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('profileId', 'crawlNumber'),)
     
 class INExperience(SQLBase):
     __tablename__ = 'inexperience'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('inprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
@@ -152,8 +161,9 @@ class INExperience(SQLBase):
 class INEducation(SQLBase):
     __tablename__ = 'ineducation'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('inprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     degree      = Column(Unicode(STR_MAX))
@@ -165,8 +175,9 @@ class INEducation(SQLBase):
 class INCertification(SQLBase):
     __tablename__ = 'incertification'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('inprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     dateFrom    = Column(BigInteger)
@@ -176,7 +187,9 @@ class INCertification(SQLBase):
 
 class UWProfile(SQLBase):
     __tablename__ = 'uwprofile'
-    id                = Column(String(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(String(STR_MAX), index=True, nullable=False)
+    crawlNumber       = Column(BigInteger, index=True, nullable=False)
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
     firstName         = Column(Unicode(STR_MAX))
@@ -189,6 +202,7 @@ class UWProfile(SQLBase):
     categories        = Column(Array(Unicode(STR_MAX)))
     indexedOn         = Column(BigInteger, index=True)
     crawledDate       = Column(BigInteger, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('UWExperience',
                                      cascade='all, delete-orphan')
@@ -197,11 +211,14 @@ class UWProfile(SQLBase):
     tests             = relationship('UWTest',
                                      cascade='all, delete-orphan')
 
+    __table_args__ = (UniqueConstraint('profileId', 'crawlNumber'),)
+    
 class UWExperience(SQLBase):
     __tablename__ = 'uwexperience'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('uwprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     company     = Column(Unicode(STR_MAX))
@@ -214,8 +231,9 @@ class UWExperience(SQLBase):
 class UWEducation(SQLBase):
     __tablename__ = 'uweducation'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('uwprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     degree      = Column(Unicode(STR_MAX))
@@ -227,15 +245,18 @@ class UWEducation(SQLBase):
 class UWTest(SQLBase):
     __tablename__ = 'uwtest'
     id          = Column(BigInteger, primary_key=True)
-    parentId    = Column(String(STR_MAX),
+    parentId    = Column(BigInteger,
                          ForeignKey('uwprofile.id'),
+                         nullable=False,
                          index=True)
     name        = Column(Unicode(STR_MAX))
     score       = Column(Float)
 
 class MUProfile(SQLBase):
     __tablename__ = 'muprofile'
-    id                     = Column(String(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(String(STR_MAX), index=True, nullable=False)
+    crawlNumber       = Column(BigInteger, index=True, nullable=False)
     name                   = Column(Unicode(STR_MAX))
     country                = Column(Unicode(STR_MAX))
     city                   = Column(Unicode(STR_MAX))
@@ -251,6 +272,7 @@ class MUProfile(SQLBase):
     categories             = Column(Array(Unicode(STR_MAX)))
     indexedOn              = Column(BigInteger, index=True)
     crawledDate            = Column(BigInteger, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
     
     groups                 = relationship('MUGroup',
                                           cascade='all, delete-orphan')
@@ -261,11 +283,14 @@ class MUProfile(SQLBase):
     links                  = relationship('MULink',
                                           cascade='all, delete-orphan')
 
+    __table_args__ = (UniqueConstraint('profileId', 'crawlNumber'),)
+
 class MUGroup(SQLBase):
     __tablename__ = 'mugroup'
     id            = Column(BigInteger, primary_key=True)
-    muprofileId   = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('muprofile.id'),
+                           nullable=False,
                            index=True)
     country       = Column(Unicode(STR_MAX))
     city          = Column(Unicode(STR_MAX))
@@ -276,7 +301,7 @@ class MUGroup(SQLBase):
     name          = Column(Unicode(STR_MAX))
     categoryName  = Column(Unicode(STR_MAX))
     categoryShortname = Column(Unicode(STR_MAX))
-    categoryId    = Column(Integer)
+    categoryId    = Column(String(STR_MAX))
     description   = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     urlname       = Column(String(STR_MAX))
@@ -298,8 +323,9 @@ class MUGroup(SQLBase):
 class MUEvent(SQLBase):
     __tablename__ = 'muevent'
     id            = Column(BigInteger, primary_key=True)
-    muprofileId   = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('muprofile.id'),
+                           nullable=False,
                            index=True)
     country       = Column(Unicode(STR_MAX))
     city          = Column(Unicode(STR_MAX))
@@ -333,8 +359,9 @@ class MUEvent(SQLBase):
 class MUComment(SQLBase):
     __tablename__ = 'mucomment'
     id            = Column(BigInteger, primary_key=True)
-    muprofileId   = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('muprofile.id'),
+                           nullable=False,
                            index=True)
     createdDate   = Column(BigInteger)
     inReplyTo     = Column(String(STR_MAX))
@@ -344,15 +371,18 @@ class MUComment(SQLBase):
 class MULink(SQLBase):
     __tablename__ = 'mulink'
     id            = Column(BigInteger, primary_key=True)
-    parentId      = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('muprofile.id'),
+                           nullable=False,
                            index=True)
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
 
 class GHProfile(SQLBase):
     __tablename__ = 'ghprofile'
-    id                     = Column(String(STR_MAX), primary_key=True)
+    id                = Column(BigInteger, primary_key=True)
+    profileId         = Column(String(STR_MAX), index=True, nullable=False)
+    crawlNumber       = Column(BigInteger, index=True, nullable=False)
     name                   = Column(Unicode(STR_MAX))
     country                = Column(Unicode(STR_MAX))
     city                   = Column(Unicode(STR_MAX))
@@ -369,17 +399,21 @@ class GHProfile(SQLBase):
     publicGistCount        = Column(Integer)
     indexedOn              = Column(BigInteger, index=True)
     crawledDate            = Column(BigInteger, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
     
     links                  = relationship('GHLink',
                                           cascade='all, delete-orphan')
     repositories           = relationship('GHRepository',
                                           cascade='all, delete-orphan')
 
+    __table_args__ = (UniqueConstraint('profileId', 'crawlNumber'),)
+
 class GHLink(SQLBase):
     __tablename__ = 'ghlink'
     id            = Column(BigInteger, primary_key=True)
-    parentId      = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('ghprofile.id'),
+                           nullable=False,
                            index=True)
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
@@ -387,8 +421,9 @@ class GHLink(SQLBase):
 class GHRepository(SQLBase):
     __tablename__ = 'ghrepository'
     id            = Column(BigInteger, primary_key=True)
-    parentId      = Column(String(STR_MAX),
+    parentId      = Column(BigInteger,
                            ForeignKey('ghprofile.id'),
+                           nullable=False,
                            index=True)    
     name            = Column(Unicode(STR_MAX))
     description     = Column(Unicode(STR_MAX))

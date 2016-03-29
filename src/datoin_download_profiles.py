@@ -108,6 +108,7 @@ def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
              ('categories',  [str], False),
              ('indexedOn',   int,   True),
              ('crawledDate', int,   False),
+             ('crawlFailCount', int, True),
             ]:
             liprofile[name] = getField(liprofiledoc, name, fieldtype,
                                        required=required)
@@ -181,7 +182,8 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
         checkField(inprofiledoc, 'type', 'profile')
         inprofile = {}
         for name, fieldtype, required in \
-            [('id',          str,   True),
+            [('profileId',   str,   True),
+             ('crawlNumber', int,   True),
              ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
@@ -194,6 +196,7 @@ def addINProfile(dtdb, inprofiledoc, dtsession, logger):
              ('profileUpdatedDate', int, False),
              ('indexedOn',   int,   True),
              ('crawledDate', int,   True),
+             ('crawlFailCount', int, True),
             ]:
             inprofile[name] = getField(inprofiledoc, name, fieldtype,
                                        required=required)
@@ -267,7 +270,8 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
         checkField(uwprofiledoc, 'type', 'profile')
         uwprofile = {}
         for name, fieldtype, required in \
-            [('id',          str,   True),
+            [('profileId',   str,   True),
+             ('crawlNumber', int,   True),
              ('name',        str,   False),
              ('firstName',   str,   False),
              ('lastName',    str,   False),
@@ -280,6 +284,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
              ('categories',  [str], False),
              ('indexedOn',   int,   True),
              ('crawledDate', int,   True),
+             ('crawlFailCount', int, True),
             ]:
             uwprofile[name] = getField(uwprofiledoc, name, fieldtype,
                                        required=required)
@@ -291,7 +296,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
             checkField(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
-                        'profile-test'])
+                        'profile-tests'])
             if subdocument['type'] == 'profile-experience':
                 experience = {}
                 for name, fieldtype, required in \
@@ -325,7 +330,7 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
                 if nonEmpty(education):
                     uwprofile['educations'].append(education)
 
-            elif subdocument['type'] == 'profile-test':
+            elif subdocument['type'] == 'profile-tests':
                 test = {}
                 for name, fieldtype, required in \
                     [('name',        str,   False),
@@ -350,7 +355,8 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
         checkField(muprofiledoc, 'type', 'profile')
         muprofile = {}
         for name, fieldtype, required in \
-            [('id',          str,   True),
+            [('profileId',   str,   True),
+             ('crawlNumber', int,   True),
              ('name',        str,   False),
              ('country',     str,   False),
              ('city',        str,   False),
@@ -366,6 +372,7 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
              ('categories',  [str], False),
              ('indexedOn',   int,   True),
              ('crawledDate', int,   True),
+             ('crawlFailCount', int, True),
             ]:
             muprofile[name] = getField(muprofiledoc, name, fieldtype,
                                        required=required)
@@ -389,7 +396,7 @@ def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
                      ('name',        str,   False),
                      ('categoryName', str, False),
                      ('categoryShortname', str, False),
-                     ('categoryId',  int,   False),
+                     ('categoryId',  str,   False),
                      ('description', str,   False),
                      ('url',         'url', False),
                      ('urlname',     str,   False),
@@ -494,7 +501,8 @@ def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
         checkField(ghprofiledoc, 'type', 'profile')
         ghprofile = {}
         for name, fieldtype, required in \
-            [('id',          str,   True),
+            [('profileId',   str,   True),
+             ('crawlNumber', int,   True),
              ('name',        str,   False),
              ('country',     str,   False),
              ('city',        str,   False),
@@ -596,7 +604,7 @@ def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
     count = 0
     failedProfiles = []
     for profiledoc in dtsession.query(url=conf.DATOIN3_SEARCH,
-                                        params=params):
+                                      params=params):
         if 'profileId' not in profiledoc:
             raise IOError('Encountered profile without profileId.')
         profileId = profiledoc['profileId']

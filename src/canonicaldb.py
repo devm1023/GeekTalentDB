@@ -67,6 +67,7 @@ class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
+    crawlNumber       = Column(BigInteger, index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
@@ -93,6 +94,7 @@ class LIProfile(SQLBase):
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('LIExperience',
                                      order_by='LIExperience.start',
@@ -189,6 +191,7 @@ class INProfile(SQLBase):
     __tablename__ = 'inprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
+    crawlNumber       = Column(BigInteger, index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
@@ -212,6 +215,7 @@ class INProfile(SQLBase):
     updatedOn         = Column(DateTime)
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('INExperience',
                                      order_by='INExperience.start',
@@ -309,6 +313,7 @@ class UWProfile(SQLBase):
     __tablename__ = 'uwprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
+    crawlNumber       = Column(BigInteger, index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     lastName          = Column(Unicode(STR_MAX))
@@ -329,6 +334,7 @@ class UWProfile(SQLBase):
     pictureUrl        = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     experiences       = relationship('UWExperience',
                                      order_by='UWExperience.start',
@@ -424,6 +430,7 @@ class MUProfile(SQLBase):
     __tablename__ = 'muprofile'
     id                = Column(BigInteger, primary_key=True)
     datoinId          = Column(String(STR_MAX), index=True)
+    crawlNumber       = Column(BigInteger, index=True)
     language          = Column(String(20))
     name              = Column(Unicode(STR_MAX))
     country           = Column(Unicode(STR_MAX))
@@ -438,6 +445,7 @@ class MUProfile(SQLBase):
     thumbPictureUrl   = Column(String(STR_MAX))
     indexedOn         = Column(DateTime, index=True)
     crawledOn         = Column(DateTime, index=True)
+    crawlFailCount    = Column(BigInteger, index=True)
 
     groups            = relationship('MUGroup',
                                      cascade='all, delete-orphan')
@@ -572,6 +580,7 @@ class GHProfile(SQLBase):
     __tablename__ = 'ghprofile'
     id                     = Column(BigInteger, primary_key=True)
     datoinId               = Column(String(STR_MAX), index=True)
+    crawlNumber            = Column(BigInteger, index=True)
     language               = Column(String(20))
     name                   = Column(Unicode(STR_MAX))
     location               = Column(Unicode(STR_MAX))
@@ -590,6 +599,7 @@ class GHProfile(SQLBase):
     publicGistCount        = Column(Integer)
     indexedOn              = Column(DateTime, index=True)
     crawledOn              = Column(DateTime, index=True)
+    crawlFailCount         = Column(BigInteger, index=True)
 
     skills            = relationship('GHProfileSkill',
                                      order_by='GHProfileSkill.nrmName',
@@ -1259,6 +1269,12 @@ class CanonicalDB(SQLDatabase):
           The LIProfile object that was added to the database.
 
         """
+        if liprofile['crawlFailCount'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(LIProfile) \
+                .filter(LIProfile.datoinId == liprofile['datoinId']) \
+                .delete(synchronize_session=False)
+            return None
+        
         liprofileId = self.query(LIProfile.id) \
                           .filter(LIProfile.datoinId == liprofile['datoinId']) \
                           .first()
@@ -1325,6 +1341,12 @@ class CanonicalDB(SQLDatabase):
           The INProfile object that was added to the database.
 
         """
+        if liprofile['crawlFailCount'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(INProfile) \
+                .filter(INProfile.datoinId == liprofile['datoinId']) \
+                .delete(synchronize_session=False)
+            return None
+
         inprofileId = self.query(INProfile.id) \
                           .filter(INProfile.datoinId \
                                   == inprofiledict['datoinId']) \
@@ -1404,6 +1426,12 @@ class CanonicalDB(SQLDatabase):
           The UWProfile object that was added to the database.
 
         """
+        if liprofile['crawlFailCount'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(UWProfile) \
+                .filter(UWProfile.datoinId == liprofile['datoinId']) \
+                .delete(synchronize_session=False)
+            return None
+
         uwprofileId = self.query(UWProfile.id) \
                           .filter(UWProfile.datoinId == uwprofile['datoinId']) \
                           .first()
@@ -1515,6 +1543,12 @@ class CanonicalDB(SQLDatabase):
           The MUProfile object that was added to the database.
 
         """
+        if liprofile['crawlFailCount'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(MUProfile) \
+                .filter(MUProfile.datoinId == liprofile['datoinId']) \
+                .delete(synchronize_session=False)
+            return None
+
         muprofileId = self.query(MUProfile.id) \
                           .filter(MUProfile.datoinId == muprofile['datoinId']) \
                           .first()
@@ -1575,6 +1609,12 @@ class CanonicalDB(SQLDatabase):
           The GHProfile object that was added to the database.
 
         """
+        if liprofile['crawlFailCount'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(GHProfile) \
+                .filter(GHProfile.datoinId == liprofile['datoinId']) \
+                .delete(synchronize_session=False)
+            return None
+
         ghprofileId = self.query(GHProfile.id) \
                           .filter(GHProfile.datoinId == \
                                   ghprofiledict['datoinId']) \

@@ -69,6 +69,19 @@ def makeList(val):
     else:
         return val
 
+def lastvalid(q):
+    currentrow = None
+    for row in q:
+        if currentrow and row.profileId != currentrow.profileId:
+            yield currentrow
+            currentrow = row
+            continue
+        if row.crawlFailCount == 0 \
+           or row.crawlFailCount > conf.MAX_CRAWL_FAIL_COUNT:
+            currentrow = row
+    if currentrow:
+        yield currentrow
+        
 
 def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                     skillextractor):
@@ -86,10 +99,11 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                      
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
+    q = q.order_by(LIProfile.profileId, LIProfile.crawlNumber)
 
     def addLIProfile(liprofile):
-        profiledict = dictFromRow(liprofile)
-        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict = dictFromRow(liprofile, pkeys=False, fkeys=False)
+        profiledict['datoinId'] = profiledict.pop('profileId')
         profiledict['indexedOn'] \
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
@@ -166,7 +180,7 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         
         cndb.addLIProfile(profiledict)
 
-    processDb(q, addLIProfile, cndb, logger=logger)
+    processDb(lastvalid(q), addLIProfile, cndb, logger=logger)
 
 def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                     skillextractor):
@@ -184,10 +198,11 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                      
     if toid is not None:
         q = q.filter(INProfile.id < toid)
+    q = q.order_by(INProfile.profileId, INProfile.crawlNumber)
 
     def addINProfile(inprofile):
-        profiledict = dictFromRow(inprofile)
-        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict = dictFromRow(inprofile, pkeys=False, fkeys=False)
+        profiledict['datoinId'] = profiledict.pop('profileId')
         profiledict['indexedOn'] \
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
@@ -275,7 +290,7 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         
         cndb.addINProfile(profiledict)
 
-    processDb(q, addINProfile, cndb, logger=logger)
+    processDb(lastvalid(q), addINProfile, cndb, logger=logger)
 
 def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                     skillextractor):
@@ -293,10 +308,11 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                      
     if toid is not None:
         q = q.filter(UWProfile.id < toid)
+    q = q.order_by(UWProfile.profileId, UWProfile.crawlNumber)
 
     def addUWProfile(uwprofile):
-        profiledict = dictFromRow(uwprofile)
-        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict = dictFromRow(uwprofile, pkeys=False, fkeys=False)
+        profiledict['datoinId'] = profiledict.pop('profileId')
         profiledict['indexedOn'] \
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
@@ -336,7 +352,7 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         # add profile
         cndb.addUWProfile(profiledict)
 
-    processDb(q, addUWProfile, cndb, logger=logger)
+    processDb(lastvalid(q), addUWProfile, cndb, logger=logger)
 
 def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                     skillextractor):
@@ -354,10 +370,11 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                      
     if toid is not None:
         q = q.filter(MUProfile.id < toid)
+    q = q.order_by(MUProfile.profileId, MUProfile.crawlNumber)
 
     def addMUProfile(muprofile):
-        profiledict = dictFromRow(muprofile)
-        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict = dictFromRow(muprofile, pkeys=False, fkeys=False)
+        profiledict['datoinId'] = profiledict.pop('profileId')
         profiledict['indexedOn'] \
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
@@ -406,7 +423,7 @@ def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         # add profile
         cndb.addMUProfile(profiledict)
 
-    processDb(q, addMUProfile, cndb, logger=logger)
+    processDb(lastvalid(q), addMUProfile, cndb, logger=logger)
 
 
 def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
@@ -425,10 +442,11 @@ def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                      
     if toid is not None:
         q = q.filter(GHProfile.id < toid)
+    q = q.order_by(GHProfile.profileId, GHProfile.crawlNumber)
 
     def addGHProfile(ghprofile):
-        profiledict = dictFromRow(ghprofile)
-        profiledict['datoinId'] = profiledict.pop('id')
+        profiledict = dictFromRow(ghprofile, pkeys=False, fkeys=False)
+        profiledict['datoinId'] = profiledict.pop('profileId')
         profiledict['indexedOn'] \
             = makeDateTime(profiledict.pop('indexedOn', None))
         profiledict['crawledOn'] \
@@ -455,7 +473,7 @@ def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         # add profile        
         cndb.addGHProfile(profiledict)
 
-    processDb(q, addGHProfile, cndb, logger=logger)
+    processDb(lastvalid(q), addGHProfile, cndb, logger=logger)
     
     
 def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
@@ -520,8 +538,10 @@ def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
 if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('njobs', help='Number of parallel jobs.', type=int)
-    parser.add_argument('batchsize', help='Number of rows per batch.', type=int)
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--batchsize', type=int, default=1000,
+                        help='Number of rows per batch.')
     parser.add_argument('--from-date', help=
                         'Only process profiles crawled or indexed on or after\n'
                         'this date. Format: YYYY-MM-DD',
@@ -548,7 +568,7 @@ if __name__ == '__main__':
                         'processing Indeed CVs.')
     args = parser.parse_args()
     
-    njobs = max(args.njobs, 1)
+    njobs = max(args.jobs, 1)
     batchsize = args.batchsize
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
