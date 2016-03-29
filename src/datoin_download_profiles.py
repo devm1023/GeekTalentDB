@@ -652,11 +652,8 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId):
                       offset=offset, maxoffset=maxoffset)
         return
     
-    fromTs = int((tfrom - timestamp0).total_seconds())
-    toTs   = int((tto   - timestamp0).total_seconds())
-    if not byIndexedOn:
-        fromTs *= 1000
-        toTs *= 1000
+    fromTs = int((tfrom - timestamp0).total_seconds())*1000
+    toTs   = int((tto   - timestamp0).total_seconds())*1000
     timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
 
     dlstart = datetime.now()
