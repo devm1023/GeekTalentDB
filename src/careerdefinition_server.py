@@ -8,13 +8,6 @@ from werkzeug.exceptions import HTTPException
 import conf
 from careerdefinitiondb import CareerDefinitionDB
 from datetime import datetime
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--debug', action='store_true',
-                    help='Enable debug mode.')
-args = parser.parse_args()
-
 
 
 # Create application
@@ -277,8 +270,5 @@ admin.add_view(NextTitleView(NextTitle, db.session))
 admin.add_view(EntityDescriptionView(EntityDescription, db.session))
 
 if __name__ == '__main__':
-    if args.debug:
-        app.run(debug=True)
-    else:
-        app.run(host='0.0.0.0')
+    app.run(debug=True)
 
