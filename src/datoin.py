@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import sys
 import time
 from logger import Logger
+from copy import deepcopy
 
 
 class Session:
@@ -16,9 +17,9 @@ class Session:
 
     def count(self,
               params={},
-              url=conf.DATOIN_SEARCH):
+              url=conf.DATOIN3_SEARCH):
+        params = deepcopy(params)
         params['rows'] = 0
-        params['start'] = 0
         r = self._session.get(url, params=params).json()
         if 'totalResults' not in r:
             raise RuntimeError('Invalid reply: '+repr(r))
@@ -33,7 +34,7 @@ class Session:
         maxdelay = max(1, maxdelay)
         nextPage = None
         lastPage = False
-        params = params.copy()
+        params = deepcopy(params)
         params['rows'] = batchsize
 
         while not lastPage:

@@ -335,6 +335,9 @@ def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
                 for name, fieldtype, required in \
                     [('name',        str,   False),
                      ('score',       float, False),
+                     ('testPercentile', float, False),
+                     ('testDate',    int,   False),
+                     ('testDuration', float, False)
                     ]:
                     test[name] = getField(subdocument, name, fieldtype,
                                           required=required,
@@ -577,7 +580,7 @@ def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session(logger=logger)
-    BATCH_SIZE = 100
+    BATCH_SIZE = 1000
 
     if byIndexedOn:
         fromKey = 'fromTs'
@@ -601,6 +604,10 @@ def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
     
     logger.log('Downloading profiles from timestamp {0:d} to {1:d}.\n'\
                .format(fromTs, toTs))
+    totalcount = dtsession.count(url=conf.DATOIN3_SEARCH,
+                                 params=params)
+    if maxprofiles is not None:
+        totalcount = min(totalcount, maxprofiles)
     count = 0
     failedProfiles = []
     for profiledoc in dtsession.query(url=conf.DATOIN3_SEARCH,
@@ -620,13 +627,18 @@ def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
 
         # commit
         if count % BATCH_SIZE == 0:
-            logger.log('{0:d} profiles processed.\n'.format(count))
+            logger.log('{0:d} of {1:d} profiles processed ({2:.0f}%).\n' \
+                       .format(count, totalcount, count/totalcount*100))
             dtdb.commit()
         if maxprofiles is not None and count >= maxprofiles:
             break
     if count % BATCH_SIZE != 0:
         logger.log('{0:d} profiles processed.\n'.format(count))
     dtdb.commit()
+
+    if count != totalcount:
+        raise IOError('Expected {0:d} profiles, recieved {1:d}.' \
+                      .format(totalcount, count))
 
     return count, failedProfiles
 

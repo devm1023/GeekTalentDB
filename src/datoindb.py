@@ -251,6 +251,9 @@ class UWTest(SQLBase):
                          index=True)
     name        = Column(Unicode(STR_MAX))
     score       = Column(Float)
+    testPercentile = Column(Float)
+    testDate    = Column(BigInteger)
+    testDuration = Column(Float)
 
 class MUProfile(SQLBase):
     __tablename__ = 'muprofile'
