@@ -50,6 +50,7 @@ class SectorSkill(SQLBase):
     skillCount    = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    visible        = Column(Boolean, nullable=False)
 
     __table_args__ = (UniqueConstraint('sectorName', 'skillName'),)
     
@@ -64,6 +65,7 @@ class Career(SQLBase):
     titleCount    = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    visible       = Column(Boolean, nullable=False)
 
     skillCloud = relationship('CareerSkill',
                               order_by='desc(CareerSkill.relevanceScore)',
@@ -97,6 +99,7 @@ class CareerSkill(SQLBase):
     skillCount    = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'skillName'),)
 
@@ -111,6 +114,7 @@ class CareerCompany(SQLBase):
     companyCount  = Column(BigInteger)
     count         = Column(BigInteger)
     relevanceScore = Column(Float)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'companyName'),)
     
@@ -121,6 +125,7 @@ class CareerSubject(SQLBase):
                            index=True, nullable=False)
     subjectName   = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'subjectName'),)
     
@@ -131,6 +136,7 @@ class CareerInstitute(SQLBase):
                            index=True, nullable=False)
     instituteName = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'instituteName'),)
 
@@ -141,6 +147,7 @@ class PreviousTitle(SQLBase):
                            index=True, nullable=False)
     previousTitle = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'previousTitle'),)
 
@@ -151,6 +158,7 @@ class NextTitle(SQLBase):
                            index=True, nullable=False)
     nextTitle = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('careerId', 'nextTitle'),)
 
@@ -164,7 +172,7 @@ class EntityDescription(SQLBase):
     description   = Column(Unicode(STR_MAX))
     descriptionUrl = Column(String(STR_MAX))
     descriptionSource = Column(Unicode(STR_MAX))
-    edited        = Column(Boolean)
+    edited        = Column(Boolean, nullable=False)
     
     __table_args__ = (UniqueConstraint('entityType', 'linkedinSector',
                                        'entityName'),)
@@ -264,19 +272,40 @@ class CareerDefinitionDB(SQLDatabase):
         for titledict in careerdict.get('nextTitles', []):
             self._getEntityDescription(None, None, titledict['nextTitle'],
                                        watsonLookup=True)
-        return self.addFromDict(careerdict, Career)
+        return self.addFromDict(careerdict, Career,
+                                protect=['visible',
+                                         ('skillCloud', 'visible'),
+                                         ('educationSubjects', 'visible'),
+                                         ('educationInstitutes', 'visible'),
+                                         ('previousTitles', 'visible'),
+                                         ('nextTitles', 'visible')])
 
     def addSectorSkill(self, skilldict):
-        return self.addFromDict(skilldict, SectorSkill)
+        return self.addFromDict(skilldict, SectorSkill,
+                                protect=['visible'])
     
     def getCareers(self, sectors, titles):
         results = []
-        q = self.query(Career)
+        q = self.query(Career) \
+                .filter(Career.visible)
         if sectors:
             q = q.filter(Career.linkedinSector.in_(sectors))
         if titles:
             q = q.filter(Career.title.in_(titles))
         for career in q:
+            career.skillCloud \
+                = [s for s in career.skillCloud if s.visible]
+            career.companyCloud \
+                = [s for s in career.companyCloud if s.visible]
+            career.educationSubjects \
+                = [s for s in career.educationSubjects if s.visible]
+            career.educationInstitutes \
+                = [s for s in career.educationInstitutes if s.visible]
+            career.previousTitles \
+                = [s for s in career.previousTitles if s.visible]
+            career.nextTitles \
+                = [s for s in career.nextTitles if s.visible]
+                            
             careerdict = dictFromRow(career, pkeys=False, fkeys=False)
             careerdict['description'] \
                 = self._getEntityDescription('title',

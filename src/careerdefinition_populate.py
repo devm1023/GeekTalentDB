@@ -128,6 +128,7 @@ def getSkillCloud(andb, mapper, experiencec, nrmSector, nrmTitle, sigma):
             'skillCount' : skillc,
             'count' : sectortitleskillc,
             'relevanceScore' : score,
+            'visible' : True,
         })
     return result
 
@@ -159,6 +160,7 @@ def getCompanyCloud(andb, mapper, experiencec, nrmSector, nrmTitle, sigma):
             'companyCount' : companyc,
             'count' : sectortitlecompanyc,
             'relevanceScore' : score,
+            'visible' : True,
         })
     return result
 
@@ -190,10 +192,14 @@ def getCareerSteps(andb, mapper, nrmSector, nrmTitle, mincount=1):
                 nextTitle = titles[i+1]
                 nextTitles[nextTitle] = nextTitles.get(nextTitle, 0) + 1
     previousTitles = [
-        {'previousTitle' : mapper.name(job), 'count' : count} \
+        {'previousTitle' : mapper.name(job),
+         'count' : count,
+         'visible' : True} \
         for job, count in previousTitles.items() if count >= mincount]
     nextTitles = [
-        {'nextTitle' : mapper.name(job), 'count' : count} \
+        {'nextTitle' : mapper.name(job),
+         'count' : count,
+         'visible' : True} \
         for job, count in nextTitles.items() if count >= mincount]
 
     return previousTitles, nextTitles
@@ -208,7 +214,8 @@ def getSubjects(andb, mapper, profileIds, mincount=1):
     results = []
     for subject, count in countEntities(q, mapper, mincount=mincount):
         results.append({'subjectName' : subject,
-                       'count' : count})
+                        'count' : count,
+                        'visible' : True})
     return results
 
 def getInstitutes(andb, mapper, profileIds, mincount=1):
@@ -221,7 +228,8 @@ def getInstitutes(andb, mapper, profileIds, mincount=1):
     results = []
     for subject, count in countEntities(q, mapper, mincount=mincount):
         results.append({'instituteName' : subject,
-                        'count' : count})
+                        'count' : count,
+                        'visible' : True})
     return results
 
 def getSectors(sectors, filename):
@@ -304,7 +312,8 @@ if __name__ == '__main__':
                                  'sectorCount' : sectorc,
                                  'skillCount' : skillc,
                                  'count' : sectorskillc,
-                                 'relevanceScore' : score})
+                                 'relevanceScore' : score,
+                                 'visible' : True})
 
         # build title cloud
         entityq = lambda entities: \
@@ -343,6 +352,7 @@ if __name__ == '__main__':
                           'titleCount' : titlec,
                           'count' : sectortitlec,
                           'relevanceScore' : score,
+                          'visible' : True,
             }
 
             careerdict['skillCloud'] \

@@ -1,7 +1,11 @@
-from flask import Flask
+from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
-import flask_admin as admin
+from flask_admin import Admin
 from flask_admin.contrib import sqla
+from flask_admin.contrib.sqla.filters import BaseSQLAFilter
+from flask_admin.babel import lazy_gettext, gettext, ngettext
+from flask_admin.actions import action
+
 from flask import request, Response, jsonify
 from werkzeug.exceptions import HTTPException
 
@@ -9,6 +13,21 @@ import conf
 from careerdefinitiondb import CareerDefinitionDB
 from datetime import datetime
 
+class BooleanNotTrueFilter(BaseSQLAFilter):
+    def __init__(self, column, name):
+        BaseSQLAFilter.__init__(self, column, name,
+                                options=(('1', lazy_gettext('Yes')),
+                                         ('0', lazy_gettext('No'))))
+    
+    def apply(self, query, value, alias=None):
+        if value == '1':
+            return query.filter((self.column == None) | (self.column == False))
+        else:
+            return query.filter(self.column == True)
+
+    def operation(self):
+        return 'is not true'
+    
 
 # Create application
 app = Flask(__name__)
@@ -57,7 +76,7 @@ class EntityDescription(db.Model):
     description   = db.Column(db.Text)
     descriptionUrl = db.Column(db.String(STR_MAX))
     descriptionSource = db.Column(db.Unicode(STR_MAX))
-    edited        = db.Column(db.Boolean)
+    edited        = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         typestr = self.entityType if self.entityType else '*'
@@ -71,6 +90,7 @@ class Career(db.Model):
     linkedinSector = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     skillCloud = db.relationship('CareerSkill', backref='career',
                                  order_by='desc(CareerSkill.relevanceScore)',
@@ -101,7 +121,8 @@ class SectorSkill(db.Model):
     sectorName    = db.Column(db.Unicode(STR_MAX), nullable=False)
     skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
-    relevanceScore = db.Column(db.Float)
+    relevanceScore = db.Column(db.Float)    
+    visible       = db.Column(db.Boolean, nullable=False)
     
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
@@ -113,6 +134,7 @@ class CareerSkill(db.Model):
     skillName     = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.skillName
@@ -127,6 +149,7 @@ class CareerCompany(db.Model):
     companyName     = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevanceScore = db.Column(db.Float)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.companyName
@@ -140,6 +163,7 @@ class CareerSubject(db.Model):
                                             ondelete='CASCADE'))
     subjectName   = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.subjectName
@@ -153,6 +177,7 @@ class CareerInstitute(db.Model):
                                             ondelete='CASCADE'))
     instituteName   = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.instituteName
@@ -166,6 +191,7 @@ class PreviousTitle(db.Model):
                                             ondelete='CASCADE'))
     previousTitle = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.previousTitle
@@ -179,6 +205,7 @@ class NextTitle(db.Model):
                                             ondelete='CASCADE'))
     nextTitle = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
 
     def __str__(self):
         return self.nextTitle
@@ -197,8 +224,52 @@ class ModelView(sqla.ModelView):
             ))
         return True
 
+    @action('hide', 'Hide')
+    def action_hide(self, ids):
+        try:
+            query = self.model.query.filter(self.model.id.in_(ids))
+            count = 0
+            for row in query:
+                row.visible = False
+                count += 1
+            db.session.commit()
+
+            flash(ngettext('Row was successfully hidden.',
+                           '%(count)s rows were successfully hidden.',
+                           count,
+                           count=count))
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+
+            flash(gettext('Failed to hide rows. %(error)s', error=str(ex)),
+                  'error')
+
+    @action('reveal', 'Reveal')
+    def action_reveal(self, ids):
+        try:
+            query = self.model.query.filter(self.model.id.in_(ids))
+            count = 0
+            for row in query:
+                row.visible = True
+                count += 1
+            db.session.commit()
+
+            flash(ngettext('Row was successfully revealed.',
+                           '%(count)s rows were successfully revealed.',
+                           count,
+                           count=count))
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+
+            flash(gettext('Failed to reveal rows. %(error)s', error=str(ex)),
+                  'error')
+            
+
 class SectorSkillView(ModelView):
     column_filters = ['sectorName', 'skillName']
+    
     
 _textAreaStyle = {
     'rows' : 5,
@@ -227,7 +298,7 @@ class CareerView(ModelView):
         (NextTitle,
          {'form_widget_args' : {'count' : {'readonly' : True}}}),
     ]
-    column_filters = ['linkedinSector', 'title']
+    column_filters = ['linkedinSector', 'title', 'visible']
 
 class EntityDescriptionView(ModelView):
     column_filters = ['entityType', 'linkedinSector', 'entityName', 'edited']
@@ -235,30 +306,30 @@ class EntityDescriptionView(ModelView):
     form_widget_args = {'description' : _textAreaStyle}
 
 class CareerSkillView(ModelView):
-    column_filters = ['career', 'skillName']
+    column_filters = ['career', 'skillName', 'visible']
 
 class CareerCompanyView(ModelView):
-    column_filters = ['career', 'companyName']
+    column_filters = ['career', 'companyName', 'visible']
     
 class CareerSubjectView(ModelView):
-    column_filters = ['career', 'subjectName']
+    column_filters = ['career', 'subjectName', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
 
 class CareerInstituteView(ModelView):
-    column_filters = ['career', 'instituteName']
+    column_filters = ['career', 'instituteName', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
 
 class PreviousTitleView(ModelView):
-    column_filters = ['career', 'previousTitle']
+    column_filters = ['career', 'previousTitle', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
 
 class NextTitleView(ModelView):
-    column_filters = ['career', 'nextTitle']
+    column_filters = ['career', 'nextTitle', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
     
     
 # Create admin
-admin = admin.Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
+admin = Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
 admin.add_view(SectorSkillView(SectorSkill, db.session))
 admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))

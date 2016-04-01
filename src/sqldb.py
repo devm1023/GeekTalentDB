@@ -41,7 +41,7 @@ class SQLDatabase:
     def create_all(self):
         self.metadata.create_all(self.session.bind)
 
-    def addFromDict(self, d, table, update=True, flush=False):
+    def addFromDict(self, d, table, update=True, flush=False, protect=[]):
         if d is None:
             return None
         pkeycols, pkey = _getPkey(d, table)
@@ -73,7 +73,7 @@ class SQLDatabase:
                 row = rowFromDict(d, table)
                 self.add(row)
             else:
-                updateRowFromDict(row, d)
+                updateRowFromDict(row, d, protect=protect)
                 
         if flush:
             self.flush()
@@ -173,17 +173,29 @@ def rowFromDict(d, rowtype):
 
     return result
 
-def _mergeLists(rows, dicts, rowtype, strict=False):
+def _mergeLists(rows, dicts, rowtype, strict=False, protect=[]):
     if not rows:
         return [rowFromDict(d, rowtype) for d in dicts]
     mapper = inspect(rowtype)
     pkeynames = [c.key for c in mapper.primary_key]
+    ucs = []
+    for constraint in rowtype.__table__.constraints:
+        if not isinstance(constraint, UniqueConstraint):
+            continue
+        if any(c.nullable for c in constraint.columns):
+            continue
+        ucs.append(tuple(c.key for c in constraint.columns))
 
+    
     keymap = {}
+    ucmaps = [{} for uccols in ucs]
     unmatched = []
     for row in rows:
         pkey = tuple(getattr(row, k) for k in pkeynames)
         keymap[pkey] = row
+        for uccols, ucmap in zip(ucs, ucmaps):
+            ucvals = tuple(getattr(row, c) for c in uccols)
+            ucmap[ucvals] = pkey
 
     newrows = []
     unmatcheddicts = []
@@ -194,9 +206,16 @@ def _mergeLists(rows, dicts, rowtype, strict=False):
         if any(k is None for k in pkey) and any(k is not None for k in pkey):
             raise ValueError('Primary key must be fully specified or fully '
                              'unspecified.')
+        if all(k is None for k in pkey):
+            for uccols, ucmap in zip(ucs, ucmaps):
+                ucvals = tuple(d.get(c, None) for c in uccols)
+                if ucvals in ucmap:
+                    pkey = ucmap.pop(ucvals)
+                    break
         if pkey in keymap:
             row = keymap.pop(pkey)
-            newrows.append(updateRowFromDict(row, d, strict=strict))
+            newrows.append(updateRowFromDict(row, d, strict=strict,
+                                             protect=protect))
         else:
             unmatcheddicts.append(d)
 
@@ -213,19 +232,37 @@ def _mergeLists(rows, dicts, rowtype, strict=False):
     return newrows
 
 
-def updateRowFromDict(row, d, strict=False):
+def updateRowFromDict(row, d, strict=False, protect=[]):
     mapper = inspect(type(row))
+    protectedFields = set()
+    protectedRelations = {}
+    if not strict:
+        for field in protect:
+            if isinstance(field, str):
+                protectedFields.add(field)
+            elif len(field) == 1:
+                protectedFields.add(field[0])
+            else:
+                relation = field[0]
+                if relation in protectedRelations:
+                    protectedRelations[relation].append(field[1:])
+                else:
+                    protectedRelations[relation] = [field[1:]]
 
     for c in mapper.primary_key:
         d[c.key] = getattr(row, c.key)
     
     for c in mapper.column_attrs:
+        if c.key in protectedFields:
+            continue
         if c.key in d:
             setattr(row, c.key, d[c.key])
         elif strict:
             setattr(row, c.key, None)
 
     for relation in mapper.relationships:
+        if relation.key in protectedFields:
+            continue
         isOneToMany = relation.direction.name == 'ONETOMANY'
         if relation.key in d:
             val = d[relation.key]
@@ -237,8 +274,9 @@ def updateRowFromDict(row, d, strict=False):
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
-                newcollection = _mergeLists(collection, val, remotetype,
-                                            strict=strict)
+                newcollection = _mergeLists(
+                    collection, val, remotetype, strict=strict,
+                    protect=protectedRelations.get(relation.key, []))
                 setattr(row, relation.key, newcollection)
             elif val is not None:
                 setattr(row, relation.key, rowFromDict(val, remotetype))
