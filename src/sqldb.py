@@ -41,7 +41,8 @@ class SQLDatabase:
     def create_all(self):
         self.metadata.create_all(self.session.bind)
 
-    def addFromDict(self, d, table, update=True, flush=False, protect=[]):
+    def addFromDict(self, d, table, update=True, flush=False, delete=True,
+                    protect=[]):
         if d is None:
             return None
         pkeycols, pkey = _getPkey(d, table)
@@ -73,7 +74,7 @@ class SQLDatabase:
                 row = rowFromDict(d, table)
                 self.add(row)
             else:
-                updateRowFromDict(row, d, protect=protect)
+                updateRowFromDict(row, d, protect=protect, delete=delete)
                 
         if flush:
             self.flush()
@@ -173,7 +174,7 @@ def rowFromDict(d, rowtype):
 
     return result
 
-def _mergeLists(rows, dicts, rowtype, strict=False, protect=[]):
+def _mergeLists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
     if not rows:
         return [rowFromDict(d, rowtype) for d in dicts]
     mapper = inspect(rowtype)
@@ -219,7 +220,11 @@ def _mergeLists(rows, dicts, rowtype, strict=False, protect=[]):
         else:
             unmatcheddicts.append(d)
 
-    keymap = list(keymap.items())
+    if delete:
+        keymap = list(keymap.items())
+    else:
+        newrows.extend(keymap.values())
+        keymap = []
     for d in unmatcheddicts:
         if keymap:
             pkey, row = keymap.pop()
@@ -232,7 +237,7 @@ def _mergeLists(rows, dicts, rowtype, strict=False, protect=[]):
     return newrows
 
 
-def updateRowFromDict(row, d, strict=False, protect=[]):
+def updateRowFromDict(row, d, delete=True, protect=[], strict=False):
     mapper = inspect(type(row))
     protectedFields = set()
     protectedRelations = {}
@@ -248,6 +253,8 @@ def updateRowFromDict(row, d, strict=False, protect=[]):
                     protectedRelations[relation].append(field[1:])
                 else:
                     protectedRelations[relation] = [field[1:]]
+    if strict:
+        delete = True
 
     for c in mapper.primary_key:
         d[c.key] = getattr(row, c.key)
@@ -275,7 +282,7 @@ def updateRowFromDict(row, d, strict=False, protect=[]):
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
                 newcollection = _mergeLists(
-                    collection, val, remotetype, strict=strict,
+                    collection, val, remotetype, strict=strict, delete=delete,
                     protect=protectedRelations.get(relation.key, []))
                 setattr(row, relation.key, newcollection)
             elif val is not None:
