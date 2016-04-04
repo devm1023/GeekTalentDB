@@ -21,8 +21,8 @@ class EntityMapper:
             for row in csvreader:
                 rowcount += 1
                 if len(row) != 5:
-                    raise IOError('Invalid row {0:d} in CSV file.' \
-                                  .format(rowcount))
+                    raise IOError('Invalid row in CSV file:\n{0:s}' \
+                                  .format(repr(row)))
                 type = row[0].strip()
                 language = row[1].strip()
                 sector = row[2].strip()
@@ -40,11 +40,11 @@ class EntityMapper:
                 nrmEntity2 = normalizedEntity(type, 'linkedin', language,
                                               entity2)
                 if not nrmEntity1 or not nrmEntity2:
-                    raise IOError('Invalid row {0:d} in CSV file.' \
-                                  .format(rowcount))
+                    raise IOError('Invalid row in CSV file:\n{0:s}' \
+                                  .format(repr(row)))
                 if nrmEntity1 in nrmMap:
-                    raise IOError('Duplicate entry in row {0:d} in CSV file.' \
-                                  .format(rowcount))
+                    raise IOError('Duplicate entry in row in CSV file:\n{0:s}' \
+                                  .format(repr(row)))
                 nrmMap[nrmEntity1] = nrmEntity2
                 self._names[nrmSector, nrmEntity2] = entity2
 
