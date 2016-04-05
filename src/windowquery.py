@@ -1,8 +1,8 @@
 __all__ = [
     'windows',
-    'windowQuery',
-    'splitProcess',
-    'processDb',
+    'window_query',
+    'split_process',
+    'process_db',
 ]
 
 import sqlalchemy
@@ -42,7 +42,7 @@ def windows(query, windowsize=None, nwindows=None):
        (windowsize is not None and windowsize < 1) or \
        (nwindows is not None and nwindows < 1):
         raise ValueError('Invalid values for `windowsize` and `nwindows`.')
-    
+
     columns = list(query.statement.inner_columns)
     if len(columns) != 1:
         raise ValueError('Query must have exactly one column.')
@@ -70,7 +70,7 @@ def windows(query, windowsize=None, nwindows=None):
     yield a, None, ra, nrows+1, nrows
 
 
-def windowQuery(q, column, windowsize=10000, values=None):
+def window_query(q, column, windowsize=10000, values=None):
     """"Break a query into windows on a given column.
 
     Args:
@@ -81,7 +81,7 @@ def windowQuery(q, column, windowsize=10000, values=None):
       values (query object or None, optional): A query returning the values
         to split on. Defaults to ``None``, in which case ``q.from_self(column)``
         is used.
-    
+
     Yields:
       The same rows that `q` would yield.
 
@@ -91,7 +91,7 @@ def windowQuery(q, column, windowsize=10000, values=None):
         wq = q.from_self(column)
     else:
         wq = values
-    
+
     for a, b, ra, rb, nr in windows(wq, windowsize):
         if b is not None:
             whereclause = and_(column >= a, column < b)
@@ -118,9 +118,9 @@ def _log_batchend(logger, starttime, endtime, firststart,
                .format(torow-1, nrows, round(x*100)))
     logger.log('Estimated finish: {0:s}.\n' \
                .format(etf.strftime('%Y-%m-%d %H:%M:%S%z')))
-    
-            
-def splitProcess(query, f, batchsize, njobs=1, args=[], 
+
+
+def split_process(query, f, batchsize, njobs=1, args=[],
                  logger=Logger(None), workdir='.', prefix=None):
     """Apply a function to ranges of distinct values returned by a query.
 
@@ -132,7 +132,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
         the values returned by `query`. The second argument may be ``None``,
         which means no upper limit. The third argument passed to `f` is the
         ID of the parallel job.
-      batchsize (int): The size (i.e. number of distinct `query` values) of the 
+      batchsize (int): The size (i.e. number of distinct `query` values) of the
         intervals that are passed to `f`.
       njobs (int, optional): Number of parallel processes to start. Defaults to
         1.
@@ -145,7 +145,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
       prefix (str or None, optional): Prefix for creating temporary files.
         Defaults to ``None``, in which case a UUID is used.
 
-    """    
+    """
     firststart = datetime.now()
     if njobs <= 1:
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
@@ -161,7 +161,7 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
         toid_batch = None
         fromrow_batch = None
         torow_batch = None
-        parallelProcess = ParallelFunction(f,
+        parallel_process = ParallelFunction(f,
                                            batchsize=1,
                                            workdir=workdir,
                                            prefix=prefix,
@@ -176,15 +176,15 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
                 fromrow_batch = fromrow
             if torow_batch is None or torow > torow_batch:
                 torow_batch = torow
-                
+
             if len(pargs) == njobs:
                 starttime = datetime.now()
                 _log_batchstart(logger, starttime, fromid_batch)
-                parallelProcess(pargs)
+                parallel_process(pargs)
                 endtime = datetime.now()
                 _log_batchend(logger, starttime, endtime, firststart,
                               fromrow_batch, torow_batch, nrows)
-                
+
                 pargs = []
                 fromid_batch = None
                 toid_batch = None
@@ -193,14 +193,14 @@ def splitProcess(query, f, batchsize, njobs=1, args=[],
         if pargs:
             starttime = datetime.now()
             _log_batchstart(logger, starttime, fromid_batch)
-            parallelProcess(pargs)
+            parallel_process(pargs)
             endtime = datetime.now()
             _log_batchend(logger, starttime, endtime, firststart,
                           fromrow_batch, nrows+1, nrows)
 
 
-def processDb(q, f, db, batchsize=1000, logger=Logger(None),
-              msg='processDb: {0:d} records processed.\n'):
+def process_db(q, f, db, batchsize=1000, logger=Logger(None),
+              msg='process_db: {0:d} records processed.\n'):
     recordcount = 0
     for rec in q:
         f(rec)

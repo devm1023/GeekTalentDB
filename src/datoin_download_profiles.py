@@ -377,7 +377,7 @@ def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
              ('profile_url', 'profileUrl',  'url', False),
              ('profile_picture_id', 'profilePictureId', str, False),
              ('profile_picture_url', 'profilePictureUrl', 'url', False),
-             ('profile_hqpicture_url', 'profileHQPictureUrl', 'url', False),
+             ('profile_hq_picture_url', 'profileHQPictureUrl', 'url', False),
              ('profile_thumb_picture_url', 'profileThumbPictureUrl', 'url',
               False),
              ('categories',  'categories',  [str], False),
@@ -413,7 +413,7 @@ def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
                      ('urlname',     'urlname',     str,   False),
                      ('picture_url', 'pictureUrl',  'url', False),
                      ('picture_id',  'pictureId',   int,   False),
-                     ('hqpicture_url', 'HQPictureUrl', 'url', False),
+                     ('hq_picture_url', 'HQPictureUrl', 'url', False),
                      ('thumb_picture_url', 'url', False),
                      ('join_mode',   'joinMode',    str,   False),
                      ('rating',      'rating',      float, False),
@@ -689,7 +689,7 @@ def download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, source_id):
         results = ParallelFunction(download_profiles,
                                    batchsize=1,
                                    workdir='jobs',
-                                   prefix='lidownload',
+                                   prefix='datoin_download',
                                    tries=1)(args)
         count = 0
         failed_profiles = []

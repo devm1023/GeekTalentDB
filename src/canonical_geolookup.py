@@ -4,7 +4,7 @@ import sys
 from datetime import datetime, timedelta
 from logger import Logger
 from sqlalchemy import and_
-from windowquery import splitProcess, processDb
+from windowquery import split_process, process_db
 from datetime import datetime, timedelta
 import time
 import argparse
@@ -12,56 +12,56 @@ import argparse
 
 SOURCES = ['linkedin', 'indeed']
 
-def processLocations(jobid, fromlocation, tolocation,
-                     fromdate, todate, byIndexedOn, source, retry, maxretry):
+def process_locations(jobid, fromlocation, tolocation,
+                     fromdate, todate, by_indexed_on, source, retry, maxretry):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
     logger = Logger(sys.stdout)
 
     if source == 'linkedin':
-        profileTab = LIProfile
-        experienceTab = LIExperience
+        profile_tab = LIProfile
+        experience_tab = LIExperience
     elif source == 'indeed':
-        profileTab = INProfile
-        experienceTab = INExperience
+        profile_tab = INProfile
+        experience_tab = INExperience
     else:
         raise ValueError('Invalid source type.')
 
     if retry:
-        q = cndb.query(Location.nrmName) \
-                .filter(Location.placeId == None,
+        q = cndb.query(Location.nrm_name) \
+                .filter(Location.place_id == None,
                         Location.tries < maxretry)
         if fromlocation is not None:
-            q = q.filter(Location.nrmName >= fromlocation)
+            q = q.filter(Location.nrm_name >= fromlocation)
     else:
-        if byIndexedOn:
-            q1 = cndb.query(profileTab.nrmLocation.label('nrmloc')) \
-                     .filter(profileTab.indexedOn >= fromdate,
-                             profileTab.indexedOn < todate)
-            q2 = cndb.query(experienceTab.nrmLocation.label('nrmloc')) \
-                     .join(profileTab) \
-                     .filter(profileTab.indexedOn >= fromdate,
-                             profileTab.indexedOn < todate)
+        if by_indexed_on:
+            q1 = cndb.query(profile_tab.nrm_location.label('nrmloc')) \
+                     .filter(profile_tab.indexed_on >= fromdate,
+                             profile_tab.indexed_on < todate)
+            q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
+                     .join(profile_tab) \
+                     .filter(profile_tab.indexed_on >= fromdate,
+                             profile_tab.indexed_on < todate)
         else:
-            q1 = cndb.query(profileTab.nrmLocation.label('nrmloc')) \
-                     .filter(profileTab.crawledOn >= fromdate,
-                             profileTab.crawledOn < todate)
-            q2 = cndb.query(experienceTab.nrmLocation.label('nrmloc')) \
-                     .join(profileTab) \
-                     .filter(profileTab.crawledOn >= fromdate,
-                             profileTab.crawledOn < todate)
+            q1 = cndb.query(profile_tab.nrm_location.label('nrmloc')) \
+                     .filter(profile_tab.crawled_on >= fromdate,
+                             profile_tab.crawled_on < todate)
+            q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
+                     .join(profile_tab) \
+                     .filter(profile_tab.crawled_on >= fromdate,
+                             profile_tab.crawled_on < todate)
 
-        q1 = q1.filter(profileTab.nrmLocation >= fromlocation)
-        q2 = q2.filter(experienceTab.nrmLocation >= fromlocation)
+        q1 = q1.filter(profile_tab.nrm_location >= fromlocation)
+        q2 = q2.filter(experience_tab.nrm_location >= fromlocation)
         if tolocation is not None:
-            q1 = q1.filter(profileTab.nrmLocation < tolocation)
-            q2 = q2.filter(experienceTab.nrmLocation < tolocation)
+            q1 = q1.filter(profile_tab.nrm_location < tolocation)
+            q2 = q2.filter(experience_tab.nrm_location < tolocation)
 
         q = q1.union(q2)
 
-    def addLocation(rec):
-        cndb.addLocation(rec[0], retry=retry, logger=logger)
- 
-    processDb(q, addLocation, cndb, logger=logger)
+    def add_location(rec):
+        cndb.add_location(rec[0], retry=retry, logger=logger)
+
+    process_db(q, add_location, cndb, logger=logger)
 
 def run(args, maxretry):
     logger = Logger(sys.stdout)
@@ -81,49 +81,51 @@ def run(args, maxretry):
         experiencetab = INExperience
     else:
         raise ValueError('Invalid source.')
-    
+
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
 
     if args.retry:
-        q = cndb.query(Location.nrmName) \
-                .filter(Location.placeId == None,
+        q = cndb.query(Location.nrm_name) \
+                .filter(Location.place_id == None,
                         Location.tries < maxretry)
         if fromlocation is not None:
-            q = q.filter(Location.nrmName >= args.from_location)
+            q = q.filter(Location.nrm_name >= args.from_location)
     else:
         if args.by_index_date:
-            q1 = cndb.query(profiletab.nrmLocation.label('nrmloc')) \
-                     .filter(profiletab.indexedOn >= args.from_date,
-                             profiletab.indexedOn < args.to_date)
-            q2 = cndb.query(experiencetab.nrmLocation.label('nrmloc')) \
+            q1 = cndb.query(profiletab.nrm_location.label('nrmloc')) \
+                     .filter(profiletab.indexed_on >= args.from_date,
+                             profiletab.indexed_on < args.to_date)
+            q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
                      .join(profiletab) \
-                     .filter(profiletab.indexedOn >= args.from_date,
-                             profiletab.indexedOn < args.to_date)
+                     .filter(profiletab.indexed_on >= args.from_date,
+                             profiletab.indexed_on < args.to_date)
         else:
-            q1 = cndb.query(profiletab.nrmLocation.label('nrmloc')) \
-                     .filter(profiletab.crawledOn >= args.from_date,
-                             profiletab.crawledOn < args.to_date)
-            q2 = cndb.query(experiencetab.nrmLocation.label('nrmloc')) \
+            q1 = cndb.query(profiletab.nrm_location.label('nrmloc')) \
+                     .filter(profiletab.crawled_on >= args.from_date,
+                             profiletab.crawled_on < args.to_date)
+            q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
                      .join(profiletab) \
-                     .filter(profiletab.crawledOn >= args.from_date,
-                             profiletab.crawledOn < args.to_date)
+                     .filter(profiletab.crawled_on >= args.from_date,
+                             profiletab.crawled_on < args.to_date)
 
         if args.from_location is not None:
-            q1 = q1.filter(profiletab.nrmLocation >= args.from_location)
-            q2 = q2.filter(experiencetab.nrmLocation >= args.from_location)
+            q1 = q1.filter(profiletab.nrm_location >= args.from_location)
+            q2 = q2.filter(experiencetab.nrm_location >= args.from_location)
 
         q = q1.union(q2)
 
-    splitProcess(q, processLocations, args.batchsize, njobs=args.njobs,
+    split_process(q, process_locations, args.batchsize, njobs=args.jobs,
                  args=[args.from_date, args.to_date, args.by_index_date,
                        args.source, args.retry, maxretry],
                  logger=logger, workdir='jobs', prefix='canonical_geoupdate')
-    
+
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('njobs', help='Number of parallel jobs.', type=int)
-parser.add_argument('batchsize', help='Number of rows per batch.', type=int)
+parser.add_argument('--jobs', type=int, default=1,
+                    help='Number of parallel jobs.')
+parser.add_argument('--batchsize', type=int, default=1000,
+                    help='Number of rows per batch.')
 parser.add_argument('--from-date', help=
                     'Only process profiles crawled or indexed on or after\n'
                     'this date. Format: YYYY-MM-DD',

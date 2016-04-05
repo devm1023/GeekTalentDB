@@ -1,9 +1,9 @@
 from datoindb import *
 import canonicaldb as nf
-from windowquery import splitProcess, processDb
+from windowquery import split_process, process_db
 from phraseextract import PhraseExtractor
-from textnormalization import tokenizedSkill
-from sqldb import dictFromRow
+from textnormalization import tokenized_skill
+from sqldb import dict_from_row
 from sqlalchemy import and_
 import conf
 import sys
@@ -20,36 +20,36 @@ now = datetime.now()
 skillbuttonpatt = re.compile(r'See ([0-9]+\+|Less)')
 truncatedpatt = re.compile(r'.*\.\.\.')
 connectionspatt = re.compile(r'[^0-9]*([0-9]+)[^0-9]*')
-countryLanguages = {
+country_languages = {
     'United Kingdom' : 'en',
     'Netherlands'    : 'nl',
     'Nederland'      : 'nl',
 }
 
-def makeName(name, firstName, lastName):
+def make_name(name, first_name, last_name):
     if name:
         return name
-    name = ' '.join(s for s in [firstName, lastName] if s)
+    name = ' '.join(s for s in [first_name, last_name] if s)
     if not name:
         return None
     return name
 
-def makeLocation(city, country):
+def make_location(city, country):
     location = ', '.join(s for s in [city, country] if s)
     if not location:
         location = None
     return location
 
-def makeDateTime(ts, offset=0):
+def make_date_time(ts, offset=0):
     if ts:
         result = timestamp0 + timedelta(milliseconds=ts+offset)
     else:
         result = None
     return result
 
-def makeDateRange(tsFrom, tsTo, offset=0):
-    start = makeDateTime(tsFrom, offset=offset)
-    end = makeDateTime(tsTo, offset=offset)
+def make_date_range(ts_from, ts_to, offset=0):
+    start = make_date_time(ts_from, offset=offset)
+    end = make_date_time(ts_to, offset=offset)
     if start is not None and end is not None and end < start:
         start = None
         end = None
@@ -58,12 +58,12 @@ def makeDateRange(tsFrom, tsTo, offset=0):
 
     return start, end
 
-def makeGeo(longitude, latitude):
+def make_geo(longitude, latitude):
     if longitude is None or latitude is None:
         return None
     return 'POINT({0:f} {1:f})'.format(longitude, latitude)
 
-def makeList(val):
+def make_list(val):
     if not val:
         return []
     else:
@@ -72,50 +72,50 @@ def makeList(val):
 def lastvalid(q):
     currentrow = None
     for row in q:
-        if currentrow and row.profileId != currentrow.profileId:
+        if currentrow and row.profile_id != currentrow.profile_id:
             yield currentrow
             currentrow = row
             continue
-        if row.crawlFailCount == 0 \
-           or row.crawlFailCount > conf.MAX_CRAWL_FAIL_COUNT:
+        if row.crawl_fail_count == 0 \
+           or row.crawl_fail_count > conf.MAX_CRAWL_FAIL_COUNT:
             currentrow = row
     if currentrow:
         yield currentrow
-        
 
-def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+
+def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(LIProfile).filter(LIProfile.id >= fromid)
-    if byIndexedOn:
-        q = q.filter(LIProfile.indexedOn >= fromTs,
-                     LIProfile.indexedOn < toTs)
+    if by_indexed_on:
+        q = q.filter(LIProfile.indexed_on >= from_ts,
+                     LIProfile.indexed_on < to_ts)
     else:
-        q = q.filter(LIProfile.crawledDate >= fromTs,
-                     LIProfile.crawledDate < toTs)
-                                     
+        q = q.filter(LIProfile.crawled_date >= from_ts,
+                     LIProfile.crawled_date < to_ts)
+
     if toid is not None:
         q = q.filter(LIProfile.id < toid)
-    q = q.order_by(LIProfile.profileId, LIProfile.crawlNumber)
+    q = q.order_by(LIProfile.profile_id, LIProfile.crawl_number)
 
-    def addLIProfile(liprofile):
-        profiledict = dictFromRow(liprofile, pkeys=False, fkeys=False)
-        profiledict['datoinId'] = profiledict.pop('profileId')
-        profiledict['indexedOn'] \
-            = makeDateTime(profiledict.pop('indexedOn', None))
-        profiledict['crawledOn'] \
-            = makeDateTime(profiledict.pop('crawledDate', None))
-        profiledict['name'] = makeName(profiledict.get('name', None),
-                                       profiledict.get('firstName', None),
-                                       profiledict.get('lastName', None))
+    def add_liprofile(liprofile):
+        profiledict = dict_from_row(liprofile, pkeys=False, fkeys=False)
+        profiledict['datoin_id'] = profiledict.pop('profile_id')
+        profiledict['indexed_on'] \
+            = make_date_time(profiledict.pop('indexed_on', None))
+        profiledict['crawled_on'] \
+            = make_date_time(profiledict.pop('crawled_date', None))
+        profiledict['name'] = make_name(profiledict.get('name', None),
+                                       profiledict.get('first_name', None),
+                                       profiledict.get('last_name', None))
         profiledict['location'] \
-            = makeLocation(profiledict.pop('city', None),
+            = make_location(profiledict.pop('city', None),
                            profiledict.pop('country', None))
-        profiledict['url'] = profiledict.pop('profileUrl', None)
-        profiledict['pictureUrl'] = profiledict.pop('profilePictureUrl', None)
+        profiledict['url'] = profiledict.pop('profile_url', None)
+        profiledict['picture_url'] = profiledict.pop('profile_picture_url', None)
 
         connections = profiledict.pop('connections', None)
         if connections is not None:
@@ -124,7 +124,7 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             connections = int(connections.group(1))
         profiledict['connections'] = connections
 
-        skills = makeList(profiledict.pop('categories', None))
+        skills = make_list(profiledict.pop('categories', None))
         skills = [s for s in skills if not skillbuttonpatt.match(s) \
                   and not truncatedpatt.match(s)]
         profiledict['skills'] = skills
@@ -134,11 +134,11 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         for experiencedict in profiledict['experiences']:
             experiencedict['title'] = experiencedict.pop('name', None)
             experiencedict['location'] \
-                = makeLocation(experiencedict.pop('city', None),
+                = make_location(experiencedict.pop('city', None),
                                experiencedict.pop('country', None))
             experiencedict['start'], experiencedict['end'] \
-                = makeDateRange(experiencedict.pop('dateFrom', None),
-                                experiencedict.pop('dateTo', None))
+                = make_date_range(experiencedict.pop('date_from', None),
+                                experiencedict.pop('date_to', None))
 
         if not profiledict['educations']:
             profiledict['educations'] = []
@@ -146,10 +146,10 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             educationdict['institute'] = educationdict.pop('name', None)
             educationdict['subject'] = educationdict.pop('area', None)
             educationdict['start'], educationdict['end'] \
-                = makeDateRange(educationdict.pop('dateFrom', None),
-                                educationdict.pop('dateTo', None))
-            
-        
+                = make_date_range(educationdict.pop('date_from', None),
+                                educationdict.pop('date_to', None))
+
+
         # determine language
 
         profiletexts = [profiledict['title'], profiledict['description']]
@@ -167,55 +167,55 @@ def parseLIProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         except LangDetectException:
             language = None
 
-        if liprofile.country not in countryLanguages.keys():
-            if language not in countryLanguages.values():
+        if liprofile.country not in country_languages.keys():
+            if language not in country_languages.values():
                 return
-        elif language not in countryLanguages.values():
-            language = countryLanguages[liprofile.country]
-            
+        elif language not in country_languages.values():
+            language = country_languages[liprofile.country]
+
         profiledict['language'] = language
-        
-        
+
+
         # add profile
-        
-        cndb.addLIProfile(profiledict)
 
-    processDb(lastvalid(q), addLIProfile, cndb, logger=logger)
+        cndb.add_liprofile(profiledict)
 
-def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+    process_db(lastvalid(q), add_liprofile, cndb, logger=logger)
+
+def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(INProfile).filter(INProfile.id >= fromid)
-    if byIndexedOn:
-        q = q.filter(INProfile.indexedOn >= fromTs,
-                     INProfile.indexedOn < toTs)
+    if by_indexed_on:
+        q = q.filter(INProfile.indexed_on >= from_ts,
+                     INProfile.indexed_on < to_ts)
     else:
-        q = q.filter(INProfile.crawledDate >= fromTs,
-                     INProfile.crawledDate < toTs)
-                                     
+        q = q.filter(INProfile.crawled_date >= from_ts,
+                     INProfile.crawled_date < to_ts)
+
     if toid is not None:
         q = q.filter(INProfile.id < toid)
-    q = q.order_by(INProfile.profileId, INProfile.crawlNumber)
+    q = q.order_by(INProfile.profile_id, INProfile.crawl_number)
 
-    def addINProfile(inprofile):
-        profiledict = dictFromRow(inprofile, pkeys=False, fkeys=False)
-        profiledict['datoinId'] = profiledict.pop('profileId')
-        profiledict['indexedOn'] \
-            = makeDateTime(profiledict.pop('indexedOn', None))
-        profiledict['crawledOn'] \
-            = makeDateTime(profiledict.pop('crawledDate', None))
-        profiledict['name'] = makeName(profiledict.get('name', None),
-                                       profiledict.get('firstName', None),
-                                       profiledict.get('lastName', None))
-        profiledict['updatedOn'] \
-            = makeDateTime(profiledict.pop('profileUpdatedDate', None))
+    def add_inprofile(inprofile):
+        profiledict = dict_from_row(inprofile, pkeys=False, fkeys=False)
+        profiledict['datoin_id'] = profiledict.pop('profile_id')
+        profiledict['indexed_on'] \
+            = make_date_time(profiledict.pop('indexed_on', None))
+        profiledict['crawled_on'] \
+            = make_date_time(profiledict.pop('crawled_date', None))
+        profiledict['name'] = make_name(profiledict.get('name', None),
+                                       profiledict.get('first_name', None),
+                                       profiledict.get('last_name', None))
+        profiledict['updated_on'] \
+            = make_date_time(profiledict.pop('profile_updated_date', None))
         profiledict['location'] \
-            = makeLocation(profiledict.pop('city', None),
+            = make_location(profiledict.pop('city', None),
                            profiledict.pop('country', None))
-        profiledict['url'] = profiledict.pop('profileUrl', None)
+        profiledict['url'] = profiledict.pop('profile_url', None)
         profiledict['skills'] = []
 
         if not profiledict['experiences']:
@@ -223,11 +223,11 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         for experiencedict in profiledict['experiences']:
             experiencedict['title'] = experiencedict.pop('name', None)
             experiencedict['location'] \
-                = makeLocation(experiencedict.pop('city', None),
+                = make_location(experiencedict.pop('city', None),
                                experiencedict.pop('country', None))
             experiencedict['start'], experiencedict['end'] \
-                = makeDateRange(experiencedict.pop('dateFrom', None),
-                                experiencedict.pop('dateTo', None))
+                = make_date_range(experiencedict.pop('date_from', None),
+                                experiencedict.pop('date_to', None))
 
         if not profiledict['educations']:
             profiledict['educations'] = []
@@ -235,17 +235,17 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             educationdict['institute'] = educationdict.pop('name', None)
             educationdict['subject'] = educationdict.pop('area', None)
             educationdict['start'], educationdict['end'] \
-                = makeDateRange(educationdict.pop('dateFrom', None),
-                                educationdict.pop('dateTo', None))
+                = make_date_range(educationdict.pop('date_from', None),
+                                educationdict.pop('date_to', None))
 
         if not profiledict['certifications']:
             profiledict['certifications'] = []
         for certificationdict in profiledict['certifications']:
             certificationdict['start'], certificationdict['end'] \
-                = makeDateRange(certificationdict.pop('dateFrom', None),
-                                certificationdict.pop('dateTo', None))
-            
-        
+                = make_date_range(certificationdict.pop('date_from', None),
+                                certificationdict.pop('date_to', None))
+
+
         # determine language
 
         profiletexts = [profiledict['title'], profiledict['description']]
@@ -263,12 +263,12 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         except LangDetectException:
             language = None
 
-        if inprofile.country not in countryLanguages.keys():
-            if language not in countryLanguages.values():
+        if inprofile.country not in country_languages.keys():
+            if language not in country_languages.values():
                 return
-        elif language not in countryLanguages.values():
-            language = countryLanguages[inprofile.country]
-            
+        elif language not in country_languages.values():
+            language = country_languages[inprofile.country]
+
         profiledict['language'] = language
 
 
@@ -277,7 +277,7 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
         if skillextractor is not None and language == 'en':
             text = ' '.join(s for s in [profiledict['title'],
                                         profiledict['description'],
-                                        profiledict['additionalInformation']] \
+                                        profiledict['additional_information']] \
                             if s)
             profiledict['skills'] = list(set(skillextractor(text)))
             for inexperience in profiledict['experiences']:
@@ -285,57 +285,57 @@ def parseINProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
                                             inexperience['description']] if s)
                 inexperience['skills'] = list(set(skillextractor(text)))
 
-        
+
         # add profile
-        
-        cndb.addINProfile(profiledict)
 
-    processDb(lastvalid(q), addINProfile, cndb, logger=logger)
+        cndb.add_inprofile(profiledict)
 
-def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+    process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
+
+def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(UWProfile).filter(UWProfile.id >= fromid)
-    if byIndexedOn:
-        q = q.filter(UWProfile.indexedOn >= fromTs,
-                     UWProfile.indexedOn < toTs)
+    if by_indexed_on:
+        q = q.filter(UWProfile.indexed_on >= from_ts,
+                     UWProfile.indexed_on < to_ts)
     else:
-        q = q.filter(UWProfile.crawledDate >= fromTs,
-                     UWProfile.crawledDate < toTs)
-                                     
+        q = q.filter(UWProfile.crawled_date >= from_ts,
+                     UWProfile.crawled_date < to_ts)
+
     if toid is not None:
         q = q.filter(UWProfile.id < toid)
-    q = q.order_by(UWProfile.profileId, UWProfile.crawlNumber)
+    q = q.order_by(UWProfile.profile_id, UWProfile.crawl_number)
 
-    def addUWProfile(uwprofile):
-        profiledict = dictFromRow(uwprofile, pkeys=False, fkeys=False)
-        profiledict['datoinId'] = profiledict.pop('profileId')
-        profiledict['indexedOn'] \
-            = makeDateTime(profiledict.pop('indexedOn', None))
-        profiledict['crawledOn'] \
-            = makeDateTime(profiledict.pop('crawledDate', None))
-        profiledict['name'] = makeName(profiledict.get('name', None),
-                                       profiledict.get('firstName', None),
-                                       profiledict.get('lastName', None))
+    def add_uwprofile(uwprofile):
+        profiledict = dict_from_row(uwprofile, pkeys=False, fkeys=False)
+        profiledict['datoin_id'] = profiledict.pop('profile_id')
+        profiledict['indexed_on'] \
+            = make_date_time(profiledict.pop('indexed_on', None))
+        profiledict['crawled_on'] \
+            = make_date_time(profiledict.pop('crawled_date', None))
+        profiledict['name'] = make_name(profiledict.get('name', None),
+                                       profiledict.get('first_name', None),
+                                       profiledict.get('last_name', None))
         profiledict['location'] \
-            = makeLocation(profiledict.pop('city', None),
+            = make_location(profiledict.pop('city', None),
                            profiledict.pop('country', None))
-        profiledict['url'] = profiledict.pop('profileUrl', None)
-        profiledict['skills'] = makeList(profiledict.pop('categories', None))
-        
+        profiledict['url'] = profiledict.pop('profile_url', None)
+        profiledict['skills'] = make_list(profiledict.pop('categories', None))
+
         if not profiledict['experiences']:
             profiledict['experiences'] = []
         for experiencedict in profiledict['experiences']:
             experiencedict['title'] = experiencedict.pop('name', None)
             experiencedict['location'] \
-                = makeLocation(experiencedict.pop('city', None),
+                = make_location(experiencedict.pop('city', None),
                                experiencedict.pop('country', None))
             experiencedict['start'], experiencedict['end'] \
-                = makeDateRange(experiencedict.pop('dateFrom', None),
-                                experiencedict.pop('dateTo', None))
+                = make_date_range(experiencedict.pop('date_from', None),
+                                experiencedict.pop('date_to', None))
 
         if not profiledict['educations']:
             profiledict['educations'] = []
@@ -343,197 +343,197 @@ def parseUWProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
             educationdict['institute'] = educationdict.pop('name', None)
             educationdict['subject'] = educationdict.pop('area', None)
             educationdict['start'], educationdict['end'] \
-                = makeDateRange(educationdict.pop('dateFrom', None),
-                                educationdict.pop('dateTo', None))
-                            
+                = make_date_range(educationdict.pop('date_from', None),
+                                educationdict.pop('date_to', None))
+
         # determine language
         profiledict['language'] = 'en'
-        
+
         # add profile
-        cndb.addUWProfile(profiledict)
+        cndb.add_uwprofile(profiledict)
 
-    processDb(lastvalid(q), addUWProfile, cndb, logger=logger)
+    process_db(lastvalid(q), add_uwprofile, cndb, logger=logger)
 
-def parseMUProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(MUProfile).filter(MUProfile.id >= fromid)
-    if byIndexedOn:
-        q = q.filter(MUProfile.indexedOn >= fromTs,
-                     MUProfile.indexedOn < toTs)
+    if by_indexed_on:
+        q = q.filter(MUProfile.indexed_on >= from_ts,
+                     MUProfile.indexed_on < to_ts)
     else:
-        q = q.filter(MUProfile.crawledDate >= fromTs,
-                     MUProfile.crawledDate < toTs)
-                                     
+        q = q.filter(MUProfile.crawled_date >= from_ts,
+                     MUProfile.crawled_date < to_ts)
+
     if toid is not None:
         q = q.filter(MUProfile.id < toid)
-    q = q.order_by(MUProfile.profileId, MUProfile.crawlNumber)
+    q = q.order_by(MUProfile.profile_id, MUProfile.crawl_number)
 
-    def addMUProfile(muprofile):
-        profiledict = dictFromRow(muprofile, pkeys=False, fkeys=False)
-        profiledict['datoinId'] = profiledict.pop('profileId')
-        profiledict['indexedOn'] \
-            = makeDateTime(profiledict.pop('indexedOn', None))
-        profiledict['crawledOn'] \
-            = makeDateTime(profiledict.pop('crawledDate', None))
-        profiledict['pictureId'] \
-            = profiledict.pop('profilePictureId', None)
-        profiledict['pictureUrl'] \
-            = profiledict.pop('profilePictureUrl', None)
-        profiledict['hqPictureUrl'] \
-            = profiledict.pop('profileHQPictureUrl', None)
-        profiledict['thumbPictureUrl'] \
-            = profiledict.pop('profileThumbPictureUrl', None)
-        profiledict['geo'] = makeGeo(profiledict.pop('longitude', None),
+    def add_muprofile(muprofile):
+        profiledict = dict_from_row(muprofile, pkeys=False, fkeys=False)
+        profiledict['datoin_id'] = profiledict.pop('profile_id')
+        profiledict['indexed_on'] \
+            = make_date_time(profiledict.pop('indexed_on', None))
+        profiledict['crawled_on'] \
+            = make_date_time(profiledict.pop('crawled_date', None))
+        profiledict['picture_id'] \
+            = profiledict.pop('profile_picture_id', None)
+        profiledict['picture_url'] \
+            = profiledict.pop('profile_picture_url', None)
+        profiledict['hq_picture_url'] \
+            = profiledict.pop('profile_hqpicture_url', None)
+        profiledict['thumb_picture_url'] \
+            = profiledict.pop('profile_thumb_picture_url', None)
+        profiledict['geo'] = make_geo(profiledict.pop('longitude', None),
                                      profiledict.pop('latitude', None))
-        profiledict['skills'] = makeList(profiledict.pop('categories', None))
-        
+        profiledict['skills'] = make_list(profiledict.pop('categories', None))
+
         if not profiledict['groups']:
             profiledict['groups'] = []
         for groupdict in profiledict['groups']:
-            groupdict['createdOn'] \
-                = makeDateTime(groupdict.pop('createdDate', None))
-            groupdict['hqPictureUrl'] = groupdict.pop('HQPictureUrl', None)
-            groupdict['geo'] = makeGeo(groupdict.pop('longitude', None),
+            groupdict['created_on'] \
+                = make_date_time(groupdict.pop('created_date', None))
+            groupdict['hq_picture_url'] = groupdict.pop('HQPictureUrl', None)
+            groupdict['geo'] = make_geo(groupdict.pop('longitude', None),
                                        groupdict.pop('latitude', None))
-            groupdict['skills'] = makeList(groupdict.pop('categories', None))
+            groupdict['skills'] = make_list(groupdict.pop('categories', None))
 
         if not profiledict['events']:
             profiledict['events'] = []
         for eventdict in profiledict['events']:
-            eventdict['createdOn'] \
-                = makeDateTime(eventdict.pop('createdDate', None))
-            eventdict['time'] = makeDateTime(eventdict.get('time', None))
-            eventdict['geo'] = makeGeo(eventdict.pop('longitude', None),
+            eventdict['created_on'] \
+                = make_date_time(eventdict.pop('created_date', None))
+            eventdict['time'] = make_date_time(eventdict.get('time', None))
+            eventdict['geo'] = make_geo(eventdict.pop('longitude', None),
                                        eventdict.pop('latitude', None))
 
         profiledict['comments'] = profiledict.pop('comments', None)
         if not profiledict['comments']:
             profiledict['comments'] = []
         for commentdict in profiledict['comments']:
-            commentdict['createdOn'] \
-                = makeDateTime(commentdict.pop('createdDate', None))
-                        
+            commentdict['created_on'] \
+                = make_date_time(commentdict.pop('created_date', None))
+
         # determine language
-        profiledict['language'] = 'en'        
-        
+        profiledict['language'] = 'en'
+
         # add profile
-        cndb.addMUProfile(profiledict)
+        cndb.add_muprofile(profiledict)
 
-    processDb(lastvalid(q), addMUProfile, cndb, logger=logger)
+    process_db(lastvalid(q), add_muprofile, cndb, logger=logger)
 
 
-def parseGHProfiles(jobid, fromid, toid, fromTs, toTs, byIndexedOn,
+def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
 
     q = dtdb.query(GHProfile).filter(GHProfile.id >= fromid)
-    if byIndexedOn:
-        q = q.filter(GHProfile.indexedOn >= fromTs,
-                     GHProfile.indexedOn < toTs)
+    if by_indexed_on:
+        q = q.filter(GHProfile.indexed_on >= from_ts,
+                     GHProfile.indexed_on < to_ts)
     else:
-        q = q.filter(GHProfile.crawledDate >= fromTs,
-                     GHProfile.crawledDate < toTs)
-                                     
+        q = q.filter(GHProfile.crawled_date >= from_ts,
+                     GHProfile.crawled_date < to_ts)
+
     if toid is not None:
         q = q.filter(GHProfile.id < toid)
-    q = q.order_by(GHProfile.profileId, GHProfile.crawlNumber)
+    q = q.order_by(GHProfile.profile_id, GHProfile.crawl_number)
 
-    def addGHProfile(ghprofile):
-        profiledict = dictFromRow(ghprofile, pkeys=False, fkeys=False)
-        profiledict['datoinId'] = profiledict.pop('profileId')
-        profiledict['indexedOn'] \
-            = makeDateTime(profiledict.pop('indexedOn', None))
-        profiledict['crawledOn'] \
-            = makeDateTime(profiledict.pop('crawledDate', None))
-        profiledict['createdOn'] \
-            = makeDateTime(profiledict.pop('createdDate', None))
+    def add_ghprofile(ghprofile):
+        profiledict = dict_from_row(ghprofile, pkeys=False, fkeys=False)
+        profiledict['datoin_id'] = profiledict.pop('profile_id')
+        profiledict['indexed_on'] \
+            = make_date_time(profiledict.pop('indexed_on', None))
+        profiledict['crawled_on'] \
+            = make_date_time(profiledict.pop('crawled_date', None))
+        profiledict['created_on'] \
+            = make_date_time(profiledict.pop('created_date', None))
         profiledict['location'] \
-            = makeLocation(profiledict.pop('city', None),
+            = make_location(profiledict.pop('city', None),
                            profiledict.pop('country', None))
-        profiledict['url'] = profiledict.pop('profileUrl', None)
-        profiledict['pictureUrl'] = profiledict.pop('profilePictureUrl', None)
+        profiledict['url'] = profiledict.pop('profile_url', None)
+        profiledict['picture_url'] = profiledict.pop('profile_picture_url', None)
 
         if not profiledict['repositories']:
             profiledict['repositories'] = []
         for repositorydict in profiledict['repositories']:
-            repositorydict['createdOn'] \
-                = makeDateTime(repositorydict.pop('createdDate', None))
-            repositorydict['pushedOn'] \
-                = makeDateTime(repositorydict.pop('pushedDate', None))
-            
-        # determine language            
+            repositorydict['created_on'] \
+                = make_date_time(repositorydict.pop('created_date', None))
+            repositorydict['pushed_on'] \
+                = make_date_time(repositorydict.pop('pushed_date', None))
+
+        # determine language
         profiledict['language'] = 'en'
 
-        # add profile        
-        cndb.addGHProfile(profiledict)
+        # add profile
+        cndb.add_ghprofile(profiledict)
 
-    processDb(lastvalid(q), addGHProfile, cndb, logger=logger)
-    
-    
-def parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor):
+    process_db(lastvalid(q), add_ghprofile, cndb, logger=logger)
+
+
+def parse_profiles(from_ts, to_ts, fromid, source_id, by_indexed_on, skillextractor):
     logger = Logger(sys.stdout)
-    if sourceId is None:
-        parseProfiles(fromTs, toTs, fromid, 'linkedin', byIndexedOn,
+    if source_id is None:
+        parse_profiles(from_ts, to_ts, fromid, 'linkedin', by_indexed_on,
                       skillextractor)
-        parseProfiles(fromTs, toTs, fromid, 'indeed', byIndexedOn,
+        parse_profiles(from_ts, to_ts, fromid, 'indeed', by_indexed_on,
                       skillextractor)
-        parseProfiles(fromTs, toTs, fromid, 'upwork', byIndexedOn,
+        parse_profiles(from_ts, to_ts, fromid, 'upwork', by_indexed_on,
                       skillextractor)
-        parseProfiles(fromTs, toTs, fromid, 'meetup', byIndexedOn,
+        parse_profiles(from_ts, to_ts, fromid, 'meetup', by_indexed_on,
                       skillextractor)
-        parseProfiles(fromTs, toTs, fromid, 'github', byIndexedOn,
+        parse_profiles(from_ts, to_ts, fromid, 'github', by_indexed_on,
                       skillextractor)
         return
-    elif sourceId == 'linkedin':
+    elif source_id == 'linkedin':
         logger.log('Parsing LinkedIn profiles.\n')
         table = LIProfile
-        parsefunc = parseLIProfiles
+        parsefunc = parse_liprofiles
         prefix = 'canonical_parse_linkedin'
-    elif sourceId == 'indeed':
+    elif source_id == 'indeed':
         logger.log('Parsing Indeed profiles.\n')
         table = INProfile
-        parsefunc = parseINProfiles
+        parsefunc = parse_inprofiles
         prefix = 'canonical_parse_indeed'
-    elif sourceId == 'upwork':
+    elif source_id == 'upwork':
         logger.log('Parsing Upwork profiles.\n')
         table = UWProfile
-        parsefunc = parseUWProfiles
+        parsefunc = parse_uwprofiles
         prefix = 'canonical_parse_upwork'
-    elif sourceId == 'meetup':
+    elif source_id == 'meetup':
         logger.log('Parsing Meetup profiles.\n')
         table = MUProfile
-        parsefunc = parseMUProfiles
+        parsefunc = parse_muprofiles
         prefix = 'canonical_parse_meetup'
-    elif sourceId == 'github':
+    elif source_id == 'github':
         logger.log('Parsing GitHub profiles.\n')
         table = GHProfile
-        parsefunc = parseGHProfiles
+        parsefunc = parse_ghprofiles
         prefix = 'canonical_parse_github'
     else:
         raise ValueError('Invalid source type.')
-    
+
     dtdb = DatoinDB(url=conf.DATOIN_DB)
 
     query = dtdb.query(table.id)
-    if byIndexedOn:
-        query = query.filter(table.indexedOn >= fromTs,
-                             table.indexedOn < toTs)
+    if by_indexed_on:
+        query = query.filter(table.indexed_on >= from_ts,
+                             table.indexed_on < to_ts)
     else:
-        query = query.filter(table.crawledDate >= fromTs,
-                             table.crawledDate < toTs)
+        query = query.filter(table.crawled_date >= from_ts,
+                             table.crawled_date < to_ts)
     if fromid is not None:
         query = query.filter(table.id >= fromid)
 
-    splitProcess(query, parsefunc, batchsize,
-                 njobs=njobs, args=[fromTs, toTs, byIndexedOn, skillextractor],
+    split_process(query, parsefunc, batchsize,
+                 njobs=njobs, args=[from_ts, to_ts, by_indexed_on, skillextractor],
                  logger=logger, workdir='jobs', prefix=prefix)
-    
+
 
 if __name__ == '__main__':
     # parse arguments
@@ -567,7 +567,7 @@ if __name__ == '__main__':
                         'Name of a CSV file holding skill tags. Only needed when\n'
                         'processing Indeed CVs.')
     args = parser.parse_args()
-    
+
     njobs = max(args.jobs, 1)
     batchsize = args.batchsize
     try:
@@ -579,13 +579,13 @@ if __name__ == '__main__':
     except ValueError:
         sys.stderr.write('Invalid date format.\n')
         exit(1)
-    byIndexedOn = bool(args.by_index_date)
+    by_indexed_on = bool(args.by_index_date)
     fromid = args.from_id
     skillfile = args.skills
-    sourceId = args.source
+    source_id = args.source
 
-    fromTs = int((fromdate - timestamp0).total_seconds())*1000
-    toTs   = int((todate   - timestamp0).total_seconds())*1000
+    from_ts = int((fromdate - timestamp0).total_seconds())*1000
+    to_ts   = int((todate   - timestamp0).total_seconds())*1000
 
     skillextractor = None
     if skillfile is not None:
@@ -595,8 +595,8 @@ if __name__ == '__main__':
             for row in csvreader:
                 if row:
                     skills.append(row[0])
-        tokenize = lambda x: tokenizedSkill('en', x)
+        tokenize = lambda x: tokenized_skill('en', x)
         skillextractor = PhraseExtractor(skills, tokenize=tokenize)
         del skills
-    
-    parseProfiles(fromTs, toTs, fromid, sourceId, byIndexedOn, skillextractor)
+
+    parse_profiles(from_ts, to_ts, fromid, source_id, by_indexed_on, skillextractor)

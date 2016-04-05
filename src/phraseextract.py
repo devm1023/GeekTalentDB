@@ -75,11 +75,11 @@ class PhraseExtractor:
 
 
 if __name__ == '__main__':
-    from textnormalization import tokenizedSkill
+    from textnormalization import tokenized_skill
 
     phrases = ['foo bar', 'bar baz', 'foo baz', 'woo']
     text = 'blah blah foo bar baz blah blah baz blah foo blah blah woo blah'
-    # tokenize = lambda x: tokenizedSkill('en', x)
+    # tokenize = lambda x: tokenized_skill('en', x)
     tokenize = lambda x: x.split()
 
     phraseextractor = PhraseExtractor(phrases, tokenize=tokenize)

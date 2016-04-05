@@ -18,10 +18,10 @@ _conf = {
         'stemmer' : _stemmer_en.stem,
         'protect' : _protect_en,
 
-        'skillStemmer' : _stemmer_en.stem,
-        'skillProtect' : _protect_en,
-        'skillStopwords' : _stopwords_en,
-        'skillReplace' : [
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_en,
+        'skill_replace' : [
             ('.net', ' dotnet'),
             ('c++', 'cplusplus'),
             ('c#', 'csharp'),
@@ -29,13 +29,13 @@ _conf = {
             ('tcp/ip', 'tcpip'),
             ('co-ordin', 'coordin'),
             ],
-        
-        'titleStopwords' : _stopwords_en,
-        'titleSeparators' : [
+
+        'title_stopwords' : _stopwords_en,
+        'title_separators' : [
             ' at ',
             ' for ',
             ],
-        'titlePrefixWords' : set([
+        'title_prefix_words' : set([
             'senior',
             'junior',
             'lead',
@@ -49,10 +49,10 @@ _conf = {
             'associate',
             'staff',
         ]),
-        'titleSuffixWords' : set([
+        'title_suffix_words' : set([
             'intern',
         ]),
-        'titleReplace' : [
+        'title_replace' : [
             ('.net', ' dotnet'),
             ('c++', 'cplusplus'),
             ('c#', 'csharp'),
@@ -62,18 +62,18 @@ _conf = {
 #            ('advisor', 'adviser'),
         ],
 
-        'sectorStopwords' : _stopwords_en,
+        'sector_stopwords' : _stopwords_en,
 
-        'companyStopwords' : _stopwords_en | \
+        'company_stopwords' : _stopwords_en | \
             set(['limited', 'ltd', 'inc', 'plc', 'uk']),
 
-        
-        'instituteRegexReplace' : [
+
+        'institute_regex_replace' : [
             (r'\bu\.', 'university'),
         ],
-        'instituteStopwords' : _stopwords_en,
+        'institute_stopwords' : _stopwords_en,
 
-        'degreeRegexReplace' : [
+        'degree_regex_replace' : [
             (r'\b[0-9]+((st)|(nd)|(rd)|(th))?\b', ''),
             (r'\bb\.?\s*s\.?\s*c\b', 'bachelor of science'),
             (r'\bb\.?\s*a\b', 'bachelor of arts'),
@@ -84,40 +84,40 @@ _conf = {
             (r'\bm\.?\s*phil\b', 'master of philosophy'),
             (r'\bph\.?\s*d\b', 'doctor of philosophy'),
         ],
-        'degreeStopwords' : (_stopwords_en - set(['a', 'as'])) \
+        'degree_stopwords' : (_stopwords_en - set(['a', 'as'])) \
             | set(['degree', 'hons', 'honours', 'honors', 'first', 'class']),
-        
-        'subjectStopwords' : _stopwords_en,
 
-        'groupStopwords' : _stopwords_en,
+        'subject_stopwords' : _stopwords_en,
+
+        'group_stopwords' : _stopwords_en,
     },
 
     'nl' : {
         'stemmer' : _stemmer_nl.stem,
         'protect' : _protect_nl,
-        
-        'skillStemmer' : _stemmer_en.stem,
-        'skillProtect' : _protect_en,
-        'skillStopwords' : _stopwords_nl,
-        'skillReplace' : [
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_nl,
+        'skill_replace' : [
             ('.net', ' dotnet'),
             ('c++', 'cplusplus'),
             ('c#', 'csharp'),
             ('f#', 'fsharp'),
             ('tcp/ip', 'tcpip'),
             ],
-        
-        'titleStopwords' : _stopwords_nl,
-        'titleSeparators' : [
+
+        'title_stopwords' : _stopwords_nl,
+        'title_separators' : [
             ' at ',
             ' for ',
             ' and ',
             ' bij ',
             ' en ',
             ],
-        'titlePrefixWords' : set(),
-        'titleSuffixWords' : set(),
-        'titleReplace' : [
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
             ('.net', ' dotnet'),
             ('c++', 'cplusplus'),
             ('c#', 'csharp'),
@@ -125,22 +125,22 @@ _conf = {
             ('tcp/ip', 'tcpip'),
         ],
 
-        'companyStopwords' : _stopwords_nl,
+        'company_stopwords' : _stopwords_nl,
 
-        'instituteRegexReplace' : [],
-        'instituteStopwords' : _stopwords_nl,
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_nl,
 
-        'degreeRegexReplace' : [],
-        'degreeStopwords' : _stopwords_nl,
-        
-        'subjectStopwords' : _stopwords_nl,
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_nl,
 
-        'groupStopwords' : _stopwords_nl,
+        'subject_stopwords' : _stopwords_nl,
+
+        'group_stopwords' : _stopwords_nl,
     },
 }
 
 
-def clean(s, keep='', nospace='', lowercase=False, removebrackets=False, 
+def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
           stopwords=False, sort=False, removeduplicates=False,
           tokenize=False, regexreplace=[], replace=[], stem=None,
           protect=set()):
@@ -246,7 +246,7 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
         if lowercase:
             c = c.lower()
         if not removebrackets or (plvl <= 0 and blvl <= 0 and clvl <= 0):
-            l.append(c)            
+            l.append(c)
     s = ''.join(l)
 
     # remove stopwords
@@ -278,45 +278,45 @@ def clean(s, keep='', nospace='', lowercase=False, removebrackets=False,
         return ' '.join(s)
 
 
-def makeNrmName(tpe, source, language, name):
+def make_nrm_name(tpe, source, language, name):
     if not tpe or not source or not language or not name:
         return None
     return ':'.join([tpe, source, language, name])
 
-def splitNrmName(nrmName):
-    splitname = nrmName.split(':')
+def split_nrm_name(nrm_name):
+    splitname = nrm_name.split(':')
     if len(splitname) != 4:
         raise ValueError('Invalid normalized name.')
     return tuple(splitname)
 
-def tokenizedSkill(language, name, removebrackets=False):
+def tokenized_skill(language, name, removebrackets=False):
     if not name:
         return []
     if language not in _conf:
         raise ValueError('Invalid language: '+repr(language))
     conf = _conf[language]
-    
+
     return clean(name,
                  nospace='\'’.',
                  lowercase=True,
-                 stopwords=conf['skillStopwords'],
+                 stopwords=conf['skill_stopwords'],
                  removebrackets=removebrackets,
                  tokenize=True,
-                 replace=conf['skillReplace'],
-                 stem=conf['skillStemmer'],
-                 protect=conf['skillProtect'])
+                 replace=conf['skill_replace'],
+                 stem=conf['skill_stemmer'],
+                 protect=conf['skill_protect'])
 
-def normalizedSkill(source, language, name):
+def normalized_skill(source, language, name):
     """Normalize a string describing a skill.
 
     """
-    tokens = tokenizedSkill(language, name, removebrackets=True)
+    tokens = tokenized_skill(language, name, removebrackets=True)
     if not tokens:
         return None
     nname = ' '.join(tokens)
-    return makeNrmName('skill', source, language, nname)
+    return make_nrm_name('skill', source, language, nname)
 
-def parsedTitle(language, name):
+def parsed_title(language, name):
     """Extract the job title from a LinkedIn profile or experience title.
 
     """
@@ -327,7 +327,7 @@ def parsedTitle(language, name):
     conf = _conf[language]
 
     name = clean(name, keep='&/-,\'', removebrackets=True)
-    for separator in conf['titleSeparators']:
+    for separator in conf['title_separators']:
         name = name.split(separator)[0]
     name = name.split(' - ')[0]
     name = name.split(' / ')[0]
@@ -336,7 +336,7 @@ def parsedTitle(language, name):
         return None
     return name
 
-def _splitTitle(language, words):
+def _split_title(language, words):
     if not words:
         return None, None
     if language not in _conf:
@@ -347,14 +347,14 @@ def _splitTitle(language, words):
     suffix = []
     i = 0
     while i < len(words):
-        if words[i] in conf['titlePrefixWords']:
+        if words[i] in conf['title_prefix_words']:
             prefix.append(words[i])
             i += 1
         else:
             break
     j = len(words)-1
     while j >= i:
-        if words[j] in conf['titleSuffixWords']:
+        if words[j] in conf['title_suffix_words']:
             suffix.append(words[j])
             j -= 1
         else:
@@ -367,7 +367,7 @@ def _splitTitle(language, words):
         prefix = None
     return prefix, main
 
-def normalizedTitle(source, language, name):
+def normalized_title(source, language, name):
     """Normalize a string describing a job title.
 
     """
@@ -375,32 +375,32 @@ def normalizedTitle(source, language, name):
         raise ValueError('Invalid language: '+repr(language))
     conf = _conf[language]
 
-    nname = parsedTitle(language, name)
+    nname = parsed_title(language, name)
     if not nname:
         return None
     tokens = nname.lower().split()
-    prefix, title = _splitTitle(language, tokens)
+    prefix, title = _split_title(language, tokens)
     if not title:
         return None
 
     title = clean(title,
                   nospace='\'’.',
                   removebrackets=True,
-                  stopwords=conf['titleStopwords'],
-                  replace=conf['titleReplace'],
+                  stopwords=conf['title_stopwords'],
+                  replace=conf['title_replace'],
                   stem=conf['stemmer'],
                   protect=conf['protect'])
-    return makeNrmName('title', source, language, title)
+    return make_nrm_name('title', source, language, title)
 
-def normalizedTitlePrefix(language, name):
-    nname = parsedTitle(language, name)
+def normalized_title_prefix(language, name):
+    nname = parsed_title(language, name)
     if not nname:
         return None
     tokens = nname.lower().split()
-    prefix, title = _splitTitle(language, tokens)
+    prefix, title = _split_title(language, tokens)
     return prefix
 
-def normalizedSector(name):
+def normalized_sector(name):
     """Normalize a string describing an industry sector.
 
     """
@@ -412,14 +412,14 @@ def normalizedSector(name):
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  stopwords=conf['sectorStopwords'],
+                  stopwords=conf['sector_stopwords'],
                   stem=conf['stemmer'],
                   protect=conf['protect'])
     if not nname:
         return None
-    return makeNrmName('sector', 'linkedin', 'en', nname)
+    return make_nrm_name('sector', 'linkedin', 'en', nname)
 
-def normalizedCompany(source, language, name):
+def normalized_company(source, language, name):
     """Normalize a string describing a company.
 
     """
@@ -434,17 +434,17 @@ def normalizedCompany(source, language, name):
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  stopwords=conf['companyStopwords'])
-    
+                  stopwords=conf['company_stopwords'])
+
     nname = nname.split(',')[0]
     nname = nname.split(' - ')[0]
     nname = nname.split(' / ')[0]
     nname = clean(nname, keep='&')
     if not nname:
         return None
-    return makeNrmName('company', source, language, nname)
+    return make_nrm_name('company', source, language, nname)
 
-def normalizedLocation(name):
+def normalized_location(name):
     """Normalize a string describing a location.
 
     """
@@ -457,7 +457,7 @@ def normalizedLocation(name):
         return None
     return nname
 
-def normalizedInstitute(source, language, name):
+def normalized_institute(source, language, name):
     """Normalize a string describing an educational institute.
 
     """
@@ -471,16 +471,16 @@ def normalizedInstitute(source, language, name):
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  stopwords=conf['instituteStopwords'],
-                  regexreplace=conf['instituteRegexReplace'],
+                  stopwords=conf['institute_stopwords'],
+                  regexreplace=conf['institute_regex_replace'],
                   stem=conf['stemmer'],
                   protect=conf['protect'],
                   sort=True)
     if not nname:
         return None
-    return makeNrmName('institute', source, language, nname)
+    return make_nrm_name('institute', source, language, nname)
 
-def normalizedDegree(source, language, name):
+def normalized_degree(source, language, name):
     """Normalize a string describing a degree.
 
     """
@@ -495,15 +495,15 @@ def normalizedDegree(source, language, name):
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  stopwords=conf['degreeStopwords'],
-                  regexreplace=conf['degreeRegexReplace'],
+                  stopwords=conf['degree_stopwords'],
+                  regexreplace=conf['degree_regex_replace'],
                   stem=conf['stemmer'],
                   protect=conf['protect'])
     if not nname:
         return None
-    return makeNrmName('degree', source, language, nname)
+    return make_nrm_name('degree', source, language, nname)
 
-def normalizedSubject(source, language, name):
+def normalized_subject(source, language, name):
     if not name:
         return None
     if language not in _conf:
@@ -515,28 +515,28 @@ def normalizedSubject(source, language, name):
                   nospace='\'’.',
                   lowercase=True,
                   removebrackets=True,
-                  stopwords=conf['subjectStopwords'],
+                  stopwords=conf['subject_stopwords'],
                   stem=conf['stemmer'],
                   protect=conf['protect'])
     if not nname:
         return None
-    return makeNrmName('subject', source, language, nname)
+    return make_nrm_name('subject', source, language, nname)
 
-def normalizedEntity(type, source, language, name):
+def normalized_entity(type, source, language, name):
     if type == 'skill':
-        return normalizedSkill(source, language, name)
+        return normalized_skill(source, language, name)
     elif type == 'title':
-        return normalizedTitle(source, language, name)
+        return normalized_title(source, language, name)
     elif type == 'company':
-        return normalizedCompany(source, language, name)
+        return normalized_company(source, language, name)
     elif type == 'sector':
-        return normalizedSector(name)
+        return normalized_sector(name)
     elif type == 'institute':
-        return normalizedInstitute(source, language, name)
+        return normalized_institute(source, language, name)
     elif type == 'degree':
-        return normalizedDegree(source, language, name)
+        return normalized_degree(source, language, name)
     elif type == 'subject':
-        return normalizedSubject(source, language, name)
+        return normalized_subject(source, language, name)
     else:
         raise ValueError('Unknown entity type `{0:s}`.'.format(type))
 
