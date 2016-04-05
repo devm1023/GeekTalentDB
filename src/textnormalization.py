@@ -59,6 +59,7 @@ _conf = {
             ('f#', 'fsharp'),
             ('tcp/ip', 'tcpip'),
             ('co-ordin', 'coordin'),
+#            ('advisor', 'adviser'),
         ],
 
         'sectorStopwords' : _stopwords_en,

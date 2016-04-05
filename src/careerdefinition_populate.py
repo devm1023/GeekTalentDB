@@ -196,7 +196,7 @@ def getCompanyCloud(andb, mapper, experiencec, nrmSector, nrmTitle,
         })
     return result
 
-def getCareerSteps(andb, mapper, nrmSector, nrmTitle, mincount=1):
+def getCareerSteps(andb, mapper, nrmSector, nrmTitle, mincount=1, limit=None):
     nrmTitle = mapper(nrmTitle, nrmSector=nrmSector)
     previousTitles = {}
     nextTitles = {}
@@ -227,15 +227,21 @@ def getCareerSteps(andb, mapper, nrmSector, nrmTitle, mincount=1):
          'count' : count,
          'visible' : True} \
         for job, count in previousTitles.items() if count >= mincount]
+    previousTitles.sort(key=lambda t: -t['count'])
+    if limit is not None and len(previousTitles) > limit:
+        previousTitles = previousTitles[:limit]
     nextTitles = [
         {'nextTitle' : mapper.name(job, nrmSector=nrmSector),
          'count' : count,
          'visible' : True} \
         for job, count in nextTitles.items() if count >= mincount]
+    nextTitles.sort(key=lambda t: -t['count'])
+    if limit is not None and len(nextTitles) > limit:
+        nextTitles = nextTitles[:limit]
 
     return previousTitles, nextTitles
 
-def getSubjects(andb, mapper, nrmSector, profileIds, mincount=1):
+def getSubjects(andb, mapper, nrmSector, profileIds, mincount=1, limit=None):
     if not profileIds:
         return []
     q = andb.query(LIEducation.liprofileId, LIEducation.end,
@@ -245,12 +251,15 @@ def getSubjects(andb, mapper, nrmSector, profileIds, mincount=1):
     results = []
     for subject, count in countEntities(q, mapper, nrmSector=nrmSector,
                                         mincount=mincount):
-        results.append({'subjectName' : subject,
+        results.append({'subjectName' : subject.strip(),
                         'count' : count,
                         'visible' : True})
+    results.sort(key=lambda r: -r['count'])
+    if limit is not None and len(results) > limit:
+        results = results[:limit]
     return results
 
-def getInstitutes(andb, mapper, nrmSector, profileIds, mincount=1):
+def getInstitutes(andb, mapper, nrmSector, profileIds, mincount=1, limit=None):
     if not profileIds:
         return []
     q = andb.query(LIEducation.liprofileId, LIEducation.end,
@@ -258,11 +267,14 @@ def getInstitutes(andb, mapper, nrmSector, profileIds, mincount=1):
             .filter(LIEducation.liprofileId.in_(profileIds)) \
             .order_by(LIEducation.liprofileId, LIEducation.end)
     results = []
-    for subject, count in countEntities(q, mapper, nrmSector=nrmSector,
+    for institute, count in countEntities(q, mapper, nrmSector=nrmSector,
                                         mincount=mincount):
-        results.append({'instituteName' : subject,
+        results.append({'instituteName' : institute.strip(),
                         'count' : count,
                         'visible' : True})
+    results.sort(key=lambda r: -r['count'])
+    if limit is not None and len(results) > limit:
+        results = results[:limit]
     return results
 
 def getSectors(sectors, filename):
@@ -294,6 +306,12 @@ if __name__ == '__main__':
                         help='Maximum number of skills in skill clouds.')
     parser.add_argument('--max-companies', type=int,
                         help='Maximum number of companies in compnay clouds.')
+    parser.add_argument('--max-institutes', type=int,
+                        help='Maximum number of institutes in a list.')
+    parser.add_argument('--max-subjects', type=int,
+                        help='Maximum number of subjects in a list.')
+    parser.add_argument('--max-careersteps', type=int,
+                        help='Maximum number of career steps in a list.')
     parser.add_argument('--min-institute-count', type=int, default=1,
                         help='Minimum count for educational institutes '
                         'to be added to the list.')
@@ -320,6 +338,13 @@ if __name__ == '__main__':
         args.max_skills = args.max_entities
     if args.max_companies is None:
         args.max_companies = args.max_entities
+    if args.max_institutes is None:
+        args.max_institutes = args.max_entities
+    if args.max_subjects is None:
+        args.max_subjects = args.max_entities
+    if args.max_careersteps is None:
+        args.max_careersteps = args.max_entities
+        
     if args.min_institute_count is None:
         args.min_institute_count = args.min_count
     if args.min_subject_count is None:
@@ -434,14 +459,15 @@ if __name__ == '__main__':
             profileIds = [id for id, in q]
             careerdict['educationSubjects'] \
                 = getSubjects(andb, mapper, nrmSector, profileIds,
-                              args.min_subject_count)
+                              args.min_subject_count, args.max_subjects)
             careerdict['educationInstitutes'] \
                 = getInstitutes(andb, mapper, nrmSector, profileIds,
-                                args.min_institute_count)
+                                args.min_institute_count, args.max_institutes)
 
             previousTitles, nextTitles \
                 = getCareerSteps(andb, mapper, nrmSector, nrmTitle,
-                                 args.min_careerstep_count)
+                                 args.min_careerstep_count,
+                                 args.max_careersteps)
             careerdict['previousTitles'] = previousTitles
             careerdict['nextTitles'] = nextTitles
 
