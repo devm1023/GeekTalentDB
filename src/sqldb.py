@@ -1,9 +1,9 @@
 __all__ = [
     'SQLDatabase',
     'sqlbase',
-    'dictFromRow',
-    'rowFromDict',
-    'updateRowFromDict',
+    'dict_from_row',
+    'row_from_dict',
+    'update_row_from_dict',
 ]
 
 from sqlalchemy.orm import sessionmaker
@@ -41,16 +41,16 @@ class SQLDatabase:
     def create_all(self):
         self.metadata.create_all(self.session.bind)
 
-    def addFromDict(self, d, table, update=True, flush=False, delete=True,
+    def add_from_dict(self, d, table, update=True, flush=False, delete=True,
                     protect=[]):
         if d is None:
             return None
-        pkeycols, pkey = _getPkey(d, table)
+        pkeycols, pkey = _get_pkey(d, table)
         if pkey is not None and None in pkey:
             raise ValueError('dict must contain all or no primary keys.')
 
         if not update:
-            row = rowFromDict(d, table)
+            row = row_from_dict(d, table)
             self.add(row)
         else:
             row = None
@@ -71,17 +71,17 @@ class SQLDatabase:
                     if row is not None:
                         break
             if row is None:
-                row = rowFromDict(d, table)
+                row = row_from_dict(d, table)
                 self.add(row)
             else:
-                updateRowFromDict(row, d, protect=protect, delete=delete)
-                
+                update_row_from_dict(row, d, protect=protect, delete=delete)
+
         if flush:
             self.flush()
-            _updateIds(d, row)
+            _update_ids(d, row)
         return row
 
-def _updateIds(d, row, fkeynames=[]):
+def _update_ids(d, row, fkeynames=[]):
     mapper = inspect(type(row))
     pkeycols = mapper.primary_key
     for c in pkeycols:
@@ -100,32 +100,32 @@ def _updateIds(d, row, fkeynames=[]):
         if isinstance(subdicts, list):
             subdicts = [s for s in subdicts if s is not None]
             for subdict, subrow in zip(subdicts, subrows):
-                _updateIds(subdict, subrow, fkeynames)
+                _update_ids(subdict, subrow, fkeynames)
         else:
-            _updateIds(subdicts, subrows, fkeynames)
-    
-def _getPkey(d, table):
+            _update_ids(subdicts, subrows, fkeynames)
+
+def _get_pkey(d, table):
     pkeycols = inspect(table).primary_key
     pkeynames = [c.key for c in pkeycols]
     pkey = tuple(d.get(k, None) for k in pkeynames)
-    
+
     if any(k is not None for k in pkey):
         return pkeycols, pkey
     else:
         return pkeycols, None
 
-def dictFromRow(row, pkeys=True, fkeys=True, exclude=[]):
+def dict_from_row(row, pkeys=True, fkeys=True, exclude=[]):
     if row is None:
         return None
     if isinstance(row, list):
-        return [dictFromRow(r, pkeys=pkeys, fkeys=fkeys, exclude=exclude) \
+        return [dict_from_row(r, pkeys=pkeys, fkeys=fkeys, exclude=exclude) \
                 for r in row]
-    
+
     mapper = inspect(type(row))
     result = {}
 
     pkeynames = [c.key for c in mapper.primary_key]
-    
+
     for c in mapper.column_attrs:
         if not pkeys and c.key in pkeynames:
             continue
@@ -139,44 +139,44 @@ def dictFromRow(row, pkeys=True, fkeys=True, exclude=[]):
         fkeynames = []
         if not fkeys:
             fkeynames = [r.key for l, r in relation.local_remote_pairs]
-        result[relation.key] = dictFromRow(getattr(row, relation.key),
+        result[relation.key] = dict_from_row(getattr(row, relation.key),
                                            pkeys=pkeys, fkeys=fkeys,
                                            exclude=fkeynames)
 
     return result
 
-def rowFromDict(d, rowtype):
+def row_from_dict(d, rowtype):
     result = rowtype()
     mapper = inspect(rowtype)
-    
+
     for c in mapper.column_attrs:
         setattr(result, c.key, d.get(c.key, None))
-            
+
     for relation in mapper.relationships:
-        isOneToMany = relation.direction.name == 'ONETOMANY'
+        is_one_to_many = relation.direction.name == 'ONETOMANY'
         if relation.key in d:
             val = d[relation.key]
             remotetype = relation.mapper.class_
             lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
-            if isOneToMany:
+            if is_one_to_many:
                 rows = []
                 for v in val:
                     if v is None:
                         continue
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
-                    rows.append(rowFromDict(v, remotetype))
+                    rows.append(row_from_dict(v, remotetype))
                 setattr(result, relation.key, rows)
             elif val is not None:
-                setattr(result, relation.key, rowFromDict(val, remotetype))
+                setattr(result, relation.key, row_from_dict(val, remotetype))
             else:
                 setattr(result, relation.key, None)
 
     return result
 
-def _mergeLists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
+def _merge_lists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
     if not rows:
-        return [rowFromDict(d, rowtype) for d in dicts]
+        return [row_from_dict(d, rowtype) for d in dicts]
     mapper = inspect(rowtype)
     pkeynames = [c.key for c in mapper.primary_key]
     ucs = []
@@ -187,7 +187,7 @@ def _mergeLists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
             continue
         ucs.append(tuple(c.key for c in constraint.columns))
 
-    
+
     keymap = {}
     ucmaps = [{} for uccols in ucs]
     unmatched = []
@@ -215,7 +215,7 @@ def _mergeLists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
                     break
         if pkey in keymap:
             row = keymap.pop(pkey)
-            newrows.append(updateRowFromDict(row, d, strict=strict,
+            newrows.append(update_row_from_dict(row, d, strict=strict,
                                              protect=protect))
         else:
             unmatcheddicts.append(d)
@@ -232,35 +232,35 @@ def _mergeLists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
                 d[name] = val
         else:
             row = rowtype()
-        newrows.append(updateRowFromDict(row, d, strict=True))
-    
+        newrows.append(update_row_from_dict(row, d, strict=True))
+
     return newrows
 
 
-def updateRowFromDict(row, d, delete=True, protect=[], strict=False):
+def update_row_from_dict(row, d, delete=True, protect=[], strict=False):
     mapper = inspect(type(row))
-    protectedFields = set()
-    protectedRelations = {}
+    protected_fields = set()
+    protected_relations = {}
     if not strict:
         for field in protect:
             if isinstance(field, str):
-                protectedFields.add(field)
+                protected_fields.add(field)
             elif len(field) == 1:
-                protectedFields.add(field[0])
+                protected_fields.add(field[0])
             else:
                 relation = field[0]
-                if relation in protectedRelations:
-                    protectedRelations[relation].append(field[1:])
+                if relation in protected_relations:
+                    protected_relations[relation].append(field[1:])
                 else:
-                    protectedRelations[relation] = [field[1:]]
+                    protected_relations[relation] = [field[1:]]
     if strict:
         delete = True
 
     for c in mapper.primary_key:
         d[c.key] = getattr(row, c.key)
-    
+
     for c in mapper.column_attrs:
-        if c.key in protectedFields:
+        if c.key in protected_fields:
             continue
         if c.key in d:
             setattr(row, c.key, d[c.key])
@@ -268,29 +268,29 @@ def updateRowFromDict(row, d, delete=True, protect=[], strict=False):
             setattr(row, c.key, None)
 
     for relation in mapper.relationships:
-        if relation.key in protectedFields:
+        if relation.key in protected_fields:
             continue
-        isOneToMany = relation.direction.name == 'ONETOMANY'
+        is_one_to_many = relation.direction.name == 'ONETOMANY'
         if relation.key in d:
             val = d[relation.key]
             remotetype = relation.mapper.class_
             lrpairs = [(l.key, r.key) for l, r in relation.local_remote_pairs]
-            if isOneToMany:
+            if is_one_to_many:
                 val = [v for v in val if v is not None]
                 for v in val:
                     for l, r in lrpairs:
                         v[r] = d.get(l, None)
                 collection = getattr(row, relation.key)
-                newcollection = _mergeLists(
+                newcollection = _merge_lists(
                     collection, val, remotetype, strict=strict, delete=delete,
-                    protect=protectedRelations.get(relation.key, []))
+                    protect=protected_relations.get(relation.key, []))
                 setattr(row, relation.key, newcollection)
             elif val is not None:
-                setattr(row, relation.key, rowFromDict(val, remotetype))
+                setattr(row, relation.key, row_from_dict(val, remotetype))
             else:
                 setattr(row, relation.key, None)
         elif strict:
-            if isOneToMany:
+            if is_one_to_many:
                 setattr(row, relation.key, [])
             else:
                 setattr(row, relation.key, None)

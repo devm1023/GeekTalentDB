@@ -20,8 +20,8 @@ class BasicRunner:
     """Base class for runners (classes that control individual parallel jobs).
 
     Note:
-      Derived classes must implement the :py:meth:`~myFitter.BasicRunner.poll`
-      and :py:meth:`~myFitter.BasicRunner.cancel` methods and initialise the
+      Derived classes must implement the :py:meth:`~my_fitter.BasicRunner.poll`
+      and :py:meth:`~my_fitter.BasicRunner.cancel` methods and initialise the
       `pid` attribute.
 
     Args:
@@ -205,13 +205,13 @@ class SlurmRunner(BasicRunner):
             self.running = False
             self.finished = True
             return
-        
+
         self.running = (id == self.pid and output[1] == 'R')
         self.finished = False
 
 
 def _parallelize(f, batches, workdir='.', prefix=None, prelude=None,
-                 runner=LocalRunner, tries=2, log=sys.stdout, loglevel=1, 
+                 runner=LocalRunner, tries=2, log=sys.stdout, loglevel=1,
                  refresh=1, cleanup=0, autocancel=True, options=[]):
     if os.path.exists(workdir):
         if not os.path.isdir(workdir):
@@ -223,7 +223,7 @@ def _parallelize(f, batches, workdir='.', prefix=None, prelude=None,
         prefix = str(uuid.uuid4())
     stem = os.path.join(workdir, prefix)
     nbatches = len(batches)
-    
+
     fname = stem+'.py'
     _silentremove(fname)
     fout = open(fname, 'w')
@@ -277,7 +277,7 @@ fout.close()
         _silentremove(stem+'.r'+str(i))
         _silentremove(stem+'.o'+str(i))
         _silentremove(stem+'.e'+str(i))
-    
+
     fails = [0]*nbatches
     finished = [False]*nbatches
     running = [False]*nbatches
@@ -287,7 +287,7 @@ fout.close()
                       prefix+'.o'+str(i), prefix+'.e'+str(i),
                       options=options, log=log, loglevel=loglevel) \
                for i in range(nbatches)]
-    
+
     cancel = False
     oldnpending = -1
     oldnrunning = -1
@@ -337,7 +337,7 @@ fout.close()
                     running[i] = False
             elif runners[i].running:
                 running[i] = True
-        
+
         nrunning = sum(running)
         npending = nbatches - nrunning - sum(finished)
         if nrunning != oldnrunning or npending != oldnpending:
@@ -377,14 +377,14 @@ fout.close()
         raise RuntimeError('Parallel execution failed')
     else:
         return results
-                
+
 
 class ParallelFunction:
     """Class for parallel function evaluation.
 
     Note:
       ParallelFunction objects are callable and accept a numpy array or list
-      of tuples as argument. They parallelise the task of applying 
+      of tuples as argument. They parallelise the task of applying
       a certain function `f` to each tuple in the array. The tuples are
       'unpacked' when passed to the function `f`. Process communication
       is done via files and the parallel jobs can be run on different nodes of
@@ -408,10 +408,10 @@ class ParallelFunction:
         set a global random seed etc.
       runner (subclass of BasicRunner, optional): Class (*not* instance) which
         defines the details of the parallelisation. You can choose from the
-        pre-defined classes :py:class:`~myFitter.LocalRunner` and
-        :py:class:`~myFitter.SlurmRunner` or define your own by deriving from
-        :py:class:`~myFitter.BasicRunner`. Defaults to
-        :py:class:`~myFitter.LocalRunner`.
+        pre-defined classes :py:class:`~my_fitter.LocalRunner` and
+        :py:class:`~my_fitter.SlurmRunner` or define your own by deriving from
+        :py:class:`~my_fitter.BasicRunner`. Defaults to
+        :py:class:`~my_fitter.LocalRunner`.
       tries (int, optional): Maximal number of attempts to re-start a crashed
         job. Defaults to 2.
       log (output stream or None, optional): Output stream for log messages.
@@ -469,7 +469,7 @@ class ParallelFunction:
                                   (i-remainder)*batchsize : \
                                   remainder*(batchsize+1) + \
                                   (i-remainder+1)*batchsize])
-            
+
         results = _parallelize(self.f, batches,
                                workdir=self.workdir,
                                prefix=self.prefix,
@@ -500,7 +500,7 @@ def parallel(**kwargs):
             ...
 
       The arguments for ``parallel`` are the same as for
-      :py:class:`~myFitter.ParallelFunction`, but without the initial argument
+      :py:class:`~my_fitter.ParallelFunction`, but without the initial argument
       `f`. The defined function is parallelised and should only take a single
       argument.
 

@@ -12,39 +12,39 @@ import argparse
 class FieldError(Exception):
     pass
 
-def getField(d, name, fieldtype, required=False, default=None,
+def get_field(d, name, fieldtype, required=False, default=None,
              docname='profile'):
     logger = Logger(sys.stdout)
-    isPresent = name in d
-    if required and not isPresent:
+    is_present = name in d
+    if required and not is_present:
         msg = 'Missing field `{0:s}` in {1:s} documnent.' \
               .format(name, docname)
         logger.log(msg+'\n')
         raise FieldError(msg)
-    isList = False
+    is_list = False
     if isinstance(fieldtype, list):
         fieldtype = fieldtype[0]
-        isList = True
-    isUrl = False
+        is_list = True
+    is_url = False
     if fieldtype == 'url':
         fieldtype = str
-        isUrl = True
+        is_url = True
 
     result = d.get(name, default)
 
     # workaround for API bug
-    if isList and isinstance(result, dict) and len(result) == 1 \
-       and 'myArrayList' in result:
-        result = result['myArrayList']
-        
-    if isPresent and isList and not isinstance(result, list):
+    if is_list and isinstance(result, dict) and len(result) == 1 \
+       and 'my_array_list' in result:
+        result = result['my_array_list']
+
+    if is_present and is_list and not isinstance(result, list):
         msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} documnent.' \
               .format(repr(result), name, docname)
         logger.log(msg+'\n')
         raise FieldError(msg)
 
-    if isPresent:
-        if isList:
+    if is_present:
+        if is_list:
             vals = result
         else:
             vals = [result]
@@ -58,7 +58,7 @@ def getField(d, name, fieldtype, required=False, default=None,
                   .format(repr(r), name, docname)
             logger.log(msg+'\n')
             raise FieldError(msg)
-        if isUrl:
+        if is_url:
             if len(r) < 4 or r[:4] != 'http':
                 msg = 'Invalid value {0:s} for field `{1:s}` in {2:s} '
                 'documnent.'.format(repr(result), name, docname)
@@ -67,7 +67,7 @@ def getField(d, name, fieldtype, required=False, default=None,
 
     return result
 
-def checkField(d, name, value=None, docname='profile'):
+def check_field(d, name, value=None, docname='profile'):
     logger = Logger(sys.stdout)
     if name not in d:
         msg = 'Missing field `{0:s}` in {1:s} documnent.' \
@@ -82,547 +82,555 @@ def checkField(d, name, value=None, docname='profile'):
         logger.log(msg+'\n')
         raise FieldError(msg)
 
-def nonEmpty(d):
+def non_empty(d):
     return not all(v is None for v in d.values())
 
-    
-def addLIProfile(dtdb, liprofiledoc, dtsession, logger):
+
+def add_liprofile(dtdb, liprofiledoc, dtsession, logger):
     try:
-        checkField(liprofiledoc, 'sourceId', 'linkedin')
-        checkField(liprofiledoc, 'type', 'profile')
+        check_field(liprofiledoc, 'sourceId', 'linkedin')
+        check_field(liprofiledoc, 'type', 'profile')
         liprofile = {}
-        for name, fieldtype, required in \
-            [('profileId',   str,   True),
-             ('crawlNumber', int,   True),
-             ('name',        str,   False),
-             ('firstName',   str,   False),
-             ('lastName',    str,   False),
-             ('country',     str,   False),
-             ('city',        str,   False),
-             ('sector',      str,   False),
-             ('title',       str,   False),
-             ('description', str,   False),
-             ('profileUrl',  'url', False),
-             ('profilePictureUrl', 'url', False),
-             ('connections', str,   False),
-             ('categories',  [str], False),
-             ('indexedOn',   int,   True),
-             ('crawledDate', int,   False),
-             ('crawlFailCount', int, True),
+        for name, fieldname, fieldtype, required in \
+            [('profile_id',   'profileId',   str,   True),
+             ('crawl_number', 'crawlNumber', int,   True),
+             ('name',         'name',        str,   False),
+             ('first_name',   'firstName',   str,   False),
+             ('last_name',    'lastName',    str,   False),
+             ('country',      'country',     str,   False),
+             ('city',         'city',        str,   False),
+             ('sector',       'sector',      str,   False),
+             ('title',        'title',       str,   False),
+             ('description',  'description', str,   False),
+             ('profile_url',  'profileUrl',  'url', False),
+             ('profile_picture_url', 'profilePictureUrl', 'url', False),
+             ('connections',  'connections', str,   False),
+             ('categories',   'categories',  [str], False),
+             ('indexed_on',   'indexedOn',   int,   True),
+             ('crawled_date', 'crawledDate', int,   False),
+             ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
-            liprofile[name] = getField(liprofiledoc, name, fieldtype,
-                                       required=required)
+            liprofile[name] = get_field(liprofiledoc, fieldname, fieldtype,
+                                        required=required)
 
         liprofile['experiences'] = []
         liprofile['educations']  = []
         liprofile['groups']      = []
-        for subdocument in liprofiledoc.get('subDocuments', []):
-            checkField(subdocument, 'type',
+        for subdocument in liprofiledoc.get('sub_documents', []):
+            check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
                         'profile-group'])
             if subdocument['type'] == 'profile-experience':
                 experience = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('url',         'url', False),
-                     ('company',     str,   False),
-                     ('country',     str,   False),
-                     ('city',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('url',         'url',         'url', False),
+                     ('company',     'company',     str,   False),
+                     ('country',     'country',     str,   False),
+                     ('city',        'city',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    experience[name] = getField(subdocument, name, fieldtype,
-                                                required=required,
-                                                docname='experience')
-                if nonEmpty(experience):
+                    experience[name] = get_field(subdocument, fieldname,
+                                                 fieldtype,
+                                                 required=required,
+                                                 docname='experience')
+                if non_empty(experience):
                     liprofile['experiences'].append(experience)
-                    
+
             elif subdocument['type'] == 'profile-education':
                 education = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('url',         'url', False),
-                     ('degree',      str,   False),
-                     ('area',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('url',         'url',         'url', False),
+                     ('degree',      'degree',      str,   False),
+                     ('area',        'area',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    education[name] = getField(subdocument, name, fieldtype,
+                    education[name] = get_field(subdocument, fieldname,
+                                                fieldtype,
                                                 required=required,
                                                 docname='education')
-                if nonEmpty(education):
+                if non_empty(education):
                     liprofile['educations'].append(education)
 
             elif subdocument['type'] == 'profile-group':
                 group = {}
                 for name, fieldtype, required in \
-                    [('name',      str,   True),
-                     ('url',       'url', False),
+                    [('name',      'name',      str,   True),
+                     ('url',       'url',       'url', False),
                     ]:
-                    group[name] = getField(subdocument, name, fieldtype,
-                                                required=required,
-                                                docname='group')
-                if nonEmpty(group):
+                    group[name] = get_field(subdocument, fieldname, fieldtype,
+                                            required=required,
+                                            docname='group')
+                if non_empty(group):
                     liprofile['groups'].append(group)
-                        
+
     except FieldError:
         return False
 
     # add liprofile
-    dtdb.addFromDict(liprofile, LIProfile)
+    dtdb.add_from_dict(liprofile, LIProfile)
     return True
 
 
-def addINProfile(dtdb, inprofiledoc, dtsession, logger):
+def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
     try:
-        checkField(inprofiledoc, 'sourceId', 'indeed')
-        checkField(inprofiledoc, 'type', 'profile')
+        check_field(inprofiledoc, 'sourceId', 'indeed')
+        check_field(inprofiledoc, 'type', 'profile')
         inprofile = {}
-        for name, fieldtype, required in \
-            [('profileId',   str,   True),
-             ('crawlNumber', int,   True),
-             ('name',        str,   False),
-             ('firstName',   str,   False),
-             ('lastName',    str,   False),
-             ('country',     str,   False),
-             ('city',        str,   False),
-             ('title',       str,   False),
-             ('description', str,   False),
-             ('additionalInformation', str, False),
-             ('profileUrl',  'url', False),
-             ('profileUpdatedDate', int, False),
-             ('indexedOn',   int,   True),
-             ('crawledDate', int,   True),
-             ('crawlFailCount', int, True),
+        for name, fieldname, fieldtype, required in \
+            [('profile_id',   'profileId',   str,   True),
+             ('crawl_number', 'crawlNumber', int,   True),
+             ('name',         'name',        str,   False),
+             ('first_name',   'firstName',   str,   False),
+             ('last_name',    'lastName',    str,   False),
+             ('country',      'country',     str,   False),
+             ('city',         'city',        str,   False),
+             ('title',        'title',       str,   False),
+             ('description',  'description', str,   False),
+             ('additional_information', 'additionalInformation', str, False),
+             ('profile_url',  'profileUrl',  'url', False),
+             ('profile_updated_date', 'profileUpdatedDate', int, False),
+             ('indexed_on',   'indexedOn',   int,   True),
+             ('crawled_date', 'crawledDate', int,   True),
+             ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
-            inprofile[name] = getField(inprofiledoc, name, fieldtype,
-                                       required=required)
+            inprofile[name] = get_field(inprofiledoc, fieldname, fieldtype,
+                                        required=required)
 
         inprofile['experiences']    = []
         inprofile['educations']     = []
         inprofile['certifications'] = []
-        for subdocument in inprofiledoc.get('subDocuments', []):
-            checkField(subdocument, 'type',
+        for subdocument in inprofiledoc.get('sub_documents', []):
+            check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
                         'profile-certification'])
             if subdocument['type'] == 'profile-experience':
                 experience = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('company',     str,   False),
-                     ('country',     str,   False),
-                     ('city',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('company',     'company',     str,   False),
+                     ('country',     'country',     str,   False),
+                     ('city',        'city',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    experience[name] = getField(subdocument, name, fieldtype,
-                                                required=required,
-                                                docname='experience')
-                if nonEmpty(experience):
+                    experience[name] = get_field(subdocument, fieldname,
+                                                 fieldtype,
+                                                 required=required,
+                                                 docname='experience')
+                if non_empty(experience):
                     inprofile['experiences'].append(experience)
-                    
+
             elif subdocument['type'] == 'profile-education':
                 education = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('degree',      str,   False),
-                     ('area',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('degree',      'degree',      str,   False),
+                     ('area',        'area',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    education[name] = getField(subdocument, name, fieldtype,
+                    education[name] = get_field(subdocument, fieldname,
+                                                fieldtype,
                                                 required=required,
                                                 docname='education')
-                if nonEmpty(education):
+                if non_empty(education):
                     inprofile['educations'].append(education)
 
             elif subdocument['type'] == 'profile-certification':
                 certification = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   True),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   True),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    certification[name] = getField(subdocument, name, fieldtype,
-                                                   required=required,
-                                                   docname='certification')
-                if nonEmpty(certification):
+                    certification[name] = get_field(subdocument, fieldname,
+                                                    fieldtype,
+                                                    required=required,
+                                                    docname='certification')
+                if non_empty(certification):
                     inprofile['certifications'].append(certification)
-                        
+
     except FieldError:
         return False
 
     # add inprofile
-    dtdb.addFromDict(inprofile, INProfile)
+    dtdb.add_from_dict(inprofile, INProfile)
     return True
 
 
-def addUWProfile(dtdb, uwprofiledoc, dtsession, logger):
+def add_uwprofile(dtdb, uwprofiledoc, dtsession, logger):
     try:
-        checkField(uwprofiledoc, 'sourceId', 'upwork')
-        checkField(uwprofiledoc, 'type', 'profile')
+        check_field(uwprofiledoc, 'sourceId', 'upwork')
+        check_field(uwprofiledoc, 'type', 'profile')
         uwprofile = {}
-        for name, fieldtype, required in \
-            [('profileId',   str,   True),
-             ('crawlNumber', int,   True),
-             ('name',        str,   False),
-             ('firstName',   str,   False),
-             ('lastName',    str,   False),
-             ('country',     str,   False),
-             ('city',        str,   False),
-             ('title',       str,   False),
-             ('description', str,   False),
-             ('profileUrl',  'url', False),
-             ('profilePictureUrl', 'url', False),
-             ('categories',  [str], False),
-             ('indexedOn',   int,   True),
-             ('crawledDate', int,   True),
-             ('crawlFailCount', int, True),
+        for name, fieldname, fieldtype, required in \
+            [('profile_id',   'profileId',   str,   True),
+             ('crawl_number', 'crawlNumber', int,   True),
+             ('name',         'name',        str,   False),
+             ('first_name',   'firstName',   str,   False),
+             ('last_name',    'lastName',    str,   False),
+             ('country',      'country',     str,   False),
+             ('city',         'city',        str,   False),
+             ('title',        'title',       str,   False),
+             ('description',  'description', str,   False),
+             ('profile_url',  'profileUrl',  'url', False),
+             ('profile_picture_url', 'profilePictureUrl', 'url', False),
+             ('categories',   'categories',  [str], False),
+             ('indexed_on',   'indexedOn',   int,   True),
+             ('crawled_date', 'crawledDate', int,   True),
+             ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
-            uwprofile[name] = getField(uwprofiledoc, name, fieldtype,
+            uwprofile[name] = get_field(uwprofiledoc, fieldname, fieldtype,
                                        required=required)
 
         uwprofile['experiences']    = []
         uwprofile['educations']     = []
         uwprofile['tests']          = []
-        for subdocument in uwprofiledoc.get('subDocuments', []):
-            checkField(subdocument, 'type',
+        for subdocument in uwprofiledoc.get('sub_documents', []):
+            check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
                         'profile-tests'])
             if subdocument['type'] == 'profile-experience':
                 experience = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('company',     str,   False),
-                     ('country',     str,   False),
-                     ('city',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('company',     'company',     str,   False),
+                     ('country',     'country',     str,   False),
+                     ('city',        'city',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    experience[name] = getField(subdocument, name, fieldtype,
-                                                required=required,
-                                                docname='experience')
-                if nonEmpty(experience):
+                    experience[name] = get_field(subdocument, fieldname,
+                                                 fieldtype,
+                                                 required=required,
+                                                 docname='experience')
+                if non_empty(experience):
                     uwprofile['experiences'].append(experience)
-                    
+
             elif subdocument['type'] == 'profile-education':
                 education = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('degree',      str,   False),
-                     ('area',        str,   False),
-                     ('dateFrom',    int,   False),
-                     ('dateTo',      int,   False),
-                     ('description', str,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('degree',      'degree',      str,   False),
+                     ('area',        'area',        str,   False),
+                     ('date_from',   'dateFrom',    int,   False),
+                     ('date_to',     'dateTo',      int,   False),
+                     ('description', 'description', str,   False),
                     ]:
-                    education[name] = getField(subdocument, name, fieldtype,
-                                               required=required,
-                                               docname='education')
-                if nonEmpty(education):
+                    education[name] = get_field(subdocument, fieldname,
+                                                fieldtype,
+                                                required=required,
+                                                docname='education')
+                if non_empty(education):
                     uwprofile['educations'].append(education)
 
             elif subdocument['type'] == 'profile-tests':
                 test = {}
-                for name, fieldtype, required in \
-                    [('name',        str,   False),
-                     ('score',       float, False),
-                     ('testPercentile', float, False),
-                     ('testDate',    int,   False),
-                     ('testDuration', float, False)
+                for name, fieldname, fieldtype, required in \
+                    [('name',        'name',        str,   False),
+                     ('score',       'score',       float, False),
+                     ('test_percentile', 'testPercentile', float, False),
+                     ('test_date',   'testDate',    int,   False),
+                     ('test_duration', 'testDuration', float, False)
                     ]:
-                    test[name] = getField(subdocument, name, fieldtype,
-                                          required=required,
-                                          docname='test')
-                if nonEmpty(test):
+                    test[name] = get_field(subdocument, fieldname, fieldtype,
+                                           required=required,
+                                           docname='test')
+                if non_empty(test):
                     uwprofile['tests'].append(test)
-                        
+
     except FieldError:
         return False
 
     # add uwprofile
-    dtdb.addFromDict(uwprofile, UWProfile)
+    dtdb.add_from_dict(uwprofile, UWProfile)
     return True
 
-def addMUProfile(dtdb, muprofiledoc, dtsession, logger):
+def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
     try:
-        checkField(muprofiledoc, 'sourceId', 'meetup')
-        checkField(muprofiledoc, 'type', 'profile')
+        check_field(muprofiledoc, 'sourceId', 'meetup')
+        check_field(muprofiledoc, 'type', 'profile')
         muprofile = {}
-        for name, fieldtype, required in \
-            [('profileId',   str,   True),
-             ('crawlNumber', int,   True),
-             ('name',        str,   False),
-             ('country',     str,   False),
-             ('city',        str,   False),
-             ('latitude',    float, False),
-             ('longitude',   float, False),
-             ('status',      str,   False),
-             ('description', str,   False),
-             ('profileUrl',  'url', False),
-             ('profilePictureId', str, False),
-             ('profilePictureUrl', 'url', False),
-             ('profileHQPictureUrl', 'url', False),
-             ('profileThumbPictureUrl', 'url', False),
-             ('categories',  [str], False),
-             ('indexedOn',   int,   True),
-             ('crawledDate', int,   True),
-             ('crawlFailCount', int, True),
+        for name, fieldname, fieldtype, required in \
+            [('profile_id',  'profileId',   str,   True),
+             ('crawl_number', 'crawlNumber', int,   True),
+             ('name',        'name',        str,   False),
+             ('country',     'country',     str,   False),
+             ('city',        'city',        str,   False),
+             ('latitude',    'latitude',    float, False),
+             ('longitude',   'longitude',   float, False),
+             ('status',      'status',      str,   False),
+             ('description', 'description', str,   False),
+             ('profile_url', 'profileUrl',  'url', False),
+             ('profile_picture_id', 'profilePictureId', str, False),
+             ('profile_picture_url', 'profilePictureUrl', 'url', False),
+             ('profile_hqpicture_url', 'profileHQPictureUrl', 'url', False),
+             ('profile_thumb_picture_url', 'profileThumbPictureUrl', 'url',
+              False),
+             ('categories',  'categories',  [str], False),
+             ('indexed_on',  'indexedOn',   int,   True),
+             ('crawled_date', 'crawledDate', int,   True),
+             ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
-            muprofile[name] = getField(muprofiledoc, name, fieldtype,
-                                       required=required)
+            muprofile[name] = get_field(muprofiledoc, fieldname, fieldtype,
+                                        required=required)
 
         muprofile['groups']     = []
         muprofile['events']     = []
         muprofile['comments']   = []
-        muprofile['links']      = []        
-        for subdocument in muprofiledoc.get('subDocuments', []):
-            checkField(subdocument, 'type',
+        muprofile['links']      = []
+        for subdocument in muprofiledoc.get('sub_documents', []):
+            check_field(subdocument, 'type',
                        ['member-group', 'group', 'event', 'comment'])
             if subdocument['type'] in ['member-group', 'group']:
                 group = {}
-                for name, fieldtype, required in \
-                    [('country',     str,   False),
-                     ('city',        str,   False),
-                     ('latitude',    float, False),
-                     ('longitude',   float, False),
-                     ('timezone',    str,   False),
-                     ('utcOffset',   int,   False),
-                     ('name',        str,   False),
-                     ('categoryName', str, False),
-                     ('categoryShortname', str, False),
-                     ('categoryId',  str,   False),
-                     ('description', str,   False),
-                     ('url',         'url', False),
-                     ('urlname',     str,   False),
-                     ('pictureUrl',  'url', False),
-                     ('pictureId',   int,   False),
-                     ('HQPictureUrl', 'url', False),
-                     ('thumbPictureUrl', 'url', False),
-                     ('joinMode',    str,   False),
-                     ('rating',      float, False),
-                     ('organizerName', str, False),
-                     ('organizerId', str,   False),
-                     ('members',     int,   False),
-                     ('state',       str,   False),
-                     ('visibility',  str,   False),
-                     ('who',         str,   False),
-                     ('categories',  [str], False),
-                     ('createdDate', int,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('country',     'country',     str,   False),
+                     ('city',        'city',        str,   False),
+                     ('latitude',    'latitude',    float, False),
+                     ('longitude',   'longitude',   float, False),
+                     ('timezone',    'timezone',    str,   False),
+                     ('utc_offset',  'utcOffset',   int,   False),
+                     ('name',        'name',        str,   False),
+                     ('category_name', 'categoryName', str, False),
+                     ('category_shortname', 'categoryShortname', str, False),
+                     ('category_id', 'categoryId',  str,   False),
+                     ('description', 'description', str,   False),
+                     ('url',         'url',         'url', False),
+                     ('urlname',     'urlname',     str,   False),
+                     ('picture_url', 'pictureUrl',  'url', False),
+                     ('picture_id',  'pictureId',   int,   False),
+                     ('hqpicture_url', 'HQPictureUrl', 'url', False),
+                     ('thumb_picture_url', 'url', False),
+                     ('join_mode',   'joinMode',    str,   False),
+                     ('rating',      'rating',      float, False),
+                     ('organizer_name', 'organizerName', str, False),
+                     ('organizer_id', 'organizerId', str,   False),
+                     ('members',     'members',     int,   False),
+                     ('state',       'state',       str,   False),
+                     ('visibility',  'visibility',  str,   False),
+                     ('who',         'who',         str,   False),
+                     ('categories',  'categories',  [str], False),
+                     ('created_date', 'createdDate', int,   False),
                     ]:
-                    group[name] = getField(subdocument, name, fieldtype,
+                    group[name] = get_field(subdocument, fieldname, fieldtype,
                                            required=required,
                                            docname='group')
-                if nonEmpty(group):
+                if non_empty(group):
                     muprofile['groups'].append(group)
 
             elif subdocument['type'] == 'event':
                 event = {}
-                for name, fieldtype, required in \
-                    [('country',      str,   False),
-                     ('city',         str,   False),
-                     ('addressLine1', str,   False),
-                     ('addressLine2', str,   False),
-                     ('latitude',     float, False),
-                     ('longitude',    float, False),
-                     ('phone',        str,   False),
-                     ('name',         str,   False),
-                     ('description',  str,   False),
-                     ('url',          'url', False),
-                     ('time',         int,   False),
-                     ('utcOffset',    int,   False),
-                     ('status',       str,   False),
-                     ('headcount',    int,   False),
-                     ('visibility',   str,   False),
-                     ('rsvpLimit',    int,   False),
-                     ('yesRsvpCount', int,   False),
-                     ('maybeRsvpCount', int, False),
-                     ('waitlistCount', int,  False),
-                     ('ratingCount',  int,   False),
-                     ('ratingCount',  int,   False),
-                     ('ratingAverage', float, False),
-                     ('feeRequired',  str,   False),
-                     ('feeCurrency',  str,   False),
-                     ('feeLabel',     str,   False),
-                     ('feeDescription', str, False),
-                     ('feeAccepts',   str,   False),
-                     ('feeAmount',    float, False),
-                     ('createdDate',  int,   False),
+                for name, fieldname, fieldtype, required in \
+                    [('country',      'country',      str,   False),
+                     ('city',         'city',         str,   False),
+                     ('address_line1', 'addressLine1', str,   False),
+                     ('address_line2', 'addressLine2', str,   False),
+                     ('latitude',     'latitude',     float, False),
+                     ('longitude',    'longitude',    float, False),
+                     ('phone',        'phone',        str,   False),
+                     ('name',         'name',         str,   False),
+                     ('description',  'description',  str,   False),
+                     ('url',          'url',          'url', False),
+                     ('time',         'time',         int,   False),
+                     ('utc_offset',   'utcOffset',    int,   False),
+                     ('status',       'status',       str,   False),
+                     ('headcount',    'headcount',    int,   False),
+                     ('visibility',   'visibility',   str,   False),
+                     ('rsvp_limit',   'rsvpLimit',    int,   False),
+                     ('yes_rsvp_count', 'yesRsvpCount', int,   False),
+                     ('maybe_rsvp_count', 'maybeRsvpCount', int, False),
+                     ('waitlist_count', 'waitlistCount', int,  False),
+                     ('rating_count',  'ratingCount',  int,   False),
+                     ('rating_average', 'ratingAverage', float, False),
+                     ('fee_required', 'feeRequired',  str,   False),
+                     ('fee_currency', 'feeCurrency',  str,   False),
+                     ('fee_label',    'feeLabel',     str,   False),
+                     ('fee_description', 'feeDescription', str, False),
+                     ('fee_accepts',  'feeAccepts',   str,   False),
+                     ('fee_amount',   'feeAmount',    float, False),
+                     ('created_date', 'createdDate',  int,   False),
                     ]:
-                    event[name] = getField(subdocument, name, fieldtype,
-                                           required=required,
-                                           docname='event')
-                if nonEmpty(event):
+                    event[name] = get_field(subdocument, fieldname, fieldtype,
+                                            required=required,
+                                            docname='event')
+                if non_empty(event):
                     muprofile['events'].append(event)
 
             elif subdocument['type'] == 'comment':
                 comment = {}
-                for name, fieldtype, required in \
-                    [('createdDate', int,   False),
-                     ('inReplyTo',   str,   False),
-                     ('description', str,   False),
-                     ('url',         'url', False),
+                for name, fieldname, fieldtype, required in \
+                    [('created_date', 'createdDate', int,   False),
+                     ('in_reply_to',  'inReplyTo',   str,   False),
+                     ('description',  'description', str,   False),
+                     ('url',          'url',         'url', False),
                     ]:
-                    comment[name] = getField(subdocument, name, fieldtype,
-                                          required=required,
-                                          docname='comment')
-                if nonEmpty(comment):
+                    comment[name] = get_field(subdocument, fieldname, fieldtype,
+                                              required=required,
+                                              docname='comment')
+                if non_empty(comment):
                     muprofile['comments'].append(comment)
 
-        for subdocument in muprofiledoc.get('otherProfiles', []):
+        for subdocument in muprofiledoc.get('other_profiles', []):
             link = {}
-            for name, fieldtype, required in \
-                    [('type',        str,   True),
-                     ('url',         str,   True),
+            for name, fieldname, fieldtype, required in \
+                    [('type',        'type',        str,   True),
+                     ('url',         'url',         str,   True),
                     ]:
-                link[name] = getField(subdocument, name, fieldtype,
-                                      required=required,
-                                      docname='link')
-            if nonEmpty(link):
+                link[name] = get_field(subdocument, fieldname, fieldtype,
+                                       required=required,
+                                       docname='link')
+            if non_empty(link):
                 muprofile['links'].append(link)
 
     except FieldError:
         return False
 
     # add muprofile
-    muprofile = dtdb.addFromDict(muprofile, MUProfile)
+    muprofile = dtdb.add_from_dict(muprofile, MUProfile)
     dtdb.commit()
     return True
 
 
-def addGHProfile(dtdb, ghprofiledoc, dtsession, logger):
+def add_ghprofile(dtdb, ghprofiledoc, dtsession, logger):
     try:
-        checkField(ghprofiledoc, 'sourceId', 'github')
-        checkField(ghprofiledoc, 'type', 'profile')
+        check_field(ghprofiledoc, 'sourceId', 'github')
+        check_field(ghprofiledoc, 'type', 'profile')
         ghprofile = {}
-        for name, fieldtype, required in \
-            [('profileId',   str,   True),
-             ('crawlNumber', int,   True),
-             ('name',        str,   False),
-             ('country',     str,   False),
-             ('city',        str,   False),
-             ('company',     str,   False),
-             ('createdDate', int,   False),
-             ('profileUrl',  'url', False),
-             ('profilePictureUrl', 'url', False),
-             ('login',       str,   False),
-             ('email',       str,   False),
-             ('contributionsCount', int, False),
-             ('followersCount', int, False),
-             ('followingCount', int, False),
-             ('publicRepoCount', int, False),
-             ('publicGistCount', int, False),
-             ('indexedOn',   int,   True),
-             ('crawledDate', int,   True),
+        for name, fieldname, fieldtype, required in \
+            [('profile_id',  'profileId',   str,   True),
+             ('crawl_number', 'crawlNumber', int,   True),
+             ('name',        'name',        str,   False),
+             ('country',     'country',     str,   False),
+             ('city',        'city',        str,   False),
+             ('company',     'company',     str,   False),
+             ('created_date', 'createdDate', int,   False),
+             ('profile_url', 'profileUrl',  'url', False),
+             ('profile_picture_url', 'profilePictureUrl', 'url', False),
+             ('login',       'login',       str,   False),
+             ('email',       'email',       str,   False),
+             ('contributions_count', 'contributionsCount', int, False),
+             ('followers_count', 'followersCount', int, False),
+             ('following_count', 'followingCount', int, False),
+             ('public_repo_count', 'publicRepoCount', int, False),
+             ('public_gist_count', 'publicGistCount', int, False),
+             ('indexed_on',  'indexedOn',   int,   True),
+             ('crawled_date', 'crawledDate', int,   True),
             ]:
-            ghprofile[name] = getField(ghprofiledoc, name, fieldtype,
-                                       required=required)
+            ghprofile[name] = get_field(ghprofiledoc, fieldname, fieldtype,
+                                        required=required)
 
         ghprofile['repositories']     = []
         ghprofile['links']            = []
-        for subdocument in ghprofiledoc.get('subDocuments', []):
-            checkField(subdocument, 'type', ['repository'])
+        for subdocument in ghprofiledoc.get('sub_documents', []):
+            check_field(subdocument, 'type', ['repository'])
             if subdocument['type'] == 'repository':
                 repository = {}
-                for name, fieldtype, required in \
-                    [('name',         str,   False),
-                     ('description',  str,   False),
-                     ('fullName',     str,   False),
-                     ('url',          'url', False),
-                     ('gitUrl',       str,   False),
-                     ('sshUrl',       str,   False),
-                     ('createdDate',  int,   False),
-                     ('pushedDate',   int,   False),
-                     ('size',         int,   False),
-                     ('defaultBranch', str,  False),
-                     ('viewCount',    int,  False),
-                     ('subscribersCount', int,  False),
-                     ('forksCount',   int,  False),
-                     ('stargazersCount', int, False),
-                     ('openIssuesCount', int, False),
-                     ('tags',         [str], False),
+                for name, fieldname, fieldtype, required in \
+                    [('name',         'name',         str,   False),
+                     ('description',  'description',  str,   False),
+                     ('full_name',    'fullName',     str,   False),
+                     ('url',          'url',          'url', False),
+                     ('git_url',      'gitUrl',       str,   False),
+                     ('ssh_url',      'sshUrl',       str,   False),
+                     ('created_date', 'createdDate',  int,   False),
+                     ('pushed_date',  'pushedDate',   int,   False),
+                     ('size',         'size',         int,   False),
+                     ('default_branch', 'defaultBranch', str,  False),
+                     ('view_count',   'viewCount',    int,  False),
+                     ('subscribers_count', 'subscribersCount', int,  False),
+                     ('forks_count',  'forksCount',   int,  False),
+                     ('stargazers_count', 'stargazersCount', int, False),
+                     ('open_issues_count', 'openIssuesCount', int, False),
+                     ('tags',         'tags',         [str], False),
                     ]:
-                    repository[name] = getField(subdocument, name, fieldtype,
-                                                required=required,
-                                                docname='repository')
-                if nonEmpty(repository):
+                    repository[name] = get_field(subdocument, fieldname,
+                                                 fieldtype,
+                                                 required=required,
+                                                 docname='repository')
+                if non_empty(repository):
                     ghprofile['repositories'].append(repository)
 
-        for subdocument in ghprofiledoc.get('otherProfiles', []):
+        for subdocument in ghprofiledoc.get('other_profiles', []):
             link = {}
-            for name, fieldtype, required in \
-                    [('type',        str,   True),
-                     ('url',         str,   True),
+            for name, fieldname, fieldtype, required in \
+                    [('type',        'type',        str,   True),
+                     ('url',         'url',         str,   True),
                     ]:
-                link[name] = getField(subdocument, name, fieldtype,
+                link[name] = get_field(subdocument, fieldname, fieldtype,
                                       required=required,
                                       docname='link')
-            if nonEmpty(link):
+            if non_empty(link):
                 ghprofile['links'].append(link)
 
     except FieldError:
         return False
 
     # add ghprofile
-    dtdb.addFromDict(ghprofile, GHProfile)
+    dtdb.add_from_dict(ghprofile, GHProfile)
     return True
 
 
-def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
+def download_profiles(from_ts, to_ts, maxprofiles, by_indexed_on, source_id):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     dtsession = datoin.Session(logger=logger)
     BATCH_SIZE = 1000
 
-    if byIndexedOn:
-        fromKey = 'fromTs'
-        toKey   = 'toTs'
+    if by_indexed_on:
+        from_key = 'fromTs'
+        to_key   = 'toTs'
     else:
-        fromKey = 'crawledFrom'
-        toKey   = 'crawledTo'
-    params = {fromKey : fromTs, toKey : toTs, 'sid' : sourceId}
-    if sourceId == 'linkedin':
-        addProfile = addLIProfile
-    elif sourceId == 'indeed':
-        addProfile = addINProfile
-    elif sourceId == 'upwork':
-        addProfile = addUWProfile
-    elif sourceId == 'meetup':
-        addProfile = addMUProfile
-    elif sourceId == 'github':
-        addProfile = addGHProfile
+        from_key = 'crawledFrom'
+        to_key   = 'crawledTo'
+    params = {from_key : from_ts, to_key : to_ts, 'sid' : source_id}
+    if source_id == 'linkedin':
+        add_profile = add_liprofile
+    elif source_id == 'indeed':
+        add_profile = add_inprofile
+    elif source_id == 'upwork':
+        add_profile = add_uwprofile
+    elif source_id == 'meetup':
+        add_profile = add_muprofile
+    elif source_id == 'github':
+        add_profile = add_ghprofile
     else:
         raise ValueError('Invalid source id.')
-    
+
     logger.log('Downloading profiles from timestamp {0:d} to {1:d}.\n'\
-               .format(fromTs, toTs))
+               .format(from_ts, to_ts))
     totalcount = dtsession.count(url=conf.DATOIN3_SEARCH,
                                  params=params)
     if maxprofiles is not None:
         totalcount = min(totalcount, maxprofiles)
     count = 0
-    failedProfiles = []
+    failed_profiles = []
     for profiledoc in dtsession.query(url=conf.DATOIN3_SEARCH,
                                       params=params):
         if 'profileId' not in profiledoc:
             raise IOError('Encountered profile without profileId.')
-        profileId = profiledoc['profileId']
+        profile_id = profiledoc['profileId']
         if 'crawlNumber' not in profiledoc:
             raise IOError('Encountered profile without crawlNumber.')
-        crawlNumber = profiledoc['crawlNumber']
-        
-        if not addProfile(dtdb, profiledoc, dtsession, logger):
+        crawl_number = profiledoc['crawlNumber']
+
+        if not add_profile(dtdb, profiledoc, dtsession, logger):
             logger.log('Failed profile {0:s}|{1:s}.\n' \
-                       .format(str(profileId), str(crawlNumber)))
-            failedProfiles.append((profileId, crawlNumber))
+                       .format(str(profile_id), str(crawl_number)))
+            failed_profiles.append((profile_id, crawl_number))
         count += 1
 
         # commit
@@ -640,33 +648,33 @@ def downloadProfiles(fromTs, toTs, maxprofiles, byIndexedOn, sourceId):
         raise IOError('Expected {0:d} profiles, recieved {1:d}.' \
                       .format(totalcount, count))
 
-    return count, failedProfiles
+    return count, failed_profiles
 
 
-def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId):
+def download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, source_id):
     logger = Logger(sys.stdout)
     njobs = max(njobs, 1)
-    if sourceId is None:
+    if source_id is None:
         logger.log('Downloading LinkedIn profiles.\n')
-        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'linkedin',
-                      offset=offset, maxoffset=maxoffset)
+        download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on,
+                       'linkedin', offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Indeed profiles.\n')
-        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'indeed',
-                      offset=offset, maxoffset=maxoffset)
+        download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, 'indeed',
+                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Upwork profiles.\n')
-        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'upwork',
-                      offset=offset, maxoffset=maxoffset)
+        download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, 'upwork',
+                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading Meetup profiles.\n')
-        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'meetup',
-                      offset=offset, maxoffset=maxoffset)
+        download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, 'meetup',
+                       offset=offset, maxoffset=maxoffset)
         logger.log('Downloading GitHub profiles.\n')
-        downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, 'github',
-                      offset=offset, maxoffset=maxoffset)
+        download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, 'github',
+                       offset=offset, maxoffset=maxoffset)
         return
-    
-    fromTs = int((tfrom - timestamp0).total_seconds())*1000
-    toTs   = int((tto   - timestamp0).total_seconds())*1000
-    timestamps = np.linspace(fromTs, toTs, njobs+1, dtype=int)
+
+    from_ts = int((tfrom - timestamp0).total_seconds())*1000
+    to_ts   = int((tto   - timestamp0).total_seconds())*1000
+    timestamps = np.linspace(from_ts, to_ts, njobs+1, dtype=int)
 
     dlstart = datetime.now()
     logger.log('Downloading time range {0:s} to {1:s}.\n' \
@@ -676,21 +684,21 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId):
                .format(dlstart.strftime('%Y-%m-%d %H:%M:%S%z')))
 
     if njobs > 1:
-        args = [(ts1, ts2, maxprofiles, byIndexedOn, sourceId) \
+        args = [(ts1, ts2, maxprofiles, by_indexed_on, source_id) \
                 for ts1, ts2 in zip(timestamps[:-1], timestamps[1:])]
-        results = ParallelFunction(downloadProfiles,
+        results = ParallelFunction(download_profiles,
                                    batchsize=1,
                                    workdir='jobs',
                                    prefix='lidownload',
                                    tries=1)(args)
         count = 0
-        failedProfiles = []
+        failed_profiles = []
         for c, fp in results:
             count += c
-            failedProfiles.extend(fp)
+            failed_profiles.extend(fp)
     else:
-        count, failedProfiles = downloadProfiles(fromTs, toTs, maxprofiles,
-                                                 byIndexedOn, sourceId)
+        count, failed_profiles = download_profiles(from_ts, to_ts, maxprofiles,
+                                                 by_indexed_on, source_id)
 
     dlend = datetime.now()
     dltime = (dlend-dlstart).total_seconds()
@@ -701,10 +709,10 @@ def downloadRange(tfrom, tto, njobs, maxprofiles, byIndexedOn, sourceId):
     else:
         logger.log('.\n')
 
-    if failedProfiles:
+    if failed_profiles:
         logger.log('failed profiles:\n')
-        for profileId, crawlNumber in failedProfiles:
-            logger.log('{0:s}|{0:s}'.format(str(profileId), str(crawlNumber)))
+        for profile_id, crawl_number in failed_profiles:
+            logger.log('{0:s}|{0:s}'.format(str(profile_id), str(crawl_number)))
 
     return count
 
@@ -748,27 +756,27 @@ if __name__ == '__main__':
     except ValueError:
         sys.stderr.write('Invalid date format.\n')
         exit(1)
-    byIndexedOn = bool(args.by_index_date)
+    by_indexed_on = bool(args.by_index_date)
     maxprofiles = args.max_profiles
-    sourceId = args.source
-    stepSize = args.step_size
-        
+    source_id = args.source
+    step_size = args.step_size
+
     timestamp0 = datetime(year=1970, month=1, day=1)
 
-    deltat = timedelta(days=stepSize)
+    deltat = timedelta(days=step_size)
     profilecount = 0
     t = fromdate
     if maxprofiles is None:
         while t < todate:
             profilecount \
-                += downloadRange(t, min(t+deltat, todate), njobs,
-                                 None, byIndexedOn, sourceId)
+                += download_range(t, min(t+deltat, todate), njobs,
+                                 None, by_indexed_on, source_id)
             t += deltat
     else:
         while t < todate and profilecount < maxprofiles:
             profilecount \
-                += downloadRange(t, min(t+deltat, todate), njobs,
-                                 maxprofiles-profilecount, byIndexedOn,
-                                 sourceId)
+                += download_range(t, min(t+deltat, todate), njobs,
+                                 maxprofiles-profilecount, by_indexed_on,
+                                 source_id)
             t += deltat
 

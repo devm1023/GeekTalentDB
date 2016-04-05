@@ -312,13 +312,13 @@ if __name__ == '__main__':
                         help='Maximum number of subjects in a list.')
     parser.add_argument('--max-careersteps', type=int,
                         help='Maximum number of career steps in a list.')
-    parser.add_argument('--min-institute-count', type=int, default=1,
+    parser.add_argument('--min-institute-count', type=int,
                         help='Minimum count for educational institutes '
                         'to be added to the list.')
-    parser.add_argument('--min-subject-count', type=int, default=1,
+    parser.add_argument('--min-subject-count', type=int,
                         help='Minimum count for education subjects '
                         'to be added to the list.')
-    parser.add_argument('--min-careerstep-count', type=int, default=1,
+    parser.add_argument('--min-careerstep-count', type=int,
                         help='Minimum count for career steps '
                         'to be added to the list.')
     parser.add_argument('--sigma', type=int, default=3,

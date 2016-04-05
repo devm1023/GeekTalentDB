@@ -15,7 +15,7 @@ args = parser.parse_args()
 
 nocreate = args.no_create
 nodelete = args.no_delete
-    
+
 if args.database == 'datoin':
     from datoindb import DatoinDB
     dtdb = DatoinDB(url=conf.DATOIN_DB)

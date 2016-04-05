@@ -32,14 +32,14 @@ class Session:
               maxdelay=1,
               timeout=300):
         maxdelay = max(1, maxdelay)
-        nextPage = None
-        lastPage = False
+        next_page = None
+        last_page = False
         params = deepcopy(params)
         params['rows'] = batchsize
 
-        while not lastPage:
-            if nextPage:
-                params['nextPage'] = nextPage
+        while not last_page:
+            if next_page:
+                params['nextPage'] = next_page
 
             delay = 1
             while True:
@@ -62,10 +62,10 @@ class Session:
                         raise
                     time.sleep(delay)
                     delay *= 2
-            lastPage = 'nextPageId' not in r
-            if not lastPage:
-                nextPage = r['nextPageId']
-                
+            last_page = 'nextPageId' not in r
+            if not last_page:
+                next_page = r['nextPageId']
+
             for d in r['results']:
                 yield d
 
