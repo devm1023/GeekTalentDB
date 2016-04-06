@@ -1,49 +1,21 @@
 import os
 
-# SQL DB URLs
-#
-# Format:
-# postgresql://<username>:<password>@<host>/<database>
-#
-# <username> is always 'geektalent'
-# <database> is 'geektalent', 'datoin', 'canonical', or 'geekmaps'
-#
-# host description   host name/IP      password 
-# -----------------------------------------------------
-# Martin's Laptop    localhost         Ta2tqaltuaatri42
-# internal server    10.140.18.98      geektalent      
-# cloud SQL server   173.194.248.106   geektalent      
-# cloud PostgreSQL   104.155.42.1      Ta2tqaltuaatri42
-
-# GeekTalent Database
-GEEKTALENT_DB = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geektalent'
-
 # Datoin Database 
-DATOIN_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin'
-
-# Datoin Database 
-DATOIN2_DB     = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/datoin2'
+DATOIN_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 
 # Canonical Database
-CANONICAL_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/canonical'
+CANONICAL_DB  = 'postgresql://geektalent:geektalent@localhost/canonical'
 
 # Analytics Database
-ANALYTICS_DB  = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/analytics'
+ANALYTICS_DB  = 'postgresql://geektalent:geektalent@localhost/analytics'
 
 # GeekMaps Database
-GEEKMAPS_DB   = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/geekmaps'
+GEEKMAPS_DB   = 'postgresql://geektalent:geektalent@localhost/geekmaps'
 
-# CareerHacker Database
+# Career Definition Database
 CAREERDEFINITION_DB \
-    = 'postgresql://geektalent:Ta2tqaltuaatri42@localhost/careerdefinition'
+    = 'postgresql://geektalent:geektalent@localhost/careerdefinition'
 
-
-# Datoin SOLR endpoints:
-# public domains: gt.datoin.com, gt1.datoin.com
-# private IP: ???
-# port: 8765
-# endpoints: search, profiles
-# See http://gt.datoin.com:8765/docs/api-specs.html for specs
 
 # search endpoint from DATOIN
 DATOIN_SEARCH   = 'http://gt1.datoin.com:8765/search'
@@ -75,14 +47,11 @@ WATSON_USERNAME = '8d4b1f2e-7878-45be-8eaa-4207e29df6e7'
 # Watson password
 WATSON_PASSWORD = 'SLtaOke1oa2p'
 
-# maximum number of profiles which get added to the DB
-MAX_PROFILES    = None
+# maximum number of failed crawls before profile gets deleted
+MAX_CRAWL_FAIL_COUNT = 3
 
 # minimum return value of phraseMatch for which constitutes match
 SKILL_MATCHING_THRESHOLD = 0.75
-
-# Number of attempts at downloading corrupt profiles
-MAX_ATTEMPTS = 2
 
 # source directory
 _srcdir = os.path.dirname(os.path.abspath(__file__))
