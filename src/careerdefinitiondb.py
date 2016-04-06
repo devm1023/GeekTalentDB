@@ -65,6 +65,10 @@ class Career(SQLBase):
     title_count   = Column(BigInteger)
     count         = Column(BigInteger)
     relevance_score = Column(Float)
+    education_subjects_total = Column(BigInteger)
+    education_institutes_total = Column(BigInteger)
+    previous_titles_total = Column(BigInteger)
+    next_titles_total = Column(BigInteger)
     visible       = Column(Boolean, nullable=False)
 
     skill_cloud = relationship('CareerSkill',

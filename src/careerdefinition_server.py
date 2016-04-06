@@ -69,10 +69,10 @@ def get_careers():
 class EntityDescription(db.Model):
     __tablename__ = 'entity_description'
     id            = db.Column(db.BigInteger, primary_key=True)
-    entity_type    = db.Column(db.String(20))
+    entity_type   = db.Column(db.String(20))
     linkedin_sector = db.Column(db.Unicode(STR_MAX))
-    entity_name    = db.Column(db.Unicode(STR_MAX))
-    match_count    = db.Column(db.Integer)
+    entity_name   = db.Column(db.Unicode(STR_MAX))
+    match_count   = db.Column(db.Integer)
     description   = db.Column(db.Text)
     description_url = db.Column(db.String(STR_MAX))
     description_source = db.Column(db.Unicode(STR_MAX))
@@ -81,7 +81,8 @@ class EntityDescription(db.Model):
     def __str__(self):
         typestr = self.entity_type if self.entity_type else '*'
         sectorstr = self.linkedin_sector if self.linkedin_sector else '*'
-        return '[{0:s}|{1:s}|{2:s}]'.format(typestr, sectorstr, self.entity_name)
+        return '[{0:s}|{1:s}|{2:s}]'.format(typestr, sectorstr,
+                                            self.entity_name)
 
 class Career(db.Model):
     __tablename__ = 'career'
@@ -99,18 +100,18 @@ class Career(db.Model):
         = db.relationship('CareerCompany', backref='career',
                           order_by='desc(CareerCompany.relevance_score)',
                           cascade='all, delete-orphan')
-    education_subjects = db.relationship('CareerSubject', backref='career',
-                                        order_by='desc(CareerSubject.count)',
-                                        cascade='all, delete-orphan')
-    education_institutes = db.relationship('CareerInstitute', backref='career',
-                                          order_by='desc(CareerInstitute.count)',
-                                          cascade='all, delete-orphan')
-    previous_titles = db.relationship('PreviousTitle', backref='career',
-                                     order_by='desc(PreviousTitle.count)',
-                                     cascade='all, delete-orphan')
-    next_titles = db.relationship('NextTitle', backref='career',
-                                 order_by='desc(NextTitle.count)',
-                                 cascade='all, delete-orphan')
+    education_subjects = db.relationship(
+        'CareerSubject', backref='career',
+        order_by='desc(CareerSubject.count)', cascade='all, delete-orphan')
+    education_institutes = db.relationship(
+        'CareerInstitute', backref='career',
+        order_by='desc(CareerInstitute.count)', cascade='all, delete-orphan')
+    previous_titles = db.relationship(
+        'PreviousTitle', backref='career',
+        order_by='desc(PreviousTitle.count)', cascade='all, delete-orphan')
+    next_titles = db.relationship(
+        'NextTitle', backref='career',
+        order_by='desc(NextTitle.count)', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.title
@@ -118,8 +119,8 @@ class Career(db.Model):
 class SectorSkill(db.Model):
     __tablename__ = 'sector_skill'
     id            = db.Column(db.BigInteger, primary_key=True)
-    sector_name    = db.Column(db.Unicode(STR_MAX), nullable=False)
-    skill_name     = db.Column(db.Unicode(STR_MAX), nullable=False)
+    sector_name   = db.Column(db.Unicode(STR_MAX), nullable=False)
+    skill_name    = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
@@ -127,11 +128,11 @@ class SectorSkill(db.Model):
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    skill_name     = db.Column(db.Unicode(STR_MAX), nullable=False)
+    skill_name    = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
@@ -142,11 +143,11 @@ class CareerSkill(db.Model):
 class CareerCompany(db.Model):
     __tablename__ = 'career_company'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    company_name     = db.Column(db.Unicode(STR_MAX), nullable=False)
+    company_name  = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
@@ -157,11 +158,11 @@ class CareerCompany(db.Model):
 class CareerSubject(db.Model):
     __tablename__ = 'career_subject'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    subject_name   = db.Column(db.Unicode(STR_MAX), nullable=False)
+    subject_name  = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
 
@@ -171,7 +172,7 @@ class CareerSubject(db.Model):
 class CareerInstitute(db.Model):
     __tablename__ = 'career_institute'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
@@ -185,7 +186,7 @@ class CareerInstitute(db.Model):
 class PreviousTitle(db.Model):
     __tablename__ = 'previous_title'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
@@ -199,11 +200,11 @@ class PreviousTitle(db.Model):
 class NextTitle(db.Model):
     __tablename__ = 'next_title'
     id            = db.Column(db.BigInteger, primary_key=True)
-    career_id      = db.Column(db.BigInteger,
+    career_id     = db.Column(db.BigInteger,
                               db.ForeignKey('career.id',
                                             onupdate='CASCADE',
                                             ondelete='CASCADE'))
-    next_title = db.Column(db.Unicode(STR_MAX), nullable=False)
+    next_title    = db.Column(db.Unicode(STR_MAX), nullable=False)
     count         = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
 
@@ -302,7 +303,8 @@ class CareerView(ModelView):
 
 class EntityDescriptionView(ModelView):
     column_filters = ['entity_type', 'linkedin_sector', 'entity_name', 'edited']
-    column_exclude_list = ['match_count', 'description_url', 'description_source']
+    column_exclude_list = ['match_count', 'description_url',
+                           'description_source']
     form_widget_args = {'description' : _text_area_style}
 
 class CareerSkillView(ModelView):

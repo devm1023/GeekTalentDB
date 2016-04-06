@@ -95,7 +95,7 @@ def sort_entities(entities, limit=None, min_significance=None):
 
     return newentities
 
-def count_entities(q, mapper, nrm_sector=None, mincount=1):
+def count_entities(q, mapper, nrm_sector=None, mincount=1, limit=None):
     if mapper is None:
         mapper = lambda x: x
     currentprofile = None
@@ -122,11 +122,14 @@ def count_entities(q, mapper, nrm_sector=None, mincount=1):
         lastenddate = enddate
         lastentity = entity
 
+    totalcount = sum(entitycounts.values())
     entitycounts = [(mapper.name(e, nrm_sector=nrm_sector), c) \
                     for e, c in entitycounts.items() \
                     if c >= mincount]
     entitycounts.sort(key=lambda x: -x[-1])
-    return entitycounts
+    if limit is not None and len(entitycounts) > limit:
+        entitycounts = entitycounts[:limit]
+    return totalcount, entitycounts
 
 def get_skill_cloud(andb, mapper, experiencec, nrm_sector, nrm_title,
                   sigma, limit):
@@ -197,10 +200,13 @@ def get_company_cloud(andb, mapper, experiencec, nrm_sector, nrm_title,
         })
     return result
 
-def get_career_steps(andb, mapper, nrm_sector, nrm_title, mincount=1, limit=None):
+def get_career_steps(andb, mapper, nrm_sector, nrm_title, mincount=1,
+                     limit=None):
     nrm_title = mapper(nrm_title, nrm_sector=nrm_sector)
     previous_titles = {}
     next_titles = {}
+    previous_titles_total = 0
+    next_titles_total = 0
     q = andb.query(LIProfile) \
             .join(LIExperience) \
             .filter(LIProfile.nrm_sector == nrm_sector,
@@ -219,10 +225,13 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, mincount=1, limit=None
                 continue
             if i > 0:
                 prev_title = titles[i-1]
-                previous_titles[prev_title] = previous_titles.get(prev_title, 0) + 1
+                previous_titles[prev_title] \
+                    = previous_titles.get(prev_title, 0) + 1
+                previous_titles_total += 1
             if i < len(titles)-1:
                 next_title = titles[i+1]
                 next_titles[next_title] = next_titles.get(next_title, 0) + 1
+                next_titles_total += 1
     previous_titles = [
         {'previous_title' : mapper.name(job, nrm_sector=nrm_sector),
          'count' : count,
@@ -240,7 +249,8 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, mincount=1, limit=None
     if limit is not None and len(next_titles) > limit:
         next_titles = next_titles[:limit]
 
-    return previous_titles, next_titles
+    return previous_titles_total, previous_titles, \
+        next_titles_total, next_titles
 
 def get_subjects(andb, mapper, nrm_sector, profile_ids, mincount=1, limit=None):
     if not profile_ids:
@@ -249,16 +259,14 @@ def get_subjects(andb, mapper, nrm_sector, profile_ids, mincount=1, limit=None):
                    LIEducation.nrm_subject) \
             .filter(LIEducation.liprofile_id.in_(profile_ids)) \
             .order_by(LIEducation.liprofile_id, LIEducation.end)
+    total_subject_count, subject_counts = count_entities(
+        q, mapper, nrm_sector=nrm_sector, mincount=mincount, limit=limit)
     results = []
-    for subject, count in count_entities(q, mapper, nrm_sector=nrm_sector,
-                                        mincount=mincount):
+    for subject, count in subject_counts:
         results.append({'subject_name' : subject.strip(),
                         'count' : count,
                         'visible' : True})
-    results.sort(key=lambda r: -r['count'])
-    if limit is not None and len(results) > limit:
-        results = results[:limit]
-    return results
+    return total_subject_count, results
 
 def get_institutes(andb, mapper, nrm_sector, profile_ids,
                    mincount=1, limit=None):
@@ -268,16 +276,14 @@ def get_institutes(andb, mapper, nrm_sector, profile_ids,
                    LIEducation.nrm_institute) \
             .filter(LIEducation.liprofile_id.in_(profile_ids)) \
             .order_by(LIEducation.liprofile_id, LIEducation.end)
+    total_institute_count, institute_counts = count_entities(
+        q, mapper, nrm_sector=nrm_sector, mincount=mincount, limit=limit)
     results = []
-    for institute, count in count_entities(q, mapper, nrm_sector=nrm_sector,
-                                        mincount=mincount):
+    for institute, count in institute_counts:
         results.append({'institute_name' : institute.strip(),
                         'count' : count,
                         'visible' : True})
-    results.sort(key=lambda r: -r['count'])
-    if limit is not None and len(results) > limit:
-        results = results[:limit]
-    return results
+    return total_institute_count, results
 
 def get_sectors(sectors, filename):
     sectors = list(sectors)
@@ -462,19 +468,19 @@ if __name__ == '__main__':
                             | (LIProfile.nrm_title == nrm_title)) \
                     .distinct()
             profile_ids = [id for id, in q]
-            careerdict['education_subjects'] \
-                = get_subjects(andb, mapper, nrm_sector, profile_ids,
-                              args.min_subject_count, args.max_subjects)
-            careerdict['education_institutes'] \
-                = get_institutes(andb, mapper, nrm_sector, profile_ids,
-                                args.min_institute_count, args.max_institutes)
+            (careerdict['education_subjects_total'],
+             careerdict['education_subjects']) = get_subjects(
+                 andb, mapper, nrm_sector, profile_ids,
+                 args.min_subject_count, args.max_subjects)
+            (careerdict['education_institutes_total'],
+             careerdict['education_institutes']) = get_institutes(
+                 andb, mapper, nrm_sector, profile_ids,
+                 args.min_institute_count, args.max_institutes)
 
-            previous_titles, next_titles \
-                = get_career_steps(andb, mapper, nrm_sector, nrm_title,
-                                 args.min_careerstep_count,
-                                 args.max_careersteps)
-            careerdict['previous_titles'] = previous_titles
-            careerdict['next_titles'] = next_titles
+            (careerdict['previous_titles_total'], careerdict['previous_titles'],
+             careerdict['next_titles_total'], careerdict['next_titles']) \
+             = get_career_steps(andb, mapper, nrm_sector, nrm_title,
+                                args.min_careerstep_count, args.max_careersteps)
 
             cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
             cddb.commit()
