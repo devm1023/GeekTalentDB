@@ -200,7 +200,7 @@ def split_process(query, f, batchsize, njobs=1, args=[],
 
 
 def process_db(q, f, db, batchsize=1000, logger=Logger(None),
-              msg='process_db: {0:d} records processed.\n'):
+               msg='process_db: {0:d} records processed.\n'):
     recordcount = 0
     for rec in q:
         f(rec)
