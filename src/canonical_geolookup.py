@@ -10,8 +10,6 @@ import time
 import argparse
 
 
-SOURCES = ['linkedin', 'indeed']
-
 def process_locations(jobid, fromlocation, tolocation,
                      fromdate, todate, by_indexed_on, source, retry, maxretry):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
@@ -114,60 +112,63 @@ def run(args, maxretry):
 
         q = q1.union(q2)
 
-    split_process(q, process_locations, args.batchsize, njobs=args.jobs,
+    split_process(q, process_locations, args.batch_size, njobs=args.jobs,
                  args=[args.from_date, args.to_date, args.by_index_date,
                        args.source, args.retry, maxretry],
                  logger=logger, workdir='jobs', prefix='canonical_geoupdate')
 
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--jobs', type=int, default=1,
-                    help='Number of parallel jobs.')
-parser.add_argument('--batchsize', type=int, default=1000,
-                    help='Number of rows per batch.')
-parser.add_argument('--from-date', help=
-                    'Only process profiles crawled or indexed on or after\n'
-                    'this date. Format: YYYY-MM-DD',
-                    default='1970-01-01')
-parser.add_argument('--to-date', help=
-                    'Only process profiles crawled or indexed before\n'
-                    'this date. Format: YYYY-MM-DD')
-parser.add_argument('--by-index-date', help=
-                    'Indicates that the dates specified with --fromdate and\n'
-                    '--todate are index dates. Otherwise they are interpreted\n'
-                    'as crawl dates.',
-                    action='store_true')
-parser.add_argument('--from-location', help=
-                    'Start processing from this location name. Useful for\n'
-                    'crash recovery.')
-parser.add_argument('--retry', type=int, help=
-                    'The number of times failed location lookups should be\n'
-                    're-tried. If specified the failed lookups in the\n'
-                    'existing locations table are re-tried. Do not specify if\n'
-                    'you want to add new locations to the table.')
-parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
-                    'Source type to process. If not specified all sources are\n'
-                    'processed.')
-args = parser.parse_args()
-
-if not args.retry:
-    maxretry = 0
-    args.retry = False
-else:
-    maxretry = args.retry
-    args.retry = True
-
-try:
-    args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d')
-    if not args.to_date:
-        args.to_date = datetime.now()
+def main(args):
+    if not args.retry:
+        maxretry = 0
+        args.retry = False
     else:
-        args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d')
-except ValueError:
-    sys.stderr.write('Error: Invalid date.\n')
-    exit(1)
+        maxretry = args.retry
+        args.retry = True
 
-run(args, maxretry)
+    try:
+        args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d')
+        if not args.to_date:
+            args.to_date = datetime.now()
+        else:
+            args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d')
+    except ValueError:
+        sys.stderr.write('Error: Invalid date.\n')
+        exit(1)
+
+    run(args, maxretry)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--batch-size', type=int, default=1000,
+                        help='Number of rows per batch.')
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after '
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before\n'
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate '
+                        'and --todate are index dates. Otherwise they are '
+                        'interpreted as crawl dates.',
+                        action='store_true')
+    parser.add_argument('--from-location', help=
+                        'Start processing from this location name. Useful for '
+                        'crash recovery.')
+    parser.add_argument('--retry', type=int, help=
+                        'The number of times failed location lookups should be '
+                        're-tried. If specified the failed lookups in the '
+                        'existing locations table are re-tried. Do not specify '
+                        'if you want to add new locations to the table.')
+    parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
+                        'Source type to process. If not specified all sources '
+                        'are processed.')
+    args = parser.parse_args()
+    main(args)
 
 

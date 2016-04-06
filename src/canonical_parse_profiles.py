@@ -476,7 +476,9 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_ghprofile, cndb, logger=logger)
 
 
-def parse_profiles(from_ts, to_ts, fromid, source_id, by_indexed_on, skillextractor):
+def parse_profiles(njobs, batchsize,
+                   from_ts, to_ts, fromid, source_id, by_indexed_on,
+                   skillextractor):
     logger = Logger(sys.stdout)
     if source_id is None:
         parse_profiles(from_ts, to_ts, fromid, 'linkedin', by_indexed_on,
@@ -531,45 +533,14 @@ def parse_profiles(from_ts, to_ts, fromid, source_id, by_indexed_on, skillextrac
         query = query.filter(table.id >= fromid)
 
     split_process(query, parsefunc, batchsize,
-                 njobs=njobs, args=[from_ts, to_ts, by_indexed_on, skillextractor],
-                 logger=logger, workdir='jobs', prefix=prefix)
+                  njobs=njobs,
+                  args=[from_ts, to_ts, by_indexed_on, skillextractor],
+                  logger=logger, workdir='jobs', prefix=prefix)
 
 
-if __name__ == '__main__':
-    # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--jobs', type=int, default=1,
-                        help='Number of parallel jobs.')
-    parser.add_argument('--batchsize', type=int, default=1000,
-                        help='Number of rows per batch.')
-    parser.add_argument('--from-date', help=
-                        'Only process profiles crawled or indexed on or after\n'
-                        'this date. Format: YYYY-MM-DD',
-                        default='1970-01-01')
-    parser.add_argument('--to-date', help=
-                        'Only process profiles crawled or indexed before\n'
-                        'this date. Format: YYYY-MM-DD')
-    parser.add_argument('--by-index-date', help=
-                        'Indicates that the dates specified with --fromdate and\n'
-                        '--todate are index dates. Otherwise they are interpreted\n'
-                        'as crawl dates.',
-                        action='store_true')
-    parser.add_argument('--from-id', help=
-                        'Start processing from this datoin ID. Useful for\n'
-                        'crash recovery.')
-    parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
-                                 'github'],
-                        help=
-                        'Source type to process. If not specified all sources are\n'
-                        'processed.')
-    parser.add_argument('--skills', help=
-                        'Name of a CSV file holding skill tags. Only needed when\n'
-                        'processing Indeed CVs.')
-    args = parser.parse_args()
-
+def main(args):
     njobs = max(args.jobs, 1)
-    batchsize = args.batchsize
+    batchsize = args.batch_size
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
         if not args.to_date:
@@ -599,4 +570,40 @@ if __name__ == '__main__':
         skillextractor = PhraseExtractor(skills, tokenize=tokenize)
         del skills
 
-    parse_profiles(from_ts, to_ts, fromid, source_id, by_indexed_on, skillextractor)
+    parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,
+                   by_indexed_on, skillextractor)
+    
+    
+if __name__ == '__main__':
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--batch-size', type=int, default=1000,
+                        help='Number of rows per batch.')
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after '
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before '
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate '
+                        'and --todate are index dates. Otherwise they are '
+                        'interpreted as crawl dates.',
+                        action='store_true')
+    parser.add_argument('--from-id', help=
+                        'Start processing from this datoin ID. Useful for '
+                        'crash recovery.')
+    parser.add_argument('--source',
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
+                                 'github'],
+                        help=
+                        'Source type to process. If not specified all sources '
+                        'are processed.')
+    parser.add_argument('--skills', help=
+                        'Name of a CSV file holding skill tags. Only needed '
+                        'when processing Indeed CVs.')
+    args = parser.parse_args()
+    main(args)

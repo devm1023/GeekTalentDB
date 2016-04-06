@@ -125,15 +125,15 @@ def add_inprofiles(jobid, fromid, toid):
     process_db(q, add_inprofile, andb, logger=logger)
 
 
-def add_profiles(args):
+def main(args):
     logger = Logger(sys.stdout)
     if args.source is None:
         logger.log('Building LinkedIn profiles.\n')
         args.source = 'linkedin'
-        add_profiles(args)
+        main(args)
         logger.log('Building Indeed profiles.\n')
         args.source = 'indeed'
-        add_profiles(args)
+        main(args)
         return
     elif args.source == 'linkedin':
         table = LIProfile
@@ -147,24 +147,24 @@ def add_profiles(args):
     cndb = CanonicalDB(conf.CANONICAL_DB)
 
     q = cndb.query(table.id)
-    if args.fromid is not None:
-        q = q.filter(table.id >= args.fromid)
-    split_process(q, addfunc, args.batchsize,
-                 njobs=args.jobs, logger=logger,
-                 workdir='jobs', prefix='analytics_build_liprofiles')
+    if args.from_id is not None:
+        q = q.filter(table.id >= args.from_id)
+    split_process(q, addfunc, args.batch_size,
+                  njobs=args.jobs, logger=logger,
+                  workdir='jobs', prefix='analytics_build_liprofiles')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--jobs', type=int, default=1,
                         help='The number of parallel jobs.')
-    parser.add_argument('--batchsize', type=int, default=1000,
+    parser.add_argument('--batch-size', type=int, default=1000,
                         help='The number of rows in each parallel batch.')
-    parser.add_argument('--fromid', type=int,
+    parser.add_argument('--from-id', type=int,
                         help='The profile ID to start from.')
     parser.add_argument('--source', choices=['linkedin', 'indeed'],
                         help='The data source to process.')
     args = parser.parse_args()
-    add_profiles(args)
+    main(args)
 
 

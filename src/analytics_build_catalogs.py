@@ -373,34 +373,25 @@ def add_subjects(batchsize, source_id):
     process_db(entities(q), add_subject, andb, batchsize=batchsize, logger=logger)
 
 
-if __name__ == '__main__':
-    allcatalogs = OrderedDict([
-        ('skills'     , add_skills),
-        ('titles'     , add_titles),
-        ('sectors'    , add_sectors),
-        ('companies'  , add_companies),
-        ('locations'  , add_locations),
-        ('institutes' , add_institutes),
-        ('degrees'    , add_degrees),
-        ('subjects'   , add_subjects),
-    ])
-    allsources = ['linkedin', 'indeed']
+allcatalogs = OrderedDict([
+    ('skills'     , add_skills),
+    ('titles'     , add_titles),
+    ('sectors'    , add_sectors),
+    ('companies'  , add_companies),
+    ('locations'  , add_locations),
+    ('institutes' , add_institutes),
+    ('degrees'    , add_degrees),
+    ('subjects'   , add_subjects),
+])
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--catalog', help=
-                        'The catalog to build. If omitted all are built.',
-                        choices=list(allcatalogs.keys()), default=None)
-    parser.add_argument('--source', help=
-                        'The data source to build catalogs from. '
-                        'If omitted all are built.',
-                        choices=allsources, default=None)
-    parser.add_argument('--batchsize', type=int, default=10000, help=
-                        'Number of rows to commit in one batch.')
-    args = parser.parse_args()
+allsources = ['linkedin', 'indeed']
+
+    
+def main(args):
     catalogs = list(allcatalogs.keys()) if args.catalog is None \
                else [args.catalog]
     sources = allsources if args.source is None else [args.source]
-    batchsize = args.batchsize
+    batchsize = args.batch_size
 
     logger = Logger(sys.stdout)
 
@@ -413,3 +404,18 @@ if __name__ == '__main__':
             for source in sources:
                 logger.log('Processing {0:s} data.\n'.format(source))
                 addfunc(batchsize, source)
+    
+    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--catalog', help=
+                        'The catalog to build. If omitted all are built.',
+                        choices=list(allcatalogs.keys()), default=None)
+    parser.add_argument('--source', help=
+                        'The data source to build catalogs from. '
+                        'If omitted all are built.',
+                        choices=allsources, default=None)
+    parser.add_argument('--batchsize', type=int, default=1000, help=
+                        'Number of rows to commit in one batch.')
+    args = parser.parse_args()
+    main(args)

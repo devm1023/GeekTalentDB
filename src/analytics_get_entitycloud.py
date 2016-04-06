@@ -1,7 +1,7 @@
 import conf
 from analyticsdb import *
-from textnormalization import normalizedTitle, normalizedCompany, \
-    normalizedSkill
+from textnormalization import normalized_title, normalized_company, \
+    normalized_skill
 from sqlalchemy import func, or_
 from sqlalchemy.orm import aliased
 import sys
@@ -29,7 +29,7 @@ def _score(totalcount, categorycount, entitycount, coincidencecount):
     var = f1*(1-f1)/n1 + f2*(1-f2)/n2
     return score, sqrt(var)
 
-def relevanceScores(totalcount, categorycount, entitiesq, coincidenceq,
+def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
                     mincount=1, entitymap=None):
     """Extract and score relevant entities for a given category.
 
@@ -93,52 +93,53 @@ def relevanceScores(totalcount, categorycount, entitiesq, coincidenceq,
                                     count)
                 yield (entity, entitycount, count, score, err)
 
-def getSkillCloud(entitytype, categorytype, query,
-                  entityThreshold=1, categoryThreshold=1, countThreshold=1,
-                  exact=False):
+def get_skill_cloud(entitytype, categorytype, query,
+                    entity_threshold=1, category_threshold=1, count_threshold=1,
+                    exact=False):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger(sys.stdout)
 
     totalcount = andb.query(LIExperience.id).count()
-    categories = andb.findEntities(categorytype, 'linkedin', 'en', query,
-                                   minSubDocumentCount=categoryThreshold,
+    print(totalcount)
+    categories = andb.find_entities(categorytype, 'linkedin', 'en', query,
+                                   min_sub_document_count=category_threshold,
                                    exact=exact)
-    categories = [(nrmName, name, sdc) for nrmName, name, pc, sdc in categories]
+    categories = [(nrm_name, name, sdc) for nrm_name, name, pc, sdc in categories]
     categories.sort(key=lambda x: x[-1])
     categorycount = sum(c[-1] for c in categories)
-    categorynames = [nrmName for nrmName, name, count in categories]
-    
+    categorynames = [nrm_name for nrm_name, name, count in categories]
+
     entitiesq = lambda keys: \
-                andb.query(Entity.nrmName,
+                andb.query(Entity.nrm_name,
                            Entity.name,
-                           Entity.subDocumentCount) \
-                    .filter(Entity.nrmName.in_(keys),
-                            Entity.subDocumentCount >= entityThreshold)
-    
+                           Entity.sub_document_count) \
+                    .filter(Entity.nrm_name.in_(keys),
+                            Entity.sub_document_count >= entity_threshold)
+
     countcol = func.count().label('counts')
     if categorytype == 'title':
         if entitytype == 'skill':
-            q = andb.query(LIExperienceSkill.nrmSkill, countcol) \
+            q = andb.query(LIExperienceSkill.nrm_skill, countcol) \
                     .join(LIExperience) \
-                    .filter(LIExperience.nrmTitle.in_(categorynames))
+                    .filter(LIExperience.nrm_title.in_(categorynames))
         else:
             raise ValueError('Unsupported entity type `{0:s}`.' \
                              .format(entitytype))
     elif categorytype == 'company':
         if entitytype == 'skill':
-            q = andb.query(LIExperienceSkill.nrmSkill, countcol) \
+            q = andb.query(LIExperienceSkill.nrm_skill, countcol) \
                     .join(LIExperience) \
-                    .filter(LIExperience.nrmCompany.in_(categorynames))       
+                    .filter(LIExperience.nrm_company.in_(categorynames))
         else:
             raise ValueError('Unsupported entity type `{0:s}`.' \
                              .format(entitytype))
     elif categorytype == 'skill':
         if entitytype == 'skill':
             LIExperienceSkill2 = aliased(LIExperienceSkill)
-            q = andb.query(LIExperienceSkill.nrmSkill, countcol) \
-                    .filter(LIExperienceSkill.liexperienceId \
-                            == LIExperienceSkill2.liexperienceId,
-                            LIExperienceSkill2.nrmSkill.in_(categorynames))
+            q = andb.query(LIExperienceSkill.nrm_skill, countcol) \
+                    .filter(LIExperienceSkill.liexperience_id \
+                            == LIExperienceSkill2.liexperience_id,
+                            LIExperienceSkill2.nrm_skill.in_(categorynames))
         else:
             raise ValueError('Unsupported entity type `{0:s}`.' \
                              .format(entitytype))
@@ -146,8 +147,8 @@ def getSkillCloud(entitytype, categorytype, query,
         raise ValueError('Unsupported category type `{0:s}`.' \
                          .format(categorytype))
 
-    entities = list(relevanceScores(totalcount, categorycount, entitiesq, q,
-                                    mincount=countThreshold))
+    entities = list(relevance_scores(totalcount, categorycount, entitiesq, q,
+                                    mincount=count_threshold))
     entities.sort(key=lambda x: x[-2])
 
     return totalcount, categorycount, categories, entities
@@ -170,27 +171,27 @@ if __name__ == '__main__':
     parser.add_argument('--count-threshold', type=int, default=1,
                         help='The minimal coincidence count for an entity '
                         'to be inlcuded')
-    parser.add_argument('--exact', action='store_true', 
+    parser.add_argument('--exact', action='store_true',
                         help='Require an exact match for the category')
     args = parser.parse_args()
 
     totalcount, categorycount, categories, entites \
-        = getSkillCloud(args.entitytype, args.categorytype, args.query,
-                        categoryThreshold=args.category_threshold,
-                        entityThreshold=args.entity_threshold,
-                        countThreshold=args.count_threshold,
-                        exact=args.exact)
+        = get_skill_cloud(args.entitytype, args.categorytype, args.query,
+                          category_threshold=args.category_threshold,
+                          entity_threshold=args.entity_threshold,
+                          count_threshold=args.count_threshold,
+                          exact=args.exact)
 
     print('MATCHING CATEGORIES')
-    for nrmName, name, count in categories:
+    for nrm_name, name, count in categories:
         print('{0: <60.60s} {1: >7d}'.format(name, count))
-    print('\nENTITIES')
-    for nrmName, name, entitycount, count, score, err in entites:
+    print('\nEntities')
+    for nrm_name, name, entitycount, count, score, err in entites:
         if err >= 5e-4:
             print('{0: <60.60s} {1: >6.1f}% +/- {2: >5.1f}%' \
                   .format(name, score*100, err*100))
         else:
             print('{0: <60.60s} {1: >6.1f}%'.format(name, score*100))
-    print('\nCATEGORY COUNT: {0: >7d}'.format(categorycount))
+    print('\nCategory count: {0: >7d}'.format(categorycount))
     print('TOTAL COUNT:    {0: >7d}'.format(totalcount))
 

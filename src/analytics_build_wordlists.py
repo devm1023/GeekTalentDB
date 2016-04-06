@@ -33,18 +33,9 @@ def add_words(jobid, fromentity, toentity):
     process_db(q, add_entity, andb, logger=logger)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--jobs', type=int, default=1,
-                        help='The number of parallel jobs.')
-    parser.add_argument('--batchsize', type=int, default=1000,
-                        help='The number of rows in each parallel batch.')
-    parser.add_argument('--from-entity', default=None, help=
-                        'The entity to start from. Useful for crash recovery.')
-    args = parser.parse_args()
-
+def main(args):
     njobs = args.jobs
-    batchsize = args.batchsize
+    batchsize = args.batch_size
     startval = args.from_entity
 
     andb = AnalyticsDB(conf.ANALYTICS_DB)
@@ -56,3 +47,16 @@ if __name__ == '__main__':
     split_process(q, add_words, batchsize,
                  njobs=njobs, logger=logger,
                  workdir='jobs', prefix='build_wordlists')
+    
+    
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='The number of parallel jobs.')
+    parser.add_argument('--batch-size', type=int, default=1000,
+                        help='The number of rows in each parallel batch.')
+    parser.add_argument('--from-entity', default=None, help=
+                        'The entity to start from. Useful for crash recovery.')
+    args = parser.parse_args()
+    main(args)
+

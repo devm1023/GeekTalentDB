@@ -20,12 +20,12 @@ if __name__ == '__main__':
     parser.add_argument('query',
                         help='The search term.')
     args = parser.parse_args()
-    
+
     andb = AnalyticsDB(conf.ANALYTICS_DB)
-    entities = andb.findEntities(args.type,
+    entities = andb.find_entities(args.type,
                                  args.source,
                                  args.language,
                                  args.query)
-    for nrmName, name, profileCount, subDocumentCount in reversed(entities):
+    for nrm_name, name, profile_count, sub_document_count in reversed(entities):
         print('{0:s} ({1:d} profiles, {2:d} sub-documents)' \
-              .format(name, profileCount, subDocumentCount))
+              .format(name, profile_count, sub_document_count))

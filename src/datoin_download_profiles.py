@@ -9,6 +9,9 @@ from parallelize import ParallelFunction
 import itertools
 import argparse
 
+
+timestamp0 = datetime(year=1970, month=1, day=1)
+
 class FieldError(Exception):
     pass
 
@@ -116,7 +119,7 @@ def add_liprofile(dtdb, liprofiledoc, dtsession, logger):
         liprofile['experiences'] = []
         liprofile['educations']  = []
         liprofile['groups']      = []
-        for subdocument in liprofiledoc.get('sub_documents', []):
+        for subdocument in liprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
@@ -206,7 +209,7 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
         inprofile['experiences']    = []
         inprofile['educations']     = []
         inprofile['certifications'] = []
-        for subdocument in inprofiledoc.get('sub_documents', []):
+        for subdocument in inprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
@@ -297,7 +300,7 @@ def add_uwprofile(dtdb, uwprofiledoc, dtsession, logger):
         uwprofile['experiences']    = []
         uwprofile['educations']     = []
         uwprofile['tests']          = []
-        for subdocument in uwprofiledoc.get('sub_documents', []):
+        for subdocument in uwprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type',
                        ['profile-experience',
                         'profile-education',
@@ -392,7 +395,7 @@ def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
         muprofile['events']     = []
         muprofile['comments']   = []
         muprofile['links']      = []
-        for subdocument in muprofiledoc.get('sub_documents', []):
+        for subdocument in muprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type',
                        ['member-group', 'group', 'event', 'comment'])
             if subdocument['type'] in ['member-group', 'group']:
@@ -535,7 +538,7 @@ def add_ghprofile(dtdb, ghprofiledoc, dtsession, logger):
 
         ghprofile['repositories']     = []
         ghprofile['links']            = []
-        for subdocument in ghprofiledoc.get('sub_documents', []):
+        for subdocument in ghprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type', ['repository'])
             if subdocument['type'] == 'repository':
                 repository = {}
@@ -717,35 +720,7 @@ def download_range(tfrom, tto, njobs, maxprofiles, by_indexed_on, source_id):
     return count
 
 
-if __name__ == '__main__':
-    # parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--jobs', default=1, type=int,
-                        help='Number of parallel jobs.')
-    parser.add_argument('--step-size', default=1, type=int,
-                        help='Time increment in days.')
-    parser.add_argument('--from-date', help=
-                        'Only process profiles crawled or indexed on or after\n'
-                        'this date. Format: YYYY-MM-DD',
-                        default='1970-01-01')
-    parser.add_argument('--to-date', help=
-                        'Only process profiles crawled or indexed before\n'
-                        'this date. Format: YYYY-MM-DD')
-    parser.add_argument('--by-index-date', help=
-                        'Indicates that the dates specified with --fromdate and\n'
-                        '--todate are index dates. Otherwise they are interpreted\n'
-                        'as crawl dates.',
-                        action='store_true')
-    parser.add_argument('--max-profiles', type=int,
-                        help='Maximum number of profiles to download')
-    parser.add_argument('--source',
-                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
-                                 'github'],
-                        help=
-                        'Source type to process. If not specified all sources are\n'
-                        'processed.')
-    args = parser.parse_args()
-
+def main(args):
     njobs = max(args.jobs, 1)
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
@@ -759,11 +734,9 @@ if __name__ == '__main__':
     by_indexed_on = bool(args.by_index_date)
     maxprofiles = args.max_profiles
     source_id = args.source
-    step_size = args.step_size
+    time_increment = args.time_increment
 
-    timestamp0 = datetime(year=1970, month=1, day=1)
-
-    deltat = timedelta(days=step_size)
+    deltat = timedelta(days=time_increment)
     profilecount = 0
     t = fromdate
     if maxprofiles is None:
@@ -779,4 +752,34 @@ if __name__ == '__main__':
                                  maxprofiles-profilecount, by_indexed_on,
                                  source_id)
             t += deltat
+    
 
+if __name__ == '__main__':
+    # parse arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--jobs', default=1, type=int,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--time-increment', default=1, type=int,
+                        help='Time increment in days.')
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after '
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before\n'
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate '
+                        'and --todate are index dates. Otherwise they are '
+                        'interpreted as crawl dates.',
+                        action='store_true')
+    parser.add_argument('--max-profiles', type=int,
+                        help='Maximum number of profiles to download')
+    parser.add_argument('--source',
+                        choices=['linkedin', 'indeed', 'upwork', 'meetup',
+                                 'github'],
+                        help=
+                        'Source type to process. If not specified all sources '
+                        'are processed.')
+    args = parser.parse_args()
+    main(args)
