@@ -163,7 +163,7 @@ def add_liprofile(dtdb, liprofiledoc, dtsession, logger):
 
             elif subdocument['type'] == 'profile-group':
                 group = {}
-                for name, fieldtype, required in \
+                for name, fieldname, fieldtype, required in \
                     [('name',      'name',      str,   True),
                      ('url',       'url',       'url', False),
                     ]:
