@@ -300,12 +300,12 @@ class Histogram2D:
         if x < self.xbins[0] or x > self.xbins[-1]:
             raise KeyError('Invalid x-key `'+repr(x)+'`.')
         return max(bisect.bisect_left(self.xbins, x) - 1, 0)
-        
+
     def _getybin(self, y):
         if y < self.ybins[0] or y > self.ybins[-1]:
             raise KeyError('Invalid y-key `'+repr(y)+'`.')
         return max(bisect.bisect_left(self.ybins, y) - 1, 0)
-    
+
     def _getbin(self, x, y):
         return self._getybin(y), self._getxbin(x)
 
@@ -324,7 +324,7 @@ class Histogram2D:
         """
         x, y = xy
         return self.data[self._getbin(x, y)]
-        
+
     def __setitem__(self, xy, val):
         """Set the data value of a specific bin
 
@@ -351,7 +351,7 @@ class Histogram2D:
 
         """
         py, px = self._getbin(x, y)
-        return (self.xvals[px], self.yvals[py])        
+        return (self.xvals[px], self.yvals[py])
 
     def lb(self, x, y):
         """Return the lower left corner of the bin to which (x,y) belongs.
@@ -366,7 +366,7 @@ class Histogram2D:
         """
         py, px = self._getbin(x, y)
         return (self.xbins[px+1], self.ybins[py+1])
-        
+
     def __iter__(self):
         """Iterate over the bin centres.
 
@@ -378,14 +378,14 @@ class Histogram2D:
         for y in self.yvals:
             for x in self.xvals:
                 yield (x, y)
-    
+
     def iteritems(self):
         """Iterate over all elements of the histogram.
 
         Yields:
           tuple: ``((x, y), v)`` where ``(x, y)`` is the bin center and `v` the
             value associated with that bin.
-        
+
         """
         for iy, y in enumerate(self.yvals):
             for ix, x in enumerate(self.xvals):
@@ -416,7 +416,7 @@ class Histogram2D:
             if v is not None:
                 result = v if result is None else min(v, result)
         return result
-        
+
     def sum(self):
         """Return the sum of all data members in the histogram.
 
@@ -428,8 +428,8 @@ class Histogram2D:
         for x, y, v in self.iteritems():
             if v is not None:
                 result = v if result is None else v + result
-        return result    
-        
+        return result
+
     def set(self, h):
         """Set all data values of the histogram.
 
@@ -505,7 +505,7 @@ class Histogram2D:
                                       xbins=self.xbins,
                                       data=self.data[i,:]))
         return slices
-        
+
     def yslice(self, x):
         py = self._getybin(y)
         return Histogram1D(xvals=self.xvals,
@@ -601,7 +601,7 @@ class Histogram2D:
         if axes is None:
             axes = plt.gca()
         return axes.set_ylim((self.ybins[0], self.ybins[-1]))
-    
+
     def __iadd__(self, h):
         if isinstance(h, Histogram2D):
             if not (numpy.array_equal(h.xbins, self.xbins) and \
@@ -806,7 +806,7 @@ class Histogram1D:
 
         """
         return self.data[self._getbin(x)]
-        
+
     def __setitem__(self, x, val):
         """Set the data value of a specific bin
 
@@ -844,7 +844,7 @@ class Histogram1D:
 
         """
         return self.xbins[self._getbin(x)+1]
-        
+
     def __iter__(self):
         """Iterate over the bin centres.
 
@@ -854,14 +854,14 @@ class Histogram1D:
         """
         for x in self.xvals:
             yield x
-    
+
     def iteritems(self):
         """Iterate over all elements of the histogram.
 
         Yields:
           tuple: ``(x, v)`` where `x` is the bin center and `v` the value
             associated with that bin.
-        
+
         """
         for ix, x in enumerate(self.xvals):
             yield (x, self.data[ix])
@@ -903,8 +903,8 @@ class Histogram1D:
         for x, v in self.iteritems():
             if v is not None:
                 result = v if result is None else v + result
-        return result    
-        
+        return result
+
     def set(self, h):
         """Set all data values of the histogram.
 
@@ -1162,7 +1162,7 @@ class Histogram1D:
         return result
 
 
-def cumulatedHistogram(h, upper=False, const=None):
+def cumulated_histogram(h, upper=False, const=None):
     """Compute the cumulated distribution.
 
     Args:
@@ -1176,10 +1176,10 @@ def cumulatedHistogram(h, upper=False, const=None):
       Histogram1D: The cumulated histogram.
 
     Note:
-      If ``hc = cumulated(h, upper=False, const=c)`` then 
+      If ``hc = cumulated(h, upper=False, const=c)`` then
       ``hc.data[i] = sum(h.data[:i+1]) + c`` for all `i` in
       ``range(len(h.data))``.
-      If ``hc = cumulated(h, upper=True, const=c)`` then 
+      If ``hc = cumulated(h, upper=True, const=c)`` then
       ``hc.data[i] = sum(h.data[i:]) + c`` for all `i` in ``range(len(h.data))``.
 
     """
@@ -1204,7 +1204,7 @@ def cumulatedHistogram(h, upper=False, const=None):
             result.data[i] = h.data[i] + result.data[i-1]
     return result
 
-def densityHistogram(h):
+def density_histogram(h):
     """Divide all bin values by the bin width (Histogram1D) or bin area
     (Histogram2D).
 
@@ -1254,8 +1254,8 @@ class SplitHistogram1D:
 
     Note:
       This class is typically used for parallelisation together with
-      :py:class:`~myFitter.ParallelFunction` and
-      :py:meth:`Profiler1D.scan() <myFitter.Profiler1D.scan>`::
+      :py:class:`~my_fitter.ParallelFunction` and
+      :py:meth:`Profiler1D.scan() <my_fitter.Profiler1D.scan>`::
 
         profiler = Profiler1D(...)
         hist = Histogram1D(...)
@@ -1296,9 +1296,9 @@ class SplitHistogram1D:
 
         Returns:
           int: The index of the sub-histogram (in
-            :py:attr:`~myFitter.SplitHistogram1D.subhists`) containing the
+            :py:attr:`~my_fitter.SplitHistogram1D.subhists`) containing the
             x-value `x`.
-            
+
         """
         if x < self._xbounds[0] or x > self._xbounds[-1]:
             raise KeyError('Invalid key `'+repr(x)+'`.')
@@ -1315,7 +1315,7 @@ class SplitHistogram1D:
 
         Returns:
           Histogram1D: The sub-histogram containing the x-value `x`.
-            
+
         """
         return self.subhists[self.find(x)]
 
@@ -1353,7 +1353,7 @@ class SplitHistogram1D:
                 xvals[i] = xval
                 xbins[i+1] = xbin
                 data[i] = v
-                i = i + 1                
+                i = i + 1
         return Histogram1D(xvals=xvals, xbins=xbins, data=data)
 
 
@@ -1362,8 +1362,8 @@ class SplitHistogram2D:
 
     Note:
       This class is typically used for parallelisation together with
-      :py:class:`~myFitter.ParallelFunction` and
-      :py:meth:`Profiler2D.scan() <myFitter.Profiler2D.scan>`::
+      :py:class:`~my_fitter.ParallelFunction` and
+      :py:meth:`Profiler2D.scan() <my_fitter.Profiler2D.scan>`::
 
         profiler = Profiler2D(...)
         hist = Histogram2D(...)
@@ -1418,9 +1418,9 @@ class SplitHistogram2D:
 
         Returns:
           int: The index of the sub-histogram (in
-            :py:attr:`~myFitter.SplitHistogram1D.subhists`) containing the
+            :py:attr:`~my_fitter.SplitHistogram1D.subhists`) containing the
             point ``(x, y)``.
-            
+
         """
         if x < self._xbounds[0] or x > self._xbounds[-1]:
             raise KeyError('Invalid key `'+repr(x)+'`.')
@@ -1442,7 +1442,7 @@ class SplitHistogram2D:
 
         Returns:
           Histogram2D: The sub-histogram containing the point ``(x, y)``.
-            
+
         """
         return self.subhists[self.find(x, y)]
 
@@ -1526,7 +1526,7 @@ class HistoMatrix:
         bins = [args[i] for i in range(1, len(args), 2)]
         if not all(hasattr(b, '__iter__') for b in bins):
             raise ValueError('Bin specs must be iterable.')
-        
+
         self._histos = {}
         for xname, xbins in zip(self._varnames, bins):
             for yname, ybins in zip(self._varnames, bins):
@@ -1598,4 +1598,4 @@ class HistoMatrix:
             axes[n-1, i].set_xlabel(varname)
             if i > 0:
                 axes[i, 0].set_ylabel(varname)
-            
+
