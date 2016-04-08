@@ -959,11 +959,10 @@ class Histogram1D:
             for p, v in numpy.ndenumerate(self.data):
                 self.data[p] = max(v, h) if v is not None else h
 
-    def plot(self, *args, **kwargs):
+    def plot(self, **kwargs):
         """Plot the histogram with matplotlib.
 
         Args:
-          *args: all positional arguments are passed to matplotlib.axes.Axes.plot
           axes (matplotlib.axes.Axes or None, optional): Axes object to plot to.
             Uses ``matplotlib.pyplot.gca()`` if ``None``. Defaults to ``None``.
           convert (callable or None, optional): function that converts the
@@ -972,87 +971,66 @@ class Histogram1D:
           xconvert (callable or None, optional): function that converts the
             x-values. Defaults to ``None``, in which case no conversion is
             performed.
+          drawstyle (str, optional): ``'default'`` or ``'steps'``. Defaults to
+            ``'steps'``.
+          facecolor (str or None, optional): If not ``None``, the area between
+            the graph and the x-axis will be filled with `facecolor`. Defaults
+            to ``None``.
+          errorbars (bool, optional): If ``True``, error bars will be shown. In
+            this case the data values of the histogram must be ``GVar`` objects.
+          offset (float, optional): The fraction of the bin width by which the
+            error bars are shifted. Defaults to 0.
           **kwargs: all other keyword arguments are passed to
-            ``matplotlib.axes.Axes.plot``.
+            ``matplotlib.axes.Axes.hist``.
 
         """
-        axes = kwargs.get('axes', None)
-        convert = kwargs.get('convert', None)
-        xconvert = kwargs.get('xconvert', None)
+        if len(self.data) == 0:
+            return
+        axes = kwargs.pop('axes', None)
+        convert = kwargs.pop('convert', None)
+        xconvert = kwargs.pop('xconvert', None)
+        errorbars = kwargs.pop('errorbars', False)
+        drawstyle = kwargs.pop('drawstyle', 'steps')
+        facecolor = kwargs.pop('facecolor', None)
+        offset = kwargs.pop('offset', 0)
         if axes is None:
             axes = plt.gca()
         if convert is None:
-            convert = lambda x: x.mean if \
-                      hasattr(x, 'mean') and hasattr(x, 'sdev') else x
-        if len(self.data) == 0:
-            return
-        dat = [(convert(d) if d is not None else None) for d in self.data]
-        if kwargs.get('drawstyle', None) == 'steps':
-            dat = [dat[0]]+dat
-            xvals = self.xbins
+            convert = lambda x: x
+        if xconvert is not None:
+            xvals = list(map(xconvert, self.xvals))
+            xbins = list(map(xconvert, self.xbins))
         else:
             xvals = self.xvals
-        kwargs.pop('axes', None)
-        kwargs.pop('convert', None)
-        kwargs.pop('xconvert', None)
-        if xconvert is not None:
-            xvals = list(map(xconvert, xvals))
-        return axes.plot(xvals, dat, *args, **kwargs)
+            xbins = self.xbins
+        data = [(GVar(convert(d)) if d is not None else None) \
+                for d in self.data]
+        
+        xx = xvals
+        yy = [(d.mean if d is not None else None) for d in data]
+        if drawstyle == 'steps':
+            xx = numpy.repeat(xbins, 2)[1:-1]
+            yy = numpy.repeat(yy, 2)
+        if facecolor is not None:
+            axes.fill_between(xx, yy, 0, facecolor=facecolor)
+        plot, = axes.plot(xx, yy, **kwargs)
 
-    def errorbar(self, *args, **kwargs):
-        """Plot errorbars with matplotlib.
+        if errorbars:
+            xx = []
+            yerr = []
+            yy = []
+            for lb, x, ub, d in zip(xbins[:-1], xvals, xbins[1:], data):
+                if d is not None:
+                    if offset < 0:
+                        xx.append(x + (x-lb)*offset)
+                    else:
+                        xx.append(x + (ub-x)*offset)
+                    yy.append(d.mean)
+                    yerr.append(d.sdev)
+            axes.errorbar(xx, yy, yerr=yerr, ecolor=plot.get_color(),
+                          elinewidth=plot.get_linewidth(), fmt='none')
 
-        Args:
-          *args: all positional arguments are passed to
-            ``matplotlib.axes.Axes.errorbars``
-          axes (matplotlib.axes.Axes or None, optional): Axes object to plot to.
-            Uses ``matplotlib.pyplot.gca()`` if ``None``. Defaults to ``None``.
-          convert (callable or None, optional): function that converts the
-            elements of ``self.data`` to ``GVar`` objects. If ``None``, the
-            elements of ``self.data`` must be be convertible by the ``GVar``
-            constructor.
-          **kwargs: all other keyword arguments are passed to
-            ``matplotlib.axes.Axes.errorbars``.
-
-        """
-        axes = kwargs.get('axes', None)
-        convert = kwargs.get('convert', None)
-        if axes is None:
-            axes = plt.gca()
-        if convert is None:
-            convert = lambda x: GVar(x)
-        if len(self.data) == 0:
-            return
-        means = []
-        allmeans = []
-        sdevs = []
-        xvals = []
-        offset = kwargs.pop('offset', 0)
-        for lb, x, ub, d in zip(self.xbins[:-1], self.xvals, self.xbins[1:],
-                                self.data):
-            if d is not None:
-                gd = convert(d)
-                if offset < 0:
-                    xvals.append(x + (x-lb)*offset)
-                else:
-                    xvals.append(x + (ub-x)*offset)
-                means.append(gd.mean)
-                allmeans.append(gd.mean)
-                sdevs.append(gd.sdev)
-            else:
-                allmeans.append(None)
-        kwargs.pop('axes', None)
-        kwargs.pop('convert', None)
-        if kwargs.get('drawstyle', None) == 'steps':
-            p, = axes.plot(self.xbins, [allmeans[0]]+allmeans, *args, **kwargs)
-        else:
-            p, = axes.plot(self.xvals, allmeans, *args, **kwargs)
-        kwargs.pop('label', None)
-        kwargs['ecolor'] = p.get_color()
-        kwargs['elinewidth'] = p.get_linewidth()
-        kwargs['fmt'] = 'none'
-        kwargs['yerr'] = sdevs
-        return axes.errorbar(xvals, means, *args, **kwargs)
+        return (plot,)
 
     def setxlim(self, axes=None):
         """Set x limits of the current plot.
