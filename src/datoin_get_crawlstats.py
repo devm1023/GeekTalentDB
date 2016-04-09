@@ -5,10 +5,13 @@ from histograms import Histogram1D, cumulated_histogram
 import sys
 import pickle
 import argparse
+from logger import Logger
 
+
+logger = Logger()
 timestamp0 = datetime(year=1970, month=1, day=1)
-
 dtdb = DatoinDB(conf.DATOIN_DB)
+
 
 def days(dt):
     return dt.total_seconds()/(24*60*60)
@@ -69,6 +72,9 @@ def make_linkedin_histograms(datebins, results):
             .filter(LIProfile.crawled_date != None,
                     LIProfile.crawled_date >= from_ts,
                     LIProfile.crawled_date < to_ts)
+    totalcount = q.count()
+    logger.log('Scanning {0:d} profiles.\n'.format(totalcount))
+    profilecount = 0
     for liprofile in q:
         indexed_on = to_timedelta(liprofile.indexed_on, from_date)
         crawled_on = to_timedelta(liprofile.crawled_date, from_date)
@@ -110,6 +116,12 @@ def make_linkedin_histograms(datebins, results):
             title_hist[crawled_on] += 1
         if liprofile.description is not None:
             description_hist[crawled_on] += 1
+
+        profilecount += 1
+        if profilecount % 1000 == 0:
+            logger.log('{0:d} of {1:d} profiles processed ({2:3.0f}%)\n' \
+                       .format(profilecount, totalcount,
+                               profilecount/totalcount*100))
 
     results['linkedin'] = {
         'crawled_before' : crawled_before,
