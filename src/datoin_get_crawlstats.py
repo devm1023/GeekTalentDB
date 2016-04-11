@@ -51,14 +51,28 @@ def make_linkedin_histograms(datebins, results):
     description_hist = Histogram1D(xbins=datebins, init=0)
     
 
+    logger.log('Computing total counts.\n')
     indexed_before = dtdb.query(LIProfile.id) \
                          .filter(LIProfile.crawled_date != None,
                                  LIProfile.indexed_on < from_ts) \
                          .count()
-    crawled_before = dtdb.query(LIProfile.id) \
-                         .filter(LIProfile.crawled_date != None,
-                                 LIProfile.crawled_date < from_ts) \
-                         .count()
+    newcrawl_before = dtdb.query(LIProfile.id) \
+                          .filter(LIProfile.crawled_date != None,
+                                  LIProfile.crawled_date < from_ts,
+                                  LIProfile.crawl_number == 0) \
+                          .count()
+    recrawl_before = dtdb.query(LIProfile.id) \
+                          .filter(LIProfile.crawled_date != None,
+                                  LIProfile.crawled_date < from_ts,
+                                  LIProfile.crawl_number > 0,
+                                  LIProfile.crawl_fail_count == 0) \
+                          .count()
+    failedcrawl_before = dtdb.query(LIProfile.id) \
+                             .filter(LIProfile.crawled_date != None,
+                                     LIProfile.crawled_date < from_ts,
+                                     LIProfile.crawl_number > 0,
+                                     LIProfile.crawl_fail_count > 0) \
+                             .count()
 
     q = dtdb.query(LIProfile.indexed_on) \
             .filter(LIProfile.crawled_date != None,
@@ -124,8 +138,10 @@ def make_linkedin_histograms(datebins, results):
                                profilecount/totalcount*100))
 
     results['linkedin'] = {
-        'crawled_before' : crawled_before,
         'indexed_before' : indexed_before,
+        'newcrawl_before' : newcrawl_before,
+        'recrawl_before' : recrawl_before,
+        'failedcrawl_before' : failedcrawl_before,
         'indexed_on'     : index_hist,
         'newcrawl'       : newcrawl_hist,
         'recrawl'        : recrawl_hist,

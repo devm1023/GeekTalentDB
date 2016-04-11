@@ -48,11 +48,11 @@ def make_linkedin_plots(obj, pdf):
     index_hist = cumulated_histogram(
         lidata['indexed_on'], const=lidata['indexed_before'])
     newcrawl_hist = cumulated_histogram(
-        lidata['newcrawl'], const=lidata['crawled_before'])
+        lidata['newcrawl'], const=lidata['newcrawl_before'])
     recrawl_hist = cumulated_histogram(
-        lidata['recrawl'], const=lidata['crawled_before'])
+        lidata['recrawl'], const=lidata['recrawl_before'])
     failedcrawl_hist = cumulated_histogram(
-        lidata['failedcrawl'], const=lidata['crawled_before'])
+        lidata['failedcrawl'], const=lidata['failedcrawl_before'])
     delay_hist = lidata['delay']
 
     (newcrawl_hist + recrawl_hist + failedcrawl_hist) \
