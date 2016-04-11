@@ -17,23 +17,29 @@ def get_averages(iterable):
         x2 = elem[1]
         n = sum(elem[2:])
         if n == 0:
-            results.append(GVar(0))
+            results.append(None)
             continue
         elif n == 1:
-            results.append(GVar(x, x))
+            results.append(GVar(x, 0))
             continue
 
         mean = x/n
         var = max(x2/(n-1) - (n+1)/(n-1)*mean**2, 0)
         results.append(GVar(mean, sqrt(var/n)))
     return results
-        
+
+def toplegend(top=1, ncol=1, pad=0.02):
+    plt.subplots_adjust(top=top)
+    plt.legend(ncol=ncol, loc='lower left', mode='expand',
+               bbox_to_anchor=(0, 1+pad, 1, 1),
+               frameon=True,
+               borderaxespad=0)
+
 
 def make_linkedin_plots(obj, pdf):
     def savefig(xlabel, ylabel, rotate=False):
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
-        plt.legend(loc='lower right')
         if rotate:
             plt.xticks(rotation=20)
             plt.subplots_adjust(bottom=0.15)
@@ -69,32 +75,68 @@ def make_linkedin_plots(obj, pdf):
               label='new')
     index_hist.plot(xconvert=lambda x: from_date + x, color='k',
                    label='indexed')
+    plt.legend(loc='lower right')
     savefig('date', 'LinkedIn profiles', rotate=True)
 
     delay_hist.plot(drawstyle='steps')
-    savefig('delay [days]', 'LinkedIn profiles')
+    savefig('delay [days]', 'LinkedIn profiles', rotate=True)
 
-    for xname, x2name, ylabel in \
-        [('nexp', 'nexp2', 'Average number of experiences'),
-         ('nedu', 'nedu2', 'Average number of educations'),
-         ('ncat', 'ncat2', 'Average number of skills'),
-         ('url', 'url', 'Fraction of profiles with URL'),
-         ('picture_url', 'picture_url', 'Fraction of profiles with picture'),
-         ('name', 'name', 'Fraction of profiles with name'),
-         ('first_name', 'first_name', 'Fraction of profiles with first name'),
-         ('last_name', 'last_name', 'Fraction of profiles with last name'),
-         ('city', 'city', 'Fraction of profiles with city'),
-         ('country', 'country', 'Fraction of profiles with country'),
-         ('title', 'title', 'Fraction of profiles with title'),
-         ('description', 'description',
-          'Fraction of profiles with description'),
-        ]:
+    crawlcounts = lidata['newcrawl'] + lidata['recrawl']
+    crawlcounts.plot(xconvert=lambda x: from_date + x)
+    savefig('date', 'crawled LinkedIn profiles')
+
+    histogram_collections = [
+        [('nexp', 'nexp2', 'experiences'),
+         ('nedu', 'nedu2', 'educations'),
+         ('ncat', 'ncat2', 'skills'),
+         ('picture_url', 'picture_url', 'picture'),
+         ('title', 'title', 'title'),
+         ('description', 'description', 'description'),
+        ],
+        [('url', 'url', 'URL'),
+         ('name', 'name', 'name'),
+         ('first_name', 'first_name', 'first name'),
+         ('last_name', 'last_name', 'last name'),
+         ('city', 'city', 'city'),
+         ('country', 'country', 'country'),
+        ]
+    ]
+    for histograms in histogram_collections:
+        for xname, x2name, ylabel in histograms:
+            hist = Histogram1D(
+                like=lidata[xname],
+                data=get_averages(zip(lidata[xname].data,
+                                      lidata[x2name].data,
+                                      crawlcounts.data)))
+            mean = sum(y for y in hist.data if y is not None).mean \
+                   /sum(1 for y in hist.data if y is not None)
+            hist /= mean
+            hist.plot(xconvert=lambda x: from_date + x, errorbars=True,
+                      label=ylabel)
+        plt.gca().set_ylim(bottom=0)
+        toplegend(top=0.85, ncol=3)
+        savefig('date', 'normalised frequency', rotate=True)
+    
+    histograms = [
+        ('nexp', 'nexp2', 'average number of experiences'),
+        ('nedu', 'nedu2', 'average number of educations'),
+        ('ncat', 'ncat2', 'average number of skills'),
+        ('url', 'url', 'fraction of profiles with URL'),
+        ('picture_url', 'picture_url', 'fraction of profiles with picture'),
+        ('name', 'name', 'fraction of profiles with name'),
+        ('first_name', 'first_name', 'fraction of profiles with first name'),
+        ('last_name', 'last_name', 'fraction of profiles with last name'),
+        ('city', 'city', 'fraction of profiles with city'),
+        ('country', 'country', 'fraction of profiles with country'),
+        ('title', 'title', 'fraction of profiles with title'),
+        ('description', 'description', 'fraction of profiles with description'),
+    ]
+    for xname, x2name, ylabel in histograms:
         hist = Histogram1D(
             like=lidata[xname],
             data=get_averages(zip(lidata[xname].data,
                                   lidata[x2name].data,
-                                  lidata['newcrawl'].data,
-                                  lidata['recrawl'].data)))
+                                  crawlcounts.data)))
         hist.plot(xconvert=lambda x: from_date + x, errorbars=True)
         savefig('date', ylabel, rotate=True)    
     

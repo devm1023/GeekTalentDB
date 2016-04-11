@@ -74,7 +74,7 @@ class GVar:
         else:
             return GVar(self.mean*a, self.sdev*a)
 
-    def __div__(self, a):
+    def __truediv__(self, a):
         if hasattr(a, 'mean') and hasattr(a, 'sdev'):
             return GVar(self.mean/a.mean,
                         sqrt((self.sdev/a.mean)**2 +
@@ -82,7 +82,7 @@ class GVar:
         else:
             return GVar(self.mean/a, self.sdev/a)
 
-    def __rdiv__(self, a):
+    def __rtruediv__(self, a):
         if hasattr(a, 'mean') and hasattr(a, 'sdev'):
             return GVar(a.mean/self.mean,
                         sqrt((a.sdev/self.mean)**2 +
