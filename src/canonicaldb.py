@@ -81,15 +81,26 @@ class LIProfile(SQLBase):
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
     title_prefix  = Column(Unicode(STR_MAX))
-    company       = Column(Unicode(STR_MAX))
-    nrm_company   = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
     connections   = Column(Integer)
     text_length   = Column(Integer)
+    n_experiences = Column(Integer)
     first_experience_start = Column(DateTime)
     last_experience_start  = Column(DateTime)
+    curr_title    = Column(Unicode(STR_MAX))
+    nrm_curr_title = Column(Unicode(STR_MAX))
+    curr_title_prefix = Column(Unicode(STR_MAX))
+    company       = Column(Unicode(STR_MAX))
+    nrm_company   = Column(Unicode(STR_MAX), index=True)
+    n_educations  = Column(Integer)
     first_education_start  = Column(DateTime)
     last_education_start   = Column(DateTime)
+    last_institute = Column(Unicode(STR_MAX))
+    nrm_last_institute = Column(Unicode(STR_MAX))
+    last_subject = Column(Unicode(STR_MAX))
+    nrm_last_subject = Column(Unicode(STR_MAX))
+    last_degree = Column(Unicode(STR_MAX))
+    nrm_last_degree = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     picture_url   = Column(String(STR_MAX))
     indexed_on    = Column(DateTime, index=True)
@@ -739,12 +750,12 @@ def _make_lieducation(lieducation, language):
     lieducation.pop('id', None)
     lieducation.pop('liprofile_id', None)
     lieducation['language']     = language
-    lieducation['nrm_institute'] = normalized_institute('linkedin', language,
-                                                      lieducation['institute'])
-    lieducation['nrm_degree']    = normalized_degree('linkedin', language,
-                                                   lieducation['degree'])
-    lieducation['nrm_subject']   = normalized_subject('linkedin', language,
-                                                    lieducation['subject'])
+    lieducation['nrm_institute'] = normalized_institute(
+        'linkedin', language, lieducation['institute'])
+    lieducation['nrm_degree']    = normalized_degree(
+        'linkedin', language, lieducation['degree'])
+    lieducation['nrm_subject']   = normalized_subject(
+        'linkedin', language, lieducation['subject'])
 
     return lieducation
 
@@ -776,15 +787,20 @@ def _make_liprofile(liprofile):
     # determine current company
     company = None
     currentexperiences = [e for e in liprofile['experiences'] \
-                          if e['start'] is not None and e['end'] is None \
-                          and e['company']]
+                          if e['start'] is not None and e['end'] is None]
     currentexperiences.sort(key=lambda e: e['start'])
+    company = None
+    curr_title = None
     if currentexperiences:
         company = currentexperiences[-1]['company']
-    elif liprofile['title']:
+        curr_title = currentexperiences[-1]['title']
+    if liprofile['title']:
         titleparts = liprofile['title'].split(' at ')
         if len(titleparts) > 1:
-            company = titleparts[1]
+            if not company:
+                company = titleparts[1]
+            if not curr_title:
+                curr_title = titleparts[0]
 
     # get profile language
     language = liprofile.get('language', None)
@@ -793,13 +809,18 @@ def _make_liprofile(liprofile):
     liprofile['nrm_location']     = normalized_location(liprofile['location'])
     liprofile['parsed_title']     = parsed_title(language, liprofile['title'])
     liprofile['nrm_title']        = normalized_title('linkedin', language,
-                                                   liprofile['title'])
+                                                     liprofile['title'])
     liprofile['title_prefix']     = normalized_title_prefix(language,
-                                                         liprofile['title'])
+                                                            liprofile['title'])
+    liprofile['curr_title']       = curr_title
+    liprofile['nrm_curr_title']   = normalized_title('linkedin', language,
+                                                     curr_title)
+    liprofile['curr_title_prefix'] = normalized_title_prefix(language,
+                                                             curr_title)
     liprofile['nrm_sector']       = normalized_sector(liprofile['sector'])
-    liprofile['company']         = company
+    liprofile['company']          = company
     liprofile['nrm_company']      = normalized_company('linkedin', language,
-                                                     company)
+                                                       company)
 
     # tag company profiles
     liprofile['is_company']       = _is_company(language, liprofile['name'])
@@ -819,14 +840,32 @@ def _make_liprofile(liprofile):
     # update educations
     liprofile['educations'] \
         = [_make_lieducation(e, language) for e in liprofile['educations']]
-    startdates = [e['start'] for e in liprofile['educations'] \
-                  if e['start'] is not None]
-    if startdates:
-        liprofile['first_education_start'] = min(startdates)
-        liprofile['last_education_start'] = max(startdates)
+
+    # find last education
+    educations = liprofile['educations']
+    last_education = None
+    if len(educations) == 1:
+        last_education = educations[0]
+    educations = [e for e in educations if e['start'] is not None]
+    if last_education is None and educations:
+        last_education = max(educations, key=lambda e: e['start'])
+    if last_education:
+        liprofile['last_institute'] = last_education['institute']
+        liprofile['last_subject'] = last_education['subject']
+        liprofile['last_degree'] = last_education['degree']
+        liprofile['nrm_last_institute'] = normalized_institute(
+            'linkedin', language, liprofile['last_institute'])
+        liprofile['nrm_last_degree']    = normalized_degree(
+            'linkedin', language, liprofile['last_degree'])
+        liprofile['nrm_last_subject']   = normalized_subject(
+            'linkedin', language, liprofile['last_subject'])
+    if educations:
+        liprofile['first_education_start'] = min(e['start'] for e in educations)
+        liprofile['last_education_start'] = max(e['start'] for e in educations)
     else:
         liprofile['first_education_start'] = None
         liprofile['last_education_start'] = None
+    
 
     # add skills
     liprofile['skills'] = [_make_liprofile_skill(skill, language) \
@@ -838,9 +877,9 @@ def _make_liprofile(liprofile):
 
     # determine text length
     liprofile['text_length'] = _get_length(liprofile, 'title', 'description',
-                                         ['experiences', 'title'],
-                                         ['experiences', 'description'],
-                                         ['skills', 'name'])
+                                           ['experiences', 'title'],
+                                           ['experiences', 'description'],
+                                           ['skills', 'name'])
 
     return liprofile
 
