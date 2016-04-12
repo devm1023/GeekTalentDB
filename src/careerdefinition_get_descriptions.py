@@ -1,8 +1,12 @@
 import conf
 from careerdefinitiondb import *
 from logger import Logger
+import argparse
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    args = parser.parse_args()    
+    
     cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
     logger = Logger()
     
