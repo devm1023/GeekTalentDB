@@ -87,6 +87,11 @@ class LIProfile(SQLBase):
     n_experiences = Column(Integer)
     first_experience_start = Column(DateTime)
     last_experience_start  = Column(DateTime)
+    first_title   = Column(Unicode(STR_MAX))
+    nrm_first_title = Column(Unicode(STR_MAX))
+    first_title_prefix = Column(Unicode(STR_MAX))
+    first_company = Column(Unicode(STR_MAX))
+    nrm_first_company = Column(Unicode(STR_MAX))
     curr_title    = Column(Unicode(STR_MAX))
     nrm_curr_title = Column(Unicode(STR_MAX))
     curr_title_prefix = Column(Unicode(STR_MAX))
@@ -95,6 +100,7 @@ class LIProfile(SQLBase):
     n_educations  = Column(Integer)
     first_education_start  = Column(DateTime)
     last_education_start   = Column(DateTime)
+    last_education_end     = Column(DateTime)
     last_institute = Column(Unicode(STR_MAX))
     nrm_last_institute = Column(Unicode(STR_MAX))
     last_subject = Column(Unicode(STR_MAX))
@@ -218,10 +224,29 @@ class INProfile(SQLBase):
     description   = Column(Unicode(STR_MAX))
     additional_information = Column(Unicode(STR_MAX))
     text_length   = Column(Integer)
+    n_experiences = Column(Integer)
     first_experience_start = Column(DateTime)
     last_experience_start  = Column(DateTime)
+    first_title   = Column(Unicode(STR_MAX))
+    nrm_first_title = Column(Unicode(STR_MAX))
+    first_title_prefix = Column(Unicode(STR_MAX))
+    first_company = Column(Unicode(STR_MAX))
+    nrm_first_company = Column(Unicode(STR_MAX))
+    curr_title    = Column(Unicode(STR_MAX))
+    nrm_curr_title = Column(Unicode(STR_MAX))
+    curr_title_prefix = Column(Unicode(STR_MAX))
+    company       = Column(Unicode(STR_MAX))
+    nrm_company   = Column(Unicode(STR_MAX), index=True)
+    n_educations  = Column(Integer)
     first_education_start  = Column(DateTime)
     last_education_start   = Column(DateTime)
+    last_education_end     = Column(DateTime)
+    last_institute = Column(Unicode(STR_MAX))
+    nrm_last_institute = Column(Unicode(STR_MAX))
+    last_subject = Column(Unicode(STR_MAX))
+    nrm_last_subject = Column(Unicode(STR_MAX))
+    last_degree = Column(Unicode(STR_MAX))
+    nrm_last_degree = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     updated_on    = Column(DateTime)
     indexed_on    = Column(DateTime, index=True)
@@ -784,96 +809,112 @@ def _is_company(language, name):
 def _make_liprofile(liprofile):
     liprofile = deepcopy(liprofile)
 
-    # determine current company
-    company = None
-    currentexperiences = [e for e in liprofile['experiences'] \
-                          if e['start'] is not None and e['end'] is None]
-    currentexperiences.sort(key=lambda e: e['start'])
-    company = None
-    curr_title = None
-    if currentexperiences:
-        company = currentexperiences[-1]['company']
-        curr_title = currentexperiences[-1]['title']
-    if liprofile['title']:
-        titleparts = liprofile['title'].split(' at ')
-        if len(titleparts) > 1:
-            if not company:
-                company = titleparts[1]
-            if not curr_title:
-                curr_title = titleparts[0]
-
     # get profile language
     language = liprofile.get('language', None)
 
-    # normalize fields
-    liprofile['nrm_location']     = normalized_location(liprofile['location'])
-    liprofile['parsed_title']     = parsed_title(language, liprofile['title'])
-    liprofile['nrm_title']        = normalized_title('linkedin', language,
-                                                     liprofile['title'])
-    liprofile['title_prefix']     = normalized_title_prefix(language,
-                                                            liprofile['title'])
-    liprofile['curr_title']       = curr_title
-    liprofile['nrm_curr_title']   = normalized_title('linkedin', language,
-                                                     curr_title)
-    liprofile['curr_title_prefix'] = normalized_title_prefix(language,
-                                                             curr_title)
-    liprofile['nrm_sector']       = normalized_sector(liprofile['sector'])
-    liprofile['company']          = company
-    liprofile['nrm_company']      = normalized_company('linkedin', language,
-                                                       company)
-
-    # tag company profiles
-    liprofile['is_company']       = _is_company(language, liprofile['name'])
-
-    # update experiences
+    # make experience list
     liprofile['experiences'] = [_make_liexperience(e, language) \
                                 for e in liprofile['experiences']]
-    startdates = [e['start'] for e in liprofile['experiences'] \
-                  if e['start'] is not None]
-    if startdates:
-        liprofile['first_experience_start'] = min(startdates)
-        liprofile['last_experience_start'] = max(startdates)
-    else:
-        liprofile['first_experience_start'] = None
-        liprofile['last_experience_start'] = None
-
-    # update educations
+    liprofile['n_experiences'] = len(liprofile['experiences'])
+    # make education list
     liprofile['educations'] \
         = [_make_lieducation(e, language) for e in liprofile['educations']]
+    liprofile['n_educations'] = len(liprofile['educations'])
+    # make skill list
+    liprofile['skills'] = [_make_liprofile_skill(skill, language) \
+                           for skill in liprofile['skills']]
+    # make groups list
+    liprofile['groups'] = [_make_ligroup(group, language) \
+                           for group in liprofile['groups']]
+
+    # find first and last experience
+    liprofile['company'] = None
+    liprofile['curr_title'] = None
+    liprofile['first_experience_start'] = None
+    liprofile['last_experience_start'] = None
+    liprofile['first_title'] = liprofile['curr_title']
+    liprofile['first_company'] = liprofile['company']
+    experiences = liprofile['experiences']
+    if len(experiences) == 1:
+        liprofile['first_experience_start'] = experiences[0]['start']
+        liprofile['last_experience_start'] = experiences[0]['start']
+        liprofile['first_title'] = experiences[0]['title']
+        liprofile['first_company'] = experiences[0]['company']
+        liprofile['company'] = experiences[0]['company']
+        liprofile['curr_title'] = experiences[0]['title']
+    else:
+        experiences = [e for e in experiences if e['start'] is not None]
+        if experiences:
+            first_experience = min(experiences, key=lambda e: e['start'])
+            last_experience = max(experiences, key=lambda e: e['start'])
+            liprofile['first_experience_start'] = first_experience['start']
+            liprofile['last_experience_start'] = last_experience['start']
+            liprofile['first_title'] = first_experience['title']
+            liprofile['first_company'] = first_experience['company']
+        experiences = [e for e in experiences if e['end'] is None]
+        if experiences:
+            current_experience = max(experiences, key=lambda e: e['start'])
+            liprofile['company'] = current_experience['company']
+            liprofile['curr_title'] = current_experience['title']
+    if liprofile['title']:
+        titleparts = liprofile['title'].split(' at ')
+        if len(titleparts) > 1:
+            if not liprofile['company']:
+                liprofile['company'] = titleparts[1]
+            if not liprofile['curr_title']:
+                liprofile['curr_title'] = titleparts[0]
+        else:
+            if not liprofile['curr_title']:
+                liprofile['curr_title'] = liprofile['title']
 
     # find last education
+    liprofile['first_education_start'] = None
+    liprofile['last_education_start'] = None
+    liprofile['last_institute'] = None
+    liprofile['last_subject'] = None
+    liprofile['last_degree'] = None
     educations = liprofile['educations']
     last_education = None
     if len(educations) == 1:
         last_education = educations[0]
     educations = [e for e in educations if e['start'] is not None]
     if last_education is None and educations:
-        last_education = max(educations, key=lambda e: e['start'])
+        last_education = max(educations, key=lambda e: e['start'])    
     if last_education:
         liprofile['last_institute'] = last_education['institute']
         liprofile['last_subject'] = last_education['subject']
         liprofile['last_degree'] = last_education['degree']
-        liprofile['nrm_last_institute'] = normalized_institute(
-            'linkedin', language, liprofile['last_institute'])
-        liprofile['nrm_last_degree']    = normalized_degree(
-            'linkedin', language, liprofile['last_degree'])
-        liprofile['nrm_last_subject']   = normalized_subject(
-            'linkedin', language, liprofile['last_subject'])
     if educations:
         liprofile['first_education_start'] = min(e['start'] for e in educations)
         liprofile['last_education_start'] = max(e['start'] for e in educations)
-    else:
-        liprofile['first_education_start'] = None
-        liprofile['last_education_start'] = None
-    
 
-    # add skills
-    liprofile['skills'] = [_make_liprofile_skill(skill, language) \
-                           for skill in liprofile['skills']]
+    # normalize fields
+    liprofile['nrm_location'] = normalized_location(liprofile['location'])
+    liprofile['parsed_title'] = parsed_title(language, liprofile['title'])
+    liprofile['nrm_title'] = normalized_title(
+        'linkedin', language, liprofile['title'])
+    liprofile['title_prefix'] = normalized_title_prefix(
+        language, liprofile['title'])
+    liprofile['nrm_curr_title'] = normalized_title(
+        'linkedin', language, liprofile['curr_title'])
+    liprofile['curr_title_prefix'] = normalized_title_prefix(
+        language, liprofile['curr_title'])
+    liprofile['nrm_first_title'] = normalized_title(
+        'linkedin', language, liprofile['first_title'])
+    liprofile['first_title_prefix'] = normalized_title_prefix(
+        language, liprofile['first_title'])
+    liprofile['nrm_sector'] = normalized_sector(liprofile['sector'])
+    liprofile['nrm_company'] = normalized_company(
+        'linkedin', language, liprofile['company'])
+    liprofile['nrm_last_institute'] = normalized_institute(
+        'linkedin', language, liprofile['last_institute'])
+    liprofile['nrm_last_degree']    = normalized_degree(
+        'linkedin', language, liprofile['last_degree'])
+    liprofile['nrm_last_subject']   = normalized_subject(
+        'linkedin', language, liprofile['last_subject'])
 
-    # add groups
-    liprofile['groups'] = [_make_ligroup(group, language) \
-                           for group in liprofile['groups']]
+    # tag company profiles
+    liprofile['is_company']       = _is_company(language, liprofile['name'])
 
     # determine text length
     liprofile['text_length'] = _get_length(liprofile, 'title', 'description',
@@ -935,62 +976,21 @@ def _make_inprofile_skill(skillname, language, reenforced):
 def _make_inprofile(inprofile):
     inprofile = deepcopy(inprofile)
 
-    # determine current company
-    company = None
-    currentexperiences = [e for e in inprofile['experiences'] \
-                          if e['start'] is not None and e['end'] is None \
-                          and e['company']]
-    currentexperiences.sort(key=lambda e: e['start'])
-    if currentexperiences:
-        company = currentexperiences[-1]['company']
-    elif inprofile['title']:
-        titleparts = inprofile['title'].split(' at ')
-        if len(titleparts) > 1:
-            company = titleparts[1]
-
     # get profile language
     language = inprofile.get('language', None)
 
-    # normalize fields
-    inprofile['nrm_location']     = normalized_location(inprofile['location'])
-    inprofile['parsed_title']     = parsed_title(language, inprofile['title'])
-    inprofile['nrm_title']        = normalized_title('indeed', language,
-                                                     inprofile['title'])
-    inprofile['title_prefix']     = normalized_title_prefix(language,
-                                                            inprofile['title'])
-    inprofile['company']         = company
-    inprofile['nrm_company']      = normalized_company('indeed', language,
-                                                       company)
-
-    # update experiences
+    # make experience list
     inprofile['experiences'] = [_make_inexperience(e, language) \
                                 for e in inprofile['experiences']]
-    startdates = [e['start'] for e in inprofile['experiences'] \
-                  if e['start'] is not None]
-    if startdates:
-        inprofile['first_experience_start'] = min(startdates)
-        inprofile['last_experience_start'] = max(startdates)
-    else:
-        inprofile['first_experience_start'] = None
-        inprofile['last_experience_start'] = None
-
-    # update educations
+    inprofile['n_experiences'] = len(inprofile['experiences'])
+    # make education list
     inprofile['educations'] \
         = [_make_ineducation(e, language) for e in inprofile['educations']]
-    startdates = [e['start'] for e in inprofile['educations'] \
-                  if e['start'] is not None]
-    if startdates:
-        inprofile['first_education_start'] = min(startdates)
-        inprofile['last_education_start'] = max(startdates)
-    else:
-        inprofile['first_education_start'] = None
-        inprofile['last_education_start'] = None
-
-    # update certifications
+    inprofile['n_educations'] = len(inprofile['educations'])
+    # make certification list
     for certification in inprofile['certifications']:
         certification.pop('id', None)
         certification.pop('inprofile_id', None)
-
     # add skills
     profileskills = set(inprofile['skills'])
     allskills = set(inprofile['skills'])
@@ -1002,13 +1002,98 @@ def _make_inprofile(inprofile):
             .append(_make_inprofile_skill(skill, language,
                                         skill in profileskills))
 
+    # find first and last experience
+    inprofile['company'] = None
+    inprofile['curr_title'] = None
+    inprofile['first_experience_start'] = None
+    inprofile['last_experience_start'] = None
+    inprofile['first_title'] = inprofile['curr_title']
+    inprofile['first_company'] = inprofile['company']
+    experiences = inprofile['experiences']
+    if len(experiences) == 1:
+        inprofile['first_experience_start'] = experiences[0]['start']
+        inprofile['last_experience_start'] = experiences[0]['start']
+        inprofile['first_title'] = experiences[0]['title']
+        inprofile['first_company'] = experiences[0]['company']
+        inprofile['company'] = experiences[0]['company']
+        inprofile['curr_title'] = experiences[0]['title']
+    else:
+        experiences = [e for e in experiences if e['start'] is not None]
+        if experiences:
+            first_experience = min(experiences, key=lambda e: e['start'])
+            last_experience = max(experiences, key=lambda e: e['start'])
+            inprofile['first_experience_start'] = first_experience['start']
+            inprofile['last_experience_start'] = last_experience['start']
+            inprofile['first_title'] = first_experience['title']
+            inprofile['first_company'] = first_experience['company']
+        experiences = [e for e in experiences if e['end'] is None]
+        if experiences:
+            current_experience = max(experiences, key=lambda e: e['start'])
+            inprofile['company'] = current_experience['company']
+            inprofile['curr_title'] = current_experience['title']
+    if inprofile['title']:
+        titleparts = inprofile['title'].split(' at ')
+        if len(titleparts) > 1:
+            if not inprofile['company']:
+                inprofile['company'] = titleparts[1]
+            if not inprofile['curr_title']:
+                inprofile['curr_title'] = titleparts[0]
+        else:
+            if not inprofile['curr_title']:
+                inprofile['curr_title'] = inprofile['title']
+
+    # find last education
+    inprofile['first_education_start'] = None
+    inprofile['last_education_start'] = None
+    inprofile['last_institute'] = None
+    inprofile['last_subject'] = None
+    inprofile['last_degree'] = None
+    educations = inprofile['educations']
+    last_education = None
+    if len(educations) == 1:
+        last_education = educations[0]
+    educations = [e for e in educations if e['start'] is not None]
+    if last_education is None and educations:
+        last_education = max(educations, key=lambda e: e['start'])    
+    if last_education:
+        inprofile['last_institute'] = last_education['institute']
+        inprofile['last_subject'] = last_education['subject']
+        inprofile['last_degree'] = last_education['degree']
+    if educations:
+        inprofile['first_education_start'] = min(e['start'] for e in educations)
+        inprofile['last_education_start'] = max(e['start'] for e in educations)
+
+    # normalize fields
+    inprofile['nrm_location'] = normalized_location(inprofile['location'])
+    inprofile['parsed_title'] = parsed_title(language, inprofile['title'])
+    inprofile['nrm_title'] = normalized_title(
+        'indeed', language, inprofile['title'])
+    inprofile['title_prefix'] = normalized_title_prefix(
+        language, inprofile['title'])
+    inprofile['nrm_curr_title'] = normalized_title(
+        'indeed', language, inprofile['curr_title'])
+    inprofile['curr_title_prefix'] = normalized_title_prefix(
+        language, inprofile['curr_title'])
+    inprofile['nrm_first_title'] = normalized_title(
+        'indeed', language, inprofile['first_title'])
+    inprofile['first_title_prefix'] = normalized_title_prefix(
+        language, inprofile['first_title'])
+    inprofile['nrm_company'] = normalized_company(
+        'indeed', language, inprofile['company'])
+    inprofile['nrm_last_institute'] = normalized_institute(
+        'indeed', language, inprofile['last_institute'])
+    inprofile['nrm_last_degree']    = normalized_degree(
+        'indeed', language, inprofile['last_degree'])
+    inprofile['nrm_last_subject']   = normalized_subject(
+        'indeed', language, inprofile['last_subject'])
+
     # determine text length
     inprofile['text_length'] = _get_length(inprofile, 'title', 'description',
-                                         'additional_information',
-                                         ['experiences', 'title'],
-                                         ['experiences', 'description'],
-                                         ['skills', 'name'])
-
+                                           'additional_information',
+                                           ['experiences', 'title'],
+                                           ['experiences', 'description'],
+                                           ['skills', 'name'])
+    
     return inprofile
 
 
