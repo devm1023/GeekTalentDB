@@ -439,11 +439,13 @@ if __name__ == '__main__':
 
         # build title cloud
         entityq = lambda entities: \
-                  andb.query(LIProfile.nrm_title, countcol) \
-                      .filter(LIProfile.nrm_title.in_(entities),
+                  andb.query(LIExperience.nrm_title, countcol) \
+                      .join(LIProfile) \
+                      .filter(LIExperience.nrm_title.in_(entities),
                               LIProfile.nrm_sector != None) \
-                      .group_by(LIProfile.nrm_title)
-        coincidenceq = andb.query(LIProfile.nrm_title, countcol) \
+                      .group_by(LIExperience.nrm_title)
+        coincidenceq = andb.query(LIExperience.nrm_title, countcol) \
+                           .join(LIProfile) \
                            .filter(LIProfile.nrm_sector == nrm_sector)
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         joblists[sector] \
