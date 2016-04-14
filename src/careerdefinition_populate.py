@@ -392,10 +392,11 @@ if __name__ == '__main__':
     cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
     mapper = EntityMapper(andb, args.mappings)
 
-    profilec = andb.query(LIProfile.id) \
-                   .filter(LIProfile.nrm_sector != None) \
-                   .count()
-    logger.log('TOTAL PROFILE COUNT: {0:d}\n'.format(profilec))
+    experiencec = andb.query(LIExperience.id) \
+                      .join(LIProfile) \
+                      .filter(LIProfile.nrm_sector != None) \
+                      .count()
+    logger.log('TOTAL EXPERIENCE COUNT: {0:d}\n'.format(experiencec))
 
     sectors = get_sectors(args.sector, args.sectors_from)
     nrm_sectors = {}
@@ -403,7 +404,7 @@ if __name__ == '__main__':
     sectorcounts = {}
     countcol = func.count().label('counts')
     for sector in sectors:
-        row = andb.query(Entity.nrm_name, Entity.profile_count) \
+        row = andb.query(Entity.nrm_name) \
                   .filter(Entity.type == 'sector',
                           Entity.source == 'linkedin',
                           Entity.language == 'en',
@@ -411,26 +412,35 @@ if __name__ == '__main__':
                   .first()
         if not row:
             continue
-        nrm_sector, sectorc = row
+        nrm_sector, = row
+        sectorc = andb.query(LIExperience.id) \
+                      .join(LIProfile) \
+                      .filter(LIProfile.nrm_sector == nrm_sector) \
+                      .count()
         nrm_sectors[sector] = nrm_sector
         sectorcounts[sector] = sectorc
 
         # build skill cloud
         entityq = lambda entities: \
-                  andb.query(Entity.nrm_name, Entity.profile_count) \
-                      .filter(Entity.nrm_name.in_(entities))
-        coincidenceq = andb.query(LIProfileSkill.nrm_name, countcol) \
+                  andb.query(LIExperienceSkill.nrm_skill, countcol) \
+                      .join(LIExperience) \
+                      .join(LIProfile) \
+                      .filter(LIExperienceSkill.nrm_skill.in_(entities),
+                              LIProfile.nrm_sector != None) \
+                      .group_by(LIExperienceSkill.nrm_skill)
+        coincidenceq = andb.query(LIExperienceSkill.nrm_skill, countcol) \
+                           .join(LIExperience) \
                            .join(LIProfile) \
                            .filter(LIProfile.nrm_sector == nrm_sector)
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        for skill, skillc, sectorskillc, score, error \
-            in sort_entities(relevance_scores(profilec, sectorc, entityq,
-                                            coincidenceq, entitymap=entitymap),
-                            limit=args.max_skills, min_significance=args.sigma):
+        for skill, skillc, sectorskillc, score, error in sort_entities(
+                relevance_scores(experiencec, sectorc, entityq, coincidenceq,
+                                 entitymap=entitymap),
+                limit=args.max_skills, min_significance=args.sigma):
             cddb.add_sector_skill({'sector_name' : sector,
                                    'skill_name' : mapper.name(
                                        skill, nrm_sector=nrm_sector),
-                                   'total_count' : profilec,
+                                   'total_count' : experiencec,
                                    'sector_count' : sectorc,
                                    'skill_count' : skillc,
                                    'count' : sectorskillc,
@@ -448,16 +458,11 @@ if __name__ == '__main__':
                            .join(LIProfile) \
                            .filter(LIProfile.nrm_sector == nrm_sector)
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        joblists[sector] \
-            = sort_entities(relevance_scores(profilec, sectorc, entityq,
-                                             coincidenceq, entitymap=entitymap),
-                            limit=args.max_careers, min_significance=args.sigma)
+        joblists[sector] = sort_entities(
+            relevance_scores(experiencec, sectorc, entityq, coincidenceq,
+                             entitymap=entitymap),
+            limit=args.max_careers, min_significance=args.sigma)
 
-    experiencec = andb.query(LIExperience.id) \
-                      .join(LIProfile) \
-                      .filter(LIProfile.nrm_sector != None) \
-                      .count()
-    logger.log('TOTAL EXPERIENCE COUNT: {0:d}\n'.format(experiencec))
     for sector in sectors:
         jobs = joblists[sector]
         logger.log('{0:d} {1:s}\n'.format(sectorcounts[sector], sector))
@@ -468,11 +473,11 @@ if __name__ == '__main__':
             logger.log('    {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}\n' \
                   .format(score*100,
                           sectortitlec/sectorc*100.0,
-                          (titlec-sectortitlec)/(profilec-sectorc)*100.0,
+                          (titlec-sectortitlec)/(experiencec-sectorc)*100.0,
                           title))
             careerdict = {'title' : title,
                           'linkedin_sector' : sector,
-                          'total_count' : profilec,
+                          'total_count' : experiencec,
                           'sector_count' : sectorc,
                           'title_count' : titlec,
                           'count' : sectortitlec,
