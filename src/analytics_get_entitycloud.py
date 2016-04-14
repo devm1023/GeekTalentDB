@@ -100,11 +100,11 @@ def get_skill_cloud(entitytype, categorytype, query,
     logger = Logger(sys.stdout)
 
     totalcount = andb.query(LIExperience.id).count()
-    print(totalcount)
     categories = andb.find_entities(categorytype, 'linkedin', 'en', query,
-                                   min_sub_document_count=category_threshold,
-                                   exact=exact)
-    categories = [(nrm_name, name, sdc) for nrm_name, name, pc, sdc in categories]
+                                    min_sub_document_count=category_threshold,
+                                    exact=exact)
+    categories = [(nrm_name, name, sdc) for nrm_name, name, pc, sdc \
+                  in categories]
     categories.sort(key=lambda x: x[-1])
     categorycount = sum(c[-1] for c in categories)
     categorynames = [nrm_name for nrm_name, name, count in categories]
@@ -140,6 +140,15 @@ def get_skill_cloud(entitytype, categorytype, query,
                     .filter(LIExperienceSkill.liexperience_id \
                             == LIExperienceSkill2.liexperience_id,
                             LIExperienceSkill2.nrm_skill.in_(categorynames))
+        else:
+            raise ValueError('Unsupported entity type `{0:s}`.' \
+                             .format(entitytype))
+    elif categorytype == 'sector':
+        if entitytype == 'skill':
+            q = andb.query(LIExperienceSkill.nrm_skill, countcol) \
+                    .join(LIExperience) \
+                    .join(LIProfile) \
+                    .filter(LIProfile.nrm_sector.in_(categorynames))
         else:
             raise ValueError('Unsupported entity type `{0:s}`.' \
                              .format(entitytype))

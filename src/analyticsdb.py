@@ -74,12 +74,33 @@ class LIProfile(SQLBase):
     description   = Column(Unicode(STR_MAX))
     connections   = Column(Integer)
     text_length   = Column(Integer)
+    n_experiences = Column(Integer)
     first_experience_start = Column(DateTime)
     last_experience_start  = Column(DateTime)
-    last_experience_end    = Column(DateTime)
+    nrm_first_title = Column(Unicode(STR_MAX),
+                             ForeignKey('entity.nrm_name'),
+                             index=True)
+    first_title_prefix = Column(Unicode(STR_MAX))
+    nrm_first_company = Column(Unicode(STR_MAX),
+                               ForeignKey('entity.nrm_name'),
+                               index=True)
+    nrm_curr_title = Column(Unicode(STR_MAX),
+                            ForeignKey('entity.nrm_name'),
+                            index=True)
+    curr_title_prefix = Column(Unicode(STR_MAX))
+    n_educations  = Column(Integer)
     first_education_start  = Column(DateTime)
     last_education_start   = Column(DateTime)
     last_education_end     = Column(DateTime)
+    nrm_last_institute = Column(Unicode(STR_MAX),
+                                ForeignKey('entity.nrm_name'),
+                                index=True)
+    nrm_last_subject = Column(Unicode(STR_MAX),
+                              ForeignKey('entity.nrm_name'),
+                              index=True)
+    nrm_last_degree = Column(Unicode(STR_MAX),
+                             ForeignKey('entity.nrm_name'),
+                             index=True)
     url           = Column(String(STR_MAX))
     picture_url   = Column(String(STR_MAX))
     indexed_on    = Column(DateTime, index=True)
@@ -212,22 +233,41 @@ class INProfile(SQLBase):
     raw_title     = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX),
                            ForeignKey('entity.nrm_name'),
-                           nullable=True,
                            index=True)
     title_prefix  = Column(Unicode(STR_MAX))
     raw_company   = Column(Unicode(STR_MAX))
     nrm_company   = Column(Unicode(STR_MAX),
                            ForeignKey('entity.nrm_name'),
-                           nullable=True,
                            index=True)
     description   = Column(Unicode(STR_MAX))
     text_length   = Column(Integer)
+    n_experiences = Column(Integer)
     first_experience_start = Column(DateTime)
     last_experience_start  = Column(DateTime)
-    last_experience_end    = Column(DateTime)
+    nrm_first_title = Column(Unicode(STR_MAX),
+                             ForeignKey('entity.nrm_name'),
+                             index=True)
+    first_title_prefix = Column(Unicode(STR_MAX))
+    nrm_first_company = Column(Unicode(STR_MAX),
+                               ForeignKey('entity.nrm_name'),
+                               index=True)
+    nrm_curr_title = Column(Unicode(STR_MAX),
+                            ForeignKey('entity.nrm_name'),
+                            index=True)
+    curr_title_prefix = Column(Unicode(STR_MAX))
+    n_educations  = Column(Integer)
     first_education_start  = Column(DateTime)
     last_education_start   = Column(DateTime)
     last_education_end     = Column(DateTime)
+    nrm_last_institute = Column(Unicode(STR_MAX),
+                                ForeignKey('entity.nrm_name'),
+                                index=True)
+    nrm_last_subject = Column(Unicode(STR_MAX),
+                              ForeignKey('entity.nrm_name'),
+                              index=True)
+    nrm_last_degree = Column(Unicode(STR_MAX),
+                             ForeignKey('entity.nrm_name'),
+                             index=True)
     url           = Column(String(STR_MAX))
     indexed_on    = Column(DateTime, index=True)
     crawled_on    = Column(DateTime, index=True)
@@ -640,14 +680,16 @@ class AnalyticsDB(SQLDatabase):
                     .filter(Entity.nrm_name.in_(entitynames))
             if min_profile_count is not None:
                 q = q.filter(Entity.profile_count >= min_profile_count)
-            if min_sub_document_count is not None:
-                q = q.filter(Entity.sub_document_count >= min_sub_document_count)
+            if min_sub_document_count is not None and querytype != 'sector':
+                q = q.filter(Entity.sub_document_count \
+                             >= min_sub_document_count)
             for nrm_name, name, profile_count, sub_document_count in q:
                 if not profile_count:
                     profile_count = 0
                 if not sub_document_count:
                     sub_document_count = 0
-                entities.append((nrm_name, name, profile_count, sub_document_count))
+                entities.append((nrm_name, name, profile_count,
+                                 sub_document_count))
 
         return entities
 

@@ -229,21 +229,23 @@ def add_sectors(batchsize):
     logger = Logger(sys.stdout)
 
     q = cndb.query(LIProfile.nrm_sector, LIProfile.sector, \
-                   func.count(LIProfile.id)) \
+                   func.count(LIProfile.id),
+                   func.sum(LIProfile.n_experiences)) \
             .filter(LIProfile.nrm_sector != None)
     q = q.group_by(LIProfile.nrm_sector, LIProfile.sector) \
          .order_by(LIProfile.nrm_sector)
 
     def add_sector(rec):
-        nrm_name, name, count = rec
+        nrm_name, name, count, sub_document_count = rec
         tpe, source, language, _ = split_nrm_name(nrm_name)
         andb.add_from_dict({
-            'nrm_name'         : nrm_name,
+            'nrm_name'        : nrm_name,
             'type'            : tpe,
             'source'          : source,
             'language'        : language,
             'name'            : name,
-            'profile_count'    : count,
+            'profile_count'   : count,
+            'sub_document_count' : sub_document_count,
         }, analyticsdb.Entity)
 
     process_db(q, add_sector, andb, batchsize=batchsize, logger=logger)
