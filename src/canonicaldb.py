@@ -867,26 +867,31 @@ def _make_liprofile(liprofile):
             if not liprofile['curr_title']:
                 liprofile['curr_title'] = liprofile['title']
 
-    # find last education
+    # find first and last education
     liprofile['first_education_start'] = None
     liprofile['last_education_start'] = None
+    liprofile['last_education_end'] = None
     liprofile['last_institute'] = None
     liprofile['last_subject'] = None
     liprofile['last_degree'] = None
     educations = liprofile['educations']
+    first_education = None
     last_education = None
     if len(educations) == 1:
+        first_education = educations[0]
         last_education = educations[0]
     educations = [e for e in educations if e['start'] is not None]
     if last_education is None and educations:
         last_education = max(educations, key=lambda e: e['start'])    
-    if last_education:
+        first_education = min(educations, key=lambda e: e['start'])    
+    if last_education is not None:
         liprofile['last_institute'] = last_education['institute']
         liprofile['last_subject'] = last_education['subject']
         liprofile['last_degree'] = last_education['degree']
-    if educations:
-        liprofile['first_education_start'] = min(e['start'] for e in educations)
-        liprofile['last_education_start'] = max(e['start'] for e in educations)
+        liprofile['last_education_start'] = last_education['start']
+        liprofile['last_education_end'] = last_education['end']
+    if first_education is not None:
+        liprofile['first_education_start'] = first_education['start']
 
     # normalize fields
     liprofile['nrm_location'] = normalized_location(liprofile['location'])
@@ -906,6 +911,8 @@ def _make_liprofile(liprofile):
     liprofile['nrm_sector'] = normalized_sector(liprofile['sector'])
     liprofile['nrm_company'] = normalized_company(
         'linkedin', language, liprofile['company'])
+    liprofile['nrm_first_company'] = normalized_company(
+        'linkedin', language, liprofile['first_company'])
     liprofile['nrm_last_institute'] = normalized_institute(
         'linkedin', language, liprofile['last_institute'])
     liprofile['nrm_last_degree']    = normalized_degree(
@@ -1042,26 +1049,31 @@ def _make_inprofile(inprofile):
             if not inprofile['curr_title']:
                 inprofile['curr_title'] = inprofile['title']
 
-    # find last education
+    # find first and last education
     inprofile['first_education_start'] = None
     inprofile['last_education_start'] = None
+    inprofile['last_education_end'] = None
     inprofile['last_institute'] = None
     inprofile['last_subject'] = None
     inprofile['last_degree'] = None
     educations = inprofile['educations']
+    first_education = None
     last_education = None
     if len(educations) == 1:
+        first_education = educations[0]
         last_education = educations[0]
     educations = [e for e in educations if e['start'] is not None]
     if last_education is None and educations:
         last_education = max(educations, key=lambda e: e['start'])    
-    if last_education:
+        first_education = min(educations, key=lambda e: e['start'])    
+    if last_education is not None:
         inprofile['last_institute'] = last_education['institute']
         inprofile['last_subject'] = last_education['subject']
         inprofile['last_degree'] = last_education['degree']
-    if educations:
-        inprofile['first_education_start'] = min(e['start'] for e in educations)
-        inprofile['last_education_start'] = max(e['start'] for e in educations)
+        inprofile['last_education_start'] = last_education['start']
+        inprofile['last_education_end'] = last_education['end']
+    if first_education is not None:
+        inprofile['first_education_start'] = first_education['start']
 
     # normalize fields
     inprofile['nrm_location'] = normalized_location(inprofile['location'])
@@ -1080,6 +1092,8 @@ def _make_inprofile(inprofile):
         language, inprofile['first_title'])
     inprofile['nrm_company'] = normalized_company(
         'indeed', language, inprofile['company'])
+    inprofile['nrm_first_company'] = normalized_company(
+        'indeed', language, inprofile['first_company'])
     inprofile['nrm_last_institute'] = normalized_institute(
         'indeed', language, inprofile['last_institute'])
     inprofile['nrm_last_degree']    = normalized_degree(
