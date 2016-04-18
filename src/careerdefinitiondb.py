@@ -6,6 +6,8 @@ __all__ = [
     'CareerInstitute',
     'PreviousTitle',
     'NextTitle',
+    'SalaryBin',
+    'SalaryHistoryPoint',
     'EntityDescription',
     'CareerDefinitionDB',
     ]
@@ -89,6 +91,12 @@ class Career(SQLBase):
     next_titles = relationship('NextTitle',
                                order_by='desc(NextTitle.count)',
                                cascade='all, delete-orphan')
+    salary_bins = relationship('SalaryBin',
+                               order_by='SalaryBin.lower_bound',
+                               cascade='all, delete-orphan')
+    salary_history_points = relationship('SalaryHistoryPoint',
+                                         order_by='SalaryHistoryPoint.date',
+                                         cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('linkedin_sector', 'title'),)
 
@@ -165,6 +173,24 @@ class NextTitle(SQLBase):
     visible       = Column(Boolean, nullable=False)
 
     __table_args__ = (UniqueConstraint('career_id', 'next_title'),)
+
+class SalaryBin(SQLBase):
+    __tablename__ = 'salary_bin'
+    id            = Column(BigInteger, primary_key=True)
+    career_id     = Column(BigInteger, ForeignKey('career.id'),
+                           index=True, nullable=False)
+    lower_bound   = Column(Float)
+    upper_bound   = Column(Float)
+    count         = Column(Integer)
+
+class SalaryHistoryPoint(SQLBase):
+    __tablename__ = 'salary_history_point'
+    id            = Column(BigInteger, primary_key=True)
+    career_id     = Column(BigInteger, ForeignKey('career.id'),
+                           index=True, nullable=False)
+    date          = Column(Date)
+    salary        = Column(Float)
+    
 
 class EntityDescription(SQLBase):
     __tablename__ = 'entity_description'
@@ -315,6 +341,21 @@ class CareerDefinitionDB(SQLDatabase):
                 = [s for s in career.next_titles if s.visible]
 
             careerdict = dict_from_row(career, pkeys=False, fkeys=False)
+            if careerdict['salary_bins']:
+                wsum = 0.0
+                totalcount = 0
+                for salary_bin in careerdict['salary_bins']:
+                    if salary_bin['upper_bound'] is None:
+                        salary = salary_bin['lower_bound']
+                    else:
+                        salary = 0.5*(salary_bin['lower_bound'] \
+                                      + salary_bin['upper_bound'])
+                    wsum += salary*salary_bin['count']
+                    totalcount += salary_bin['count']
+                careerdict['average_salary'] = wsum/totalcount
+            else:
+                careerdict['average_salary'] = None
+            
             careerdict['description'] = self._get_entity_description(
                     'title', career.linkedin_sector, career.title)
             for skilldict in careerdict['skill_cloud']:
