@@ -440,6 +440,16 @@ class Location(SQLBase):
                            autoincrement=False)
     name          = Column(Unicode(STR_MAX))
     geo           = Column(Geometry('POINT'))
+    minlat        = Column(Float)
+    minlon        = Column(Float)
+    maxlat        = Column(Float)
+    maxlon        = Column(Float)
+    tries         = Column(Integer, index=True)
+    ambiguous     = Column(Boolean)
+    nuts0         = Column(String(20), index=True)
+    nuts1         = Column(String(20), index=True)
+    nuts2         = Column(String(20), index=True)
+    nuts3         = Column(String(20), index=True)
 
 class Postcode(SQLBase):
     __tablename__ = 'postcode'

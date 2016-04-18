@@ -1,13 +1,18 @@
 import conf
 import analyticsdb
 from canonicaldb import *
+from sqldb import dict_from_row
 from sqlalchemy import func
 from sqlalchemy.sql.expression import literal_column
 from geoalchemy2.functions import ST_AsText
+from geoalchemy2.shape import to_shape
 from logger import Logger
 import sys
 from windowquery import split_process, process_db
 from textnormalization import split_nrm_name
+from nuts import NutsRegions
+from shapely.geometry import Polygon
+from shapely import wkt
 from collections import OrderedDict
 import argparse
 
@@ -254,20 +259,48 @@ def add_sectors(batchsize):
 def add_locations(batchsize):
     cndb = CanonicalDB(conf.CANONICAL_DB)
     andb = analyticsdb.AnalyticsDB(conf.ANALYTICS_DB)
+    nuts = NutsRegions(conf.NUTS_DATA)
     logger = Logger(sys.stdout)
 
-    q = cndb.query(Location.place_id, Location.name, ST_AsText(Location.geo)) \
+    q = cndb.query(Location) \
             .filter(Location.place_id != None)
-    q = q.distinct().order_by(Location.place_id)
+    q = q.order_by(Location.place_id)
 
-    def add_location(rec):
-        from copy import deepcopy
-        place_id, name, geo = rec
-        andb.add_from_dict({
-            'place_id'         : place_id,
-            'name'            : name,
-            'geo'             : geo,
-        }, analyticsdb.Location)
+    def add_location(location):
+        locationdict = dict_from_row(location)
+        locationdict['geo'] = None
+        nutsids = [None]*4
+        if location.geo is not None:
+            point = to_shape(location.geo)
+            locationdict['geo'] = point.wkt
+            nutsid = nuts.find(point, level=3)
+            if nutsid:
+                nutsids = [nutsid[:-3], nutsid[:-2], nutsid[:-1], nutsid]
+            if all(nutsids) \
+               and location.minlat is not None \
+               and location.maxlat is not None \
+               and location.minlon is not None \
+               and location.maxlon is not None:
+                viewport = Polygon([(location.minlon, location.minlat),
+                                    (location.maxlon, location.minlat),
+                                    (location.maxlon, location.maxlat),
+                                    (location.minlon, location.maxlat)])
+                delete_rest = False
+                for i, nutsid in enumerate(nutsids):
+                    if delete_rest:
+                        nutsids[i] = None
+                        continue
+                    region = nuts[nutsid]
+                    area = region.area
+                    intersection_area = region.intersection(viewport).area
+                    if intersection_area > 0.9*area:
+                        delete_rest = True
+
+        locationdict['nuts0'] = nutsids[0]
+        locationdict['nuts1'] = nutsids[1]
+        locationdict['nuts2'] = nutsids[2]
+        locationdict['nuts3'] = nutsids[3]
+        andb.add_from_dict(locationdict, analyticsdb.Location)
 
     process_db(q, add_location, andb, batchsize=batchsize, logger=logger)
 
@@ -417,7 +450,7 @@ if __name__ == '__main__':
                         'The data source to build catalogs from. '
                         'If omitted all are built.',
                         choices=allsources, default=None)
-    parser.add_argument('--batchsize', type=int, default=1000, help=
+    parser.add_argument('--batch-size', type=int, default=1000, help=
                         'Number of rows to commit in one batch.')
     args = parser.parse_args()
     main(args)
