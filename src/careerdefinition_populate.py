@@ -460,7 +460,7 @@ if __name__ == '__main__':
                                           mapper.name(nrm_sector)))
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title, nrm_sector=nrm_sector)
-            logger.log('    {0:>5.1f}% ({1:6.2f}% - {2:6.2f}%) {3:s}\n' \
+            logger.log('    {0:>6.2f}% ({1:6.2f}% - {2:6.2f}%) {3:s}\n' \
                   .format(score*100,
                           sectortitlec/sectorc*100.0,
                           (titlec-sectortitlec)/(experiencec-sectorc)*100.0,
