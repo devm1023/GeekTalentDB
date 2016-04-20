@@ -17,26 +17,29 @@ from collections import OrderedDict
 import argparse
 
 
-def entities(q):
+def entities(q, countcols=1):
     currententity = None
     maxcount = 0
-    profilecount = 0
+    totalcounts = tuple(0 for i in range(countcols))
     bestname = None
-    for nrm_name, name, count in q:
+    for row in q:
+        nrm_name = row[0]
+        name = row[1]
+        counts = row[2:]
         if nrm_name != currententity:
             if bestname:
-                yield currententity, bestname, profilecount
+                yield (currententity, bestname) + totalcounts
             maxcount = 0
-            profilecount = 0
+            totalcounts = tuple(0 for i in range(countcols))
             bestname = None
             currententity = nrm_name
-        if count > maxcount:
+        if counts[0] > maxcount:
             bestname = name
-            maxcount = count
-        profilecount += count
+            maxcount = counts[0]
+        totalcounts = tuple(t+c for t,c in zip(totalcounts, counts))
 
     if bestname:
-        yield currententity, bestname, profilecount
+        yield (currententity, bestname) + totalcounts
 
 def entities2(q):
     currententity = None
@@ -253,7 +256,8 @@ def add_sectors(batchsize):
             'sub_document_count' : sub_document_count,
         }, analyticsdb.Entity)
 
-    process_db(q, add_sector, andb, batchsize=batchsize, logger=logger)
+    process_db(entities(q, countcols=2), add_sector, andb,
+               batchsize=batchsize, logger=logger)
 
 
 def add_locations(batchsize):
