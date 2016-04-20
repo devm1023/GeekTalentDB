@@ -1,3 +1,16 @@
+# sector mappings
+sector,en,,Information Technology and Services,Digital Tech
+sector,en,,Computer Software,Digital Tech
+sector,en,,Internet,Digital Tech
+sector,en,,Computer Networking,Digital Tech
+sector,en,,Computer Hardware,Digital Tech
+sector,en,,Online Media,Digital Tech
+sector,en,,Computer & Network Security,Digital Tech
+sector,en,,Computer Games,Digital Tech
+sector,en,,E-Learning,Digital Tech
+sector,en,,Animation,Digital Tech
+sector,en,,Program Development,Digital Tech
+sector,en,,Software,Digital Tech
 # health care
 title,en,,Registered Nurse,Nurse
 title,en,Hospital & Health Care,RN,Nurse
@@ -17,6 +30,4 @@ title,en,,CEO,Chief Executive Officer (CEO)
 title,en,,Chief Executive Officer,Chief Executive Officer (CEO)
 # IT
 title,en,,Software Engineer,Software Developer
-title,en,Information Technology and Services,Developer,Software Developer
-title,en,Information Technology and Services,Data Analyst,Analyst
-title,en,Information Technology and Services,Consultant,IT Consultant
+title,en,Digital Tech,Developer,Software Developer

@@ -3,7 +3,7 @@ from logger import Logger
 from analyticsdb import *
 from analytics_get_entitycloud import relevance_scores
 from careerdefinitiondb import CareerDefinitionDB
-from textnormalization import normalized_entity
+from textnormalization import normalized_entity, normalized_sector
 from sqlalchemy import func
 import csv
 import argparse
@@ -307,15 +307,15 @@ def get_institutes(andb, mapper, nrm_sector, profile_ids,
                         'visible' : True})
     return total_institute_count, results
 
-def get_sectors(sectors, filename):
-    sectors = list(sectors)
+def get_sectors(sectors, filename, mapper):
+    sectors = [mapper(normalized_sector(s)) for s in sectors]
     if filename:
         with open(filename, 'r') as sectorfile:
             for line in sectorfile:
                 row = line.split('|')
                 if not row:
                     continue
-                sector = row[0].strip()
+                sector = mapper(normalized_sector(row[0]))
                 if not sector:
                     continue
                 if sector not in sectors:
@@ -396,27 +396,18 @@ if __name__ == '__main__':
                       .count()
     logger.log('TOTAL EXPERIENCE COUNT: {0:d}\n'.format(experiencec))
 
-    sectors = get_sectors(args.sector, args.sectors_from)
+    sectors = get_sectors(args.sector, args.sectors_from, mapper)
     nrm_sectors = {}
     joblists = {}
     sectorcounts = {}
     countcol = func.count().label('counts')
-    for sector in sectors:
-        row = andb.query(Entity.nrm_name) \
-                  .filter(Entity.type == 'sector',
-                          Entity.source == 'linkedin',
-                          Entity.language == 'en',
-                          Entity.name == sector) \
-                  .first()
-        if not row:
-            continue
-        nrm_sector, = row
-        sectorc = andb.query(LIExperience.id) \
-                      .join(LIProfile) \
-                      .filter(LIProfile.nrm_sector == nrm_sector) \
-                      .count()
-        nrm_sectors[sector] = nrm_sector
-        sectorcounts[sector] = sectorc
+    for nrm_sector in sectors:
+        lisectors = mapper.inv(nrm_sector)
+        sectorc, = andb.query(func.sum(Entity.sub_document_count)) \
+                       .filter(Entity.nrm_name.in_(lisectors)) \
+                       .first()
+        sectorc = int(sectorc)
+        sectorcounts[nrm_sector] = sectorc
 
         # build skill cloud
         entityq = lambda entities: \
@@ -435,7 +426,7 @@ if __name__ == '__main__':
                 relevance_scores(experiencec, sectorc, entityq, coincidenceq,
                                  entitymap=entitymap),
                 limit=args.max_skills, min_significance=args.sigma):
-            cddb.add_sector_skill({'sector_name' : sector,
+            cddb.add_sector_skill({'sector_name' : mapper.name(nrm_sector),
                                    'skill_name' : mapper.name(
                                        skill, nrm_sector=nrm_sector),
                                    'total_count' : experiencec,
@@ -454,27 +445,28 @@ if __name__ == '__main__':
                       .group_by(LIExperience.nrm_title)
         coincidenceq = andb.query(LIExperience.nrm_title, countcol) \
                            .join(LIProfile) \
-                           .filter(LIProfile.nrm_sector == nrm_sector)
+                           .filter(LIProfile.nrm_sector.in_(lisectors))
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        joblists[sector] = sort_entities(
+        joblists[nrm_sector] = sort_entities(
             relevance_scores(experiencec, sectorc, entityq, coincidenceq,
                              entitymap=entitymap),
             limit=args.max_careers, min_significance=args.sigma)
 
-    for sector in sectors:
-        jobs = joblists[sector]
-        logger.log('{0:d} {1:s}\n'.format(sectorcounts[sector], sector))
-        sectorc = sectorcounts[sector]
-        nrm_sector = nrm_sectors[sector]
+    for nrm_sector in sectors:
+        lisectors = mapper.inv(nrm_sector)
+        jobs = joblists[nrm_sector]
+        sectorc = sectorcounts[nrm_sector]
+        logger.log('{0:d} {1:s}\n'.format(sectorc,
+                                          mapper.name(nrm_sector)))
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title, nrm_sector=nrm_sector)
-            logger.log('    {0:>5.1f}% ({1:5.1f}% - {2:5.1f}%) {3:s}\n' \
+            logger.log('    {0:>5.1f}% ({1:6.2f}% - {2:6.2f}%) {3:s}\n' \
                   .format(score*100,
                           sectortitlec/sectorc*100.0,
                           (titlec-sectortitlec)/(experiencec-sectorc)*100.0,
                           title))
             careerdict = {'title' : title,
-                          'linkedin_sector' : sector,
+                          'linkedin_sector' : mapper.name(nrm_sector),
                           'total_count' : experiencec,
                           'sector_count' : sectorc,
                           'title_count' : titlec,
