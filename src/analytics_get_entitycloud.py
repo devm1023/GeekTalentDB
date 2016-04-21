@@ -30,7 +30,7 @@ def _score(totalcount, categorycount, entitycount, coincidencecount):
     return score, sqrt(var)
 
 def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
-                    mincount=1, entitymap=None):
+                     mincount=1, entitymap=None):
     """Extract and score relevant entities for a given category.
 
     Args:
@@ -93,6 +93,24 @@ def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
                                     count)
                 yield (entity, entitycount, count, score, err)
 
+def entity_cloud(totalcount, categorycount, entitiesq, coincidenceq,
+                 mincount=1, limit=None, sigma=3, entitymap=None):
+    entities = list(relevance_scores(
+        totalcount, categorycount, entitiesq, coincidenceq,
+        mincount=mincount, entitymap=entitymap))
+    entities.sort(key=lambda x: -x[-2])
+    newentities = []
+    for row in entities:
+        score = row[-2]
+        error = row[-1]
+        if limit is not None and len(newentities) > limit:
+            break
+        if sigma is not None and score < sigma*error:
+            continue
+        newentities.append(row)
+
+    return newentities
+                
 def get_skill_cloud(entitytype, categorytype, query,
                     entity_threshold=1, category_threshold=1, count_threshold=1,
                     exact=False):

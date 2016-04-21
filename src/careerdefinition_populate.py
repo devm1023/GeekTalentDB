@@ -397,7 +397,6 @@ if __name__ == '__main__':
     logger.log('TOTAL EXPERIENCE COUNT: {0:d}\n'.format(experiencec))
 
     sectors = get_sectors(args.sector, args.sectors_from, mapper)
-    nrm_sectors = {}
     joblists = {}
     sectorcounts = {}
     countcol = func.count().label('counts')
