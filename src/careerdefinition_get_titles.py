@@ -48,7 +48,9 @@ if __name__ == '__main__':
     sectors = get_sectors(args.sector, args.sectors_from, mapper)
 
     totalc = andb.query(LIProfile.id) \
-                 .filter(LIProfile.nrm_sector != None) \
+                 .join(Location) \
+                 .filter(LIProfile.nrm_sector != None,
+                         Location.nuts0 == 'UK') \
                  .count()
 
     joblists = {}
@@ -59,17 +61,23 @@ if __name__ == '__main__':
         sector = mapper.name(nrm_sector)
         lisectors = mapper.inv(nrm_sector)
         sectorc = andb.query(LIProfile.id) \
-                      .filter(LIProfile.nrm_sector.in_(lisectors)) \
+                      .join(Location) \
+                      .filter(LIProfile.nrm_sector.in_(lisectors),
+                              Location.nuts0 == 'UK') \
                       .count()
 
         # build title cloud
         entityq = lambda entities: \
                   andb.query(LIProfile.nrm_curr_title, countcol) \
+                      .join(Location) \
                       .filter(LIProfile.nrm_curr_title.in_(entities),
-                              LIProfile.nrm_sector != None) \
+                              LIProfile.nrm_sector != None,
+                              Location.nuts0 == 'UK') \
                       .group_by(LIProfile.nrm_curr_title)
         coincidenceq = andb.query(LIProfile.nrm_curr_title, countcol) \
-                           .filter(LIProfile.nrm_sector.in_(lisectors))
+                           .join(Location) \
+                           .filter(LIProfile.nrm_sector.in_(lisectors),
+                                   Location.nuts0 == 'UK')
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
                             entitymap=entitymap, limit=args.max_careers,

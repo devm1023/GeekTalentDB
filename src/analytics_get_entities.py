@@ -23,9 +23,11 @@ if __name__ == '__main__':
 
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     entities = andb.find_entities(args.type,
-                                 args.source,
-                                 args.language,
-                                 args.query)
-    for nrm_name, name, profile_count, sub_document_count in reversed(entities):
-        print('{0:s} ({1:d} profiles, {2:d} sub-documents)' \
+                                  args.source,
+                                  args.language,
+                                  args.query)
+    entities.sort(key=lambda x: x[2])
+    print('num profiles  num sub-docs  entity')
+    for nrm_name, name, profile_count, sub_document_count in entities:
+        print('{1:> 12d}  {2:> 12d}  {0:s}' \
               .format(name, profile_count, sub_document_count))
