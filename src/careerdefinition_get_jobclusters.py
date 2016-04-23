@@ -36,13 +36,11 @@ def distance_matrix(titles, mincount=1):
                              LIProfile.nrm_curr_title == nrm_title) \
                      .count()
         entitiesq = lambda entities: \
-                    andb.query(LIProfileSkill.nrm_name, func.count()) \
-                        .join(LIProfile) \
-                        .join(Location) \
-                        .filter(LIProfile.language == 'en',
-                                Location.nuts0 == 'UK',
-                                LIProfileSkill.nrm_name.in_(entities)) \
-                        .group_by(LIProfileSkill.nrm_name)
+                    andb.query(Entity.nrm_name, Entity.profile_count) \
+                        .filter(Entity.language == 'en',
+                                Entity.type == 'skill',
+                                Entity.source == 'linkedin',
+                                Entity.nrm_name.in_(entities))
         coincidenceq = andb.query(LIProfileSkill.nrm_name, func.count()) \
                            .join(LIProfile) \
                            .join(Location) \
