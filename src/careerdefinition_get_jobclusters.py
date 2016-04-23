@@ -52,6 +52,7 @@ def distance_matrix(titles, mincount=1):
             relevance_scores(totalc, titlec, entitiesq, coincidenceq):
             if skillc < mincount:
                 continue
+            # skillcloud[nrm_skill] = titleskillc
             skillcloud[nrm_skill] = titleskillc/totalc*log(totalc/skillc)
         if skillcloud:
             norm = sqrt(sum(v**2 for v in skillcloud.values()))
@@ -65,7 +66,8 @@ def distance_matrix(titles, mincount=1):
         for j, cloud2 in enumerate(skillclouds):
             for nrm_skill, v1 in cloud1.items():
                 dm[i, j] += v1*cloud2.get(nrm_skill, 0.0)
-            dm[i, j] = acos(max(-1.0, min(1.0, dm[i, j])))
+            # dm[i, j] = acos(max(-1.0, min(1.0, dm[i, j])))
+            dm[i, j] = max(0, 1 - dm[i, j])
             
     return titles, dm
 
