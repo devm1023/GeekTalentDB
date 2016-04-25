@@ -83,6 +83,8 @@ if __name__ == '__main__':
                         help='CSV file with sectors and job titles.')
     parser.add_argument('output_file',
                         help='Name of the HTML file to generate.')
+    parser.add_argument('--clusters', type=int, default=20,
+                        help='Number of clusters.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for skills.')
     parser.add_argument('--random-seed', type=int, default=1234,
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     titlecounts = dict(zip(titles, titlecounts))
 
     logger.log('Generating clusters.\n')
-    clusters, _ = find_clusters(20, skillvectors, labels=titles,
+    clusters, _ = find_clusters(args.clusters, skillvectors, labels=titles,
                                 distance=distance, merge=merge)
     clusters = [(c,
                  max(c, key=lambda x: titlecounts[x]),
