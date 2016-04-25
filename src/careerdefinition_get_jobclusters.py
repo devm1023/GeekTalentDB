@@ -8,6 +8,7 @@ import csv
 from math import log, sqrt, acos
 import argparse
 
+from clustering import find_clusters
 import numpy as np
 from sklearn import manifold
 
@@ -15,7 +16,7 @@ from bokeh.plotting import figure, output_file, show, save, ColumnDataSource
 from bokeh.models import HoverTool
 from bokeh_aspect import *
 
-def distance_matrix(titles, mincount=1):
+def skillvectors(titles, mincount=1):
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     logger = Logger()
 
@@ -24,8 +25,9 @@ def distance_matrix(titles, mincount=1):
                  .filter(LIProfile.language == 'en',
                          Location.nuts0 == 'UK') \
                  .count()
-    skillclouds = []
+    skillvectors = []
     newtitles = []
+    titlecounts = []
     for title in titles:
         logger.log('Processing: {0:s}\n'.format(title))
         nrm_title = normalized_entity('title', 'linkedin', 'en', title)
@@ -47,29 +49,33 @@ def distance_matrix(titles, mincount=1):
                            .filter(LIProfile.language == 'en',
                                    Location.nuts0 == 'UK',
                                    LIProfile.nrm_curr_title == nrm_title)
-        skillcloud = {}
+        skillvector = {}
         for nrm_skill, skillc, titleskillc, _, _ in \
             relevance_scores(totalc, titlec, entitiesq, coincidenceq):
             if skillc < mincount:
                 continue
-            # skillcloud[nrm_skill] = titleskillc
-            skillcloud[nrm_skill] = titleskillc/totalc*log(totalc/skillc)
-        if skillcloud:
-            norm = sqrt(sum(v**2 for v in skillcloud.values()))
-            skillcloud = dict((s, v/norm) for s,v in skillcloud.items())
+            # skillvector[nrm_skill] = titleskillc
+            skillvector[nrm_skill] = titleskillc/totalc*log(totalc/skillc)
+        if skillvector:
+            norm = sqrt(sum(v**2 for v in skillvector.values()))
+            skillvector = dict((s, v/norm) for s,v in skillvector.items())
             newtitles.append(title)
-            skillclouds.append(skillcloud)
+            titlecounts.append(titlec)
+            skillvectors.append(skillvector)
 
-    titles = newtitles
-    dm = np.zeros((len(titles), len(titles)), dtype=float)
-    for i, cloud1 in enumerate(skillclouds):
-        for j, cloud2 in enumerate(skillclouds):
-            for nrm_skill, v1 in cloud1.items():
-                dm[i, j] += v1*cloud2.get(nrm_skill, 0.0)
-            # dm[i, j] = acos(max(-1.0, min(1.0, dm[i, j])))
-            dm[i, j] = max(0, 1 - dm[i, j])
-            
-    return titles, dm
+    return titles, titlecounts, skillvectors
+
+def distance(vec1, vec2):
+    v1sq = sum(v**2 for v in vec1.values())
+    v2sq = sum(v**2 for v in vec2.values())
+    v1v2 = sum(v1*vec2.get(k, 0.0) for k, v1 in vec1.items())
+    return acos(max(0.0, min(1.0, v1v2/sqrt(v1sq*v2sq))))
+
+def merge(vec1, vec2):
+    result = vec1.copy()
+    for k, v2 in vec2.items():
+        result[k] = result.get(k, 0) + v2
+    return result
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -82,6 +88,8 @@ if __name__ == '__main__':
     parser.add_argument('--random-seed', type=int, default=1234,
                         help='Random seed for MDS fit.')
     args = parser.parse_args()
+
+    logger = Logger()
     
     titles = []
     with open(args.input_file, 'r') as input_file:
@@ -91,25 +99,58 @@ if __name__ == '__main__':
                 continue
             titles.append(row[1])
 
-    titles, dm = distance_matrix(titles, args.min_count)
+    titles, titlecounts, skillvectors = skillvectors(titles, args.min_count)
+    titlecounts = dict(zip(titles, titlecounts))
 
-    mds = manifold.MDS(n_components=2, dissimilarity='precomputed',
-                       random_state=args.random_seed)
-    projections = mds.fit(dm).embedding_
-    xvals = projections[:, 0]
-    yvals = projections[:, 1]
+    logger.log('Generating clusters.\n')
+    clusters, _ = find_clusters(20, skillvectors, labels=titles,
+                                distance=distance, merge=merge)
+    clusters = [(c,
+                 max(c, key=lambda x: titlecounts[x]),
+                 sum(titlecounts[t] for t in c)) for c in clusters]
+    clusters.sort(key=lambda c: -c[-1])
+    for cluster, title, count in clusters:
+        logger.log('{0:s} ({1:d})\n'.format(title, count))
+        clusterlist = [(t, titlecounts[t]) for t in cluster]
+        clusterlist.sort(key=lambda x: -x[-1])
+        for title, count in clusterlist:
+            logger.log('    {0:s} ({1:d})\n'.format(title, count))
+    logger.log('\n')
 
-    output_file(args.output_file)
-    source = ColumnDataSource(data=dict(x=xvals, y=yvals, desc=titles))
-    # hover = HoverTool(tooltips="""
-    #         <span style="font-family: Helvetica; font-size: 12pt;">@desc</span>
-    #         """)
-    hover = HoverTool(tooltips=[('Job','@desc')])
-    p = figure(plot_width=800, plot_height=600, tools='pan,wheel_zoom',
-               title="Job Clusters")
-    set_aspect(p, xvals, yvals)
-    p.circle('x', 'y', size=10, source=source)
-    p.add_tools(hover)
+    # logger.log('Generating MDS plot.\n')
+    # mds = manifold.MDS(n_components=2, dissimilarity='precomputed',
+    #                    random_state=args.random_seed)
+    # projections = mds.fit(dm).embedding_
+    # xvals = projections[:, 0]
+    # yvals = projections[:, 1]
 
-    save(p)
+    # maxerr = 0.0
+    # avgerr = 0.0
+    # npoints = len(xvals)
+    # for i in range(npoints):
+    #     for j in range(i):
+    #         d = sqrt((xvals[i]-xvals[j])**2 + (yvals[i]-yvals[j])**2)
+    #         err = abs(d-dm[i,j])/dm[i,j]
+    #         maxerr = max(err, maxerr)
+    #         avgerr += err
+    # avgerr /= npoints*(npoints-1)
+    # logger.log('Maximum error: {0:3.0f}%\n'.format(maxerr*100))
+    # logger.log('Average error: {0:5.1f}%\n'.format(avgerr*100))
+
+    # output_file(args.output_file)
+    # maxlogcount = max(log(count) for count in titlecounts)
+    # alphas = [log(count)/maxlogcount for count in titlecounts]
+    # source = ColumnDataSource(data=dict(x=xvals, y=yvals, count=titlecounts,
+    #                                     desc=titles, alpha=alphas))
+    # # hover = HoverTool(tooltips="""
+    # #         <span style="font-family: Helvetica; font-size: 12pt;">@desc</span>
+    # #         """)
+    # hover = HoverTool(tooltips=[('Job','@desc'), ('Count', '@count')])
+    # p = figure(plot_width=800, plot_height=600, tools='pan,wheel_zoom',
+    #            title="Job Clusters")
+    # set_aspect(p, xvals, yvals)
+    # p.circle('x', 'y', size=15, source=source, alpha='alpha')
+    # p.add_tools(hover)
+
+    # save(p)
     

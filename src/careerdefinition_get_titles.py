@@ -50,6 +50,7 @@ if __name__ == '__main__':
     totalc = andb.query(LIProfile.id) \
                  .join(Location) \
                  .filter(LIProfile.nrm_sector != None,
+                         LIProfile.language == 'en',
                          Location.nuts0 == 'UK') \
                  .count()
 
@@ -63,6 +64,7 @@ if __name__ == '__main__':
         sectorc = andb.query(LIProfile.id) \
                       .join(Location) \
                       .filter(LIProfile.nrm_sector.in_(lisectors),
+                              LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
                       .count()
 
@@ -72,11 +74,13 @@ if __name__ == '__main__':
                       .join(Location) \
                       .filter(LIProfile.nrm_curr_title.in_(entities),
                               LIProfile.nrm_sector != None,
+                              LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
                       .group_by(LIProfile.nrm_curr_title)
         coincidenceq = andb.query(LIProfile.nrm_curr_title, countcol) \
                            .join(Location) \
                            .filter(LIProfile.nrm_sector.in_(lisectors),
+                                   LIProfile.language == 'en',
                                    Location.nuts0 == 'UK')
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
