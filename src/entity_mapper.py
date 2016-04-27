@@ -102,6 +102,6 @@ class EntityMapper:
                            .filter(Entity.nrm_name == entity) \
                            .first()
             if name is None:
-                raise LookupError('Could not find name for entity `{0:s}`.' \
-                                  .format(entity))
+                raise LookupError('Could not find name for entity {0:s}.' \
+                                  .format(repr(entity)))
             return name[0]

@@ -640,24 +640,6 @@ class AnalyticsDB(SQLDatabase):
     def find_entities(self, querytype, source, language, querytext,
                       min_profile_count=None, min_sub_document_count=None,
                       exact=False, normalize=True):
-        if querytype == 'title':
-            nrmfunc = normalized_title
-        elif querytype == 'skill':
-            nrmfunc = normalized_skill
-        elif querytype == 'company':
-            nrmfunc = normalized_company
-        elif querytype == 'sector':
-            nrmfunc = lambda src, lang, name: normalized_sector(name)
-        elif querytype == 'institute':
-            nrmfunc = normalized_institute
-        elif querytype == 'subject':
-            nrmfunc = normalized_subject
-        elif querytype == 'degree':
-            nrmfunc = normalized_degree
-        else:
-            raise ValueError('Unsupported query type `{0:s}`.' \
-                             .format(querytype))
-
         if exact:
             if normalize:
                 entitynames = [normalized_entity(
