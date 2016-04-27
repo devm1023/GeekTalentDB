@@ -49,6 +49,7 @@ class EntityMapper:
                 if nrm_entity2 not in inv_nrm_map:
                     inv_nrm_map[nrm_entity2] = set()
                 inv_nrm_map[nrm_entity2].add(nrm_entity1)
+                self._names[nrm_sector, nrm_entity1] = entity1
                 self._names[nrm_sector, nrm_entity2] = entity2
 
     def __call__(self, entity, sector=None, nrm_sector=None, language='en'):
@@ -65,6 +66,11 @@ class EntityMapper:
         if entity in nrm_map:
             return nrm_map[entity]
         return entity
+
+    def __iter__(self):
+        for sector, inv_map in self._inv_nrm_maps.items():
+            for item in inv_map.keys():
+                yield item
 
     def inv(self, entity, sector=None, nrm_sector=None, language='en'):
         if sector is not None:

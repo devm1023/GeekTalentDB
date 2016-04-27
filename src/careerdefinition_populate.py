@@ -4,121 +4,11 @@ from analyticsdb import *
 from analytics_get_entitycloud import relevance_scores
 from careerdefinitiondb import CareerDefinitionDB
 from textnormalization import normalized_entity, normalized_sector
+from entity_mapper import EntityMapper
 from sqlalchemy import func
 import csv
 import argparse
 
-
-class EntityMapper:
-    def __init__(self, db, filename):
-        self._db = db
-        self._nrm_maps = {None : {}}
-        self._inv_nrm_maps = {None : {}}
-        self._names = {}
-        if not filename:
-            return
-        with open(filename, 'r') as csvfile:
-            csvreader = csv.reader(row for row in csvfile \
-                                   if not row.strip().startswith('#'))
-            rowcount = 0
-            for row in csvreader:
-                rowcount += 1
-                if len(row) != 5:
-                    raise IOError('Invalid row in CSV file:\n{0:s}' \
-                                  .format(repr(row)))
-                type = row[0].strip()
-                language = row[1].strip()
-                sector = row[2].strip()
-                if not sector or type == 'sector':
-                    sector = None
-                entity1 = row[3].strip()
-                entity2 = row[4].strip()
-                nrm_sector = normalized_entity('sector', 'linkedin', language,
-                                               sector)
-                if nrm_sector not in self._nrm_maps:
-                    self._nrm_maps[nrm_sector] = {}
-                    self._inv_nrm_maps[nrm_sector] = {}
-                nrm_map = self._nrm_maps[nrm_sector]
-                inv_nrm_map = self._inv_nrm_maps[nrm_sector]
-                nrm_entity1 = normalized_entity(type, 'linkedin', language,
-                                              entity1)
-                nrm_entity2 = normalized_entity(type, 'linkedin', language,
-                                              entity2)
-                if not nrm_entity1 or not nrm_entity2:
-                    raise IOError('Invalid row in CSV file:\n{0:s}' \
-                                  .format(repr(row)))
-                if nrm_entity1 in nrm_map:
-                    raise IOError('Duplicate entry in row in CSV file:\n{0:s}' \
-                                  .format(repr(row)))
-                nrm_map[nrm_entity1] = nrm_entity2
-                if nrm_entity2 not in inv_nrm_map:
-                    inv_nrm_map[nrm_entity2] = set()
-                inv_nrm_map[nrm_entity2].add(nrm_entity1)
-                self._names[nrm_sector, nrm_entity2] = entity2
-
-    def __call__(self, entity, sector=None, nrm_sector=None, language='en'):
-        if sector is not None:
-            nrm_sector = normalized_entity('sector', 'linkedin', language,
-                                           sector)
-        if nrm_sector in self._nrm_maps[None]:
-            nrm_sector = self._nrm_maps[None][nrm_sector]
-        if nrm_sector is not None and nrm_sector in self._nrm_maps:
-            nrm_map = self._nrm_maps[nrm_sector]
-            if entity in nrm_map:
-                return nrm_map[entity]
-        nrm_map = self._nrm_maps[None]
-        if entity in nrm_map:
-            return nrm_map[entity]
-        return entity
-
-    def inv(self, entity, sector=None, nrm_sector=None, language='en'):
-        if sector is not None:
-            nrm_sector = normalized_entity('sector', 'linkedin', language,
-                                           sector)
-        if nrm_sector in self._nrm_maps[None]:
-            nrm_sector = self._nrm_maps[None][nrm_sector]
-        inv_nrm_map = self._inv_nrm_maps[None]
-        result = set(inv_nrm_map.get(entity, []))
-        if nrm_sector is not None:
-            inv_nrm_map = self._inv_nrm_maps.get(nrm_sector, {})
-            result.update(inv_nrm_map.get(entity, []))
-        if not result:
-            return set([entity])
-        return result
-
-    def name(self, entity, sector=None, nrm_sector=None, language='en'):
-        if sector is not None:
-            nrm_sector = normalized_entity('sector', 'linkedin', language,
-                                           sector)
-        if nrm_sector in self._nrm_maps[None]:
-            nrm_sector = self._nrm_maps[None][nrm_sector]
-        if (nrm_sector, entity) in self._names:
-            return self._names[nrm_sector, entity]
-        elif (None, entity) in self._names:
-            return self._names[None, entity]
-        else:
-            name = self._db.query(Entity.name) \
-                           .filter(Entity.nrm_name == entity) \
-                           .first()
-            if name is None:
-                raise LookupError('Could not find name for entity `{0:s}`.' \
-                                  .format(entity))
-            return name[0]
-
-def sort_entities(entities, limit=None, min_significance=None):
-    entities = list(entities)
-    entities.sort(key=lambda x: -x[-2])
-    newentities = []
-    for row in entities:
-        score = row[-2]
-        error = row[-1]
-        if limit is not None and len(newentities) > limit:
-            break
-        if min_significance is not None and score < min_significance*error:
-            continue
-        newentities.append(row)
-
-    return newentities
 
 def count_entities(q, mapper, nrm_sector=None, mincount=1, limit=None):
     if mapper is None:
@@ -156,63 +46,62 @@ def count_entities(q, mapper, nrm_sector=None, mincount=1, limit=None):
         entitycounts = entitycounts[:limit]
     return totalcount, entitycounts
 
-def get_skill_cloud(andb, mapper, experiencec, titlec, nrm_sector, nrm_title,
+def get_skill_cloud(andb, mapper, profilec, titlec, titles, nrm_sector,
                     sigma, limit):
-    nrm_title = mapper(nrm_title, nrm_sector=nrm_sector)
-    titles = mapper.inv(nrm_title, nrm_sector=nrm_sector)
     countcol = func.count().label('counts')
     entityq = lambda entities: \
-              andb.query(Entity.nrm_name, Entity.sub_document_count) \
-                  .filter(Entity.nrm_name.in_(entities))
-    coincidenceq = andb.query(LIExperienceSkill.nrm_skill, countcol) \
-                       .join(LIExperience) \
-                       .filter(LIExperience.nrm_title.in_(titles))
+              andb.query(LIProfileSkill.nrm_name, countcol) \
+                  .join(LIProfile) \
+                  .join(Location)
+                  .filter(Location.nuts0 == 'UK',
+                          LIProfile.language == 'en',
+                          LIProfileSkill.nrm_name.in_(entities))
+                  .group_by(LIProfileSkill.nrm_name)
+    coincidenceq = andb.query(LIProfileSkill.nrm_skill, countcol) \
+                       .join(LIProfile) \
+                       .join(Location)
+                       .filter(Location.nuts0 == 'UK',
+                               LIProfile.language == 'en',
+                               LIProfile.nrm_curr_title.in_(titles))
     entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-    skillcloud = sort_entities(
-        relevance_scores(experiencec, titlec, entityq, coincidenceq,
-                         entitymap=entitymap),
-        min_significance=sigma, limit=limit)
+    skillcloud = entity_cloud(profilec, titlec, entityq, coincidenceq,
+                              sigma=sigma, limit=limit, entitymap=entitymap)
     result = []
-    for skill, skillc, sectortitleskillc, score, _ in skillcloud:
+    for skill, skillc, titleskillc, score, _ in skillcloud:
         result.append({
             'skill_name' : mapper.name(skill, nrm_sector=nrm_sector),
-            'total_count' : experiencec,
+            'total_count' : profilec,
             'title_count' : titlec,
             'skill_count' : skillc,
-            'count' : sectortitleskillc,
+            'count' : titleskillc,
             'relevance_score' : score,
             'visible' : True,
         })
     return result
 
-def get_company_cloud(andb, mapper, experiencec, titlec, nrm_sector, nrm_title,
+def get_company_cloud(andb, mapper, profilec, titlec, titles, nrm_sector,
                       sigma, limit):
-    nrm_title = mapper(nrm_title, nrm_sector=nrm_sector)
-    titles = mapper.inv(nrm_title, nrm_sector=nrm_sector)
     countcol = func.count().label('counts')
-    titlec = andb.query(LIExperience.id) \
-                       .join(LIProfile) \
-                       .filter(LIProfile.nrm_sector == nrm_sector,
-                               LIExperience.nrm_title.in_(titles)) \
-                     .count()
     entityq = lambda entities: \
-              andb.query(Entity.nrm_name,
-                         Entity.sub_document_count) \
-                  .filter(Entity.nrm_name.in_(entities))
-    coincidenceq = andb.query(LIExperience.nrm_company, countcol) \
-                       .join(LIProfile) \
-                       .filter(LIProfile.nrm_sector == nrm_sector,
-                               LIExperience.nrm_title.in_(titles))
+              andb.query(LIProfile.nrm_company, countcol) \
+                  .join(Location)
+                  .filter(Location.nuts0 == 'UK',
+                          LIProfile.language == 'en',
+                          LIProfile.nrm_company.in_(entities)) \
+                  .group_by(LIProfile.nrm_company)
+    coincidenceq = andb.query(LIProfile.nrm_company, countcol) \
+                       .join(Location)
+                       .filter(Location.nuts0 == 'UK',
+                               LIProfile.language == 'en',
+                               LIProfile.nrm_curr_title.in_(titles))
     entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-    companycloud = sort_entities(
-        relevance_scores(experiencec, titlec, entityq, coincidenceq,
-                         entitymap=entitymap),
-        min_significance=sigma, limit=limit)
+    companycloud = entity_cloud(profilec, titlec, entityq, coincidenceq,
+                                sigma=sigma, limit=limit, entitymap=entitymap)
     result = []
     for company, companyc, titlecompanyc, score, _ in companycloud:
         result.append({
             'company_name' : mapper.name(company, nrm_sector=nrm_sector),
-            'total_count' : experiencec,
+            'total_count' : profilec,
             'title_count' : titlec,
             'company_count' : companyc,
             'count' : titlecompanyc,
@@ -325,13 +214,19 @@ def get_sectors(sectors, filename, mapper):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('sector',
+                        help='Name of the sector to populate')
+    parser.add_argument('--careers',
+                        help='Name of file holding careers. If absent, the'
+                        'titles from the mappings file are used.')
+    parser.add_argument('--mappings',
+                        help='Name of a csv file holding entity mappings. '
+                        'Columns: type | lang | sector | name | mapped name')
     parser.add_argument('--max-entities', type=int, default=25,
                         help='Maximum number of entities in clouds.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for an object to be included '
                         'in a list.')
-    parser.add_argument('--max-careers', type=int,
-                        help='Maximum number of careers per sector.')
     parser.add_argument('--max-skills', type=int,
                         help='Maximum number of skills in skill clouds.')
     parser.add_argument('--max-companies', type=int,
@@ -355,17 +250,8 @@ if __name__ == '__main__':
                         help='Minimal significance of relevance scores.')
     parser.add_argument('--get-descriptions', action='store_true',
                         help='Retreive entity descriptions from IBM Watson.')
-    parser.add_argument('--sectors-from',
-                        help='Name of file holding sector names.')
-    parser.add_argument('--mappings',
-                        help='Name of a csv file holding entity mappings. '
-                        'Columns: type | lang | sector | name | mapped name')
-    parser.add_argument('sector', nargs='*', default=[],
-                        help='The LinkedIn sectors to scan.')
     args = parser.parse_args()
 
-    if args.max_careers is None:
-        args.max_careers = args.max_entities
     if args.max_skills is None:
         args.max_skills = args.max_entities
     if args.max_companies is None:
@@ -390,123 +276,85 @@ if __name__ == '__main__':
     cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
     mapper = EntityMapper(andb, args.mappings)
 
-    experiencec = andb.query(LIExperience.id) \
-                      .join(LIProfile) \
-                      .filter(LIProfile.nrm_sector != None) \
-                      .count()
-    logger.log('TOTAL EXPERIENCE COUNT: {0:d}\n'.format(experiencec))
+    nrm_sector = normalized_entity('sector', 'linkedin', 'en', args.sector)
 
-    sectors = get_sectors(args.sector, args.sectors_from, mapper)
-    joblists = {}
-    sectorcounts = {}
-    countcol = func.count().label('counts')
-    for nrm_sector in sectors:
-        lisectors = mapper.inv(nrm_sector)
-        sectorc, = andb.query(func.sum(Entity.sub_document_count)) \
-                       .filter(Entity.nrm_name.in_(lisectors)) \
-                       .first()
-        sectorc = int(sectorc)
-        sectorcounts[nrm_sector] = sectorc
+    # get total number of profiles
+    profilec = andb.query(LIProfile.id) \
+                   .join(Location) \
+                   .filter(Location.nuts0 == 'UK',
+                           LIProfile.language == 'en') \
+                   .count()
+    logger.log('TOTAL PROFILE COUNT: {0:d}\n'.format(experiencec))
 
-        # build skill cloud
-        entityq = lambda entities: \
-                  andb.query(LIExperienceSkill.nrm_skill, countcol) \
-                      .join(LIExperience) \
-                      .join(LIProfile) \
-                      .filter(LIExperienceSkill.nrm_skill.in_(entities),
-                              LIProfile.nrm_sector != None) \
-                      .group_by(LIExperienceSkill.nrm_skill)
-        coincidenceq = andb.query(LIExperienceSkill.nrm_skill, countcol) \
-                           .join(LIExperience) \
-                           .join(LIProfile) \
-                           .filter(LIProfile.nrm_sector == nrm_sector)
-        entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        for skill, skillc, sectorskillc, score, error in sort_entities(
-                relevance_scores(experiencec, sectorc, entityq, coincidenceq,
-                                 entitymap=entitymap),
-                limit=args.max_skills, min_significance=args.sigma):
-            cddb.add_sector_skill({'sector_name' : mapper.name(nrm_sector),
-                                   'skill_name' : mapper.name(
-                                       skill, nrm_sector=nrm_sector),
-                                   'total_count' : experiencec,
-                                   'sector_count' : sectorc,
-                                   'skill_count' : skillc,
-                                   'count' : sectorskillc,
-                                   'relevance_score' : score,
-                                   'visible' : True})
+    # get list of careers to add
+    if args.careers:
+        careers = []
+        with open(args.careers, 'r') as inputfile:
+            for line in inputfile:
+                career = line.strip()
+                nrm_career = normalized_entity(
+                    'title', 'linkedin', 'en', career)
+                careers.append((career, nrm_career))
+    else:
+        careers = [(mapper.name(t), t) for t in mapper \
+                   if split_nrm_name(t)[0] != 'title']
 
-        # build title cloud
-        entityq = lambda entities: \
-                  andb.query(LIExperience.nrm_title, countcol) \
-                      .join(LIProfile) \
-                      .filter(LIExperience.nrm_title.in_(entities),
-                              LIProfile.nrm_sector != None) \
-                      .group_by(LIExperience.nrm_title)
-        coincidenceq = andb.query(LIExperience.nrm_title, countcol) \
-                           .join(LIProfile) \
-                           .filter(LIProfile.nrm_sector.in_(lisectors))
-        entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        joblists[nrm_sector] = sort_entities(
-            relevance_scores(experiencec, sectorc, entityq, coincidenceq,
-                             entitymap=entitymap),
-            limit=args.max_careers, min_significance=args.sigma)
+    for career, nrm_career in careers:
+        # get job titles for career
+        titles = []
+        for nrm_title in mapper.inv(nrm_career, nrm_sector=nrm_sector):
+            titles.append(nrm_title)
+            tpe, source, language, words = split_nrm_name(nrm_title)
+            if len(words.split()) > 1:
+                for entity, _, _, _ in andb.find_entities(
+                        tpe, source, language, words, normalize=False):
+                    titles.append(entity)
 
-    for nrm_sector in sectors:
-        lisectors = mapper.inv(nrm_sector)
-        jobs = joblists[nrm_sector]
-        sectorc = sectorcounts[nrm_sector]
-        logger.log('{0:d} {1:s}\n'.format(sectorc,
-                                          mapper.name(nrm_sector)))
-        for nrm_title, titlec, sectortitlec, score, error in jobs:
-            title = mapper.name(nrm_title, nrm_sector=nrm_sector)
-            logger.log('    {0:>6.2f}% ({1:6.2f}% - {2:6.2f}%) {3:s}\n' \
-                  .format(score*100,
-                          sectortitlec/sectorc*100.0,
-                          (titlec-sectortitlec)/(experiencec-sectorc)*100.0,
-                          title))
-            careerdict = {'title' : title,
-                          'linkedin_sector' : mapper.name(nrm_sector),
-                          'total_count' : experiencec,
-                          'sector_count' : sectorc,
-                          'title_count' : titlec,
-                          'count' : sectortitlec,
-                          'relevance_score' : score,
-                          'visible' : True,
-            }
+        # count total number of people in this career
+        titlec = andb.query(LIProfile.id) \
+                     .join(Location) \
+                     .filter(Location.nuts0 == 'UK',
+                             LIProfile.language == 'en',
+                             LIProfile.nrm_curr_title.in_(titles)) \
+                     .count()
 
-            titles = mapper.inv(nrm_title, nrm_sector=nrm_sector)
-            titlec = andb.query(LIExperience.id) \
-                         .filter(LIExperience.nrm_title.in_(titles)) \
-                         .count()
-            
-            careerdict['skill_cloud'] \
-                = get_skill_cloud(andb, mapper, experiencec, titlec,
-                                  nrm_sector, nrm_title,
-                                  args.sigma, args.max_skills)
-            careerdict['company_cloud'] \
-                = get_company_cloud(andb, mapper, experiencec, titlec,
-                                    nrm_sector, nrm_title,
-                                    args.sigma, args.max_companies)
+        careerdict = {'title' : career,
+                      'linkedin_sector' : args.sector,
+                      'total_count' : profilec,
+                      'sector_count' : None,
+                      'title_count' : None,
+                      'count' : titlec,
+                      'relevance_score' : None,
+                      'visible' : True,
+        }
+        
+        careerdict['skill_cloud'] \
+            = get_skill_cloud(andb, mapper, profilec, titlec, titles,
+                              nrm_sector, args.sigma, args.max_skills)
+        careerdict['company_cloud'] \
+            = get_company_cloud(andb, mapper, profilec, titlec, titles,
+                                nrm_sector, args.sigma, args.max_companies)
 
-            q = andb.query(LIProfile.id) \
-                    .join(LIExperience) \
-                    .filter((LIExperience.nrm_title.in_(titles)) \
-                            | (LIProfile.nrm_curr_title.in_(titles))) \
-                    .distinct()
-            profile_ids = [id for id, in q]
-            (careerdict['education_subjects_total'],
-             careerdict['education_subjects']) = get_subjects(
-                 andb, mapper, nrm_sector, profile_ids,
-                 args.min_subject_count, args.max_subjects)
-            (careerdict['education_institutes_total'],
-             careerdict['education_institutes']) = get_institutes(
-                 andb, mapper, nrm_sector, profile_ids,
-                 args.min_institute_count, args.max_institutes)
+        q = andb.query(LIProfile.id) \
+                .join(Location) \
+                .filter(Location.nuts0 == 'UK',
+                        LIProfile.language == 'en',
+                        LIProfile.nrm_curr_title.in_(titles)) \
+                .distinct()
+        profile_ids = [id for id, in q]
+        (careerdict['education_subjects_total'],
+         careerdict['education_subjects']) = get_subjects(
+             andb, mapper, nrm_sector, profile_ids,
+             args.min_subject_count, args.max_subjects)
+        (careerdict['education_institutes_total'],
+         careerdict['education_institutes']) = get_institutes(
+             andb, mapper, nrm_sector, profile_ids,
+             args.min_institute_count, args.max_institutes)
 
-            (careerdict['previous_titles_total'], careerdict['previous_titles'],
-             careerdict['next_titles_total'], careerdict['next_titles']) \
-             = get_career_steps(andb, mapper, nrm_sector, nrm_title,
-                                args.min_careerstep_count, args.max_careersteps)
+        (careerdict['previous_titles_total'], careerdict['previous_titles'],
+         careerdict['next_titles_total'], careerdict['next_titles']) \
+         = get_career_steps(andb, mapper, nrm_sector, nrm_title,
+                            args.min_careerstep_count, args.max_careersteps)
 
-            cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
-            cddb.commit()
+        cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
+        cddb.commit()

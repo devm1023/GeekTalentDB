@@ -82,9 +82,11 @@ if __name__ == '__main__':
     parser.add_argument('input_file',
                         help='CSV file with sectors and job titles.')
     parser.add_argument('output_file',
-                        help='Name of the HTML file to generate.')
+                        help='Name of the CSV file to generate.')    
     parser.add_argument('--clusters', type=int, default=20,
                         help='Number of clusters.')
+    parser.add_argument('--reprocess', action='store_true',
+                        help='Generate output file suitable for re-processing.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for skills.')
     parser.add_argument('--random-seed', type=int, default=1234,
@@ -118,6 +120,16 @@ if __name__ == '__main__':
         for title, count in clusterlist:
             logger.log('    {0:s} ({1:d})\n'.format(title, count))
     logger.log('\n')
+
+    with open(args.output_file, 'w') as outputfile:
+        csvwriter = csv.writer(outputfile)
+        for cluster, title, count in clusters:
+            for subtitle in cluster:
+                if args.reprocess:
+                    csvwriter.writerow([title, subtitle])
+                else:
+                    csvwriter.writerow(['title', 'en', '', subtitle, title])
+            
 
     # logger.log('Generating MDS plot.\n')
     # mds = manifold.MDS(n_components=2, dissimilarity='precomputed',

@@ -21,9 +21,7 @@ __all__ = [
 
 import conf
 from sqldb import *
-from textnormalization import normalized_title, normalized_company, \
-    normalized_skill, normalized_sector, normalized_institute, \
-    normalized_subject, normalized_degree, split_nrm_name
+from textnormalization import normalized_entity, split_nrm_name, make_nrm_name
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -640,8 +638,8 @@ class AnalyticsDB(SQLDatabase):
         return self.add_from_dict(inprofile, INProfile)
 
     def find_entities(self, querytype, source, language, querytext,
-                     min_profile_count=None, min_sub_document_count=None,
-                     exact=False):
+                      min_profile_count=None, min_sub_document_count=None,
+                      exact=False, normalize=True):
         if querytype == 'title':
             nrmfunc = normalized_title
         elif querytype == 'skill':
@@ -661,10 +659,18 @@ class AnalyticsDB(SQLDatabase):
                              .format(querytype))
 
         if exact:
-            entitynames = [nrmfunc(source, language, querytext)]
+            if normalize:
+                entitynames = [normalized_entity(
+                    querytype, source, language, querytext)]
+            else:
+                entitynames = [make_nrm_name(
+                    querytype, source, language, querytext)]
         else:
-            words = split_nrm_name(nrmfunc(source, language, querytext))[-1] \
-                    .split()
+            if normalize:
+                words = split_nrm_name(normalized_entity(
+                    querytype, source, language, querytext))[-1].split()
+            else:
+                words = querytext.split()
             words = list(set(words))
             if not words:
                 return [], []
