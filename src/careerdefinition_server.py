@@ -343,5 +343,5 @@ admin.add_view(NextTitleView(NextTitle, db.session))
 admin.add_view(EntityDescriptionView(EntityDescription, db.session))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
 
