@@ -73,10 +73,12 @@ def get_career_steps(andb, mapper, nrm_sector, titles, mincount=1,
     previous_titles_total = 0
     next_titles_total = 0
     q = andb.query(LIProfile) \
+            .join(LIExperience) \
             .join(Location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
-                    LIProfile.nrm_curr_title.in_(titles))
+                    LIExperience.nrm_title.in_(titles)) \
+            .distinct()
     for liprofile in q:
         experience_titles = []
         for experience in liprofile.experiences:
@@ -86,7 +88,7 @@ def get_career_steps(andb, mapper, nrm_sector, titles, mincount=1,
             if not experience_titles or experience_titles[-1] != mapped_title:
                 experience_titles.append(mapped_title)
         for i, title in enumerate(experience_titles):
-            if title != nrm_title:
+            if title not in titles:
                 continue
             if i > 0:
                 prev_title = experience_titles[i-1]
@@ -336,7 +338,7 @@ if __name__ == '__main__':
         logger.log('Building career steps.\n')
         (careerdict['previous_titles_total'], careerdict['previous_titles'],
          careerdict['next_titles_total'], careerdict['next_titles']) \
-         = get_career_steps(andb, mapper, nrm_sector, nrm_title,
+         = get_career_steps(andb, mapper, nrm_sector, titles,
                             args.min_careerstep_count, args.max_careersteps)
 
         cddb.add_career(careerdict, get_descriptions=args.get_descriptions)

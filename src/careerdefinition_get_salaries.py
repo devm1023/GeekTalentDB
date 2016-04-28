@@ -1,6 +1,7 @@
 import conf
 from careerdefinitiondb import *
 from logger import Logger
+from datetime import datetime
 import requests
 import argparse
 
@@ -62,7 +63,7 @@ if __name__ == '__main__':
                         .json()
             if 'month' in r:
                 chart = [(datetime.strptime(key, '%Y-%m'), val) \
-                         for key, val in r['month']]
+                         for key, val in r['month'].items()]
                 for date, salary in chart:
                     salary_history_point \
                         = SalaryHistoryPoint(career_id=career.id,

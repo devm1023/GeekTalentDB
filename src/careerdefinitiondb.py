@@ -355,6 +355,9 @@ class CareerDefinitionDB(SQLDatabase):
                 careerdict['average_salary'] = wsum/totalcount
             else:
                 careerdict['average_salary'] = None
+
+            for point in careerdict['salary_history_points']:
+                point['date'] = point['date'].strftime('%Y-%m')
             
             careerdict['description'] = self._get_entity_description(
                     'title', career.linkedin_sector, career.title)
