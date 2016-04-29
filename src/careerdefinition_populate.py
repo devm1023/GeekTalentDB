@@ -72,35 +72,34 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
     next_titles = {}
     previous_titles_total = 0
     next_titles_total = 0
-    q = andb.query(LIProfile) \
+    q = andb.query(LIProfile.id,
+                   LIExperience.nrm_title) \
             .join(LIExperience) \
             .join(Location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
-                    LIExperience.nrm_title.in_(titles)) \
-            .distinct()
-    for liprofile in q:
-        experience_titles = []
-        for experience in liprofile.experiences:
-            if not experience.nrm_title or not experience.start:
-                continue
-            if experience.nrm_title in titles:
+                    LIExperience.nrm_title.in_(titles),
+                    LIExperience.start != None) \
+            .order_by(LIProfile.id, LIExperience.start)
+    for _, experience_titles in collapse(q):
+        mapped_titles = []
+        for title, in experience_titles:
+            if title in titles:
                 mapped_title = nrm_title
             else:
-                mapped_title = mapper(experience.nrm_title,
-                                      nrm_sector=nrm_sector)
-            if not experience_titles or experience_titles[-1] != mapped_title:
-                experience_titles.append(mapped_title)
-        for i, title in enumerate(experience_titles):
+                mapped_title = mapper(title, nrm_sector=nrm_sector)
+            if not mapped_titles or mapped_titles[-1] != mapped_title:
+                mapped_titles.append(mapped_title)
+        for i, title in enumerate(mapped_titles):
             if title != nrm_title:
                 continue
             if i > 0:
-                prev_title = experience_titles[i-1]
+                prev_title = mapped_titles[i-1]
                 previous_titles[prev_title] \
                     = previous_titles.get(prev_title, 0) + 1
                 previous_titles_total += 1
-            if i < len(experience_titles)-1:
-                next_title = experience_titles[i+1]
+            if i < len(mapped_titles)-1:
+                next_title = mapped_titles[i+1]
                 next_titles[next_title] = next_titles.get(next_title, 0) + 1
                 next_titles_total += 1
     previous_titles = [

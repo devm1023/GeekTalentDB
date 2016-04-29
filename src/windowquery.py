@@ -211,3 +211,20 @@ def process_db(q, f, db, batchsize=1000, logger=Logger(None),
     if recordcount % batchsize != 0:
         db.commit()
         logger.log(msg.format(recordcount))
+
+
+def collapse(q, on=1):
+    currentid = None
+    rows = []
+    for row in q:
+        newid = row[:on]
+        fields = row[on:]
+        if currentid is None:
+            currentid = newid
+        if newid != currentid:
+            yield currentid, rows
+            rows = []
+            currentid = newid
+        rows.append(fields)
+    if currentid is not None:
+        yield currentid, rows
