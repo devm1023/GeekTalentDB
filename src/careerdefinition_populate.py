@@ -3,6 +3,7 @@ from logger import Logger
 from analyticsdb import *
 from analytics_get_entitycloud import entity_cloud
 from textnormalization import normalized_entity, make_nrm_name, split_nrm_name
+from windowquery import collapse
 from careerdefinitiondb import CareerDefinitionDB
 from entity_mapper import EntityMapper
 from sqlalchemy import func

@@ -85,7 +85,7 @@ if __name__ == '__main__':
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
                             entitymap=entitymap, limit=args.max_careers,
-                            sigma=args.sigma)
+                            mincount=args.min_count, sigma=args.sigma)
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title)
             frac1 = sectortitlec/sectorc

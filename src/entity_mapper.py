@@ -45,8 +45,9 @@ class EntityMapper:
                 if nrm_entity1 in nrm_map:
                     raise IOError('Duplicate entry in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
-                if nrm_entity1 in inv_nrm_map \
-                   or nrm_entity1 in self._inv_nrm_maps[None]:
+                if nrm_entity1 != nrm_entity2 and \
+                   (nrm_entity1 in inv_nrm_map \
+                    or nrm_entity1 in self._inv_nrm_maps[None]):
                     raise IOError('Circular mapping in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
                 nrm_map[nrm_entity1] = nrm_entity2
