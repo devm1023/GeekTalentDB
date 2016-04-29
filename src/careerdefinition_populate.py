@@ -66,7 +66,7 @@ def get_company_cloud(andb, mapper, nrm_sector, profilec, titlec,
         })
     return result
 
-def get_career_steps(andb, mapper, nrm_sector, titles, mincount=1,
+def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
                      limit=None):
     previous_titles = {}
     next_titles = {}
@@ -84,11 +84,15 @@ def get_career_steps(andb, mapper, nrm_sector, titles, mincount=1,
         for experience in liprofile.experiences:
             if not experience.nrm_title or not experience.start:
                 continue
-            mapped_title = mapper(experience.nrm_title, nrm_sector=nrm_sector)
+            if experience.nrm_title in titles:
+                mapped_title = nrm_title
+            else:
+                mapped_title = mapper(experience.nrm_title,
+                                      nrm_sector=nrm_sector)
             if not experience_titles or experience_titles[-1] != mapped_title:
                 experience_titles.append(mapped_title)
         for i, title in enumerate(experience_titles):
-            if title not in titles:
+            if title != nrm_title:
                 continue
             if i > 0:
                 prev_title = experience_titles[i-1]
@@ -338,7 +342,7 @@ if __name__ == '__main__':
         logger.log('Building career steps.\n')
         (careerdict['previous_titles_total'], careerdict['previous_titles'],
          careerdict['next_titles_total'], careerdict['next_titles']) \
-         = get_career_steps(andb, mapper, nrm_sector, titles,
+         = get_career_steps(andb, mapper, nrm_sector, nrm_title, titles,
                             args.min_careerstep_count, args.max_careersteps)
 
         cddb.add_career(careerdict, get_descriptions=args.get_descriptions)

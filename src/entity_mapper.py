@@ -40,10 +40,14 @@ class EntityMapper:
                 nrm_entity2 = normalized_entity(type, 'linkedin', language,
                                               entity2)
                 if not nrm_entity1 or not nrm_entity2:
-                    raise IOError('Invalid row in CSV file:\n{0:s}' \
+                    raise IOError('Invalid row in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
                 if nrm_entity1 in nrm_map:
-                    raise IOError('Duplicate entry in row in CSV file:\n{0:s}' \
+                    raise IOError('Duplicate entry in CSV file:\n{0:s}\n' \
+                                  .format(repr(row)))
+                if nrm_entity1 in inv_nrm_map \
+                   or nrm_entity1 in self._inv_nrm_maps[None]:
+                    raise IOError('Circular mapping in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
                 nrm_map[nrm_entity1] = nrm_entity2
                 if nrm_entity2 not in inv_nrm_map:
@@ -79,12 +83,11 @@ class EntityMapper:
         if nrm_sector in self._nrm_maps[None]:
             nrm_sector = self._nrm_maps[None][nrm_sector]
         inv_nrm_map = self._inv_nrm_maps[None]
-        result = set(inv_nrm_map.get(entity, []))
+        result = set([entity])
+        result.update(inv_nrm_map.get(entity, []))
         if nrm_sector is not None:
             inv_nrm_map = self._inv_nrm_maps.get(nrm_sector, {})
             result.update(inv_nrm_map.get(entity, []))
-        if not result:
-            return set([entity])
         return result
 
     def name(self, entity, sector=None, nrm_sector=None, language='en'):
