@@ -79,7 +79,7 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
             .join(Location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
-                    LIExperience.nrm_title.in_(titles),
+                    LIExperience.nrm_title != None,
                     LIExperience.start != None) \
             .order_by(LIProfile.id, LIExperience.start)
     for _, experience_titles in collapse(q):

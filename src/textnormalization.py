@@ -6,6 +6,7 @@ import re
 _stopwords_en = set(nltk.corpus.stopwords.words('english')) \
                 - set(['it', 's', 't', 'can', 'do'])
 _protect_en = set(['hospitality'])
+# _protect_en = set(['hospitality', 'animal', 'animals'])
 _stemmer_en = nltk.stem.snowball.SnowballStemmer('english')
 
 _stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
