@@ -4,7 +4,7 @@ from analyticsdb import *
 from analytics_get_entitycloud import entity_cloud
 from textnormalization import normalized_entity, make_nrm_name, split_nrm_name
 from windowquery import collapse
-from careerdefinitiondb import CareerDefinitionDB
+from careerdefinitiondb import CareerDefinitionDB, Sector
 from entity_mapper import EntityMapper
 from sqlalchemy import func
 import csv
@@ -16,7 +16,7 @@ def _get_items(keys, d):
         if key in d:
             yield key, d[key]
 
-def get_skill_cloud(andb, mapper, nrm_sector, profilec, titlec,
+def get_skill_cloud(andb, mapper, nrm_sector, profilec, categoryc,
                     skillcounts, titles, sigma, limit):
     countcol = func.count().label('counts')
     entityq = lambda entities: _get_items(entities, skillcounts)
@@ -24,25 +24,34 @@ def get_skill_cloud(andb, mapper, nrm_sector, profilec, titlec,
                        .join(LIProfile) \
                        .join(Location) \
                        .filter(Location.nuts0 == 'UK',
-                               LIProfile.language == 'en',
-                               LIProfile.nrm_curr_title.in_(titles))
-    entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-    skillcloud = entity_cloud(profilec, titlec, entityq, coincidenceq,
+                               LIProfile.language == 'en')
+    if titles is not None:
+        coincidenceq = coincidenceq.filter(LIProfile.nrm_curr_title.in_(titles))
+        entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
+        category_count_col = 'title_count'
+    else:
+        sectors = mapper.inv(nrm_sector)
+        coincidenceq = coincidenceq.filter(LIProfile.nrm_sector.in_(sectors))
+        entitymap = mapper
+        category_count_col = 'sector_count'
+        
+    skillcloud = entity_cloud(profilec, categoryc, entityq, coincidenceq,
                               sigma=sigma, limit=limit, entitymap=entitymap)
     result = []
-    for skill, skillc, titleskillc, score, _ in skillcloud:
+    for skill, skillc, count, score, _ in skillcloud:
         result.append({
             'skill_name' : mapper.name(skill, nrm_sector=nrm_sector),
             'total_count' : profilec,
-            'title_count' : titlec,
+            category_count_col : categoryc,
             'skill_count' : skillc,
-            'count' : titleskillc,
+            'count' : count,
             'relevance_score' : score,
             'visible' : True,
         })
     return result
 
-def get_company_cloud(andb, mapper, nrm_sector, profilec, titlec,
+
+def get_company_cloud(andb, mapper, nrm_sector, profilec, categoryc,
                       companycounts, titles, sigma, limit):
     countcol = func.count().label('counts')
     entityq = lambda entities: _get_items(entities, companycounts)
@@ -50,22 +59,32 @@ def get_company_cloud(andb, mapper, nrm_sector, profilec, titlec,
                        .join(Location) \
                        .filter(Location.nuts0 == 'UK',
                                LIProfile.language == 'en',
-                               LIProfile.nrm_curr_title.in_(titles))
-    entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-    companycloud = entity_cloud(profilec, titlec, entityq, coincidenceq,
+                               LIProfile.nrm_company != None)
+    if titles is not None:
+        coincidenceq = coincidenceq.filter(LIProfile.nrm_curr_title.in_(titles))
+        entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
+        category_count_col = 'title_count'
+    else:
+        sectors = mapper.inv(nrm_sector)
+        coincidenceq = coincidenceq.filter(LIProfile.nrm_sector.in_(sectors))
+        entitymap = mapper
+        category_count_col = 'sector_count'
+        
+    companycloud = entity_cloud(profilec, categoryc, entityq, coincidenceq,
                                 sigma=sigma, limit=limit, entitymap=entitymap)
     result = []
-    for company, companyc, titlecompanyc, score, _ in companycloud:
+    for company, companyc, count, score, _ in companycloud:
         result.append({
             'company_name' : mapper.name(company, nrm_sector=nrm_sector),
             'total_count' : profilec,
-            'title_count' : titlec,
+            category_count_col : categoryc,
             'company_count' : companyc,
-            'count' : titlecompanyc,
+            'count' : count,
             'relevance_score' : score,
             'visible' : True,
         })
     return result
+
 
 def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
                      limit=None):
@@ -123,17 +142,23 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
     return previous_titles_total, previous_titles, \
         next_titles_total, next_titles
 
+
 def get_subjects(andb, mapper, nrm_sector, titles, mincount=1, limit=None):
     countcol = func.count().label('counts')
     q = andb.query(LIProfile.nrm_last_subject, countcol) \
             .join(Location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
-                    LIProfile.nrm_curr_title.in_(titles),
-                    LIProfile.nrm_last_subject != None) \
-            .group_by(LIProfile.nrm_last_subject) \
-            .having(countcol >= mincount) \
-            .order_by(countcol.desc())
+                    LIProfile.nrm_last_subject != None)
+    if titles is not None:
+        q = q.filter(LIProfile.nrm_curr_title.in_(titles))
+    else:
+        sectors = mapper.inv(nrm_sector)
+        q = q.filter(LIProfile.nrm_sector.in_(sectors))
+    q = q.group_by(LIProfile.nrm_last_subject) \
+         .having(countcol >= mincount) \
+         .order_by(countcol.desc())
+
     results = []
     total_subject_count = 0
     for subject, count in q:
@@ -145,17 +170,26 @@ def get_subjects(andb, mapper, nrm_sector, titles, mincount=1, limit=None):
                  'visible' : True})
     return total_subject_count, results
 
+
 def get_institutes(andb, mapper, nrm_sector, titles, mincount=1, limit=None):
     countcol = func.count().label('counts')
     q = andb.query(LIProfile.nrm_last_institute, countcol) \
             .join(Location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
-                    LIProfile.nrm_curr_title.in_(titles),
                     LIProfile.nrm_last_institute != None) \
             .group_by(LIProfile.nrm_last_institute) \
             .having(countcol >= mincount) \
             .order_by(countcol.desc())
+    if titles is not None:
+        q = q.filter(LIProfile.nrm_curr_title.in_(titles))
+    else:
+        sectors = mapper.inv(nrm_sector)
+        q = q.filter(LIProfile.nrm_sector.in_(sectors))
+    q = q.group_by(LIProfile.nrm_last_institute) \
+         .having(countcol >= mincount) \
+         .order_by(countcol.desc())
+
     results = []
     total_institute_count = 0
     for institute, count in q:
@@ -271,6 +305,72 @@ if __name__ == '__main__':
             .having(countcol >= args.min_company_count)
     companycounts = dict(q)
 
+    # assemble sector information
+    logger.log('\nGetting sector information.\n')
+    logger.log('Counting profiles.\n')
+    anysectorc = andb.query(LIProfile.id) \
+                       .join(Location) \
+                       .filter(Location.nuts0 == 'UK',
+                               LIProfile.language == 'en',
+                               LIProfile.nrm_sector != None) \
+                       .count()
+    sectorc = andb.query(LIProfile.id) \
+                       .join(Location) \
+                       .filter(Location.nuts0 == 'UK',
+                               LIProfile.language == 'en',
+                               LIProfile.nrm_sector.in_(
+                                   mapper.inv(nrm_sector))) \
+                       .count()
+    countcol = func.count().label('counts')
+    logger.log('Counting skills.\n')
+    q = andb.query(LIProfileSkill.nrm_name, countcol) \
+            .join(LIProfile) \
+            .join(Location) \
+            .filter(Location.nuts0 == 'UK',
+                    LIProfile.language == 'en',
+                    LIProfile.nrm_sector != None) \
+            .group_by(LIProfileSkill.nrm_name) \
+            .having(countcol >= args.min_skill_count)
+    sectorskillcounts = dict(q)
+    logger.log('Counting companies.\n')
+    q = andb.query(LIProfile.nrm_company, countcol) \
+            .join(Location) \
+            .filter(Location.nuts0 == 'UK',
+                    LIProfile.language == 'en',
+                    LIProfile.nrm_sector != None) \
+            .group_by(LIProfile.nrm_company) \
+            .having(countcol >= args.min_company_count)
+    sectorcompanycounts = dict(q)
+    
+    sectordict = {
+        'name' : mapper.name(nrm_sector),
+        'count' : sectorc,
+        'total_count' : anysectorc,
+        'visible' : True,
+    }
+    logger.log('Building skill cloud.\n')
+    sectordict['skill_cloud'] = get_skill_cloud(
+        andb, mapper, nrm_sector, anysectorc, sectorc, sectorskillcounts,
+        None, args.sigma, args.min_skill_count)
+    logger.log('Building company cloud.\n')
+    sectordict['company_cloud'] = get_company_cloud(
+        andb, mapper, nrm_sector, anysectorc, sectorc, sectorcompanycounts,
+        None, args.sigma, args.min_company_count)
+    logger.log('Counting subjects.\n')
+    (sectordict['education_subjects_total'],
+     sectordict['education_subjects']) = get_subjects(
+         andb, mapper, nrm_sector, None,
+         mincount=args.min_subject_count, limit=args.max_subjects)
+    logger.log('Counting institutes.\n')
+    (sectordict['education_institutes_total'],
+     sectordict['education_institutes']) = get_institutes(
+         andb, mapper, nrm_sector, None,
+         mincount=args.min_institute_count, limit=args.max_institutes)
+    sector = cddb.add_from_dict(sectordict, Sector)
+    cddb.commit()
+    sector_id = sector.id
+    
+
     # get list of careers to add
     if args.careers:
         careers = []
@@ -308,7 +408,7 @@ if __name__ == '__main__':
                      .count()
 
         careerdict = {'title' : career,
-                      'linkedin_sector' : args.sector,
+                      'sector_id' : sector_id,
                       'total_count' : profilec,
                       'sector_count' : None,
                       'title_count' : None,

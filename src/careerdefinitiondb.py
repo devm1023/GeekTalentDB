@@ -1,4 +1,9 @@
 __all__ = [
+    'Sector',
+    'SectorSkill',
+    'SectorCompany',
+    'SectorSubject',
+    'SectorInstitute',
     'Career',
     'CareerSkill',
     'CareerCompany',
@@ -42,10 +47,37 @@ STR_MAX = 100000
 SQLBase = sqlbase()
 
 
+class Sector(SQLBase):
+    __tablename__ = 'sector'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX), index=True, nullable=False)
+    count         = Column(BigInteger)
+    total_count   = Column(BigInteger)
+    education_subjects_total = Column(BigInteger)
+    education_institutes_total = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
+
+    skill_cloud = relationship('SectorSkill',
+                               order_by='desc(SectorSkill.relevance_score)',
+                               cascade='all, delete-orphan')
+    company_cloud = relationship('SectorCompany',
+                                 order_by='desc(SectorCompany.relevance_score)',
+                                 cascade='all, delete-orphan')
+    education_subjects = relationship('SectorSubject',
+                                      order_by='desc(SectorSubject.count)',
+                                      cascade='all, delete-orphan')
+    education_institutes = relationship('SectorInstitute',
+                                        order_by='desc(SectorInstitute.count)',
+                                        cascade='all, delete-orphan')
+    
+    __table_args__ = (UniqueConstraint('name'),)
+
+
 class SectorSkill(SQLBase):
     __tablename__ = 'sector_skill'
     id            = Column(BigInteger, primary_key=True)
-    sector_name   = Column(Unicode(STR_MAX), index=True, nullable=False)
+    sector_id     = Column(BigInteger,  ForeignKey('sector.id'),
+                           index=True, nullable=False)
     skill_name    = Column(Unicode(STR_MAX), index=True, nullable=False)
     total_count   = Column(BigInteger)
     sector_count  = Column(BigInteger)
@@ -54,19 +86,56 @@ class SectorSkill(SQLBase):
     relevance_score = Column(Float)
     visible       = Column(Boolean, nullable=False)
 
-    __table_args__ = (UniqueConstraint('sector_name', 'skill_name'),)
+    __table_args__ = (UniqueConstraint('sector_id', 'skill_name'),)
+
+
+class SectorCompany(SQLBase):
+    __tablename__ = 'sector_company'
+    id            = Column(BigInteger, primary_key=True)
+    sector_id     = Column(BigInteger,  ForeignKey('sector.id'),
+                           index=True, nullable=False)
+    company_name  = Column(Unicode(STR_MAX), index=True, nullable=False)
+    total_count   = Column(BigInteger)
+    sector_count  = Column(BigInteger)
+    company_count = Column(BigInteger)
+    count         = Column(BigInteger)
+    relevance_score = Column(Float)
+    visible       = Column(Boolean, nullable=False)
+
+    __table_args__ = (UniqueConstraint('sector_id', 'company_name'),)
+
+
+class SectorSubject(SQLBase):
+    __tablename__ = 'sector_subject'
+    id            = Column(BigInteger, primary_key=True)
+    sector_id     = Column(BigInteger, ForeignKey('sector.id'),
+                           index=True, nullable=False)
+    subject_name  = Column(Unicode(STR_MAX), index=True, nullable=False)
+    count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
+
+    __table_args__ = (UniqueConstraint('sector_id', 'subject_name'),)
+
+
+class SectorInstitute(SQLBase):
+    __tablename__ = 'sector_institute'
+    id            = Column(BigInteger, primary_key=True)
+    sector_id     = Column(BigInteger, ForeignKey('sector.id'),
+                           index=True, nullable=False)
+    institute_name = Column(Unicode(STR_MAX), index=True, nullable=False)
+    count         = Column(BigInteger)
+    visible       = Column(Boolean, nullable=False)
+
+    __table_args__ = (UniqueConstraint('sector_id', 'institute_name'),)
 
 
 class Career(SQLBase):
     __tablename__ = 'career'
     id            = Column(BigInteger, primary_key=True)
+    sector_id     = Column(BigInteger, ForeignKey('sector.id'),
+                           index=True, nullable=False)
     title         = Column(Unicode(STR_MAX), index=True, nullable=False)
-    linkedin_sector = Column(Unicode(STR_MAX), index=True, nullable=False)
-    total_count   = Column(BigInteger)
-    sector_count  = Column(BigInteger)
-    title_count   = Column(BigInteger)
     count         = Column(BigInteger)
-    relevance_score = Column(Float)
     education_subjects_total = Column(BigInteger)
     education_institutes_total = Column(BigInteger)
     previous_titles_total = Column(BigInteger)
@@ -98,7 +167,8 @@ class Career(SQLBase):
                                          order_by='SalaryHistoryPoint.date',
                                          cascade='all, delete-orphan')
 
-    __table_args__ = (UniqueConstraint('linkedin_sector', 'title'),)
+    __table_args__ = (UniqueConstraint('sector_id', 'title'),)
+
 
 class CareerSkill(SQLBase):
     __tablename__ = 'career_skill'
@@ -115,6 +185,7 @@ class CareerSkill(SQLBase):
 
     __table_args__ = (UniqueConstraint('career_id', 'skill_name'),)
 
+
 class CareerCompany(SQLBase):
     __tablename__ = 'career_company'
     id            = Column(BigInteger, primary_key=True)
@@ -130,6 +201,7 @@ class CareerCompany(SQLBase):
 
     __table_args__ = (UniqueConstraint('career_id', 'company_name'),)
 
+
 class CareerSubject(SQLBase):
     __tablename__ = 'career_subject'
     id            = Column(BigInteger, primary_key=True)
@@ -140,6 +212,7 @@ class CareerSubject(SQLBase):
     visible       = Column(Boolean, nullable=False)
 
     __table_args__ = (UniqueConstraint('career_id', 'subject_name'),)
+
 
 class CareerInstitute(SQLBase):
     __tablename__ = 'career_institute'
@@ -152,6 +225,7 @@ class CareerInstitute(SQLBase):
 
     __table_args__ = (UniqueConstraint('career_id', 'institute_name'),)
 
+
 class PreviousTitle(SQLBase):
     __tablename__ = 'previous_title'
     id            = Column(BigInteger, primary_key=True)
@@ -162,6 +236,7 @@ class PreviousTitle(SQLBase):
     visible       = Column(Boolean, nullable=False)
 
     __table_args__ = (UniqueConstraint('career_id', 'previous_title'),)
+
 
 class NextTitle(SQLBase):
     __tablename__ = 'next_title'
@@ -174,6 +249,7 @@ class NextTitle(SQLBase):
 
     __table_args__ = (UniqueConstraint('career_id', 'next_title'),)
 
+
 class SalaryBin(SQLBase):
     __tablename__ = 'salary_bin'
     id            = Column(BigInteger, primary_key=True)
@@ -182,6 +258,7 @@ class SalaryBin(SQLBase):
     lower_bound   = Column(Float)
     upper_bound   = Column(Float)
     count         = Column(Integer)
+
 
 class SalaryHistoryPoint(SQLBase):
     __tablename__ = 'salary_history_point'

@@ -42,7 +42,7 @@ class SQLDatabase:
         self.metadata.create_all(self.session.bind)
 
     def add_from_dict(self, d, table, update=True, flush=False, delete=True,
-                    protect=[]):
+                      protect=[]):
         if d is None:
             return None
         pkeycols, pkey = _get_pkey(d, table)
