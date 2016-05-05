@@ -222,9 +222,9 @@ def collapse(q, on=1):
         if currentid is None:
             currentid = newid
         if newid != currentid:
-            yield currentid, rows
+            yield currentid + (rows,)
             rows = []
             currentid = newid
         rows.append(fields)
     if currentid is not None:
-        yield currentid, rows
+        yield currentid + (rows,)

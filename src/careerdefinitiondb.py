@@ -19,6 +19,7 @@ __all__ = [
 
 import conf
 from sqldb import *
+from windowquery import collapse
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -276,6 +277,7 @@ class EntityDescription(SQLBase):
     linkedin_sector = Column(Unicode(STR_MAX), index=True)
     entity_name   = Column(Unicode(STR_MAX), index=True)
     match_count   = Column(Integer)
+    short_description = Column(Unicode(STR_MAX))
     description   = Column(Unicode(STR_MAX))
     description_url = Column(String(STR_MAX))
     description_source = Column(Unicode(STR_MAX))
@@ -285,13 +287,44 @@ class EntityDescription(SQLBase):
                                        'entity_name'),)
 
 
+def _remove_invisibles(d):
+    d.pop('visible', None)
+    for key, val in d.items():
+        if isinstance(val, list):
+            if val and isinstance(val[0], dict) and 'visible' in val[0]:
+                d[key] = [_remove_invisibles(e) for e in val if e['visible']]
+        elif isinstance(val, dict):
+            if 'visible' in val and val['visible'] == False:
+                d[key] = None
+            else:
+                d[key] = _remove_invisibles(val)
+            
+    return d
+
+def _average_salary(bins):
+    wsum = 0.0
+    totalcount = 0
+    for salary_bin in bins:
+        if salary_bin['upper_bound'] is None:
+            salary = salary_bin['lower_bound']
+        else:
+            salary = 0.5*(salary_bin['lower_bound'] \
+                          + salary_bin['upper_bound'])
+        wsum += salary*salary_bin['count']
+        totalcount += salary_bin['count']
+    if totalcount > 0:
+        return wsum/totalcount
+    else:
+        return None
+    
+    
 class CareerDefinitionDB(SQLDatabase):
     def __init__(self, url=None, session=None, engine=None):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
     def _get_entity_description(self, entity_type, linkedin_sector, entity_name,
-                              watson_lookup=False):
+                                watson_lookup=False):
         entity_types = [entity_type]
         if entity_type is not None:
             entity_types.append(None)
@@ -356,7 +389,9 @@ class CareerDefinitionDB(SQLDatabase):
         return dict_from_row(entity, pkeys=False)
 
     def get_descriptions(self, career):
-        sector = career.linkedin_sector
+        sector, = self.query(Sector.name) \
+                      .filter(Sector.id == career.sector_id) \
+                      .first()
         self._get_entity_description(
             'title', sector, career.title, watson_lookup=True)
         for skill in career.skill_cloud:
@@ -395,71 +430,100 @@ class CareerDefinitionDB(SQLDatabase):
         return self.add_from_dict(skilldict, SectorSkill,
                                   protect=['visible'])
 
-    def get_careers(self, sectors, titles):
+    def get_sectors(self, sectors):
+        results = []
+        q= self.query(Sector) \
+               .filter(Sector.visible)
+        if sectors:
+            q = q.filter(Sector.name.in_(sectors))
+        for sector in q:
+            sectordict = dict_from_row(sector, pkeys=False, fkeys=False)
+            sectordict = _remove_invisibles(sectordict)
+
+            q2 = self.query(Career.title, Career.count, SalaryBin) \
+                     .outerjoin(SalaryBin) \
+                     .filter(Career.sector_id == sector.id) \
+                     .order_by(Career.title, Career.count)
+            sectordict['careers'] = []
+            wsum = 0.0
+            totalcount = 0
+            for title, count, salary_bins in collapse(q2, on=2):
+                salary_bins = [dict_from_row(b) for b, in salary_bins \
+                               if b is not None]
+                salary = _average_salary(salary_bins)
+                if salary is not None:
+                    wsum += count*salary
+                    totalcount += count
+                sectordict['careers'].append(title)
+            sectordict['average_salary'] = None
+            if totalcount > 0 and wsum > 0.0:
+                sectordict['average_salary'] = wsum/totalcount
+
+            sectordict['description'] = self._get_entity_description(
+                    'sector', None, sectordict['name'])
+            for skilldict in sectordict['skill_cloud']:
+                skilldict['description'] = self._get_entity_description(
+                    'skill', sector.name, skilldict['skill_name'])
+            for companydict in sectordict['company_cloud']:
+                companydict['description'] = self._get_entity_description(
+                    'company', sector.name, companydict['company_name'])
+            for subjectdict in sectordict['education_subjects']:
+                subjectdict['description'] = self._get_entity_description(
+                    'subject', sector.name, subjectdict['subject_name'])
+            for institutedict in sectordict['education_institutes']:
+                institutedict['description'] = self._get_entity_description(
+                    'institute', sector.name, institutedict['institute_name'])
+
+            results.append(sectordict)
+        return results
+    
+    def get_careers(self, sector, titles):
+        sector_id = self.query(Sector.id) \
+                        .filter(Sector.name == sector) \
+                        .first()
+        if sector_id is None:
+            return []
+        else:
+            sector_id = sector_id[0]
+            
         results = []
         q = self.query(Career) \
-                .filter(Career.visible)
-        if sectors:
-            q = q.filter(Career.linkedin_sector.in_(sectors))
+                .filter(Career.visible,
+                        Career.sector_id == sector_id)
         if titles:
             q = q.filter(Career.title.in_(titles))
         for career in q:
-            career.skill_cloud \
-                = [s for s in career.skill_cloud if s.visible]
-            career.company_cloud \
-                = [s for s in career.company_cloud if s.visible]
-            career.education_subjects \
-                = [s for s in career.education_subjects if s.visible]
-            career.education_institutes \
-                = [s for s in career.education_institutes if s.visible]
-            career.previous_titles \
-                = [s for s in career.previous_titles if s.visible]
-            career.next_titles \
-                = [s for s in career.next_titles if s.visible]
-
             careerdict = dict_from_row(career, pkeys=False, fkeys=False)
+            careerdict = _remove_invisibles(careerdict)
+
+            careerdict['average_salary'] = None
             if careerdict['salary_bins']:
-                wsum = 0.0
-                totalcount = 0
-                for salary_bin in careerdict['salary_bins']:
-                    if salary_bin['upper_bound'] is None:
-                        salary = salary_bin['lower_bound']
-                    else:
-                        salary = 0.5*(salary_bin['lower_bound'] \
-                                      + salary_bin['upper_bound'])
-                    wsum += salary*salary_bin['count']
-                    totalcount += salary_bin['count']
-                careerdict['average_salary'] = wsum/totalcount
-            else:
-                careerdict['average_salary'] = None
+                careerdict['average_salary'] \
+                    = _average_salary(careerdict['salary_bins'])
 
             for point in careerdict['salary_history_points']:
                 point['date'] = point['date'].strftime('%Y-%m')
             
             careerdict['description'] = self._get_entity_description(
-                    'title', career.linkedin_sector, career.title)
+                    'title', sector, career.title)
             for skilldict in careerdict['skill_cloud']:
                 skilldict['description'] = self._get_entity_description(
-                    'skill', career.linkedin_sector, skilldict['skill_name'])
+                    'skill', sector, skilldict['skill_name'])
             for companydict in careerdict['company_cloud']:
                 companydict['description'] = self._get_entity_description(
-                    'company', career.linkedin_sector,
-                    companydict['company_name'])
+                    'company', sector, companydict['company_name'])
             for subjectdict in careerdict['education_subjects']:
                 subjectdict['description'] = self._get_entity_description(
-                    'subject', career.linkedin_sector,
-                    subjectdict['subject_name'])
+                    'subject', sector, subjectdict['subject_name'])
             for institutedict in careerdict['education_institutes']:
                 institutedict['description'] = self._get_entity_description(
-                    'institute', career.linkedin_sector,
-                    institutedict['institute_name'])
+                    'institute', sector, institutedict['institute_name'])
             for titledict in careerdict['previous_titles']:
                 titledict['description'] = self._get_entity_description(
-                    'title', career.linkedin_sector,
-                    titledict['previous_title'])
+                    'title', sector, titledict['previous_title'])
             for titledict in careerdict['next_titles']:
                 titledict['description'] = self._get_entity_description(
-                    'title', career.linkedin_sector, titledict['next_title'])
+                    'title', sector, titledict['next_title'])
             results.append(careerdict)
 
         return results

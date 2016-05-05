@@ -13,28 +13,11 @@ import conf
 from careerdefinitiondb import CareerDefinitionDB
 from datetime import datetime
 
-class BooleanNotTrueFilter(BaseSQLAFilter):
-    def __init__(self, column, name):
-        BaseSQLAFilter.__init__(self, column, name,
-                                options=(('1', lazy_gettext('Yes')),
-                                         ('0', lazy_gettext('No'))))
-
-    def apply(self, query, value, alias=None):
-        if value == '1':
-            return query.filter((self.column == None) | (self.column == False))
-        else:
-            return query.filter(self.column == True)
-
-    def operation(self):
-        return 'is not true'
-
-
 # Create application
 app = Flask(__name__)
 
 # Create database session
 cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
-
 
 # Create dummy secrey key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'
@@ -55,9 +38,22 @@ def index():
 @app.route('/careers/', methods=['GET'])
 def get_careers():
     start = datetime.now()
-    sectors = request.args.getlist('sector')
+    sector = request.args.get('sector')
     titles = request.args.getlist('title')
-    results = cddb.get_careers(sectors, titles)
+    results = cddb.get_careers(sector, titles)
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
+@app.route('/sectors/', methods=['GET'])
+def get_sectors():
+    start = datetime.now()
+    sectors = request.args.getlist('sector')
+    results = cddb.get_sectors(sectors)
     end = datetime.now()
     response = jsonify({'results' : results,
                         'query_time' : (end-start).microseconds//1000,
@@ -73,6 +69,7 @@ class EntityDescription(db.Model):
     linkedin_sector = db.Column(db.Unicode(STR_MAX))
     entity_name   = db.Column(db.Unicode(STR_MAX))
     match_count   = db.Column(db.Integer)
+    short_description = db.Column(db.Text)
     description   = db.Column(db.Text)
     description_url = db.Column(db.String(STR_MAX))
     description_source = db.Column(db.Unicode(STR_MAX))
@@ -84,18 +81,99 @@ class EntityDescription(db.Model):
         return '[{0:s}|{1:s}|{2:s}]'.format(typestr, sectorstr,
                                             self.entity_name)
 
-class Career(db.Model):
-    __tablename__ = 'career'
+
+class Sector(db.Model):
+    __tablename__ = 'sector'
     id            = db.Column(db.BigInteger, primary_key=True)
-    title         = db.Column(db.Unicode(STR_MAX), nullable=False)
-    linkedin_sector = db.Column(db.Unicode(STR_MAX), nullable=False)
+    name          = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
+    count         = db.Column(db.BigInteger)
+    total_count   = db.Column(db.BigInteger)
+    education_subjects_total = db.Column(db.BigInteger)
+    education_institutes_total = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
+
+    skill_cloud = db.relationship(
+        'SectorSkill', order_by='desc(SectorSkill.relevance_score)',
+        cascade='all, delete-orphan')
+    company_cloud = db.relationship(
+        'SectorCompany', order_by='desc(SectorCompany.relevance_score)',
+        cascade='all, delete-orphan')
+    education_subjects = db.relationship(
+        'SectorSubject', order_by='desc(SectorSubject.count)',
+        cascade='all, delete-orphan')
+    education_institutes = db.relationship(
+        'SectorInstitute', order_by='desc(SectorInstitute.count)',
+        cascade='all, delete-orphan')
+
+    def __str__(self):
+        return self.name
+
+
+class SectorSkill(db.Model):
+    __tablename__ = 'sector_skill'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sector_id     = db.Column(db.BigInteger,  db.ForeignKey('sector.id'),
+                              index=True, nullable=False)
+    skill_name    = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
+    total_count   = db.Column(db.BigInteger)
+    sector_count  = db.Column(db.BigInteger)
+    skill_count   = db.Column(db.BigInteger)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
 
+
+class SectorCompany(db.Model):
+    __tablename__ = 'sector_company'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sector_id     = db.Column(db.BigInteger,  db.ForeignKey('sector.id'),
+                              index=True, nullable=False)
+    company_name  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
+    total_count   = db.Column(db.BigInteger)
+    sector_count  = db.Column(db.BigInteger)
+    company_count = db.Column(db.BigInteger)
+    count         = db.Column(db.BigInteger)
+    relevance_score = db.Column(db.Float)
+    visible       = db.Column(db.Boolean, nullable=False)
+
+
+class SectorSubject(db.Model):
+    __tablename__ = 'sector_subject'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sector_id     = db.Column(db.BigInteger, db.ForeignKey('sector.id'),
+                              index=True, nullable=False)
+    subject_name  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
+    count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
+
+
+class SectorInstitute(db.Model):
+    __tablename__ = 'sector_institute'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sector_id     = db.Column(db.BigInteger, db.ForeignKey('sector.id'),
+                              index=True, nullable=False)
+    institute_name = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
+    count         = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
+
+
+class Career(db.Model):
+    __tablename__ = 'career'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    sector_id     = db.Column(db.BigInteger, db.ForeignKey('sector.id'),
+                              index=True, nullable=False)
+    title         = db.Column(db.Unicode(STR_MAX), nullable=False)
+    count         = db.Column(db.BigInteger)
+    education_subjects_total = db.Column(db.BigInteger)
+    education_institutes_total = db.Column(db.BigInteger)
+    previous_titles_total = db.Column(db.BigInteger)
+    next_titles_total = db.Column(db.BigInteger)
+    visible       = db.Column(db.Boolean, nullable=False)
+
+    sector = db.relationship('Sector')
     skill_cloud = db.relationship('CareerSkill', backref='career',
-                                 order_by='desc(CareerSkill.relevance_score)',
-                                 cascade='all, delete-orphan')
+                                  order_by='desc(CareerSkill.relevance_score)',
+                                  cascade='all, delete-orphan')
     company_cloud \
         = db.relationship('CareerCompany', backref='career',
                           order_by='desc(CareerCompany.relevance_score)',
@@ -116,14 +194,6 @@ class Career(db.Model):
     def __str__(self):
         return self.title
 
-class SectorSkill(db.Model):
-    __tablename__ = 'sector_skill'
-    id            = db.Column(db.BigInteger, primary_key=True)
-    sector_name   = db.Column(db.Unicode(STR_MAX), nullable=False)
-    skill_name    = db.Column(db.Unicode(STR_MAX), nullable=False)
-    count         = db.Column(db.BigInteger)
-    relevance_score = db.Column(db.Float)
-    visible       = db.Column(db.Boolean, nullable=False)
 
 class CareerSkill(db.Model):
     __tablename__ = 'career_skill'
@@ -269,7 +339,7 @@ class ModelView(sqla.ModelView):
 
 
 class SectorSkillView(ModelView):
-    column_filters = ['sector_name', 'skill_name']
+    column_filters = ['skill_name']
 
 
 _text_area_style = {
@@ -299,7 +369,7 @@ class CareerView(ModelView):
         (NextTitle,
          {'form_widget_args' : {'count' : {'readonly' : True}}}),
     ]
-    column_filters = ['linkedin_sector', 'title', 'visible']
+    column_filters = ['sector', 'title', 'visible']
 
 class EntityDescriptionView(ModelView):
     column_filters = ['entity_type', 'linkedin_sector', 'entity_name', 'edited']
@@ -343,5 +413,5 @@ admin.add_view(NextTitleView(NextTitle, db.session))
 admin.add_view(EntityDescriptionView(EntityDescription, db.session))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
