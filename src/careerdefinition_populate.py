@@ -213,6 +213,8 @@ if __name__ == '__main__':
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
                         'Columns: type | lang | sector | name | mapped name')
+    parser.add_argument('--sector-only', action='store_true',
+                        help='Gather only sector-level stats.')
     parser.add_argument('--max-entities', type=int, default=25,
                         help='Maximum number of entities in clouds.')
     parser.add_argument('--min-count', type=int, default=1,
@@ -369,7 +371,9 @@ if __name__ == '__main__':
     sector = cddb.add_from_dict(sectordict, Sector)
     cddb.commit()
     sector_id = sector.id
-    
+
+    if args.sector_only:
+        exit
 
     # get list of careers to add
     if args.careers:
