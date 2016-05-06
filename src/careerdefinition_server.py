@@ -35,6 +35,7 @@ STR_MAX = 100000
 def index():
     return '<a href="/admin/">Click me to get to Admin!</a>'
 
+
 @app.route('/careers/', methods=['GET'])
 def get_careers():
     start = datetime.now()
@@ -49,6 +50,7 @@ def get_careers():
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+
 @app.route('/sectors/', methods=['GET'])
 def get_sectors():
     start = datetime.now()
@@ -61,6 +63,7 @@ def get_sectors():
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
+
 
 class EntityDescription(db.Model):
     __tablename__ = 'entity_description'
@@ -94,16 +97,16 @@ class Sector(db.Model):
 
     skill_cloud = db.relationship(
         'SectorSkill', order_by='desc(SectorSkill.relevance_score)',
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan', backref='sector')
     company_cloud = db.relationship(
         'SectorCompany', order_by='desc(SectorCompany.relevance_score)',
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan', backref='sector')
     education_subjects = db.relationship(
         'SectorSubject', order_by='desc(SectorSubject.count)',
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan', backref='sector')
     education_institutes = db.relationship(
         'SectorInstitute', order_by='desc(SectorInstitute.count)',
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan', backref='sector')
 
     def __str__(self):
         return self.name
@@ -115,13 +118,12 @@ class SectorSkill(db.Model):
     sector_id     = db.Column(db.BigInteger,  db.ForeignKey('sector.id'),
                               index=True, nullable=False)
     skill_name    = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
-    total_count   = db.Column(db.BigInteger)
-    sector_count  = db.Column(db.BigInteger)
-    skill_count   = db.Column(db.BigInteger)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
-
+    
+    def __str__(self):
+        return self.skill_name
 
 class SectorCompany(db.Model):
     __tablename__ = 'sector_company'
@@ -129,14 +131,14 @@ class SectorCompany(db.Model):
     sector_id     = db.Column(db.BigInteger,  db.ForeignKey('sector.id'),
                               index=True, nullable=False)
     company_name  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
-    total_count   = db.Column(db.BigInteger)
-    sector_count  = db.Column(db.BigInteger)
-    company_count = db.Column(db.BigInteger)
     count         = db.Column(db.BigInteger)
     relevance_score = db.Column(db.Float)
     visible       = db.Column(db.Boolean, nullable=False)
 
+    def __str__(self):
+        return self.company_name
 
+    
 class SectorSubject(db.Model):
     __tablename__ = 'sector_subject'
     id            = db.Column(db.BigInteger, primary_key=True)
@@ -145,6 +147,9 @@ class SectorSubject(db.Model):
     subject_name  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
     count         = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
+
+    def __str__(self):
+        return self.subject_name
 
 
 class SectorInstitute(db.Model):
@@ -155,6 +160,9 @@ class SectorInstitute(db.Model):
     institute_name = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
     count         = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
+
+    def __str__(self):
+        return self.institute_name
 
 
 class Career(db.Model):
@@ -338,18 +346,64 @@ class ModelView(sqla.ModelView):
                   'error')
 
 
+class SectorView(ModelView):
+    form_widget_args = {
+        'count' : {'readonly' : True},
+        'total_count' : {'readonly' : True},
+        'education_subjects_total' : {'readonly' : True},
+        'education_institutes_total' : {'readonly' : True},
+    }
+    inline_models = [
+        (SectorSkill, {'form_widget_args' : {
+            'relevance_score' : {'readonly' : True},
+            'count' : {'readonly' : True},
+        }}),
+        (SectorCompany, {'form_widget_args' : {
+            'relevance_score' : {'readonly' : True},
+            'count' : {'readonly' : True}
+        }}),
+        (SectorSubject,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+        (SectorInstitute,
+         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+    ]
+    column_filters = ['name', 'visible']
+
+
 class SectorSkillView(ModelView):
-    column_filters = ['skill_name']
+    column_filters = ['sector', 'skill_name', 'visible']
+    form_widget_args = {
+        'count' : {'readonly' : True},
+        'relevance_score' : {'readonly' : True},
+    }
 
 
-_text_area_style = {
-    'rows' : 5,
-    'style' : 'font-family:"Lucida Console", Monaco, monospace;'
-}
+class SectorCompanyView(ModelView):
+    column_filters = ['sector', 'company_name', 'visible']
+    form_widget_args = {
+        'count' : {'readonly' : True},
+        'relevance_score' : {'readonly' : True},
+    }
+
+
+class SectorSubjectView(ModelView):
+    column_filters = ['sector', 'subject_name', 'visible']
+    form_widget_args = {'count' : {'readonly' : True}}
+
+
+class SectorInstituteView(ModelView):
+    column_filters = ['sector', 'institute_name', 'visible']
+    form_widget_args = {'count' : {'readonly' : True}}
+    
+
 class CareerView(ModelView):
     form_widget_args = {
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
+        'education_subjects_total' : {'readonly' : True},
+        'education_institutes_total' : {'readonly' : True},
+        'previous_titles_total' : {'readonly' : True},
+        'next_titles_total' : {'readonly' : True},
     }
     inline_models = [
         (CareerSkill, {'form_widget_args' : {
@@ -371,29 +425,47 @@ class CareerView(ModelView):
     ]
     column_filters = ['sector', 'title', 'visible']
 
+
 class EntityDescriptionView(ModelView):
     column_filters = ['entity_type', 'linkedin_sector', 'entity_name', 'edited']
     column_exclude_list = ['match_count', 'description_url',
                            'description_source']
-    form_widget_args = {'description' : _text_area_style}
+    form_widget_args = {'description' : {
+        'rows' : 5,
+        'style' : 'font-family:"Lucida Console", Monaco, monospace;'
+    }}
+
 
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skill_name', 'visible']
+    form_widget_args = {
+        'count' : {'readonly' : True},
+        'relevance_score' : {'readonly' : True},
+    }
+
 
 class CareerCompanyView(ModelView):
     column_filters = ['career', 'company_name', 'visible']
+    form_widget_args = {
+        'count' : {'readonly' : True},
+        'relevance_score' : {'readonly' : True},
+    }
+
 
 class CareerSubjectView(ModelView):
     column_filters = ['career', 'subject_name', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
 
+
 class CareerInstituteView(ModelView):
     column_filters = ['career', 'institute_name', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
 
+
 class PreviousTitleView(ModelView):
     column_filters = ['career', 'previous_title', 'visible']
     form_widget_args = {'count' : {'readonly' : True}}
+
 
 class NextTitleView(ModelView):
     column_filters = ['career', 'next_title', 'visible']
@@ -402,7 +474,11 @@ class NextTitleView(ModelView):
 
 # Create admin
 admin = Admin(app, name='CareerDefinitionDB', template_mode='bootstrap3')
+admin.add_view(SectorView(Sector, db.session))
 admin.add_view(SectorSkillView(SectorSkill, db.session))
+admin.add_view(SectorCompanyView(SectorCompany, db.session))
+admin.add_view(SectorSubjectView(SectorSubject, db.session))
+admin.add_view(SectorInstituteView(SectorInstitute, db.session))
 admin.add_view(CareerView(Career, db.session))
 admin.add_view(CareerSkillView(CareerSkill, db.session))
 admin.add_view(CareerCompanyView(CareerCompany, db.session))
