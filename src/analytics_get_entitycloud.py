@@ -85,6 +85,8 @@ def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
             mappedcounts = {}
             for row in entitiesq(counts.keys()):
                 entity = entitymap(row[0])
+                if not entity:
+                    continue
                 entitycount = row[-1]
                 count = counts[row[0]]
                 entitycounts[entity] = entitycounts.get(entity, 0) + entitycount

@@ -108,6 +108,8 @@ def get_career_steps(andb, mapper, nrm_sector, nrm_title, titles, mincount=1,
                 mapped_title = nrm_title
             else:
                 mapped_title = mapper(title, nrm_sector=nrm_sector)
+            if not mapped_title:
+                continue
             if not mapped_titles or mapped_titles[-1] != mapped_title:
                 mapped_titles.append(mapped_title)
         for i, title in enumerate(mapped_titles):
@@ -162,6 +164,9 @@ def get_subjects(andb, mapper, nrm_sector, titles, mincount=1, limit=None):
     results = []
     total_subject_count = 0
     for subject, count in q:
+        subject = mapper(subject, nrm_sector=nrm_sector)
+        if not subject:
+            continue
         total_subject_count += count
         if limit is None or len(results) < limit:
             results.append(
@@ -193,6 +198,9 @@ def get_institutes(andb, mapper, nrm_sector, titles, mincount=1, limit=None):
     results = []
     total_institute_count = 0
     for institute, count in q:
+        institute = mapper(institute, nrm_sector=nrm_sector)
+        if not institute:
+            continue
         total_institute_count += count
         if limit is None or len(results) < limit:
             results.append(
@@ -373,7 +381,7 @@ if __name__ == '__main__':
     sector_id = sector.id
 
     if args.sector_only:
-        exit
+        raise SystemExit
 
     # get list of careers to add
     if args.careers:
@@ -386,7 +394,7 @@ if __name__ == '__main__':
                 careers.append((career, nrm_career))
     else:
         careers = [(mapper.name(t), t) for t in mapper \
-                   if split_nrm_name(t)[0] == 'title']
+                   if t and split_nrm_name(t)[0] == 'title']
 
     for career, nrm_career in careers:
         logger.log('\nProcessing career: {0:s}\n'.format(career))

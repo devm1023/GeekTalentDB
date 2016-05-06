@@ -36,10 +36,10 @@ class EntityMapper:
                 nrm_map = self._nrm_maps[nrm_sector]
                 inv_nrm_map = self._inv_nrm_maps[nrm_sector]
                 nrm_entity1 = normalized_entity(type, 'linkedin', language,
-                                              entity1)
+                                                entity1)
                 nrm_entity2 = normalized_entity(type, 'linkedin', language,
-                                              entity2)
-                if not nrm_entity1 or not nrm_entity2:
+                                                entity2)
+                if not nrm_entity1:
                     raise IOError('Invalid row in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
                 if nrm_entity1 in nrm_map:
