@@ -351,11 +351,11 @@ if __name__ == '__main__':
     logger.log('Building skill cloud.\n')
     sectordict['skill_cloud'] = get_skill_cloud(
         andb, mapper, nrm_sector, anysectorc, sectorc, sectorskillcounts,
-        None, args.sigma, args.min_skill_count)
+        None, args.sigma, args.max_skills)
     logger.log('Building company cloud.\n')
     sectordict['company_cloud'] = get_company_cloud(
         andb, mapper, nrm_sector, anysectorc, sectorc, sectorcompanycounts,
-        None, args.sigma, args.min_company_count)
+        None, args.sigma, args.max_companies)
     logger.log('Counting subjects.\n')
     (sectordict['education_subjects_total'],
      sectordict['education_subjects']) = get_subjects(

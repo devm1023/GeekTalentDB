@@ -105,7 +105,7 @@ def entity_cloud(totalcount, categorycount, entitiesq, coincidenceq,
     for row in entities:
         score = row[-2]
         error = row[-1]
-        if limit is not None and len(newentities) > limit:
+        if limit is not None and len(newentities) >= limit:
             break
         if sigma is not None and score < sigma*error:
             continue
