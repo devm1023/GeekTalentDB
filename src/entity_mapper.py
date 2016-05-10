@@ -72,10 +72,14 @@ class EntityMapper:
             return nrm_map[entity]
         return entity
 
-    def __iter__(self):
+    def entities(sectors=None):
         items = set()
-        for sector, inv_map in self._inv_nrm_maps.items():
-            items.update(inv_map.keys())
+        if sectors is None:
+            for sector, inv_map in self._inv_nrm_maps.items():
+                items.update(inv_map.keys())
+        else:
+            for sector in sectors:
+                items.update(self._inv_nrm_maps.get(sector, {}).keys())
         items = list(items)
         items.sort()
         for item in items:
