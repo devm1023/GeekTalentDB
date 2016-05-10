@@ -27,6 +27,25 @@ skill,en,,Saas,SAAS
 skill,en,,Mysql,MySQL
 skill,en,,Vmware,VMware
 skill,en,,Php,PHP
+skill,en,,It Management,IT Management
+skill,en,,Pmo,PMO
+skill,en,,Ms Project,Microsoft Project
+skill,en,,Sdlc,SDLC
+skill,en,,Dns,DNS
+skill,en,,Windows Xp,Windows XP
+skill,en,,Dhcp,DHCP
+skill,en,,Vpn,VPN
+skill,en,,Ip,IP
+skill,en,,Oop,OOP
+skill,en,,Asp.Net Mvc,ASP.NET MVC
+skill,en,,Uml,UML
+skill,en,,Html 5,HTML 5
+skill,en,,Vb.Net,VB.NET
+skill,en,,Wcf,WCF
+skill,en,,Linq,LINQ
+skill,en,,T Sql,T-SQL
+# deleted skills
+skill,en,Digital Tech,Construction,
 #
 # company mappings
 #
@@ -37,6 +56,9 @@ company,en,,Fujitsu Services,Fujitsu
 company,en,,Fujitsu UK and Ireland,Fujitsu
 company,en,,IBM United Kingdom Ltd,IBM
 company,en,,IBM Global Business Services,IBM
+company,en,,Capgemini Consulting,Capgemini
+company,en,,Mace Group,Mace
+company,en,,"Rackspace, the #1 managed cloud company",Rackspace
 # deleted companies
 company,en,,None,
 company,en,,Retired and enjoying time to pursue personal interests and family,
@@ -49,11 +71,21 @@ company,en,,Self,
 company,en,,Unemployed,
 company,en,,Self-employed,
 company,en,,Freelance Consultant,
+company,en,,N/A,
+company,en,,Currently Retired,
+company,en,,None of your Business,
+company,en,,Consultant,
+company,en,,Consultancy,
+company,en,,Independent Consultant,
+company,en,,Freelance,
 #
 # subject mappings
 #
+subject,en,,Maths,Mathematics
+subject,en,,IT,Information Technology
 # deleted subjects
 subject,en,,2:1,
+subject,en,, Electrical,
 #
 ###### management-related clusters ######
 #
