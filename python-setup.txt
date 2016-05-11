@@ -11,3 +11,18 @@ sudo apt-get install python3-matplotlib postgresql-server-dev-X.Y libgdal-dev
 sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely langdetect flask flask-admin flask-sqlalchemy
 
 Where X.Y is the PostgreSQL version number.
+
+
+To install tor and dryscrape:
+
+$ sudo apt-get install tor qt5-default libqt5webkit5-dev build-essential python-lxml python-pip xvfb libxml2-dev libxslt-dev
+$ sudo apt-get remove python3-pip
+$ sudo easy_install3 pip
+$ sudo pip3 install requests -U
+$ sudo pip3 install pysocks stem dryscrape
+$ tor --hash-password "PythonRulez"
+
+In /etc/tor/torrc:
+ControlPort 9051
+HashedControlPassword <hashed password>
+
