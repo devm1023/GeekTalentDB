@@ -13,11 +13,11 @@ if __name__ == '__main__':
     cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
     logger = Logger()
     
-    q = cddb.query(Career) \
-            .order_by(Career.linkedin_sector, Career.title)
-    for career in q:
-        logger.log('{0:s} | {1:s}\n'.format(career.linkedin_sector,
-                                            career.title))
+    q = cddb.query(Career, Sector.name) \
+            .join(Sector) \
+            .order_by(Sector.name, Career.title)
+    for career, sector_name in q:
+        logger.log('{0:s} | {1:s}\n'.format(sector_name, career.title))
         # update salary histogram
         salary_q = cddb.query(SalaryBin) \
                        .filter(SalaryBin.career_id == career.id)
