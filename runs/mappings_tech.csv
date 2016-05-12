@@ -349,9 +349,10 @@ title,en,,IT Trainer,IT Trainer
 # Data Scientist
 title,en,,Data Scientist,Data Scientist
 title,en,,Data Science,Data Scientist
-# Game Designer/Developer
-title,en,,Game Designer,Game Designer/Developer
-title,en,,Game Developer,Game Designer/Developer
-title,en,,Game Artist,Game Designer/Developer
-title,en,,Game Programmer,Game Designer/Developer
-title,en,,Game Tester,Game Designer/Developer
+# Game Developer
+title,en,,Game Developer,Game Developer
+title,en,,Game Programmer,Game Developer
+title,en,,Game Tester,Game Developer
+# Game Designer
+title,en,,Game Designer,Game Designer
+title,en,,Game Artist,Game Designer
