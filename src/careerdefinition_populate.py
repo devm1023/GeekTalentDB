@@ -174,9 +174,11 @@ def get_subjects(andb, mapper, nrm_sector, titles, mincount, limit,
             continue
         total_subject_count += count
         counts[subject] = counts.get(subject, 0) + count
+    counts = list(counts.items())
+    counts.sort(key=lambda x: x[-1])
 
     results = []
-    for subject, count in counts.items():
+    for subject, count in counts:
         if limit is None or len(results) < limit:
             results.append(
                 {'subject_name' : mapper.name(subject, nrm_sector=nrm_sector),
@@ -214,9 +216,11 @@ def get_institutes(andb, mapper, nrm_sector, titles, mincount, limit,
             continue
         total_institute_count += count
         counts[institute] = counts.get(institute, 0) + count
+    counts = list(counts.items())
+    counts.sort(key=lambda x: x[-1])
     
     results = []
-    for institute, count in counts.items():
+    for institute, count in counts:
         if limit is None or len(results) < limit:
             results.append(
                 {'institute_name' : mapper.name(institute,
