@@ -4,8 +4,8 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('database',
-                    choices=['datoin', 'canonical', 'analytics', 'geekmaps',
-                             'careerdefinition'],
+                    choices=['crawl', 'datoin', 'canonical', 'analytics',
+                             'geekmaps', 'careerdefinition'],
                     help='The database to initialize.')
 parser.add_argument('--no-create', action='store_true',
                     help='Do not create new tables.')
@@ -16,7 +16,14 @@ args = parser.parse_args()
 nocreate = args.no_create
 nodelete = args.no_delete
 
-if args.database == 'datoin':
+if args.database == 'crawl':
+    from crawldb import CrawlDB
+    crdb = CrawlDB(url=conf.CRAWL_DB)
+    if not nodelete:
+        crdb.drop_all()
+    if not nocreate:
+        crdb.create_all()
+elif args.database == 'datoin':
     from datoindb import DatoinDB
     dtdb = DatoinDB(url=conf.DATOIN_DB)
     if not nodelete:
