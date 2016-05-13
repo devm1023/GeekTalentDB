@@ -175,15 +175,13 @@ def get_subjects(andb, mapper, nrm_sector, titles, mincount, limit,
         total_subject_count += count
         counts[subject] = counts.get(subject, 0) + count
     counts = list(counts.items())
-    counts.sort(key=lambda x: x[-1])
+    counts.sort(key=lambda x: -x[-1])
+    if len(counts) > limit:
+        counts = counts[:limit]
 
-    results = []
-    for subject, count in counts:
-        if limit is None or len(results) < limit:
-            results.append(
-                {'subject_name' : mapper.name(subject, nrm_sector=nrm_sector),
-                 'count' : count,
-                 'visible' : True})
+    results = [{'subject_name' : mapper.name(subject, nrm_sector=nrm_sector),
+                'count' : count,
+                'visible' : True} for subject, count in counts]
     return total_subject_count, results
 
 
@@ -217,16 +215,14 @@ def get_institutes(andb, mapper, nrm_sector, titles, mincount, limit,
         total_institute_count += count
         counts[institute] = counts.get(institute, 0) + count
     counts = list(counts.items())
-    counts.sort(key=lambda x: x[-1])
+    counts.sort(key=lambda x: -x[-1])
+    if len(counts) > limit:
+        counts = counts[:limit]
     
-    results = []
-    for institute, count in counts:
-        if limit is None or len(results) < limit:
-            results.append(
-                {'institute_name' : mapper.name(institute,
-                                                nrm_sector=nrm_sector),
-                 'count' : count,
-                 'visible' : True})
+    results = [{'institute_name' : mapper.name(institute,
+                                               nrm_sector=nrm_sector),
+                'count' : count,
+                'visible' : True} for institute, count in counts]
     return total_institute_count, results
 
 

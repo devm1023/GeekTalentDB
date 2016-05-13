@@ -254,12 +254,12 @@ title,en,,IT Business Analyst,Business Analyst
 title,en,,Business Analyst,Business Analyst
 title,en,,Business Systems Analyst,Business Analyst
 # Service Manager
-title,en,,Problem Manager,Service Manager
-title,en,,IT Service Manager,Service Manager
-title,en,,Service Manager,Service Manager
-title,en,,Service Delivery Manager,Service Manager
-title,en,,Service Desk Analyst,Service Manager
-title,en,,IT Service Desk Analyst,Service Manager
+title,en,,Problem Manager,IT Service Manager
+title,en,,IT Service Manager,IT Service Manager
+title,en,,Service Manager,IT Service Manager
+title,en,,Service Delivery Manager,IT Service Manager
+title,en,,Service Desk Analyst,IT Service Manager
+title,en,,IT Service Desk Analyst,IT Service Manager
 # Network Engineer
 title,en,,Network Engineer,Network Engineer
 title,en,,Network Support Engineer,Network Engineer
