@@ -190,12 +190,12 @@ title,en,,Programme Manager,Project Manager
 title,en,,Delivery Manager,Project Manager
 title,en,,PMO,Project Manager
 title,en,,PMO Analyst,Project Manager
-# Consultant
-title,en,,Principal Consultant,Consultant
-title,en,,Consultant,Consultant
-title,en,,Management Consultant,Consultant
-title,en,,Business Consultant,Consultant
-title,en,,Development Manager,Consultant
+# Management Consultant
+title,en,,Principal Consultant,Management Consultant
+title,en,,Consultant,Management Consultant
+title,en,,Management Consultant,Management Consultant
+title,en,,Business Consultant,Management Consultant
+title,en,,Development Manager,Management Consultant
 # IT Manager
 title,en,,IT Manager,IT Manager
 title,en,,Technical Engineer,IT Manager
@@ -318,15 +318,16 @@ title,en,,Test Engineer,Test Analyst
 title,en,,Tester,Test Analyst
 title,en,,QA,Test Analyst
 title,en,,Test Lead,Test Analyst
-# Web Designer/Developer
-title,en,,Web Designer,Web Designer/Developer
-title,en,,Webmaster,Web Designer/Developer
-title,en,,Web Developer,Web Designer/Developer
-title,en,,Web Designer/Developer,Web Designer/Developer
-title,en,,Web Application Developer,Web Designer/Developer
-title,en,,Front End Web Developer,Web Designer/Developer
-title,en,,Front End Developer,Web Designer/Developer
-title,en,,PHP Developer,Web Designer/Developer
+# Web Developer
+title,en,,Webmaster,Web Developer
+title,en,,Web Developer,Web Developer
+title,en,,Web Application Developer,Web Developer
+title,en,,Front End Web Developer,Web Developer
+title,en,,Front End Developer,Web Developer
+title,en,,PHP Developer,Web Developer
+# Web Designer
+title,en,,Web Designer,Web Designer
+title,en,,Web Designer/Developer,Web Designer
 # Database Administrator
 title,en,,Oracle DBA,Database Administrator
 title,en,,BI Consultant,Database Administrator
