@@ -442,7 +442,8 @@ class CareerDefinitionDB(SQLDatabase):
 
             q2 = self.query(Career.title, Career.count, SalaryBin) \
                      .outerjoin(SalaryBin) \
-                     .filter(Career.sector_id == sector.id) \
+                     .filter(Career.visible,
+                             Career.sector_id == sector.id) \
                      .order_by(Career.title, Career.count)
             sectordict['careers'] = []
             wsum = 0.0
