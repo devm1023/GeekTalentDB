@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../src')
-
 import time
 import os
 from datetime import datetime

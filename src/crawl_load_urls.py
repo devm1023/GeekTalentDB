@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../src')
-
 import conf
 from crawldb import *
 from logger import Logger
