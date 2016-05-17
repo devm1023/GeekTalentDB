@@ -1,4 +1,5 @@
 __all__ = [
+    'SectorDescription',
     'CareerDescription',
     'SkillDescription',
     'DescriptionDB',
@@ -30,6 +31,19 @@ from logger import Logger
 STR_MAX = 100000
 
 SQLBase = sqlbase()
+
+
+class SectorDescription(SQLBase):
+    __tablename__ = 'sector_description'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX), index=True)
+    short_text    = Column(Unicode(STR_MAX))
+    text          = Column(Unicode(STR_MAX))
+    url           = Column(String(STR_MAX))
+    source        = Column(Unicode(STR_MAX))
+    approved      = Column(Boolean, nullable=False)
+
+    __table_args__ = (UniqueConstraint('name'),)
 
 
 class CareerDescription(SQLBase):
@@ -69,7 +83,9 @@ class DescriptionDB(SQLDatabase):
 
     def get_description(self, tpe, sector, name, watson_lookup=False,
                         logger=Logger(None)):
-        if tpe == 'career':
+        if tpe == 'sector':
+            table = SectorDescription
+        elif tpe == 'career':
             table = CareerDescription
         elif tpe == 'skill':
             table = SkillDescription
@@ -84,10 +100,15 @@ class DescriptionDB(SQLDatabase):
         for sector in sectors:
             if entity is not None:
                 break
-            entity = self.query(table) \
-                         .filter(table.sector == sector,
-                                 table.name == name) \
-                         .first()
+            if tpe != 'sector':
+                entity = self.query(table) \
+                             .filter(table.sector == sector,
+                                     table.name == name) \
+                             .first()
+            else:
+                entity = self.query(table) \
+                             .filter(table.name == name) \
+                             .first()
         if entity is not None:
             return dict_from_row(entity, pkeys=False)
         if not watson_lookup:
@@ -113,16 +134,14 @@ class DescriptionDB(SQLDatabase):
                              auth=(conf.WATSON_USERNAME,
                                    conf.WATSON_PASSWORD)) \
                         .json()
-            entity = table(sector=None,
-                           name=name,
+            entity = table(name=name,
                            text=r.get('abstract', None),
                            url=r.get('link', None),
                            source='Wikipedia',
                            match_count=match_count,
                            approved=False)
         else:
-            entity = table(sector=None,
-                           name=name,
+            entity = table(name=name,
                            match_count=match_count,
                            approved=False)
         logger.log('done.\n')

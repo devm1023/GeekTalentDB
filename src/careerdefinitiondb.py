@@ -430,7 +430,7 @@ class CareerDefinitionDB(SQLDatabase):
         return self.add_from_dict(skilldict, SectorSkill,
                                   protect=['visible'])
 
-    def get_sectors(self, sectors):
+    def get_sectors(self, sectors, description_db=None):
         results = []
         q= self.query(Sector) \
                .filter(Sector.visible)
@@ -460,25 +460,17 @@ class CareerDefinitionDB(SQLDatabase):
             if totalcount > 0 and wsum > 0.0:
                 sectordict['average_salary'] = wsum/totalcount
 
-            sectordict['description'] = self._get_entity_description(
-                    'sector', None, sectordict['name'])
-            for skilldict in sectordict['skill_cloud']:
-                skilldict['description'] = self._get_entity_description(
-                    'skill', sector.name, skilldict['skill_name'])
-            for companydict in sectordict['company_cloud']:
-                companydict['description'] = self._get_entity_description(
-                    'company', sector.name, companydict['company_name'])
-            for subjectdict in sectordict['education_subjects']:
-                subjectdict['description'] = self._get_entity_description(
-                    'subject', sector.name, subjectdict['subject_name'])
-            for institutedict in sectordict['education_institutes']:
-                institutedict['description'] = self._get_entity_description(
-                    'institute', sector.name, institutedict['institute_name'])
+            if description_db is not None:
+                sectordict['description'] = description_db.get_description(
+                    'sector', None, sector.name)
+                for skilldict in sectordict['skill_cloud']:
+                    skilldict['description'] = description_db.get_description(
+                        'skill', sector.name, skilldict['skill_name'])
 
             results.append(sectordict)
         return results
     
-    def get_careers(self, sector, titles):
+    def get_careers(self, sector, titles, description_db=None):
         sector_id = self.query(Sector.id) \
                         .filter(Sector.name == sector) \
                         .first()
@@ -504,27 +496,13 @@ class CareerDefinitionDB(SQLDatabase):
 
             for point in careerdict['salary_history_points']:
                 point['date'] = point['date'].strftime('%Y-%m')
-            
-            careerdict['description'] = self._get_entity_description(
-                    'title', sector, career.title)
-            for skilldict in careerdict['skill_cloud']:
-                skilldict['description'] = self._get_entity_description(
-                    'skill', sector, skilldict['skill_name'])
-            for companydict in careerdict['company_cloud']:
-                companydict['description'] = self._get_entity_description(
-                    'company', sector, companydict['company_name'])
-            for subjectdict in careerdict['education_subjects']:
-                subjectdict['description'] = self._get_entity_description(
-                    'subject', sector, subjectdict['subject_name'])
-            for institutedict in careerdict['education_institutes']:
-                institutedict['description'] = self._get_entity_description(
-                    'institute', sector, institutedict['institute_name'])
-            for titledict in careerdict['previous_titles']:
-                titledict['description'] = self._get_entity_description(
-                    'title', sector, titledict['previous_title'])
-            for titledict in careerdict['next_titles']:
-                titledict['description'] = self._get_entity_description(
-                    'title', sector, titledict['next_title'])
-            results.append(careerdict)
 
+            if description_db is not None:
+                careerdict['description'] = description_db.get_description(
+                        'career', sector, career.title)
+                for skilldict in careerdict['skill_cloud']:
+                    skilldict['description'] = description_db.get_description(
+                        'skill', sector, skilldict['skill_name'])
+
+            results.append(careerdict)
         return results

@@ -41,7 +41,7 @@ def index():
 def get_descriptions():
     start = datetime.now()
     tpe = request.args.get('type')
-    if tpe not in ['career', 'skill']:
+    if tpe not in ['sector', 'career', 'skill']:
         return jsonify({'message' : 'Invalid or missing `type` parameter.'})
     sector = request.args.get('sector')
     queries = request.args.getlist('q')
@@ -58,17 +58,35 @@ def get_descriptions():
     return response
 
 
+class SectorDescription(db.Model):
+    __tablename__ = 'sector_description'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    name          = db.Column(db.Unicode(STR_MAX))
+    short_text    = db.Column(db.Text)
+    text          = db.Column(db.Text)
+    url           = db.Column(db.String(STR_MAX))
+    source        = db.Column(db.Unicode(STR_MAX))
+    approved      = db.Column(db.Boolean, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('name'),)
+    
+    def __str__(self):
+        return self.name
+
+
 class CareerDescription(db.Model):
     __tablename__ = 'career_description'
     id            = db.Column(db.BigInteger, primary_key=True)
     sector        = db.Column(db.Unicode(STR_MAX))
     name          = db.Column(db.Unicode(STR_MAX))
-    short_description = db.Column(db.Text)
-    description   = db.Column(db.Text)
+    short_text    = db.Column(db.Text)
+    text          = db.Column(db.Text)
     url           = db.Column(db.String(STR_MAX))
     source        = db.Column(db.Unicode(STR_MAX))
     approved      = db.Column(db.Boolean, nullable=False)
 
+    __table_args__ = (db.UniqueConstraint('sector', 'name'),)
+    
     def __str__(self):
         sectorstr = self.linkedin_sector if self.linkedin_sector else '*'
         return '[{0:s}|{1:s}]'.format(sectorstr, self.name)
@@ -79,11 +97,13 @@ class SkillDescription(db.Model):
     id            = db.Column(db.BigInteger, primary_key=True)
     sector        = db.Column(db.Unicode(STR_MAX))
     name          = db.Column(db.Unicode(STR_MAX))
-    short_description = db.Column(db.Text)
-    description   = db.Column(db.Text)
+    short_text    = db.Column(db.Text)
+    text          = db.Column(db.Text)
     url           = db.Column(db.String(STR_MAX))
     source        = db.Column(db.Unicode(STR_MAX))
     approved      = db.Column(db.Boolean, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint('sector', 'name'),)
 
     def __str__(self):
         sectorstr = self.linkedin_sector if self.linkedin_sector else '*'
@@ -146,20 +166,24 @@ class ModelView(sqla.ModelView):
                           error=str(ex)), 'error')
 
 
+class SectorDescriptionView(ModelView):
+    column_list = ['name', 'short_text', 'text', 'approved']
+    column_filters = ['name', 'approved']
+
+
 class CareerDescriptionView(ModelView):
-    column_list = ['sector', 'name', 'short_description', 'description',
-                   'approved']
+    column_list = ['sector', 'name', 'short_text', 'text', 'approved']
     column_filters = ['name', 'sector', 'approved']
 
 
 class SkillDescriptionView(ModelView):
-    column_list = ['sector', 'name', 'short_description', 'description',
-                   'approved']
+    column_list = ['sector', 'name', 'short_text', 'text', 'approved']
     column_filters = ['name', 'sector', 'approved']
 
 
 # Create admin
 admin = Admin(app, name='DescriptionDB', template_mode='bootstrap3')
+admin.add_view(SectorDescriptionView(SectorDescription, db.session))
 admin.add_view(CareerDescriptionView(CareerDescription, db.session))
 admin.add_view(SkillDescriptionView(SkillDescription, db.session))
 
