@@ -11,13 +11,15 @@ from werkzeug.exceptions import HTTPException
 
 import conf
 from careerdefinitiondb import CareerDefinitionDB
+from descriptiondb import DescriptionDB
 from datetime import datetime
 
 # Create application
 app = Flask(__name__)
 
-# Create database session
+# Create database sessions
 cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
+dscdb = DescriptionDB(conf.DESCRIPTION_DB)
 
 # Create dummy secrey key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'
@@ -41,7 +43,7 @@ def get_careers():
     start = datetime.now()
     sector = request.args.get('sector')
     titles = request.args.getlist('title')
-    results = cddb.get_careers(sector, titles)
+    results = cddb.get_careers(sector, titles, description_db=dscdb)
     end = datetime.now()
     response = jsonify({'results' : results,
                         'query_time' : (end-start).microseconds//1000,
@@ -55,7 +57,7 @@ def get_careers():
 def get_sectors():
     start = datetime.now()
     sectors = request.args.getlist('sector')
-    results = cddb.get_sectors(sectors)
+    results = cddb.get_sectors(sectors, description_db=dscdb)
     end = datetime.now()
     response = jsonify({'results' : results,
                         'query_time' : (end-start).microseconds//1000,
@@ -63,26 +65,6 @@ def get_sectors():
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
-
-
-class EntityDescription(db.Model):
-    __tablename__ = 'entity_description'
-    id            = db.Column(db.BigInteger, primary_key=True)
-    entity_type   = db.Column(db.String(20))
-    linkedin_sector = db.Column(db.Unicode(STR_MAX))
-    entity_name   = db.Column(db.Unicode(STR_MAX))
-    match_count   = db.Column(db.Integer)
-    short_description = db.Column(db.Text)
-    description   = db.Column(db.Text)
-    description_url = db.Column(db.String(STR_MAX))
-    description_source = db.Column(db.Unicode(STR_MAX))
-    edited        = db.Column(db.Boolean, nullable=False)
-
-    def __str__(self):
-        typestr = self.entity_type if self.entity_type else '*'
-        sectorstr = self.linkedin_sector if self.linkedin_sector else '*'
-        return '[{0:s}|{1:s}|{2:s}]'.format(typestr, sectorstr,
-                                            self.entity_name)
 
 
 class Sector(db.Model):
@@ -426,16 +408,6 @@ class CareerView(ModelView):
     column_filters = ['sector', 'title', 'visible']
 
 
-class EntityDescriptionView(ModelView):
-    column_filters = ['entity_type', 'linkedin_sector', 'entity_name', 'edited']
-    column_exclude_list = ['match_count', 'description_url',
-                           'description_source']
-    form_widget_args = {'description' : {
-        'rows' : 5,
-        'style' : 'font-family:"Lucida Console", Monaco, monospace;'
-    }}
-
-
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skill_name', 'visible']
     form_widget_args = {
@@ -486,7 +458,6 @@ admin.add_view(CareerSubjectView(CareerSubject, db.session))
 admin.add_view(CareerInstituteView(CareerInstitute, db.session))
 admin.add_view(PreviousTitleView(PreviousTitle, db.session))
 admin.add_view(NextTitleView(NextTitle, db.session))
-admin.add_view(EntityDescriptionView(EntityDescription, db.session))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
