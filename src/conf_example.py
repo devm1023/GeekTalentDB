@@ -1,5 +1,8 @@
 import os
 
+# Crawl Database
+CRAWL_DB      = 'postgresql://geektalent:geektalent@localhost/crawl'
+
 # Datoin Database 
 DATOIN_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 
@@ -15,6 +18,10 @@ GEEKMAPS_DB   = 'postgresql://geektalent:geektalent@localhost/geekmaps'
 # Career Definition Database
 CAREERDEFINITION_DB \
     = 'postgresql://geektalent:geektalent@localhost/careerdefinition'
+
+# Description Database
+DESCRIPTION_DB \
+    = 'postgresql://geektalent:geektalent@localhost/description'
 
 
 # search endpoint from DATOIN
