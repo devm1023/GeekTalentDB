@@ -22,6 +22,10 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship
 
+import conf
+import requests
+from logger import Logger
+
 
 STR_MAX = 100000
 
@@ -33,8 +37,8 @@ class CareerDescription(SQLBase):
     id            = Column(BigInteger, primary_key=True)
     sector        = Column(Unicode(STR_MAX), index=True)
     name          = Column(Unicode(STR_MAX), index=True)
-    short_description = Column(Unicode(STR_MAX))
-    description   = Column(Unicode(STR_MAX))
+    short_text    = Column(Unicode(STR_MAX))
+    text          = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     source        = Column(Unicode(STR_MAX))
     match_count   = Column(Integer)
@@ -48,8 +52,8 @@ class SkillDescription(SQLBase):
     id            = Column(BigInteger, primary_key=True)
     sector        = Column(Unicode(STR_MAX), index=True)
     name          = Column(Unicode(STR_MAX), index=True)
-    short_description = Column(Unicode(STR_MAX))
-    description   = Column(Unicode(STR_MAX))
+    short_text    = Column(Unicode(STR_MAX))
+    text          = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     source        = Column(Unicode(STR_MAX))
     match_count   = Column(Integer)
@@ -63,7 +67,8 @@ class DescriptionDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
-    def get_description(self, tpe, sector, name, watson_lookup=False):
+    def get_description(self, tpe, sector, name, watson_lookup=False,
+                        logger=Logger(None)):
         if tpe == 'career':
             table = CareerDescription
         elif tpe == 'skill':
@@ -88,6 +93,7 @@ class DescriptionDB(SQLDatabase):
         if not watson_lookup:
             return None
 
+        logger.log('Looking up {0:s}...'.format(repr(name)))
         r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'label_search',
                          params={'query' : name,
                                  'concept_fields' : '{"link":1}',
@@ -109,16 +115,17 @@ class DescriptionDB(SQLDatabase):
                         .json()
             entity = table(sector=None,
                            name=name,
-                           description=r.get('abstract', None),
+                           text=r.get('abstract', None),
                            url=r.get('link', None),
                            source='Wikipedia',
                            match_count=match_count,
-                           checked=False)
+                           approved=False)
         else:
             entity = table(sector=None,
                            name=name,
                            match_count=match_count,
-                           checked=False)
+                           approved=False)
+        logger.log('done.\n')
 
         self.add(entity)
         self.flush()
