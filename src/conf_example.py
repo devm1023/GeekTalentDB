@@ -24,6 +24,19 @@ DESCRIPTION_DB \
     = 'postgresql://geektalent:geektalent@localhost/description'
 
 
+# paths for tor browser
+#
+# Linux:
+TOR_BROWSER_BINARY = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
+                      'start-tor-browser')
+TOR_BROWSER_PROFILE = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
+                       'TorBrowser/Data/Browser/profile.default/')
+# Mac OS X:
+# TOR_BROWSER_BINARY = '/Applications/TorBrowser.app/Contents/MacOS/firefox'
+# TOR_BROWSER_PROFILE = ('/Applications/TorBrowser.app/TorBrowser/Data/Browser/'
+#                        'profile.default')
+
+
 # search endpoint from DATOIN
 DATOIN_SEARCH   = 'http://gt1.datoin.com:8765/search'
 # profiles endpoint from DATOIN

@@ -7,6 +7,7 @@ import argparse
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 
 from lxml import etree
 from io import StringIO
@@ -19,23 +20,30 @@ from sqlalchemy import func
 html_parser = etree.HTMLParser()
 
 def new_browser():
-    binary_path = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
-                   'start-tor-browser')
-    profile_path = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
-                    'TorBrowser/Data/Browser/profile.default/')
-    if os.path.exists(binary_path) is False:
-        raise ValueError("The binary path to Tor firefox does not exist.")
-    if os.path.exists(profile_path) is False:
-        raise ValueError("The profile path to Tor firefox does not exist.")
-    firefox_binary = FirefoxBinary(binary_path)
-    firefox_profile = FirefoxProfile(profile_path)
-    browser = webdriver.Firefox(firefox_binary=firefox_binary,
-                                firefox_profile=firefox_profile)
-    browser.get('https://uk.linkedin.com')
-    time.sleep(1)
-    letter = chr(random.randint(ord('a'), ord('z')))
-    browser.get('https://uk.linkedin.com/directory/people-'+letter)
-    time.sleep(1)
+    success = False
+    while not success:
+        try:
+            if os.path.exists(conf.TOR_BROWSER_BINARY) is False:
+                raise ValueError(
+                    'The binary path to Tor firefox does not exist.')
+            if os.path.exists(conf.TOR_BROWSER_PROFILE) is False:
+                raise ValueError(
+                    'The profile path to Tor firefox does not exist.')
+            firefox_binary = FirefoxBinary(conf.TOR_BROWSER_BINARY)
+            firefox_profile = FirefoxProfile(conf.TOR_BROWSER_PROFILE)
+            browser = webdriver.Firefox(firefox_binary=firefox_binary,
+                                        firefox_profile=firefox_profile)
+            browser.set_page_load_timeout(10)
+
+            browser.get('https://uk.linkedin.com')
+            time.sleep(1)
+            letter = chr(random.randint(ord('a'), ord('z')))
+            browser.get('https://uk.linkedin.com/directory/people-'+letter)
+            time.sleep(1)
+            success = True
+        except TimeoutException:
+            browser.quit()
+        
     return browser
 
 
@@ -72,7 +80,14 @@ if __name__ == "__main__":
     browser = new_browser()
     for liprofile in q:
         count += 1
-        browser.get(liprofile.url)
+        success = False
+        while not success:
+            try:
+                browser.get(liprofile.url)
+                success = True
+            except TimeoutException:
+                browser.quit()
+                browser = new_browser()
         time.sleep(random.uniform(0.5, 1.5))
         body = browser.page_source
         redirect_url = browser.current_url
