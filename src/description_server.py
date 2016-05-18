@@ -165,6 +165,30 @@ class ModelView(sqla.ModelView):
     action_disapprove = action('disapprove', 'Disapprove')(
         lambda self, ids: _approve(self, None, ids))
 
+    @action('clear', 'Clear', 'Are you sure you want to clear these records?')
+    def action_clear(self, ids):
+        try:
+            query = self.model.query.filter(self.model.id.in_(ids))
+            count = 0
+            for row in query:
+                row.text = None
+                row.short_text = None
+                row.url = None
+                row.source = None
+                count += 1
+            db.session.commit()
+
+            flash(ngettext('Row was successfully cleared.',
+                           '%(count)s rows were successfully cleared.',
+                           count,
+                           count=count))
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+
+            flash(gettext('Failed to approve rows. %(error)s', error=str(ex)),
+                  'error')
+        
 
 class SectorDescriptionView(ModelView):
     column_list = ['name', 'short_text', 'text', 'approved']
