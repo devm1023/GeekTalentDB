@@ -191,7 +191,7 @@ class ModelView(sqla.ModelView):
         
 
 class SectorDescriptionView(ModelView):
-    column_list = ['name', 'short_text', 'text', 'approved']
+    column_list = ['name', 'short_text', 'text', 'source', 'approved']
     column_filters = ['name', 'approved']
     form_widget_args = {'text' : {
         'rows' : 10,
@@ -200,7 +200,7 @@ class SectorDescriptionView(ModelView):
 
 
 class CareerDescriptionView(ModelView):
-    column_list = ['sector', 'name', 'short_text', 'text', 'approved']
+    column_list = ['sector', 'name', 'short_text', 'text', 'source', 'approved']
     column_filters = ['name', 'sector', 'approved']
     form_widget_args = {'text' : {
         'rows' : 10,
@@ -209,7 +209,7 @@ class CareerDescriptionView(ModelView):
 
 
 class SkillDescriptionView(ModelView):
-    column_list = ['sector', 'name', 'short_text', 'text', 'approved']
+    column_list = ['sector', 'name', 'short_text', 'text', 'source', 'approved']
     column_filters = ['name', 'sector', 'approved']
     form_widget_args = {'text' : {
         'rows' : 10,
