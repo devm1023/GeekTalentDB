@@ -41,7 +41,7 @@ class SectorDescription(SQLBase):
     text          = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     source        = Column(Unicode(STR_MAX))
-    approved      = Column(Boolean, nullable=False)
+    approved      = Column(String(20))
 
     __table_args__ = (UniqueConstraint('name'),)
 
@@ -56,7 +56,7 @@ class CareerDescription(SQLBase):
     url           = Column(String(STR_MAX))
     source        = Column(Unicode(STR_MAX))
     match_count   = Column(Integer)
-    approved      = Column(Boolean, nullable=False)
+    approved      = Column(String(20))
 
     __table_args__ = (UniqueConstraint('sector', 'name'),)
 
@@ -71,7 +71,7 @@ class SkillDescription(SQLBase):
     url           = Column(String(STR_MAX))
     source        = Column(Unicode(STR_MAX))
     match_count   = Column(Integer)
-    approved      = Column(Boolean, nullable=False)
+    approved      = Column(String(20))
 
     __table_args__ = (UniqueConstraint('sector', 'name'),)
     
@@ -139,11 +139,11 @@ class DescriptionDB(SQLDatabase):
                            url=r.get('link', None),
                            source='Wikipedia',
                            match_count=match_count,
-                           approved=False)
+                           approved=None)
         else:
             entity = table(name=name,
                            match_count=match_count,
-                           approved=False)
+                           approved=None)
         logger.log('done.\n')
 
         self.add(entity)

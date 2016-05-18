@@ -66,7 +66,7 @@ class SectorDescription(db.Model):
     text          = db.Column(db.Text)
     url           = db.Column(db.String(STR_MAX))
     source        = db.Column(db.Unicode(STR_MAX))
-    approved      = db.Column(db.Boolean, nullable=False)
+    approved      = db.Column(db.String(20))
 
     __table_args__ = (db.UniqueConstraint('name'),)
     
@@ -83,7 +83,7 @@ class CareerDescription(db.Model):
     text          = db.Column(db.Text)
     url           = db.Column(db.String(STR_MAX))
     source        = db.Column(db.Unicode(STR_MAX))
-    approved      = db.Column(db.Boolean, nullable=False)
+    approved      = db.Column(db.String(20))
 
     __table_args__ = (db.UniqueConstraint('sector', 'name'),)
     
@@ -101,7 +101,7 @@ class SkillDescription(db.Model):
     text          = db.Column(db.Text)
     url           = db.Column(db.String(STR_MAX))
     source        = db.Column(db.Unicode(STR_MAX))
-    approved      = db.Column(db.Boolean, nullable=False)
+    approved      = db.Column(db.String(20))
 
     __table_args__ = (db.UniqueConstraint('sector', 'name'),)
 
@@ -169,16 +169,28 @@ class ModelView(sqla.ModelView):
 class SectorDescriptionView(ModelView):
     column_list = ['name', 'short_text', 'text', 'approved']
     column_filters = ['name', 'approved']
+    form_widget_args = {'text' : {
+        'rows' : 10,
+        'style' : 'font-family:"Lucida Console", Monaco, monospace;'
+    }}
 
 
 class CareerDescriptionView(ModelView):
     column_list = ['sector', 'name', 'short_text', 'text', 'approved']
     column_filters = ['name', 'sector', 'approved']
+    form_widget_args = {'text' : {
+        'rows' : 10,
+        'style' : 'font-family:"Lucida Console", Monaco, monospace;'
+    }}
 
 
 class SkillDescriptionView(ModelView):
     column_list = ['sector', 'name', 'short_text', 'text', 'approved']
     column_filters = ['name', 'sector', 'approved']
+    form_widget_args = {'text' : {
+        'rows' : 10,
+        'style' : 'font-family:"Lucida Console", Monaco, monospace;'
+    }}
 
 
 # Create admin
