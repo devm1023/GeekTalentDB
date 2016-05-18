@@ -110,6 +110,26 @@ class SkillDescription(db.Model):
         return '[{0:s}|{1:s}]'.format(sectorstr, self.name)
     
 
+def _approve(self, initials, ids):
+    try:
+        query = self.model.query.filter(self.model.id.in_(ids))
+        count = 0
+        for row in query:
+            row.approved = initials
+            count += 1
+        db.session.commit()
+
+        flash(ngettext('Row was successfully approved.',
+                       '%(count)s rows were successfully approved.',
+                       count,
+                       count=count))
+    except Exception as ex:
+        if not self.handle_view_exception(ex):
+            raise
+
+        flash(gettext('Failed to approve rows. %(error)s', error=str(ex)),
+              'error')
+
 
 class ModelView(sqla.ModelView):
     def is_accessible(self):
@@ -123,47 +143,27 @@ class ModelView(sqla.ModelView):
             ))
         return True
 
-    @action('approve', 'Approve')
-    def action_approve(self, ids):
-        try:
-            query = self.model.query.filter(self.model.id.in_(ids))
-            count = 0
-            for row in query:
-                row.approved = True
-                count += 1
-            db.session.commit()
+    action_approve_JP = action('approve_JP', 'Approve (JP)')(
+        lambda self, ids: _approve(self, 'JP', ids))
+    action_approve_PL = action('approve_PL', 'Approve (PL)')(
+        lambda self, ids: _approve(self, 'PL', ids))
+    action_approve_DM = action('approve_DM', 'Approve (DM)')(
+        lambda self, ids: _approve(self, 'DM', ids))
+    action_approve_DS = action('approve_DS', 'Approve (DS)')(
+        lambda self, ids: _approve(self, 'DS', ids))
+    action_approve_MW = action('approve_MW', 'Approve (MW)')(
+        lambda self, ids: _approve(self, 'MW', ids))
+    action_approve_RS = action('approve_RS', 'Approve (RS)')(
+        lambda self, ids: _approve(self, 'RS', ids))
+    action_approve_KW = action('approve_KW', 'Approve (KW)')(
+        lambda self, ids: _approve(self, 'KW', ids))
+    action_approve_KC = action('approve_KC', 'Approve (KC)')(
+        lambda self, ids: _approve(self, 'KC', ids))
+    action_approve_JA = action('approve_JA', 'Approve (JA)')(
+        lambda self, ids: _approve(self, 'JA', ids))
 
-            flash(ngettext('Row was successfully approved.',
-                           '%(count)s rows were successfully approved.',
-                           count,
-                           count=count))
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                raise
-
-            flash(gettext('Failed to approve rows. %(error)s', error=str(ex)),
-                  'error')
-
-    @action('disapprove', 'Disapprove')
-    def action_reveal(self, ids):
-        try:
-            query = self.model.query.filter(self.model.id.in_(ids))
-            count = 0
-            for row in query:
-                row.approved = False
-                count += 1
-            db.session.commit()
-
-            flash(ngettext('Row was successfully disapproved.',
-                           '%(count)s rows were successfully disapproved.',
-                           count,
-                           count=count))
-        except Exception as ex:
-            if not self.handle_view_exception(ex):
-                raise
-
-            flash(gettext('Failed to disapprove rows. %(error)s',
-                          error=str(ex)), 'error')
+    action_disapprove = action('disapprove', 'Disapprove')(
+        lambda self, ids: _approve(self, None, ids))
 
 
 class SectorDescriptionView(ModelView):
