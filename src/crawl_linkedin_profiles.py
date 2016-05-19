@@ -73,41 +73,50 @@ if __name__ == "__main__":
             .order_by(func.random())
     if args.limit is not None:
         q = q.limit(args.limit)
+    else:
+        q = q.limit(10000)
     
     last_reload = datetime.now()
     crawl_time = random.randint(60, 120)
     count = 0
+    keep_going = True
     browser = new_browser()
-    for liprofile in q:
-        count += 1
-        success = False
-        while not success:
-            try:
-                browser.get(liprofile.url)
-                success = True
-            except TimeoutException:
+    while keep_going:
+        keep_going = False
+        for liprofile in q:
+            count += 1
+            if args.limit is None:
+                keep_going = True
+            
+            success = False
+            while not success:
+                try:
+                    browser.get(liprofile.url)
+                    success = True
+                except TimeoutException:
+                    browser.quit()
+                    browser = new_browser()
+            time.sleep(random.uniform(0.5, 1.5))
+            body = browser.page_source
+            redirect_url = browser.current_url
+            timestamp = datetime.now()
+            valid = is_valid(body)
+
+            liprofile.body = body
+            liprofile.redirect_url = redirect_url
+            liprofile.timestamp = timestamp
+            liprofile.valid = valid
+            if not valid:
+                liprofile.fail_count += 1
+            crdb.commit()
+            logger.log('{0:d} profiles crawled.\n'.format(count))
+
+            if not valid \
+               or (timestamp - last_reload).total_seconds() > crawl_time:
+                last_reload = timestamp
+                crawl_time = random.randint(30, 90)
                 browser.quit()
                 browser = new_browser()
-        time.sleep(random.uniform(0.5, 1.5))
-        body = browser.page_source
-        redirect_url = browser.current_url
-        timestamp = datetime.now()
-        valid = is_valid(body)
-
-        liprofile.body = body
-        liprofile.redirect_url = redirect_url
-        liprofile.timestamp = timestamp
-        liprofile.valid = valid
-        if not valid:
-            liprofile.fail_count += 1
-        crdb.commit()
-        logger.log('{0:d} profiles crawled.\n'.format(count))
-        
-        if not valid or (timestamp - last_reload).total_seconds() > crawl_time:
-            last_reload = timestamp
-            crawl_time = random.randint(30, 90)
-            browser.quit()
-            browser = new_browser()
 
     browser.quit()
 
