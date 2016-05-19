@@ -34,6 +34,10 @@ if __name__ == '__main__':
                         help='Maximum number of careers per sector.')
     parser.add_argument('--sigma', type=int, default=3,
                         help='Minimal significance of relevance scores.')
+    parser.add_argument('--sector-filter-fraction', type=float, default=0.5,
+                        help='Apply sector filter for job titles where the '
+                        'fraction of people coming from other sectors is '
+                        'larger than sector-filter-fraction.')
     parser.add_argument('--sectors-from',
                         help='Name of file holding sector names.')
     parser.add_argument('--mappings',
@@ -46,6 +50,10 @@ if __name__ == '__main__':
     andb = AnalyticsDB(conf.ANALYTICS_DB)
     mapper = EntityMapper(andb, args.mappings)
     sectors = get_sectors(args.sector, args.sectors_from, mapper)
+    if not sectors:
+        sys.stderr.write('You must specify at least one sector.\n')
+        sys.stderr.flush()
+        sys.exit(1)
 
     totalc = andb.query(LIProfile.id) \
                  .join(Location) \
@@ -90,5 +98,10 @@ if __name__ == '__main__':
             title = mapper.name(nrm_title)
             frac1 = sectortitlec/sectorc
             frac2 = (titlec-sectortitlec)/(totalc-sectorc)
-            csvwriter.writerow([sector, title, score, sectortitlec, titlec,
-                                sectorc, totalc, frac1, frac2, error])
+            sector_fraction = (titlec - sectortitlec)/titlec
+            sector_filter = 0
+            if sector_fraction > args.sector_filter_fraction:
+                sector_filter = 1
+            csvwriter.writerow([sector, title, sector_filter, score,
+                                sectortitlec, titlec, sectorc, totalc,
+                                frac1, frac2, error])
