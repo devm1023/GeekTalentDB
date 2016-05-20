@@ -33,7 +33,7 @@ def new_browser():
             firefox_profile = FirefoxProfile(conf.TOR_BROWSER_PROFILE)
             browser = webdriver.Firefox(firefox_binary=firefox_binary,
                                         firefox_profile=firefox_profile)
-            browser.set_page_load_timeout(10)
+            browser.set_page_load_timeout(60)
 
             browser.get('https://uk.linkedin.com')
             time.sleep(1)
