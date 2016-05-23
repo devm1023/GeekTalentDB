@@ -107,8 +107,8 @@ if __name__ == "__main__":
     browser = new_browser(args.site)
     while keep_going:
         keep_going = False
-        for liprofile, max_timestamp in q:
-            if liprofile.timestamp != max_timestamp:
+        for website, max_timestamp in q:
+            if website.timestamp != max_timestamp:
                 continue
             count += 1
             if args.limit is None:
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             success = False
             while not success:
                 try:
-                    browser.get(liprofile.url)
+                    browser.get(website.url)
                     success = True
                 except TimeoutException:
                     browser.quit()
@@ -130,14 +130,15 @@ if __name__ == "__main__":
             timestamp = datetime.now()
             valid = is_valid(args.site, html)
 
-            if liprofile.valid:
-                liprofile = Website(fail_count=0)
-            liprofile.html = html
-            liprofile.redirect_url = redirect_url
-            liprofile.timestamp = timestamp
-            liprofile.valid = valid
+            if website.valid:
+                website = Website(fail_count=0)
+                crdb.add(website)
+            website.html = html
+            website.redirect_url = redirect_url
+            website.timestamp = timestamp
+            website.valid = valid
             if not valid:
-                liprofile.fail_count += 1
+                website.fail_count += 1
             crdb.commit()
             logger.log('{0:d} profiles crawled.\n'.format(count))
 
