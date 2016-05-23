@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     crdb = CrawlDB(conf.CRAWL_DB)
 
-    q = crdb.query(LIProfile.body) \
-            .filter(LIProfile.id == args.id)
-    for body, in q:
-        sys.stdout.write(body)
+    q = crdb.query(Website.html) \
+            .filter(Website.id == args.id)
+    for html, in q:
+        sys.stdout.write(html)
         sys.stdout.flush()
