@@ -126,10 +126,10 @@ if __name__ == '__main__':
 
     # generate mappings file
     if args.mapping_output:
-        with open(args.output, 'w') as outputfile:
+        with open(args.mapping_output, 'w') as outputfile:
             csvwriter = csv.writer(outputfile)
             for cluster, title, _ in clusters:
                 for (sector, subtitle, sector_filter), _ in cluster:
-                    sector = subtitle[0] if subtitle[2] else ''
+                    sector = sector if sector_filter else ''
                     csvwriter.writerow(
-                        ['title', 'en', sector, subtitle[1], title[1]])
+                        ['title', 'en', sector, subtitle, title[1]])
