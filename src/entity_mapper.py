@@ -54,8 +54,8 @@ class EntityMapper:
                 if nrm_entity2 not in inv_nrm_map:
                     inv_nrm_map[nrm_entity2] = set()
                 inv_nrm_map[nrm_entity2].add(nrm_entity1)
-                self._names[nrm_sector, nrm_entity1] = entity1
-                self._names[nrm_sector, nrm_entity2] = entity2
+                self._names[nrm_entity1] = entity1
+                self._names[nrm_entity2] = entity2
 
     def __call__(self, entity, sector=None, nrm_sector=None, language='en'):
         if sector is not None:
@@ -85,30 +85,25 @@ class EntityMapper:
         for item in items:
             yield item
 
-    def inv(self, entity, sector=None, nrm_sector=None, language='en'):
+    def inv(self, entity, sector=None, nrm_sector=None, language='en',
+            sector_specific=False):
         if sector is not None:
             nrm_sector = normalized_entity('sector', 'linkedin', language,
                                            sector)
+        result = set([entity])
         if nrm_sector in self._nrm_maps[None]:
             nrm_sector = self._nrm_maps[None][nrm_sector]
-        inv_nrm_map = self._inv_nrm_maps[None]
-        result = set([entity])
-        result.update(inv_nrm_map.get(entity, []))
+        if not sector_specific:
+            inv_nrm_map = self._inv_nrm_maps[None]
+            result.update(inv_nrm_map.get(entity, []))
         if nrm_sector is not None:
             inv_nrm_map = self._inv_nrm_maps.get(nrm_sector, {})
             result.update(inv_nrm_map.get(entity, []))
         return result
 
-    def name(self, entity, sector=None, nrm_sector=None, language='en'):
-        if sector is not None:
-            nrm_sector = normalized_entity('sector', 'linkedin', language,
-                                           sector)
-        if nrm_sector in self._nrm_maps[None]:
-            nrm_sector = self._nrm_maps[None][nrm_sector]
-        if (nrm_sector, entity) in self._names:
-            return self._names[nrm_sector, entity]
-        elif (None, entity) in self._names:
-            return self._names[None, entity]
+    def name(self, entity):
+        if entity in self._names:
+            return self._names[entity]
         else:
             name = self._db.query(Entity.name) \
                            .filter(Entity.nrm_name == entity) \

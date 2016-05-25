@@ -1,22 +1,42 @@
-# sector,use sector filter,title
-Digital Tech,1,Project Manager
-Digital Tech,1,Management Consultant
-Digital Tech,0,IT Manager
-Digital Tech,0,IT Consultant
-Digital Tech,1,Business Analyst
-Digital Tech,0,IT Service Manager
-Digital Tech,0,Network Engineer
-Digital Tech,1,Engineer
-Digital Tech,0,Software Developer
-Digital Tech,0,Data Analyst
-Digital Tech,0,Test Analyst
-Digital Tech,0,Web Developer
-Digital Tech,0,Web Designer
-Digital Tech,0,Database Administrator
-Digital Tech,0,Digital Marketer
-Digital Tech,0,Animator
-Digital Tech,0,Cyber Security Analyst
-Digital Tech,0,IT Trainer
-Digital Tech,0,Data Scientist
-Digital Tech,0,Game Developer
-Digital Tech,0,Game Designer
+# Digital Tech careers
+Digital Tech,Project Manager
+Digital Tech,Management Consultant
+Digital Tech,IT Manager
+Digital Tech,IT Consultant
+Digital Tech,Business Analyst
+Digital Tech,IT Service Manager
+Digital Tech,Network Engineer
+Digital Tech,Software Developer
+Digital Tech,Data Analyst
+Digital Tech,Test Analyst
+Digital Tech,Web Developer
+Digital Tech,Web Designer
+Digital Tech,Database Administrator
+Digital Tech,Digital Marketer
+Digital Tech,Animator
+Digital Tech,Cyber Security Analyst
+Digital Tech,IT Trainer
+Digital Tech,Data Scientist
+Digital Tech,Game Developer
+Digital Tech,Game Designer
+# Automotive careers
+Automotive,Service Advisor
+Automotive,Director
+Automotive,Sales Executive
+Automotive,Vehicle Technician
+Automotive,Owner
+Automotive,Sales Manager
+Automotive,Business Manager
+Automotive,Parts Manager
+Automotive,Project Engineer
+Automotive,Quality Engineer
+Automotive,Manufacturing Engineer
+Automotive,General Manager
+Automotive,Parts Advisor
+Automotive,Driving Instructor
+Automotive,Sales Director
+Automotive,Mechanical/Design Engineer
+Automotive,Workshop Controller
+Automotive,Fleet Manager
+Automotive,Buyer
+Automotive,Maintenance Engineer

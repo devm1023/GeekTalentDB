@@ -185,21 +185,21 @@ title,en,,Self-employed,
 ###### Digital Tech careers ######
 #
 # Project Manager
-title,en,,Program Manager,Project Manager
-title,en,,IT Project Manager,Project Manager
-title,en,,Infrastructure Project Manager,Project Manager
-title,en,,Technical Project Manager,Project Manager
-title,en,,Project Manager,Project Manager
-title,en,,Programme Manager,Project Manager
-title,en,,Delivery Manager,Project Manager
-title,en,,PMO,Project Manager
-title,en,,PMO Analyst,Project Manager
+title,en,Digital Tech,Program Manager,Project Manager
+title,en,Digital Tech,IT Project Manager,Project Manager
+title,en,Digital Tech,Infrastructure Project Manager,Project Manager
+title,en,Digital Tech,Technical Project Manager,Project Manager
+title,en,Digital Tech,Project Manager,Project Manager
+title,en,Digital Tech,Programme Manager,Project Manager
+title,en,Digital Tech,Delivery Manager,Project Manager
+title,en,Digital Tech,PMO,Project Manager
+title,en,Digital Tech,PMO Analyst,Project Manager
 # Management Consultant
-title,en,,Principal Consultant,Management Consultant
-title,en,,Consultant,Management Consultant
-title,en,,Management Consultant,Management Consultant
-title,en,,Business Consultant,Management Consultant
-title,en,,Development Manager,Management Consultant
+title,en,Digital Tech,Principal Consultant,Management Consultant
+title,en,Digital Tech,Consultant,Management Consultant
+title,en,Digital Tech,Management Consultant,Management Consultant
+title,en,Digital Tech,Business Consultant,Management Consultant
+title,en,Digital Tech,Development Manager,Management Consultant
 # IT Manager
 title,en,,IT Manager,IT Manager
 title,en,,Technical Engineer,IT Manager
@@ -254,14 +254,14 @@ title,en,,Professional Services Consultant,IT Consultant
 title,en,,Computer Consultant,IT Consultant
 title,en,,SAP Consultant,IT Consultant
 # Business Analyst
-title,en,,IT Business Analyst,Business Analyst
-title,en,,Business Analyst,Business Analyst
-title,en,,Business Systems Analyst,Business Analyst
+title,en,Digital Tech,IT Business Analyst,Business Analyst
+title,en,Digital Tech,Business Analyst,Business Analyst
+title,en,Digital Tech,Business Systems Analyst,Business Analyst
 # Service Manager
-title,en,,Problem Manager,IT Service Manager
+title,en,Digital Tech,Problem Manager,IT Service Manager
 title,en,,IT Service Manager,IT Service Manager
-title,en,,Service Manager,IT Service Manager
-title,en,,Service Delivery Manager,IT Service Manager
+title,en,Digital Tech,Service Manager,IT Service Manager
+title,en,Digital Tech,Service Delivery Manager,IT Service Manager
 title,en,,Service Desk Analyst,IT Service Manager
 title,en,,IT Service Desk Analyst,IT Service Manager
 # Network Engineer
