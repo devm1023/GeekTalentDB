@@ -535,7 +535,7 @@ if __name__ == '__main__':
         (careerdict['previous_titles_total'], careerdict['previous_titles'],
          careerdict['next_titles_total'], careerdict['next_titles']) \
          = get_career_steps(
-             andb, mapper, nrm_sector, nrm_title, titles_nosf, titles_sf,
+             andb, mapper, nrm_sector, nrm_career, titles_nosf, titles_sf,
              args.min_careerstep_count, args.max_careersteps)
 
         cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
