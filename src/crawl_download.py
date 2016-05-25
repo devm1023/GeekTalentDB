@@ -4,13 +4,12 @@ from datetime import datetime
 import random
 import argparse
 
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-
 from lxml import etree
 from io import StringIO
+
+from stem import Signal
+from stem.control import Controller
+import requests
 
 import conf
 from crawldb import *
@@ -18,41 +17,9 @@ from logger import Logger
 from sqlalchemy import func
 
 html_parser = etree.HTMLParser()
+TOR_COOLDOWN = 11
+TIMEOUT = 30
 
-def new_browser(site):
-    success = False
-    while not success:
-        try:
-            if os.path.exists(conf.TOR_BROWSER_BINARY) is False:
-                raise ValueError(
-                    'The binary path to Tor firefox does not exist.')
-            if os.path.exists(conf.TOR_BROWSER_PROFILE) is False:
-                raise ValueError(
-                    'The profile path to Tor firefox does not exist.')
-            firefox_binary = FirefoxBinary(conf.TOR_BROWSER_BINARY)
-            firefox_profile = FirefoxProfile(conf.TOR_BROWSER_PROFILE)
-            browser = webdriver.Firefox(firefox_binary=firefox_binary,
-                                        firefox_profile=firefox_profile)
-            browser.set_page_load_timeout(60)
-
-            enter_site(site, browser)
-            success = True
-        except TimeoutException:
-            browser.quit()
-        
-    return browser
-
-
-def enter_site(site, browser):
-    if site == 'linkedin':
-        browser.get('https://uk.linkedin.com')
-        time.sleep(1)
-        letter = chr(random.randint(ord('a'), ord('z')))
-        browser.get('https://uk.linkedin.com/directory/people-'+letter)
-        time.sleep(1)        
-    else:
-        raise ValueError('Unknown site ID {0:s}'.format(repr(site)))
-    
 
 def is_valid(site, html):
     doc = etree.parse(StringIO(html), html_parser)
@@ -61,6 +28,43 @@ def is_valid(site, html):
     else:
         raise ValueError('Unknown site ID {0:s}'.format(repr(site)))
 
+
+def new_identity(lastcall=None, port=9051):
+    now = datetime.now()
+    if lastcall is not None:
+        secs_since_last_call = (now-lastcall).total_seconds()
+        if secs_since_last_call < TOR_COOLDOWN:
+            time.sleep(TOR_COOLDOWN - secs_since_last_call)
+    with Controller.from_port(port=port) as controller:
+        controller.authenticate(password='PythonRulez')
+        controller.signal(Signal.NEWNYM)
+    return datetime.now()
+
+
+def get_url(site, url, port=9050, logger=Logger(None)):
+    headers = {
+        'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Encoding' : 'gzip, deflate, sdch',
+        'Accept-Language' : 'en-US,en;q=0.8,de;q=0.6',
+        'Connection' : 'keep-alive',
+        'DNT' : '1',
+        'Host' : 'uk.linkedin.com',
+        'Upgrade-Insecure-Requests' : '1',
+        'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
+    }
+    proxies = {'http':  'socks5://127.0.0.1:{0:d}'.format(port),
+               'https': 'socks5://127.0.0.1:{0:d}'.format(port)}
+    success = False
+    while not success:
+        try:
+            result = requests.get(url, proxies=proxies, headers=headers,
+                                  timeout=TIMEOUT)
+            success = True
+        except Exception as e:
+            logger.log('Failed getting URL {0:s}\n{1:s}\nRetrying.\n' \
+                       .format(url, str(e)))
+            time.sleep(2)
+    return result
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -100,35 +104,35 @@ if __name__ == "__main__":
         q = q.filter(Website.url.in_(urls))
     q = q.order_by(func.random()).limit(10000)
     
-    last_reload = datetime.now()
+    last_ipchange = datetime.now()
     crawl_time = random.randint(60, 120)
     count = 0
+    valid_count = 0
+    crawl_start = datetime.now()
     keep_going = True
-    browser = new_browser(args.site)
     while keep_going:
         keep_going = False
         for website, max_timestamp in q:
             if website.timestamp != max_timestamp:
                 continue
             count += 1
-            if args.limit is None:
+            if args.limit is None or count < args.limit:
                 keep_going = True
-            elif count > args.limit:
+            if args.limit is not None and count > args.limit:
                 break
 
-            success = False
-            while not success:
-                try:
-                    browser.get(website.url)
-                    success = True
-                except TimeoutException:
-                    browser.quit()
-                    browser = new_browser(args.site)
+            response = get_url(args.site, website.url, logger=logger)
             time.sleep(random.uniform(0.5, 1.5))
-            html = browser.page_source
-            redirect_url = browser.current_url
+            
+            html = response.text
+            redirect_url = response.url
             timestamp = datetime.now()
             valid = is_valid(args.site, html)
+            if valid:
+                valid_count += 1
+            else:
+                logger.log('Got invalid response for URL {0:s}\n' \
+                           .format(website.url))
 
             if website.valid:
                 website = Website(fail_count=0)
@@ -140,15 +144,18 @@ if __name__ == "__main__":
             if not valid:
                 website.fail_count += 1
             crdb.commit()
-            logger.log('{0:d} profiles crawled.\n'.format(count))
+            logger.log('Crawled {0:d} profiles. Success rate: {1:3.0f}%, '
+                       'Crawl rate: {2:5.3f} prf/sec.\n' \
+                       .format(valid_count, valid_count/count*100,
+                               valid_count/ \
+                               (timestamp-crawl_start).total_seconds()))
 
             if not valid \
-               or (timestamp - last_reload).total_seconds() > crawl_time:
+               or (timestamp - last_ipchange).total_seconds() > crawl_time:
                 last_reload = timestamp
                 crawl_time = random.randint(30, 90)
-                browser.quit()
-                browser = new_browser(args.site)
-
-    browser.quit()
-
+                last_ipchange = new_identity(lastcall=last_ipchange)
+                ip = get_url('ip', 'http://icanhazip.com/').text.strip()
+                logger.log('Got new IP: {0:s}\n'.format(ip))
+                
 

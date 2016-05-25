@@ -8,7 +8,8 @@ Install required python packages:
 ---------------------------------
 
 sudo apt-get install python3-matplotlib postgresql-server-dev-X.Y libgdal-dev
-sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely langdetect flask flask-admin flask-sqlalchemy
+sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely langdetect flask flask-admin flask-sqlalchemy stem pysocks
+sudo pip3 install requests -U
 
 Where X.Y is the PostgreSQL version number.
 
