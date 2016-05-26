@@ -164,6 +164,10 @@ if __name__ == "__main__":
                         help='Max. number of URLs to crawl in one batch.')
     parser.add_argument('--batch-time', type=int, default=300,
                         help='Max. time (in secs) to crawl one batch.')
+    parser.add_argument('--ports', default='9050',
+                        help='Comma-separated list of Tor ports.')
+    parser.add_argument('--control-ports', default='9051',
+                        help='Comma-separated list of Tor control ports.')
     parser.add_argument('--max-fail-count', type=int, default=10,
                         help='Maximum number of failed crawls before '
                         'giving up.')
@@ -198,9 +202,12 @@ if __name__ == "__main__":
             .filter(subq.c.timestamp == subq.c.max_timestamp) \
             .limit(args.batch_size*args.jobs)
 
-    if args.jobs > 1:
-        ports = [9060 + p*2 for p in range(args.jobs)]
-        control_ports = [9061 + p*2 for p in range(args.jobs)]
+    ports = [int(p) for p in args.ports.split(',')]
+    control_ports = [int(p) for p in args.control_ports.split(',')]
+    if len(ports) < args.jobs:
+        raise ValueError('Not enough ports specified.')
+    if len(control_ports) < args.jobs:
+        raise ValueError('Not enough control ports specified.')
     
     count = 0
     valid_count = 0
@@ -216,7 +223,7 @@ if __name__ == "__main__":
         
         if args.jobs == 1:
             batch_count, batch_valid_count = crawl_urls(
-                args.site, urls, deadline)
+                args.site, urls, deadline, ports[0], control_ports[0])
             count += batch_count
             valid_count += batch_valid_count
         else:
