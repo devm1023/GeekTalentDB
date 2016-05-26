@@ -208,10 +208,8 @@ if __name__ == "__main__":
         raise ValueError('Not enough ports specified.')
     if len(control_ports) < args.jobs:
         raise ValueError('Not enough control ports specified.')
-    
-    count = 0
-    valid_count = 0
-    crawl_start = datetime.now()
+
+    tstart = datetime.now()
     while True:
         urls = [url for url, in q]
         if not urls:
@@ -222,7 +220,7 @@ if __name__ == "__main__":
         deadline = datetime.now() + batch_time
         
         if args.jobs == 1:
-            batch_count, batch_valid_count = crawl_urls(
+            count, valid_count = crawl_urls(
                 args.site, urls, deadline, ports[0], control_ports[0])
             count += batch_count
             valid_count += batch_valid_count
@@ -234,17 +232,19 @@ if __name__ == "__main__":
             pfunc = ParallelFunction(
                 crawl_urls, batchsize=1, workdir='crawljobs', prefix='crawl')
             results = pfunc(pargs)
+            count = 0
+            valid_count = 0
             for batch_count, batch_valid_count in results:
                 count += batch_count
                 valid_count += batch_valid_count
 
+        tfinish = datetime.now()
         logger.log('Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
                    'Crawl rate: {2:5.3f} URLs/sec.\n' \
                    .format(valid_count, valid_count/count*100,
                            valid_count/ \
-                           (datetime.now()-crawl_start).total_seconds()))
+                           (tfinish-tstart).total_seconds()))
+        tstart = tfinish
         
         if args.limit and count >= args.limit:
             break
-
-
