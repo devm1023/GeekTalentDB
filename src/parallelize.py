@@ -243,7 +243,7 @@ sys.path.append('"""+os.path.abspath(workdir) \
     if prelude is not None:
         fout.write('\n'+prelude+'\n')
     fout.write("""
-from dill import dump, load
+from cloudpickle import dump, load
 
 fin = open(sys.argv[1], 'rb')
 f = load(fin)
