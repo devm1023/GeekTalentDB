@@ -7,8 +7,7 @@ import argparse
 from lxml import etree
 from io import StringIO
 
-from stem import Signal
-from stem.control import Controller
+from tor import new_identity, TorProxyList
 import requests
 
 from sqlalchemy import func
@@ -45,18 +44,6 @@ def is_valid(site, html):
         raise ValueError('Unknown site ID {0:s}'.format(repr(site)))
 
 
-def new_identity(lastcall=None, port=9051):
-    now = datetime.now()
-    if lastcall is not None:
-        secs_since_last_call = (now-lastcall).total_seconds()
-        if secs_since_last_call < TOR_COOLDOWN:
-            time.sleep(TOR_COOLDOWN - secs_since_last_call)
-    with Controller.from_port(port=port) as controller:
-        controller.authenticate(password='PythonRulez')
-        controller.signal(Signal.NEWNYM)
-    return datetime.now()
-
-
 def get_url(site, url, port=9050, logger=Logger(None)):
     headers = {
         'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -76,26 +63,42 @@ def get_url(site, url, port=9050, logger=Logger(None)):
                               timeout=TIMEOUT)
         success = True
     except Exception as e:
-        logger.log('Failed getting URL {0:s}\n{1:s}\nRetrying.\n' \
+        logger.log('Failed getting URL {0:s}\n{1:s}\n' \
                    .format(url, str(e)))
     if not success:
         return None
     return result
 
 
-def crawl_urls(site, urls, deadline, port=9050, control_port=9051):
+def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
+               last_ipchanges=None):
     logger = Logger()
+    nports = len(ports)
+    if nports < 1:
+        raise ValueError('At least one port is needed.')
+    if len(control_ports) != nports:
+        raise ValueError('Number of ports must match number of control ports.')
+    if last_ipchanges is None:
+        now = datetime.now()
+        last_ipchanges = [now]*nports
+    elif len(last_ipchanges) != nports:
+        raise ValueError('Argument last_ipchanges invalid.')
+    
     with CrawlDB(conf.CRAWL_DB) as crdb:
-        last_ipchange = datetime.now()
-        crawl_time = random.randint(MIN_CRAWL_TIME, MAX_CRAWL_TIME)
         count = 0
         valid_count = 0
-        crawl_start = last_ipchange
+        crawl_start = datetime.now()
         for url in urls:
             timestamp = datetime.now()
             if timestamp > deadline:
                 break
 
+            iport = random.randint(0, nports-1)
+            port = ports[iport]
+            control_port = control_ports[iport]
+            last_ipchange = last_ipchanges[iport]
+            crawl_time = random.uniform(MIN_CRAWL_TIME, MAX_CRAWL_TIME)
+            
             response = get_url(site, url, logger=logger, port=port)
             time.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
 
@@ -137,16 +140,11 @@ def crawl_urls(site, urls, deadline, port=9050, control_port=9051):
 
             if not valid \
                or (timestamp - last_ipchange).total_seconds() > crawl_time:
-                last_reload = timestamp
-                crawl_time = random.randint(30, 90)
-                logger.log('Getting new IP...')
-                last_ipchange = new_identity(lastcall=last_ipchange,
-                                             port=control_port)
-                logger.log('done.\n')
-                # ip = get_url('ip', 'http://icanhazip.com/').text.strip()
-                # logger.log('Got new IP: {0:s}\n'.format(ip))
+                logger.log('Getting new IP.')
+                last_ipchanges[iport] = datetime.now()
+                last_ipchange = new_identity(port=control_port)
 
-        return count, valid_count
+        return count, valid_count, last_ipchanges
         
 
 if __name__ == "__main__":
@@ -164,10 +162,10 @@ if __name__ == "__main__":
                         help='Max. number of URLs to crawl in one batch.')
     parser.add_argument('--batch-time', type=int, default=300,
                         help='Max. time (in secs) to crawl one batch.')
-    parser.add_argument('--ports', default='9050',
-                        help='Comma-separated list of Tor ports.')
-    parser.add_argument('--control-ports', default='9051',
-                        help='Comma-separated list of Tor control ports.')
+    parser.add_argument('--ips-per-job', type=int, default=1,
+                        help='Number of identities per crawl job.')
+    parser.add_argument('--base-port', type=int, default=13000,
+                        help='Smallest port for Tor proxies.')
     parser.add_argument('--max-fail-count', type=int, default=10,
                         help='Maximum number of failed crawls before '
                         'giving up.')
@@ -199,52 +197,64 @@ if __name__ == "__main__":
     q = q.order_by(func.random())
     subq = q.subquery()
     q = crdb.query(subq.c.url) \
-            .filter(subq.c.timestamp == subq.c.max_timestamp) \
+            .filter((subq.c.timestamp == None) | \
+                    (subq.c.timestamp == subq.c.max_timestamp)) \
             .limit(args.batch_size*args.jobs)
 
-    ports = [int(p) for p in args.ports.split(',')]
-    control_ports = [int(p) for p in args.control_ports.split(',')]
-    if len(ports) < args.jobs:
-        raise ValueError('Not enough ports specified.')
-    if len(control_ports) < args.jobs:
-        raise ValueError('Not enough control ports specified.')
+    with TorProxyList(args.jobs*args.ips_per_job,
+                      restart_after=120, logger=logger) as tor_proxies:
+        logger.log('Tor proxies started.\n')
+        ports = tor_proxies.ports[:]
+        control_ports = tor_proxies.control_ports[:]
+        last_ipchange_batches = [None]*args.jobs
 
-    tstart = datetime.now()
-    while True:
-        urls = [url for url, in q]
-        if not urls:
-            break
-        if args.limit and len(urls) > args.limit - count:
-            urls = urls[:args.limit - count]
-            
-        deadline = datetime.now() + batch_time
-        
-        if args.jobs == 1:
-            count, valid_count = crawl_urls(
-                args.site, urls, deadline, ports[0], control_ports[0])
-            count += batch_count
-            valid_count += batch_valid_count
-        else:
-            url_batches = equipartition(urls, args.jobs)
-            pargs = [(args.site, url_batch, deadline, port, control_port) \
-                     for url_batch, port, control_port in \
-                     zip(url_batches, ports, control_ports)]
-            pfunc = ParallelFunction(
-                crawl_urls, batchsize=1, workdir='crawljobs', prefix='crawl')
-            results = pfunc(pargs)
-            count = 0
-            valid_count = 0
-            for batch_count, batch_valid_count in results:
-                count += batch_count
-                valid_count += batch_valid_count
+        tstart = datetime.now()
+        while True:
+            urls = [url for url, in q]
+            if not urls:
+                break
+            if args.limit and len(urls) > args.limit - count:
+                urls = urls[:args.limit - count]
 
-        tfinish = datetime.now()
-        logger.log('Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
-                   'Crawl rate: {2:5.3f} URLs/sec.\n' \
-                   .format(valid_count, valid_count/count*100,
-                           valid_count/ \
-                           (tfinish-tstart).total_seconds()))
-        tstart = tfinish
-        
-        if args.limit and count >= args.limit:
-            break
+            deadline = datetime.now() + batch_time
+
+            if args.jobs == 1:
+                count, valid_count = crawl_urls(
+                    args.site, urls, deadline, ports, control_ports)
+                count = batch_count
+                valid_count = batch_valid_count
+            else:
+                url_batches = equipartition(urls, args.jobs)
+                port_batches = equipartition(ports, args.jobs)
+                control_port_batches = equipartition(control_ports, args.jobs)
+                pargs = []
+                for url_batch, port_batch, control_port_batch, \
+                    last_ipchange_batch in zip(
+                        url_batches, port_batches,
+                        control_port_batches, last_ipchange_batches):
+                    pargs.append((args.site, url_batch, deadline,
+                                  port_batch, control_port_batch,
+                                  last_ipchange_batch))
+                pfunc = ParallelFunction(crawl_urls, batchsize=1,
+                                         workdir='crawljobs', prefix='crawl')
+                results = pfunc(pargs)
+                count = 0
+                valid_count = 0
+                last_ipchange_batches = []
+                for batch_count, batch_valid_count, last_ipchange_batch \
+                    in results:
+                    count += batch_count
+                    valid_count += batch_valid_count
+                    last_ipchange_batches.append(last_ipchange_batch)
+
+            tfinish = datetime.now()
+            logger.log('Finished batch at {0:s}.\n'
+                       'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
+                       'Crawl rate: {3:5.3f} URLs/sec.\n' \
+                       .format(tfinish.strftime('%Y-%m-%d %H:%M:%S'),
+                               valid_count, valid_count/count*100,
+                               valid_count/(tfinish-tstart).total_seconds()))
+            tstart = tfinish
+
+            if args.limit and count >= args.limit:
+                break
