@@ -1,6 +1,7 @@
 __all__ = ['new_identity', 'TorProxyList']
 
 import subprocess
+import os
 import select
 from datetime import datetime
 import time
@@ -40,7 +41,7 @@ class TorProxyList:
                        '--HashedControlPassword', hashed_password,
                        '--ControlPort', str(self.control_ports[i]),
                        '--SocksPort', str(self.ports[i]),
-                       '--DataDirectory', data_dir+'tor.'+str(i)]
+                       '--DataDirectory', os.path.join(data_dir, 'tor.'+str(i))]
                 self._procs.append(subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                                     bufsize=0))
 
@@ -53,7 +54,7 @@ class TorProxyList:
                     raise RuntimeError('Some Tor processes failed to start.')
                 time.sleep(1)
                 now = datetime.now()
-                restart = (now - laststart).total_seconds() > 30
+                restart = (now - laststart).total_seconds() > restart_after
                 for i in range(nproxies):
                     if ready[i]:
                         continue

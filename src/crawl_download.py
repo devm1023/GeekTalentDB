@@ -44,7 +44,7 @@ def is_valid(site, html):
         raise ValueError('Unknown site ID {0:s}'.format(repr(site)))
 
 
-def get_url(site, url, port=9050, logger=Logger(None)):
+def get_url(site, url, port=9050, timeout=None, logger=Logger(None)):
     headers = {
         'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Encoding' : 'gzip, deflate, sdch',
@@ -60,7 +60,7 @@ def get_url(site, url, port=9050, logger=Logger(None)):
     success = False
     try:
         result = requests.get(url, proxies=proxies, headers=headers,
-                              timeout=TIMEOUT)
+                              timeout=timeout)
         success = True
     except Exception as e:
         logger.log('Failed getting URL {0:s}\n{1:s}\n' \
@@ -71,7 +71,8 @@ def get_url(site, url, port=9050, logger=Logger(None)):
 
 
 def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
-               last_ipchanges=None):
+               last_ipchanges=None, crawl_time_range=(120, 180),
+               delay_range=(0.5, 1.0), timeout=30):
     logger = Logger()
     nports = len(ports)
     if nports < 1:
@@ -97,10 +98,12 @@ def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
             port = ports[iport]
             control_port = control_ports[iport]
             last_ipchange = last_ipchanges[iport]
-            crawl_time = random.uniform(MIN_CRAWL_TIME, MAX_CRAWL_TIME)
+            crawl_time = random.uniform(crawl_time_range[0],
+                                        crawl_time_range[1])
             
-            response = get_url(site, url, logger=logger, port=port)
-            time.sleep(random.uniform(MIN_DELAY, MAX_DELAY))
+            response = get_url(site, url, logger=logger, port=port,
+                               timeout=timeout)
+            time.sleep(random.uniform(delay_range[0], delay_range[1]))
 
             if response is None:
                 html = None
@@ -140,7 +143,7 @@ def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
 
             if not valid \
                or (timestamp - last_ipchange).total_seconds() > crawl_time:
-                logger.log('Getting new IP.')
+                logger.log('Getting new IP.\n')
                 last_ipchanges[iport] = datetime.now()
                 last_ipchange = new_identity(port=control_port)
 
@@ -166,12 +169,32 @@ if __name__ == "__main__":
                         help='Number of identities per crawl job.')
     parser.add_argument('--base-port', type=int, default=13000,
                         help='Smallest port for Tor proxies.')
+    parser.add_argument('--tor-timeout', type=int, default=60,
+                        help='Timeout in secs for starting Tor process.')
+    parser.add_argument('--tor-retries', type=int, default=3,
+                        help='Number of retries for starting Tor process.')
+    parser.add_argument('--crawl-time-range', default='120,180',
+                        help='Min/Max crawl time in secs separated by a comma. '
+                        'Crawl time is the time crawled from the same IP.')    
+    parser.add_argument('--delay-range', default='0,0',
+                        help='Min/Max delay between requests in secs.')
+    parser.add_argument('--timeout', type=int, default=30,
+                        help='Timeout for requests.')
     parser.add_argument('--max-fail-count', type=int, default=10,
                         help='Maximum number of failed crawls before '
                         'giving up.')
     parser.add_argument('site',
                         help='ID string of the website to crawl.')
     args = parser.parse_args()
+
+    crawl_time_range = tuple(float(x) for x in args.crawl_time_range.split(','))
+    if len(crawl_time_range) != 2:
+        raise RuntimeError(
+            'Crawl time range must be a comma separated pair of floats.')
+    delay_range = tuple(float(x) for x in args.delay_range.split(','))
+    if len(delay_range) != 2:
+        raise RuntimeError(
+            'Delay range must be a comma separated pair of floats.')
     
     crdb = CrawlDB(conf.CRAWL_DB)
     logger = Logger()
@@ -202,7 +225,9 @@ if __name__ == "__main__":
             .limit(args.batch_size*args.jobs)
 
     with TorProxyList(args.jobs*args.ips_per_job,
-                      restart_after=120, logger=logger) as tor_proxies:
+                      restart_after=args.tor_timeout,
+                      max_restart=args.tor_retries,
+                      logger=logger) as tor_proxies:
         logger.log('Tor proxies started.\n')
         ports = tor_proxies.ports[:]
         control_ports = tor_proxies.control_ports[:]
@@ -220,7 +245,8 @@ if __name__ == "__main__":
 
             if args.jobs == 1:
                 count, valid_count = crawl_urls(
-                    args.site, urls, deadline, ports, control_ports)
+                    args.site, urls, deadline, ports, control_ports,
+                    crawl_time_range, delay_range, args.timeout)
                 count = batch_count
                 valid_count = batch_valid_count
             else:
@@ -234,7 +260,9 @@ if __name__ == "__main__":
                         control_port_batches, last_ipchange_batches):
                     pargs.append((args.site, url_batch, deadline,
                                   port_batch, control_port_batch,
-                                  last_ipchange_batch))
+                                  last_ipchange_batch,
+                                  crawl_time_range, delay_range,
+                                  args.timeout))
                 pfunc = ParallelFunction(crawl_urls, batchsize=1,
                                          workdir='crawljobs', prefix='crawl')
                 results = pfunc(pargs)
