@@ -31,6 +31,9 @@ TOR_BROWSER_BINARY = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
                       'start-tor-browser')
 TOR_BROWSER_PROFILE = ('/home/geektalent/.local/opt/tor-browser_en-US/Browser/'
                        'TorBrowser/Data/Browser/profile.default/')
+# generate with `tor --hash-password PythonRulez`
+TOR_HASHED_PASSWORD = '16:4D3D35770F36F240604F4D73CE11DE2E23D5EC43093B206A21E41F5984'
+TOR_PASSWORD = 'PythonRulez'
 # Mac OS X:
 # TOR_BROWSER_BINARY = '/Applications/TorBrowser.app/Contents/MacOS/firefox'
 # TOR_BROWSER_PROFILE = ('/Applications/TorBrowser.app/TorBrowser/Data/Browser/'

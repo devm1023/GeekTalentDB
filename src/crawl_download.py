@@ -145,7 +145,7 @@ def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
                or (timestamp - last_ipchange).total_seconds() > crawl_time:
                 logger.log('Getting new IP.\n')
                 last_ipchanges[iport] = datetime.now()
-                last_ipchange = new_identity(port=control_port)
+                new_identity(port=control_port, password=conf.TOR_PASSWORD)
 
         return count, valid_count, last_ipchanges
         
@@ -227,6 +227,7 @@ if __name__ == "__main__":
     with TorProxyList(args.jobs*args.ips_per_job,
                       restart_after=args.tor_timeout,
                       max_restart=args.tor_retries,
+                      hashed_password=conf.TOR_HASHED_PASSWORD,
                       logger=logger) as tor_proxies:
         logger.log('Tor proxies started.\n')
         ports = tor_proxies.ports[:]
