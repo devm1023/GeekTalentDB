@@ -1,7 +1,7 @@
 import conf
 from logger import Logger
 from analyticsdb import *
-from analytics_get_entitycloud import entity_cloud
+from analytics_get_entitycloud import entity_cloud, relevance_score
 from textnormalization import normalized_entity, make_nrm_name, split_nrm_name
 from windowquery import collapse
 from careerdefinitiondb import CareerDefinitionDB, Sector
@@ -15,6 +15,51 @@ def _get_items(keys, d):
     for key in keys:
         if key in d:
             yield key, d[key]
+
+
+def _merged_entity_cloud(
+        cloud1, name_field_1, total_count_field_1, category_count_field_1,
+        entity_count_field_1, count_field_1,
+        cloud2, name_field_2, total_count_field_2, category_count_field_2,
+        entity_count_field_2, count_field_2):
+    entities = {}
+    for entity1 in cloud1:
+        entities[entity1[name_field_1]] = {
+            name_field_1           : entity1[name_field_1],
+            total_count_field_1    : entity1[total_count_field_1],
+            category_count_field_1 : entity1[category_count_field_1],
+            entity_count_field_1   : entity1[entity_count_field_1],
+            count_field_1          : entity1[count_field_1]}
+    for entity2 in cloud2:
+        name = entity2[name_field_2]
+        if name in entities:
+            entity = entities[name]
+            if entity[total_count_field_1] != entity2[total_count_field_2]:
+                raise ValueError('Fields {0:s} and {1:s} must match.' \
+                                 .format(total_count_field_1,
+                                         total_count_field_2))
+            if entity[entity_count_field_1] != entity2[entity_count_field_2]:
+                raise ValueError('Fields {0:s} and {1:s} must match.' \
+                                 .format(entity_count_field_1,
+                                         entity_count_field_2))
+            entity[category_count_field_1] += entity2[category_count_field_2]
+            entity[count_field_1] += entity2[count_field_2]
+        else:
+            entities[name] = {
+                name_field_1           : entity2[name_field_2],
+                total_count_field_1    : entity2[total_count_field_2],
+                category_count_field_1 : entity2[category_count_field_2],
+                entity_count_field_1   : entity2[entity_count_field_2],
+                count_field_1          : entity2[count_field_2]}
+            
+    entities = list(entities.values())
+    for entity in entities:
+        entity['relevance_score'], _ = relevance_score(
+            entity[total_count_field_1], entity[category_count_field_1],
+            entity[entity_count_field_1], entity[count_field_1])
+    entities.sort(key=lambda e: e['relevance_score'])
+    return entities
+
 
 def get_skill_cloud(andb, mapper, nrm_sector, profilec, categoryc,
                     skillcounts, titles_nosf, titles_sf, sigma, limit):
@@ -438,15 +483,29 @@ if __name__ == '__main__':
 
     # get list of careers to add
     careers = []
+    ch_sectors = {}
     with open(args.careers, 'r') as csvfile:
         csvreader = csv.reader(row for row in csvfile \
                                if not row.strip().startswith('#'))
+        sector_ids = {args.sector : sector_id}
         for row in csvreader:
             if not row:
                 continue
             try:
                 sector_field = row[0]
                 career = row[1].strip()
+                ch_sector_name = None
+                if len(row) > 2 and row[2].strip():
+                    ch_sector_name = row[2].strip()
+                    if ch_sector_name not in ch_sectors:
+                        ch_sectors[ch_sector_name] = {
+                            'name' : ch_sector_name,
+                            'total_count' : profilec_sf,
+                            'count' : 0,
+                            'visible' : True
+                        }
+                        cddb.add_from_dict(ch_sectors[ch_sector_name],
+                                           Sector, flush=True)
             except (ValueError, IndexError):
                 raise IOError('Invalid row in careers file: {0:s}' \
                               .format(str(row)))
@@ -455,9 +514,9 @@ if __name__ == '__main__':
                 continue
 
             nrm_career = normalized_entity('title', 'linkedin', 'en', career)
-            careers.append((career, nrm_career))
+            careers.append((career, nrm_career, ch_sector_name))
 
-    for career, nrm_career in careers:
+    for career, nrm_career, ch_sector_name in careers:
         logger.log('\nProcessing career: {0:s}\n'.format(career))
 
         profilec = profilec_nosf
@@ -499,8 +558,16 @@ if __name__ == '__main__':
                 titlec += 1
         logger.log('{0:d} found.\n'.format(titlec))
 
+        # accumulate counts for sector
+        if ch_sector_name:
+            ch_sectors[ch_sector_name]['count'] += titlec
+        
+        # initialise career dict
+        ch_sector_id = sector_id
+        if ch_sector_name:
+            ch_sector_id = ch_sectors[ch_sector_name]['id']        
         careerdict = {'title' : career,
-                      'sector_id' : sector_id,
+                      'sector_id' : ch_sector_id,
                       'total_count' : profilec,
                       'sector_count' : None,
                       'title_count' : None,
@@ -514,6 +581,16 @@ if __name__ == '__main__':
             = get_skill_cloud(andb, mapper, nrm_sector,
                               profilec, titlec, skillcounts, titles_nosf,
                               titles_sf, args.sigma, args.max_skills)
+        if ch_sector_name:
+            ch_sectors[ch_sector_name]['skill_cloud'] \
+                = _merged_entity_cloud(
+                    ch_sectors[ch_sector_name].get('skill_cloud', []),
+                    'skill_name', 'total_count', 'sector_count', 'skill_count',
+                    'count',
+                    careerdict['skill_cloud'],
+                    'skill_name', 'total_count', 'title_count', 'skill_count',
+                    'count')
+        
         logger.log('Building company cloud.\n')
         careerdict['company_cloud'] \
             = get_company_cloud(andb, mapper, nrm_sector,
@@ -540,3 +617,9 @@ if __name__ == '__main__':
 
         cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
         cddb.commit()
+
+    for ch_sector_dict in ch_sectors.values():
+        for skill_dict in ch_sector_dict.get('skill_cloud', []):
+            skill_dict['visible'] = True
+        cddb.add_from_dict(ch_sector_dict, Sector)
+    cddb.commit()

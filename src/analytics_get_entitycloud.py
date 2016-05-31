@@ -12,7 +12,7 @@ from logger import Logger
 import argparse
 
 
-def _score(totalcount, categorycount, entitycount, coincidencecount):
+def relevance_score(totalcount, categorycount, entitycount, coincidencecount):
     c1 = coincidencecount
     n1 = categorycount
     c2 = entitycount - coincidencecount
@@ -77,8 +77,8 @@ def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
                     continue
                 entitycount = row[-1]
                 count = counts[entity]
-                score, err = _score(totalcount, categorycount, entitycount,
-                                    count)
+                score, err = relevance_score(totalcount, categorycount,
+                                             entitycount, count)
                 yield row[:-1] + (entitycount, count, score, err)
         else:
             entitycounts = {}
@@ -93,8 +93,8 @@ def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
                 mappedcounts[entity] = mappedcounts.get(entity, 0) + count
             for entity, entitycount in entitycounts.items():
                 count = mappedcounts[entity]
-                score, err = _score(totalcount, categorycount, entitycount,
-                                    count)
+                score, err = relevance_score(totalcount, categorycount,
+                                             entitycount, count)
                 yield (entity, entitycount, count, score, err)
 
 def entity_cloud(totalcount, categorycount, entitiesq, coincidenceq,
