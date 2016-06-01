@@ -7,6 +7,7 @@ import time
 import subprocess
 import numpy
 import itertools
+from datetime import datetime
 
 
 def _silentremove(filename):
@@ -212,7 +213,8 @@ class SlurmRunner(BasicRunner):
 
 def _parallelize(f, batches, workdir='.', prefix=None, prelude=None,
                  runner=LocalRunner, tries=2, log=sys.stdout, loglevel=1,
-                 refresh=1, cleanup=0, autocancel=True, options=[]):
+                 refresh=1, cleanup=0, autocancel=True, options=[],
+                 timeout=None):
     if os.path.exists(workdir):
         if not os.path.isdir(workdir):
             raise RuntimeError('Cannot create `'+workdir+'`. File exists.')
@@ -291,7 +293,9 @@ fout.close()
     cancel = False
     oldnpending = -1
     oldnrunning = -1
-    while not all(finished) and not cancel:
+    starttime = datetime.now()
+    time_exceeded = False
+    while not all(finished) and not cancel and not time_exceeded:
         time.sleep(refresh)
         for i in range(nbatches):
             if fails[i] >= tries:
@@ -348,10 +352,17 @@ fout.close()
         oldnrunning = nrunning
         oldnpending = npending
 
-    if cancel:
+        if timeout is not None and \
+           (datetime.now() - starttime).total_seconds() > timeout:
+            time_exceeded = True
+
+    if cancel or time_exceeded:
         for i in range(nbatches):
             runners[i].cancel()
-        cleanup = 0
+    if cancel:
+        raise RuntimeError('Parallel execution failed')
+    if time_exceeded:
+        raise TimeoutError('Parallel execution timed out')
 
     if cleanup > 0:
         _silentremove(stem+'.py')
@@ -373,10 +384,7 @@ fout.close()
         if os.path.isfile(fname) and os.path.getsize(fname) == 0:
             os.remove(fname)
 
-    if cancel:
-        raise RuntimeError('Parallel execution failed')
-    else:
-        return results
+    return results
 
 
 class ParallelFunction:
@@ -426,11 +434,15 @@ class ParallelFunction:
         files are removed.
       options (str or list of str, optional): Extra command line options for the
         batch system. Defaults to ``[]``.
+      timeout (float or None, optional): Number of seconds after which parallel
+        execution is terminated. Defaults to ``None``, in which case no time
+        limit is applied.
 
     """
     def __init__(self, f, njobs=2, batchsize=None, workdir='.', prefix=None,
                  prelude=None, runner=LocalRunner, tries=2, log=None, loglevel=1,
-                 refresh=1, cleanup=2, autocancel=True, options=[]):
+                 refresh=1, cleanup=2, autocancel=True, options=[],
+                 timeout=None):
         self.f = f
         self.njobs = njobs
         self.batchsize = batchsize
@@ -445,6 +457,7 @@ class ParallelFunction:
         self.cleanup = cleanup
         self.autocancel = autocancel
         self.options = options
+        self.timeout = timeout
 
     def __call__(self, xx):
         if not (isinstance(xx, numpy.ndarray) or \
@@ -481,7 +494,8 @@ class ParallelFunction:
                                refresh=self.refresh,
                                cleanup=self.cleanup,
                                autocancel=self.autocancel,
-                               options=self.options)
+                               options=self.options,
+                               timeout=self.timeout)
 
         if isinstance(xx, numpy.ndarray):
             return numpy.concatenate(results)

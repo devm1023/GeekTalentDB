@@ -143,9 +143,10 @@ def crawl_urls(site, urls, deadline, ports=[9050], control_ports=[9051],
 
             if not valid \
                or (timestamp - last_ipchange).total_seconds() > crawl_time:
-                logger.log('Getting new IP.\n')
+                logger.log('Getting new IP...')
                 last_ipchanges[iport] = datetime.now()
                 new_identity(port=control_port, password=conf.TOR_PASSWORD)
+                logger.log('done.\n')
 
         return count, valid_count, last_ipchanges
         
@@ -235,6 +236,7 @@ if __name__ == "__main__":
         last_ipchange_batches = [None]*args.jobs
 
         tstart = datetime.now()
+        total_count = 0
         while True:
             urls = [url for url, in q]
             if not urls:
@@ -248,8 +250,6 @@ if __name__ == "__main__":
                 count, valid_count = crawl_urls(
                     args.site, urls, deadline, ports, control_ports,
                     crawl_time_range, delay_range, args.timeout)
-                count = batch_count
-                valid_count = batch_valid_count
             else:
                 url_batches = equipartition(urls, args.jobs)
                 port_batches = equipartition(ports, args.jobs)
@@ -265,25 +265,38 @@ if __name__ == "__main__":
                                   crawl_time_range, delay_range,
                                   args.timeout))
                 pfunc = ParallelFunction(crawl_urls, batchsize=1,
-                                         workdir='crawljobs', prefix='crawl')
-                results = pfunc(pargs)
-                count = 0
-                valid_count = 0
-                last_ipchange_batches = []
-                for batch_count, batch_valid_count, last_ipchange_batch \
-                    in results:
-                    count += batch_count
-                    valid_count += batch_valid_count
-                    last_ipchange_batches.append(last_ipchange_batch)
-
+                                         workdir='crawljobs', prefix='crawl',
+                                         timeout=2*args.batch_time)
+                success = False
+                try:
+                    results = pfunc(pargs)
+                    count = 0
+                    valid_count = 0
+                    last_ipchange_batches = []
+                    for batch_count, batch_valid_count, last_ipchange_batch \
+                        in results:
+                        count += batch_count
+                        valid_count += batch_valid_count
+                        last_ipchange_batches.append(last_ipchange_batch)
+                    success = True
+                except TimeoutError:
+                    count = 0
+                    valid_count = 0
+            
             tfinish = datetime.now()
-            logger.log('Finished batch at {0:s}.\n'
-                       'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
-                       'Crawl rate: {3:5.3f} URLs/sec.\n' \
-                       .format(tfinish.strftime('%Y-%m-%d %H:%M:%S'),
-                               valid_count, valid_count/count*100,
-                               valid_count/(tfinish-tstart).total_seconds()))
+            if not success:
+                logger.log('Crawl timed out at {0:s}. Retrying.\n' \
+                           .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
+            else:
+                logger.log('Finished batch at {0:s}.\n'
+                           'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
+                           'Crawl rate: {3:5.3f} URLs/sec.\n' \
+                           .format(tfinish.strftime('%Y-%m-%d %H:%M:%S'),
+                                   valid_count, valid_count/count*100,
+                                   valid_count/ \
+                                   (tfinish-tstart).total_seconds()))
             tstart = tfinish
 
-            if args.limit and count >= args.limit:
+            total_count += count
+            if args.limit and total_count >= args.limit:
                 break
