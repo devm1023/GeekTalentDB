@@ -36,8 +36,8 @@ class Website(SQLBase):
     redirect_url  = Column(String(STR_MAX), index=True)
     timestamp     = Column(DateTime, index=True)
     html          = Column(Text)
-    valid         = Column(Boolean)
-    leaf          = Column(Boolean)
+    valid         = Column(Boolean, index=True)
+    leaf          = Column(Boolean, index=True)
     fail_count    = Column(Integer)
 
     __table_args__ = (UniqueConstraint('url', 'timestamp'),)

@@ -1,5 +1,3 @@
-__all__ = ['crawl']
-
 import time
 import os
 from datetime import datetime, timedelta
@@ -163,8 +161,8 @@ def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
         return count, valid_count, last_ipchanges
 
 
-def crawl(site, parsefunc, database, urls_from=None, recrawl=None,
-          max_level=None, limit=None, max_fail_count=10, jobs=1,
+def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
+          recrawl=None, max_level=None, limit=None, max_fail_count=10, jobs=1,
           batch_size=500, batch_time=600, batch_time_tolerance=1, batch_ips=1,
           ip_lifetime=(120,180), delay=(0,0), request_timeout=30,
           base_port=13000, tor_timeout=60, tor_retries=3, tor_password='',
@@ -196,18 +194,20 @@ def crawl(site, parsefunc, database, urls_from=None, recrawl=None,
         with open(args.urls_from, 'r') as inputfile:
             urls = [line.strip() for line in inputfile]
         q = q.filter(Website.url.in_(urls))
-    q = q.order_by(func.random())
+    if leafs_only:
+        q = q.filter(Website.leaf)
+    q = q.limit(100*batch_size*jobs)
     subq = q.subquery()
     q = crdb.query(subq.c.url) \
             .filter((subq.c.timestamp == None) | \
                     (subq.c.timestamp == subq.c.max_timestamp)) \
+            .order_by(func.random()) \
             .limit(batch_size*jobs)
 
     with TorProxyList(jobs*batch_ips,
                       restart_after=tor_timeout,
                       max_restart=tor_retries,
-                      hashed_password=tor_hashed_password,
-                      logger=logger) as tor_proxies:
+                      hashed_password=tor_hashed_password) as tor_proxies:
         logger.log('Tor proxies started.\n')
         ports = tor_proxies.ports[:]
         control_ports = tor_proxies.control_ports[:]
@@ -243,9 +243,9 @@ def crawl(site, parsefunc, database, urls_from=None, recrawl=None,
                                   tor_password, last_ipchange_batch,
                                   ip_lifetime, delay, request_timeout))
                 pfunc = ParallelFunction(crawl_urls, batchsize=1,
-                                         workdir='crawljobs', prefix='crawl',
+                                         workdir='crawljobs', prefix='crawljob',
                                          timeout=(1+batch_time_tolerance) \
-                                         *batch_time)
+                                         *batch_time.total_seconds())
                 success = False
                 try:
                     results = pfunc(pargs)
@@ -264,8 +264,14 @@ def crawl(site, parsefunc, database, urls_from=None, recrawl=None,
             
             tfinish = datetime.now()
             if not success:
-                logger.log('Crawl timed out at {0:s}. Retrying.\n' \
+                logger.log('Crawl timed out at {0:s}. Restarting proxies.\n' \
                            .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
+                tor_proxies.kill()
+                tor_proxies = TorProxyList(jobs*batch_ips,
+                                           restart_after=tor_timeout,
+                                           max_restart=tor_retries,
+                                           hashed_password=tor_hashed_password)
+                logger.log('Tor proxies started.\n')
             else:
                 logger.log('Finished batch at {0:s}.\n'
                            'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
@@ -277,5 +283,5 @@ def crawl(site, parsefunc, database, urls_from=None, recrawl=None,
             tstart = tfinish
 
             total_count += count
-            if args.limit and total_count >= args.limit:
+            if limit is not None and total_count >= limit:
                 break

@@ -15,6 +15,8 @@ if __name__ == "__main__":
                         help='Maximum number of URLs to crawl.')
     parser.add_argument('--urls-from', 
                         help='Text file holding the URLs to crawl.')
+    parser.add_argument('--leafs-only', action='store_true',
+                        help='Only crawl leaf pages.')
     parser.add_argument('--recrawl', 
                         help='Recrawl URLs with a timestamp earlier than '
                         'RECRAWL. Format: YYYY-MM-DD')
@@ -60,6 +62,7 @@ if __name__ == "__main__":
     
     crawl('linkedin', parse_linkedin, conf.CRAWL_DB,
           urls_from=args.urls_from,
+          leafs_only=args.leafs_only,
           recrawl=args.recrawl,
           max_level=args.max_level,
           limit=args.limit,
