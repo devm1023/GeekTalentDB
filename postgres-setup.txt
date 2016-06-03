@@ -4,48 +4,68 @@ Installation on Ubuntu 15.04
 sudo apt-get install postgresql postgresql-contrib postgis postgresql-9.4-postgis-2.1 pgadmin3
 
 
+Set up config files
+-------------------
+
+* To improve performance edit
+
+    /etc/postgresql/9.4/main/postgresql.conf
+
+and change
+
+    shared_buffers = 128MB
+
+to approx. 25% of the machine's memory.
+
+
+* To get password-based login on local machine edit
+
+    /etc/postgresql/9.4/main/pg_hba.conf
+
+and change
+
+    local   all             all                                     peer
+
+to
+
+    local   all             all                                     md5
+    host    geektalent      geektalent     0.0.0.0/0                md5
+
+
+* To allow remote access edit
+
+    /etc/postgresql/9.4/main/postgresql.conf
+
+and change
+
+    #listen_addresses = 'localhost'
+
+to
+
+    listen_addresses = '*'
+
+Then do
+
+    $ sudo service postgresql restart
+
+Try logging in with
+
+    $ psql -h <host_ip> -d mydatabase -U geektalent -W
+
+
 Set up user and database
 ------------------------
 
 $ sudo su -
-# sudo -u postgres createdb -T template0 --encoding=UTF-8 --locale=en_US.UTF-8 geektalent
-# sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis;"
-# sudo -u postgres psql -d geektalent -c "CREATE EXTENSION postgis_topology;"
 # sudo -u postgres createuser -P -s -e geektalent
+# sudo -u postgres createdb -T template0 --encoding=UTF-8 --locale=en_US.UTF-8 mydatabase
+# sudo -u postgres psql -d mydatabase -c "CREATE EXTENSION postgis;"
+# sudo -u postgres psql -d mydatabase -c "CREATE EXTENSION postgis_topology;"
 
 Ta2tqaltuaatri42
 
-# sudo -u postgres psql -c "grant all privileges on database geektalent to geektalent;"
+# sudo -u postgres psql -c "grant all privileges on database mydatabase to geektalent;"
 # exit
-
-
-Set up config files
--------------------
-
-Edit /etc/postgresql/9.4/main/pg_hba.conf and change
-
-local   all             all                                     peer
-
-to
-
-local   all             all                                     md5
-host    geektalent      geektalent     0.0.0.0/0                md5
-
-Edit /etc/postgresql/9.4/main/postgresql.conf and change
-
-#listen_addresses = 'localhost'
-
-to
-
-listen_addresses = '*'
-
-Then do
-
-$ sudo service postgresql restart
-
-Try logging in with
-
-$ psql -h <host_ip> -d geektalent -U geektalent -W
 
 
 Creating and restoring dumps

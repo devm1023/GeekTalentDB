@@ -5,6 +5,7 @@ from careerdefinitiondb import CareerDefinitionDB
 from textnormalization import normalized_entity, normalized_sector
 from entity_mapper import EntityMapper
 from sqlalchemy import func
+from pgvalues import in_values
 import sys
 import csv
 import argparse
@@ -28,16 +29,15 @@ def get_sectors(sectors, filename, mapper):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--min-count', type=int, default=1,
-                        help='Minimum count for an object to be included '
-                        'in a list.')
-    parser.add_argument('--max-careers', type=int, default=20,
-                        help='Maximum number of careers per sector.')
+                        help='Minimum count for a job title to be included.')
+    parser.add_argument('--max-titles', type=int, default=20,
+                        help='Maximum number of titles per sector.')
     parser.add_argument('--sigma', type=int, default=3,
                         help='Minimal significance of relevance scores.')
     parser.add_argument('--sector-filter-fraction', type=float, default=0.5,
                         help='Apply sector filter for job titles where the '
                         'fraction of people coming from other sectors is '
-                        'larger than sector-filter-fraction.')
+                        'larger than SECTOR_FILTER_FRACTION.')
     parser.add_argument('--sectors-from',
                         help='Name of file holding sector names.')
     parser.add_argument('--mappings',
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         entityq = lambda entities: \
                   andb.query(LIProfile.nrm_curr_title, countcol) \
                       .join(Location) \
-                      .filter(LIProfile.nrm_curr_title.in_(entities),
+                      .filter(in_values(LIProfile.nrm_curr_title, entities),
                               LIProfile.nrm_sector != None,
                               LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
@@ -92,7 +92,7 @@ if __name__ == '__main__':
                                    Location.nuts0 == 'UK')
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
-                            entitymap=entitymap, limit=args.max_careers,
+                            entitymap=entitymap, limit=args.max_titles,
                             mincount=args.min_count, sigma=args.sigma)
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title)

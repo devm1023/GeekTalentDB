@@ -5,6 +5,7 @@ from textnormalization import normalized_entity, split_nrm_name
 from analytics_get_entitycloud import relevance_scores
 from entity_mapper import EntityMapper
 from sqlalchemy import func
+from pgvalues import in_values
 import csv
 from math import sqrt
 import argparse
@@ -86,7 +87,7 @@ def skillvectors(titles, mappings, mincount=1):
                      .join(Location) \
                      .filter(LIProfile.language == 'en',
                              Location.nuts0 == 'UK',
-                             LIProfile.nrm_curr_title.in_(similar_titles),
+                             in_values(LIProfile.nrm_curr_title, similar_titles),
                              *sector_clause) \
                      .count()
         coincidenceq = andb.query(LIProfileSkill.nrm_name, func.count()) \
@@ -94,7 +95,7 @@ def skillvectors(titles, mappings, mincount=1):
                            .join(Location) \
                            .filter(LIProfile.language == 'en',
                                    Location.nuts0 == 'UK',
-                                   LIProfile.nrm_curr_title.in_(similar_titles),
+                                   in_values(LIProfile.nrm_curr_title, similar_titles),
                                    *sector_clause)
         
         skillvector = {}
