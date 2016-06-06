@@ -38,7 +38,7 @@ class Website(SQLBase):
     html          = Column(Text)
     valid         = Column(Boolean, index=True)
     leaf          = Column(Boolean, index=True)
-    fail_count    = Column(Integer)
+    fail_count    = Column(Integer, index=True)
 
     __table_args__ = (UniqueConstraint('url', 'timestamp'),)
 

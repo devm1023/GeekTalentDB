@@ -1,3 +1,5 @@
+__all__ = ['crawl']
+
 import time
 import os
 from datetime import datetime, timedelta
@@ -15,7 +17,11 @@ import numpy as np
 from crawldb import *
 from logger import Logger
 from parallelize import ParallelFunction
+from pgvalues import in_values
 
+
+EXCESS = 100
+MIN_EXCESS = 10
 
 def equipartition(l, p):
     if p < 1:
@@ -184,7 +190,7 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
     max_timestamp_col = func.max(Website.timestamp) \
                             .over(partition_by=(Website.site, Website.url)) \
                             .label('max_timestamp')
-    q = crdb.query(Website.url, Website.timestamp, max_timestamp_col) \
+    q = crdb.query(Website.url) \
             .filter(website_filter,
                     Website.site == site,
                     Website.fail_count < max_fail_count)
@@ -193,16 +199,10 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
     if urls_from:
         with open(args.urls_from, 'r') as inputfile:
             urls = [line.strip() for line in inputfile]
-        q = q.filter(Website.url.in_(urls))
+        q = q.filter(in_values(Website.url, urls))
     if leafs_only:
         q = q.filter(Website.leaf)
-    q = q.limit(100*batch_size*jobs)
-    subq = q.subquery()
-    q = crdb.query(subq.c.url) \
-            .filter((subq.c.timestamp == None) | \
-                    (subq.c.timestamp == subq.c.max_timestamp)) \
-            .order_by(func.random()) \
-            .limit(batch_size*jobs)
+    q = q.limit(EXCESS*batch_size*jobs)
 
     with TorProxyList(jobs*batch_ips,
                       restart_after=tor_timeout,
@@ -216,9 +216,19 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
         tstart = datetime.now()
         total_count = 0
         while True:
-            urls = [url for url, in q]
-            if not urls:
-                break
+            # get URLs
+            urls = set()
+            offset = 0
+            while len(urls) < MIN_EXCESS*batch_size*jobs:
+                new_urls = [url for url, in q.offset(offset)]
+                if not new_urls:
+                    break
+                offset += EXCESS*batch_size*jobs
+                urls.update(new_urls)
+            urls = list(urls)
+            random.shuffle(urls)
+            urls = urls[:batch_size*jobs]
+
             if limit is not None and len(urls) > limit - total_count:
                 urls = urls[:args.limit - total_count]
 
