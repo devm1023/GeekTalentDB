@@ -1,12 +1,31 @@
 import conf
 from crawl import crawl
 from logger import Logger
+import re
 import argparse
+
+
+directorylink_pattern = re.compile(
+    r'(^https?://[a-z]+\.linkedin\.com/directory/)|'
+    r'(^https?://[a-z]+\.linkedin\.com/pub/dir/)')
 
 
 def parse_linkedin(site, url, redirect_url, doc):
     valid = bool(doc.xpath('/html/head/title'))
-    return valid, True, []
+    if not valid:
+        leaf = None,
+        links = []
+    else:
+        leaf = not bool(directorylink_pattern.match(redirect_url))
+        linktags = doc.xpath(
+            '//*[@id="seo-dir"]/div/div[@class="section last"]/div/ul/li/a')
+        links = []
+        for tag in linktags:
+            link_url = tag.get('href')
+            leaf_link = not bool(directorylink_pattern.match(link_url))
+            links.append((link_url, leaf_link))
+
+    return valid, leaf, links
 
 
 if __name__ == "__main__":
@@ -59,8 +78,11 @@ if __name__ == "__main__":
             'Delay must be a comma separated pair of floats.')
 
     logger = Logger()
+
+    headers = {'Host' : 'uk.linkedin.com'}
     
     crawl('linkedin', parse_linkedin, conf.CRAWL_DB,
+          headers=headers,
           urls_from=args.urls_from,
           leafs_only=args.leafs_only,
           recrawl=args.recrawl,

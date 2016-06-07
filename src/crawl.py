@@ -23,6 +23,7 @@ from pgvalues import in_values
 EXCESS = 100
 MIN_EXCESS = 10
 
+
 def equipartition(l, p):
     if p < 1:
         raise ValueError('Number of partitions must be greater than zero.')
@@ -31,23 +32,26 @@ def equipartition(l, p):
     bounds = np.linspace(0, len(l), p+1, dtype=int)
     return [l[lb:ub] for lb, ub in zip(bounds[:-1], bounds[1:])]
 
+_DEFAULT_HEADERS = {
+    'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Encoding' : 'gzip, deflate, sdch',
+    'Accept-Language' : 'en-US,en;q=0.8,de;q=0.6',
+    'Connection' : 'keep-alive',
+    'DNT' : '1',
+    # 'Host' : 'uk.linkedin.com',
+    'Upgrade-Insecure-Requests' : '1',
+    'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
+}
 
-def get_url(site, url, port=9050, timeout=None, logger=Logger(None)):
-    headers = {
-        'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Encoding' : 'gzip, deflate, sdch',
-        'Accept-Language' : 'en-US,en;q=0.8,de;q=0.6',
-        'Connection' : 'keep-alive',
-        'DNT' : '1',
-        'Host' : 'uk.linkedin.com',
-        'Upgrade-Insecure-Requests' : '1',
-        'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
-    }
+def get_url(site, url, port=9050, headers={}, timeout=None,
+            logger=Logger(None)):
+    hdr = _DEFAULT_HEADERS.copy()
+    hdr.update(headers)
     proxies = {'http':  'socks5://127.0.0.1:{0:d}'.format(port),
                'https': 'socks5://127.0.0.1:{0:d}'.format(port)}
     success = False
     try:
-        result = requests.get(url, proxies=proxies, headers=headers,
+        result = requests.get(url, proxies=proxies, headers=hdr,
                               timeout=timeout)
         success = True
     except Exception as e:
@@ -58,9 +62,10 @@ def get_url(site, url, port=9050, timeout=None, logger=Logger(None)):
     return result
 
 
-def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
-               control_ports=[9051], tor_password='', last_ipchanges=None,
-               ip_lifetime=(120, 180), delay_range=(0, 0), timeout=30):
+def crawl_urls(site, urls, parsefunc, database, deadline, headers={},
+               ports=[9050], control_ports=[9051], tor_password='',
+               last_ipchanges=None, ip_lifetime=(120, 180), delay_range=(0, 0),
+               timeout=30):
     html_parser = etree.HTMLParser()
     logger = Logger()
     nports = len(ports)
@@ -91,7 +96,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
                                         ip_lifetime[1])
             
             response = get_url(site, url, logger=logger, port=port,
-                               timeout=timeout)
+                               headers=headers, timeout=timeout)
             time.sleep(random.uniform(delay_range[0], delay_range[1]))
             if response is None:
                 html = None
@@ -123,8 +128,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
                               .format(url, repr(site)))
             if website.valid:
                 website = Website(site=site, url=url, fail_count=0,
-                                  level=website.level,
-                                  parent_url=website.parent_url)
+                                  level=website.level)
                 crdb.add(website)
             website.html = html
             website.redirect_url = redirect_url
@@ -134,25 +138,35 @@ def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
             level = website.level
             if not valid:
                 website.fail_count += 1
+            else:
+                website.fail_count = 0
             crdb.commit()
 
             if valid and leaf is False:
-                for link in links:
+                if level is not None:
+                    level += 1
+                for link_url, link_is_leaf in links:
                     website = crdb.query(Website) \
                                   .filter(Website.site == site,
-                                          Website.url == link) \
+                                          Website.url == link_url) \
                                   .order_by(Website.timestamp.desc()) \
                                   .first()
                     if website is None:
-                        website = Website(site=site, url=link, valid=False,
-                                          fail_count=0, level=level+1,
-                                          parent_url=redirect_url)
+                        website = Website(site=site, url=link_url, valid=False,
+                                          leaf=link_is_leaf, fail_count=0,
+                                          level=level)
                         crdb.add(website)
-                    elif website.level > level+1:
-                        website.parent_url = redirect_url
-                        website.level = level+1
+                    elif level is not None and \
+                         (website.level is None or website.level > level):
+                        website.level = level
+
+                    link = Link(site=site,
+                                from_url=redirect_url,
+                                to_url=link_url,
+                                timestamp=timestamp)
+                    crdb.add(link)
                 crdb.commit()
-            
+
             count += 1
             logger.log('Crawled {0:d} URLs ({1:d} invalid).\n' \
                        .format(valid_count, count - valid_count))
@@ -167,12 +181,13 @@ def crawl_urls(site, urls, parsefunc, database, deadline, ports=[9050],
         return count, valid_count, last_ipchanges
 
 
-def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
-          recrawl=None, max_level=None, limit=None, max_fail_count=10, jobs=1,
-          batch_size=500, batch_time=600, batch_time_tolerance=1, batch_ips=1,
-          ip_lifetime=(120,180), delay=(0,0), request_timeout=30,
-          base_port=13000, tor_timeout=60, tor_retries=3, tor_password='',
-          tor_hashed_password='', logger=Logger(None)):
+def crawl(site, parsefunc, database, headers={}, urls_from=None,
+          leafs_only=False, recrawl=None, max_level=None, limit=None,
+          max_fail_count=10, jobs=1, batch_size=500, batch_time=600,
+          batch_time_tolerance=1, batch_ips=1, ip_lifetime=(120,180),
+          delay=(0,0), request_timeout=30, base_port=13000, tor_timeout=60,
+          tor_retries=3, tor_password='', tor_hashed_password='',
+          logger=Logger(None)):
 
     if not hasattr(ip_lifetime, '__len__'):
         ip_lifetime = (ip_lifetime, ip_lifetime)
@@ -187,9 +202,6 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
             = (~Website.valid) | (Website.timestamp < recrawl_date)
     else:
         website_filter = ~Website.valid
-    max_timestamp_col = func.max(Website.timestamp) \
-                            .over(partition_by=(Website.site, Website.url)) \
-                            .label('max_timestamp')
     q = crdb.query(Website.url) \
             .filter(website_filter,
                     Website.site == site,
@@ -229,16 +241,24 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
             random.shuffle(urls)
             urls = urls[:batch_size*jobs]
 
+            if not urls:
+                break
             if limit is not None and len(urls) > limit - total_count:
                 urls = urls[:args.limit - total_count]
 
             deadline = datetime.now() + batch_time
 
             if jobs == 1:
-                count, valid_count, last_ipchange_batches[0] = crawl_urls(
-                    site, urls, parsefunc, database, deadline, ports,
-                    control_ports, tor_password, last_ipchange_batches[0],
-                    ip_lifetime, delay, request_timeout)
+                success = False
+                try:
+                    count, valid_count, last_ipchange_batches[0] = crawl_urls(
+                        site, urls, parsefunc, database, deadline, headers,
+                        ports, control_ports, tor_password, last_ipchange_batches[0],
+                        ip_lifetime, delay, request_timeout)
+                    success = True
+                except TimeoutError:
+                    count = 0
+                    valid_count = 0
             else:
                 url_batches = equipartition(urls, jobs)
                 port_batches = equipartition(ports, jobs)
@@ -248,10 +268,11 @@ def crawl(site, parsefunc, database, urls_from=None, leafs_only=False,
                     last_ipchange_batch in zip(
                         url_batches, port_batches,
                         control_port_batches, last_ipchange_batches):
-                    pargs.append((site, url_batch, parsefunc, database,
-                                  deadline, port_batch, control_port_batch,
-                                  tor_password, last_ipchange_batch,
-                                  ip_lifetime, delay, request_timeout))
+                    pargs.append(
+                        (site, url_batch, parsefunc, database, deadline,
+                         headers, port_batch, control_port_batch, tor_password,
+                         last_ipchange_batch, ip_lifetime, delay,
+                         request_timeout))
                 pfunc = ParallelFunction(crawl_urls, batchsize=1,
                                          workdir='crawljobs', prefix='crawljob',
                                          timeout=(1+batch_time_tolerance) \
