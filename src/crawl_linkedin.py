@@ -5,9 +5,12 @@ import re
 import argparse
 
 
-directorylink_pattern = re.compile(
-    r'(^https?://[a-z]+\.linkedin\.com/directory/)|'
-    r'(^https?://[a-z]+\.linkedin\.com/pub/dir/)')
+directory_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/directory/')
+name_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/pub/dir/')
+ukname_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/pub/dir/.+/gb-0-United-Kingdom')
 
 
 def parse_linkedin(site, url, redirect_url, doc):
@@ -15,15 +18,22 @@ def parse_linkedin(site, url, redirect_url, doc):
     if not valid:
         leaf = None,
         links = []
-    else:
-        leaf = not bool(directorylink_pattern.match(redirect_url))
+    elif directory_url_pattern.match(redirect_url):
+        leaf = False
         linktags = doc.xpath(
             '//*[@id="seo-dir"]/div/div[@class="section last"]/div/ul/li/a')
+        links = [(tag.get('href'), False) for tag in linktags]
+    elif ukname_url_pattern.match(redirect_url):
+        leaf = False
+        linktags = doc.xpath('//div[@class="profile-card"]/div/h3/a')
+        links = [(tag.get('href'), True) for tag in linktags]
+    elif name_url_pattern.match(redirect_url):
+        leaf = False
+        linktags = doc.xpath('//a[@class="country-specific-link"]')
+        links = [(tag.get('href'), False) for tag in linktags]
+    else:
+        leaf = True
         links = []
-        for tag in linktags:
-            link_url = tag.get('href')
-            leaf_link = not bool(directorylink_pattern.match(link_url))
-            links.append((link_url, leaf_link))
 
     return valid, leaf, links
 
