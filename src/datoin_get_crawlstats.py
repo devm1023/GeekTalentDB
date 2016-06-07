@@ -98,38 +98,38 @@ def make_linkedin_histograms(datebins, results):
         ncat       = len(liprofile.categories) if liprofile.categories else 0
 
         if liprofile.crawl_number == 0:
-            newcrawl_hist[crawled_on] += 1
+            newcrawl_hist.inc(crawled_on)
         elif liprofile.crawl_fail_count == 0:
-            recrawl_hist[crawled_on] += 1
+            recrawl_hist.inc(crawled_on)
         else:
-            failedcrawl_hist[crawled_on] += 1
-        delay_hist[delay] += 1
+            failedcrawl_hist.inc(crawled_on)
+        delay_hist.inc(delay)
 
-        nexp_hist[crawled_on] += nexp
-        nexp2_hist[crawled_on] += nexp**2
-        nedu_hist[crawled_on] += nedu
-        nedu2_hist[crawled_on] += nedu**2
-        ncat_hist[crawled_on] += ncat
-        ncat2_hist[crawled_on] += ncat**2
+        nexp_hist.inc(crawled_on, by=nexp)
+        nexp2_hist.inc(crawled_on, by=nexp**2)
+        nedu_hist.inc(crawled_on, by=nedu)
+        nedu2_hist.inc(crawled_on, by=nedu**2)
+        ncat_hist.inc(crawled_on, by=ncat)
+        ncat2_hist.inc(crawled_on, by=ncat**2)
 
         if liprofile.profile_url is not None:
-            url_hist[crawled_on] += 1
+            url_hist.inc(crawled_on)
         if liprofile.profile_picture_url is not None:
-            picture_url_hist[crawled_on] += 1
+            picture_url_hist.inc(crawled_on)
         if liprofile.name is not None:
-            name_hist[crawled_on] += 1
+            name_hist.inc(crawled_on)
         if liprofile.first_name is not None:
-            first_name_hist[crawled_on] += 1
+            first_name_hist.inc(crawled_on)
         if liprofile.last_name is not None:
-            last_name_hist[crawled_on] += 1
+            last_name_hist.inc(crawled_on)
         if liprofile.city is not None:
-            city_hist[crawled_on] += 1
+            city_hist.inc(crawled_on)
         if liprofile.country is not None:
-            country_hist[crawled_on] += 1
+            country_hist.inc(crawled_on)
         if liprofile.title is not None:
-            title_hist[crawled_on] += 1
+            title_hist.inc(crawled_on)
         if liprofile.description is not None:
-            description_hist[crawled_on] += 1
+            description_hist.inc(crawled_on)
 
         profilecount += 1
         if profilecount % 1000 == 0:
