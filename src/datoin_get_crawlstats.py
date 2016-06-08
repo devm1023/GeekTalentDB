@@ -6,6 +6,7 @@ import sys
 import pickle
 import argparse
 from logger import Logger
+from windowquery import window_query
 
 
 logger = Logger()
@@ -89,7 +90,7 @@ def make_linkedin_histograms(datebins, results):
     totalcount = q.count()
     logger.log('Scanning {0:d} profiles.\n'.format(totalcount))
     profilecount = 0
-    for liprofile in q:
+    for liprofile in window_query(q, LIProfile.crawled_date):
         indexed_on = to_timedelta(liprofile.indexed_on, from_date)
         crawled_on = to_timedelta(liprofile.crawled_date, from_date)
         delay      = days(indexed_on-crawled_on)
