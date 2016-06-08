@@ -1,12 +1,41 @@
 import conf
 from crawl import crawl
 from logger import Logger
+import re
 import argparse
+
+
+directory_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/directory/')
+name_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/pub/dir/')
+ukname_url_pattern = re.compile(
+    r'^https?://uk\.linkedin\.com/pub/dir/.+/gb-0-United-Kingdom')
 
 
 def parse_linkedin(site, url, redirect_url, doc):
     valid = bool(doc.xpath('/html/head/title'))
-    return valid, True, []
+    if not valid:
+        leaf = None,
+        links = []
+    elif directory_url_pattern.match(redirect_url):
+        leaf = False
+        linktags = doc.xpath(
+            '//*[@id="seo-dir"]/div/div[@class="section last"]/div/ul/li/a')
+        links = [(tag.get('href'), False) for tag in linktags]
+    elif ukname_url_pattern.match(redirect_url):
+        leaf = False
+        linktags = doc.xpath('//div[@class="profile-card"]/div/h3/a')
+        links = [(tag.get('href'), True) for tag in linktags]
+    elif name_url_pattern.match(redirect_url):
+        leaf = False
+        linktags = doc.xpath('//a[@class="country-specific-link"]')
+        links = [(tag.get('href'), False) for tag in linktags]
+    else:
+        leaf = True
+        links = []
+
+    return valid, leaf, links
 
 
 if __name__ == "__main__":
@@ -59,8 +88,11 @@ if __name__ == "__main__":
             'Delay must be a comma separated pair of floats.')
 
     logger = Logger()
+
+    headers = {'Host' : 'uk.linkedin.com'}
     
     crawl('linkedin', parse_linkedin, conf.CRAWL_DB,
+          headers=headers,
           urls_from=args.urls_from,
           leafs_only=args.leafs_only,
           recrawl=args.recrawl,
