@@ -20,7 +20,8 @@ def get_skillvectors(filename, titles_from):
     if titles_from:
         has_titles_from = True
         with open(titles_from, 'r') as inputfile:
-            csvreader = csv.reader(inputfile)
+            csvreader = csv.reader(line for line in inputfile \
+                                   if not line.strip().startswith('#'))
             for row in csvreader:
                 title_set.add((row[0], row[1], bool(int(row[2]))))
     
