@@ -302,11 +302,11 @@ if __name__ == '__main__':
                         help='Name of the CSV file holding the careers. '
                         'If absent, only sector-level stats are generated. '
                         'Columns: sector,use sector filter (0/1),title')
-    parser.add_argument('--max-entities', type=int, default=25,
-                        help='Maximum number of entities in clouds.')
+    parser.add_argument('--max-entities', type=int, default=50,
+                        help='Maximum number of entities in clouds. (Default: 50)')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for an object to be included '
-                        'in a list.')
+                        'in a list. (Default: 1)')
     parser.add_argument('--max-skills', type=int,
                         help='Maximum number of skills in skill clouds.')
     parser.add_argument('--max-companies', type=int,
@@ -331,9 +331,7 @@ if __name__ == '__main__':
                         help='Minimum count for career steps '
                         'to be added to the list.')
     parser.add_argument('--sigma', type=int, default=3,
-                        help='Minimal significance of relevance scores.')
-    parser.add_argument('--get-descriptions', action='store_true',
-                        help='Retreive entity descriptions from IBM Watson.')
+                        help='Minimal significance of relevance scores. (Default: 3)')
     parser.add_argument('sector',
                         help='Name of the sector to populate')
     args = parser.parse_args()
@@ -615,7 +613,7 @@ if __name__ == '__main__':
              andb, mapper, nrm_sector, nrm_career, titles_nosf, titles_sf,
              args.min_careerstep_count, args.max_careersteps)
 
-        cddb.add_career(careerdict, get_descriptions=args.get_descriptions)
+        cddb.add_career(careerdict)
         cddb.commit()
 
     for ch_sector_dict in ch_sectors.values():

@@ -504,3 +504,270 @@ title,en,Automotive,Logistics Manager,Buyer
 # Maintenance Engineer
 title,en,Automotive,Maintenance Engineer,Maintenance Engineer
 title,en,Automotive,Maintenance Technician,Maintenance Engineer
+#
+#
+###### Health Care careers ######
+#
+# Nurse
+title,en,,Nurse,Nurse
+title,en,,Registered Nurse,Nurse
+title,en,,RGN,Nurse
+title,en,,Sister,Nurse
+title,en,,Charge Nurse,Nurse
+title,en,,Theatre Practitioner,Nurse
+title,en,,RN,Nurse
+title,en,,Theatre Nurse,Nurse
+title,en,,Registered General Nurse,Nurse
+title,en,,Deputy Sister,Nurse
+title,en,,Specialist Nurse,Nurse
+title,en,,Nurse Specialist,Nurse
+title,en,,Community Nurse,Nurse
+title,en,,Nurse Manager,Nurse
+title,en,,Clinical Nurse Specialist,Nurse
+title,en,,Research Nurse,Nurse
+title,en,,Ward Manager,Nurse
+title,en,,Matron,Nurse
+title,en,,Nurse Consultant,Nurse
+title,en,,Nursing Sister,Nurse
+title,en,,Operating Department Practitioner,Nurse
+title,en,,Nurse Advisor,Nurse
+title,en,,Ward Sister,Nurse
+title,en,,Community Matron,Nurse
+title,en,,Clinical Physiologist,Nurse
+title,en,,Clinical Nurse Manager,Nurse
+title,en,,Theatre Sister,Nurse
+title,en,Health Care,Nursery Nurse,Nurse
+title,en,,Deputy Ward Manager,Nurse
+title,en,Health Care,Mrs,Nurse
+title,en,Health Care,Unit Manager,Nurse
+title,en,,CNS,Nurse
+title,en,,Student Nurse,Nurse
+title,en,,Nurse Practitioner,Nurse
+title,en,,Practice Nurse,Nurse
+title,en,,District Nurse,Nurse
+title,en,,Advanced Nurse Practitioner,Nurse
+title,en,,Paediatric Nurse,Nurse
+title,en,,Community Staff Nurse,Nurse
+title,en,,Diabetes Specialist Nurse,Nurse
+title,en,,Emergency Nurse Practitioner,Nurse
+title,en,,Health Visitor,Nurse
+title,en,,Dietitian,Nurse
+title,en,,School Nurse,Nurse
+title,en,,Specialist Dietitian,Nurse
+title,en,,Community Nursery Nurse,Nurse
+# Health Care Assistant
+title,en,,Care Assistant,Health Care Assistant
+title,en,,Health Care Assistant,Health Care Assistant
+title,en,,Healthcare Assistant,Health Care Assistant
+title,en,,Clinical Support Worker,Health Care Assistant
+title,en,,Medical Laboratory Assistant,Health Care Assistant
+title,en,,Healthcare Support Worker,Health Care Assistant
+title,en,,MLA,Health Care Assistant
+title,en,,ODP,Health Care Assistant
+title,en,,HCA,Health Care Assistant
+title,en,Health Care,Carer,Health Care Assistant
+title,en,,Nursing Assistant,Health Care Assistant
+title,en,,health care worker,Health Care Assistant
+title,en,,Phlebotomist,Health Care Assistant
+title,en,,Assistant Practitioner,Health Care Assistant
+title,en,,Auxiliary Nurse,Health Care Assistant
+title,en,,Health Care Support Worker,Health Care Assistant
+# Care Worker
+title,en,,Care Worker,Care Worker
+title,en,Health Care,Support Worker,Care Worker
+title,en,,health worker,Care Worker
+title,en,,Care Coordinator,Care Worker
+title,en,,Care Support Worker,Care Worker
+title,en,Health Care,Social Worker,Care Worker
+title,en,,Home Carer,Care Worker
+title,en,,CSW,Care Worker
+title,en,,Community Carer,Care Worker
+title,en,,HCSW,Care Worker
+title,en,,Community Care Worker,Care Worker
+title,en,Health Care,Social Care Worker,Care Worker
+title,en,Health Care,Community Support Worker,Care Worker
+title,en,Health Care,Caregiver,Care Worker
+title,en,,careworker,Care Worker
+# Doctor
+title,en,,Doctor,Doctor
+title,en,,Medical Doctor,Doctor
+title,en,Health Care,Dr,Doctor
+title,en,,Medical Officer,Doctor
+title,en,,Medical Practitioner,Doctor
+title,en,,Physician,Doctor
+title,en,,FY2 Doctor,Doctor
+title,en,,Clinic Manager,Doctor
+title,en,,Clinical Lead,Doctor
+title,en,,Clinical Director,Doctor
+title,en,,Clinical Scientist,Doctor
+title,en,,Clinical Coordinator,Doctor
+title,en,,Audiologist,Doctor
+title,en,,Clinical Team Leader,Doctor
+title,en,,Clinical Advisor,Doctor
+title,en,,Clinical Services Manager,Doctor
+title,en,Health Care,Senior Practitioner,Doctor
+title,en,,Consultant Physician,Doctor
+title,en,,Medical Director,Doctor
+title,en,,Specialist Registrar,Doctor
+title,en,,Consultant Gynaecologist,Doctor
+title,en,,Specialty Registrar,Doctor
+title,en,,Consultant Obstetrician and Gynaecologist,Doctor
+title,en,,Consultant Gastroenterologist,Doctor
+title,en,,Consultant Haematologist,Doctor
+title,en,,Consultant Histopathologist,Doctor
+title,en,,Hospital Doctor,Doctor
+title,en,,Speciality Registrar,Doctor
+title,en,,Consultant Microbiologist,Doctor
+title,en,Health Care,Specialist,Doctor
+title,en,,Consultant Clinical Oncologist,Doctor
+title,en,Health Care,Registrar,Doctor
+title,en,,Consultant Urologist,Doctor
+title,en,,Clinical Fellow,Doctor
+title,en,,Clinical Research Fellow,Doctor
+title,en,,Consultant Cardiologist,Doctor
+title,en,,Consultant Neurologist,Doctor
+title,en,,Consultant Rheumatologist,Doctor
+title,en,,Cardiac Physiologist,Doctor
+title,en,,Specialty Doctor,Doctor
+title,en,,Speciality Doctor,Doctor
+title,en,,SpR,Doctor
+title,en,,SHO,Doctor
+title,en,,Consultant Dermatologist,Doctor
+title,en,,Foundation Doctor,Doctor
+title,en,,Foundation Year 1 Doctor,Doctor
+title,en,,FY1 Doctor,Doctor
+title,en,,Consultant Ophthalmologist,Doctor
+title,en,,Ophthalmologist,Doctor
+title,en,,Consultant Ophthalmic Surgeon,Doctor
+title,en,,Orthoptist,Doctor
+title,en,,Consultant Anaesthetist,Doctor
+title,en,,Consultant Paediatrician,Doctor
+title,en,,Anaesthetist,Doctor
+title,en,,Consultant in Emergency Medicine,Doctor
+title,en,,Paediatrician,Doctor
+title,en,,Paediatric Registrar,Doctor
+title,en,,Consultant Neonatologist,Doctor
+# General Practitioner (GP)
+title,en,,GP,General Practicioner (GP)
+title,en,,General Practitioner,General Practicioner (GP)
+title,en,,GP Partner,General Practicioner (GP)
+title,en,,General Medical Practitioner,General Practicioner (GP)
+title,en,,Salaried GP,General Practicioner (GP)
+title,en,,GP Principal,General Practicioner (GP)
+title,en,,General Practioner,General Practicioner (GP)
+title,en,,GP Registrar,General Practicioner (GP)
+title,en,,GP Trainee,General Practicioner (GP)
+# Surgeon
+title,en,,Consultant Surgeon,Surgeon
+title,en,,Orthopaedic Surgeon,Surgeon
+title,en,,Consultant Orthopaedic Surgeon,Surgeon
+title,en,,Surgeon,Surgeon
+title,en,,Consultant Plastic Surgeon,Surgeon
+title,en,,Consultant Urological Surgeon,Surgeon
+title,en,,Consultant Neurosurgeon,Surgeon
+# Dentist
+title,en,,Dentist,Dentist
+title,en,,Dental Nurse,Dentist
+title,en,,Dental Surgeon,Dentist
+title,en,,Dental Hygienist,Dentist
+title,en,,Principal Dentist,Dentist
+title,en,Health Care,Dental Technician,Dentist
+title,en,,Orthodontic Therapist,Dentist
+# Physiotherapist
+title,en,,Physiotherapist,Physiotherapist
+title,en,,Podiatrist,Physiotherapist
+title,en,,Specialist Physiotherapist,Physiotherapist
+title,en,,Chartered Physiotherapist,Physiotherapist
+title,en,,Physio,Physiotherapist
+title,en,,Paediatric Physiotherapist,Physiotherapist
+title,en,,Physiotherapy Assistant,Physiotherapist
+title,en,Health Care,Osteopath,Physiotherapist
+title,en,Health Care,Chiropodist,Physiotherapist
+# Occupational Therapist
+title,en,,Occupational Therapist,Occupational Therapist
+title,en,,Specialist Occupational Therapist,Occupational Therapist
+title,en,,OT,Occupational Therapist
+title,en,,Paediatric Occupational Therapist,Occupational Therapist
+title,en,,Health Advisor,Occupational Therapist
+title,en,Health Care,Occupational Health Advisor,Occupational Therapist
+# Speech and Language Therapist
+title,en,,Speech and Language Therapist,Speech and Language Therapist
+title,en,,Specialist Speech and Language Therapist,Speech and Language Therapist
+# Care Manager
+title,en,,Care Manager,Care Manager
+title,en,,Home Manager,Care Manager
+title,en,Health Care,full time carer,Care Manager
+title,en,,Registered Manager,Care Manager
+title,en,,Care Home Manager,Care Manager
+title,en,Health Care,social care,Care Manager
+title,en,,Registered Care Manager,Care Manager
+# Paramedic
+title,en,,Ambulance Driver,Paramedic
+title,en,,Paramedic,Paramedic
+title,en,,Medical Intern,Paramedic
+title,en,,Student Paramedic,Paramedic
+title,en,,Ambulance Technician,Paramedic
+title,en,,Emergency Medical Technician,Paramedic
+title,en,,Emergency Care Assistant,Paramedic
+title,en,,Ambulance Care Assistant,Paramedic
+title,en,,EMT,Paramedic
+# Health Care Administrator
+title,en,Health Care,Administrator,Health Care Administrator
+title,en,,Medical Receptionist,Health Care Administrator
+title,en,Health Care,Secretary,Health Care Administrator
+title,en,,Medical Administrator,Health Care Administrator
+title,en,Health Care,Personal Assistant,Health Care Administrator
+title,en,,Ward Clerk,Health Care Administrator
+title,en,,Domestic Assistant,Health Care Administrator
+title,en,Health Care,PA,Health Care Administrator
+title,en,,Dental Receptionist,Health Care Administrator
+title,en,Health Care,Clerical Officer,Health Care Administrator
+title,en,,Assistant Practice Manager,Health Care Administrator
+title,en,Health Care,Admin Assistant,Health Care Administrator
+title,en,Health Care,Administration Manager,Health Care Administrator
+title,en,,Ward Administrator,Health Care Administrator
+title,en,Health Care,Team Administrator,Health Care Administrator
+title,en,Health Care,Receptionist/Administrator,Health Care Administrator
+title,en,,Medical Secretary,Health Care Administrator
+title,en,,Medical PA,Health Care Administrator
+title,en,,Clinical Coder,Health Care Administrator
+title,en,,PA/Medical Secretary,Health Care Administrator
+# Health Service Manager
+title,en,Health Care,Service Manager,Health Service Manager
+title,en,Health Care,Practice Manager,Health Service Manager
+title,en,Health Care,Deputy Manager,Health Service Manager
+title,en,,NHS Manager,Health Service Manager
+title,en,,Hospital Manager,Health Service Manager
+title,en,Health Care,Information Analyst,Health Service Manager
+title,en,Health Care,Commissioning Manager,Health Service Manager
+title,en,Health Care,Locality Manager,Health Service Manager
+# Biomedical Scientist
+title,en,,Biomedical Scientist,Biomedical Scientist
+title,en,,Specialist Biomedical Scientist,Biomedical Scientist
+title,en,,BMS,Biomedical Scientist
+# Radiographer
+title,en,,Radiographer,Radiographer
+title,en,,Consultant Radiologist,Radiographer
+title,en,,Sonographer,Radiographer
+title,en,,Diagnostic Radiographer,Radiographer
+title,en,,MRI Radiographer,Radiographer
+title,en,,Radiologist,Radiographer
+title,en,,Superintendent Radiographer,Radiographer
+title,en,,Therapy Radiographer,Radiographer
+# Optician
+title,en,,Optometrist,Optician
+title,en,Health Care,Dispensing Optician,Optician
+title,en,Health Care,Optician,Optician
+# Pharmacist
+title,en,,Clinical Pharmacist,Pharmacist
+title,en,Health Care,Pharmacist,Pharmacist
+title,en,Health Care,Pharmacy Technician,Pharmacist
+title,en,Health Care,Pharmacy Manager,Pharmacist
+title,en,Health Care,Locum Pharmacist,Pharmacist
+title,en,Health Care,Pre-registration Pharmacist,Pharmacist
+title,en,Health Care,Pharmacy Assistant,Pharmacist
+title,en,Health Care,Dispenser,Pharmacist
+# Midwife
+title,en,,Midwife,Midwife
+title,en,,Community Midwife,Midwife
+title,en,,Student Midwife,Midwife

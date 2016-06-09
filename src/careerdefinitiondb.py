@@ -268,23 +268,6 @@ class SalaryHistoryPoint(SQLBase):
                            index=True, nullable=False)
     date          = Column(Date)
     salary        = Column(Float)
-    
-
-class EntityDescription(SQLBase):
-    __tablename__ = 'entity_description'
-    id            = Column(BigInteger, primary_key=True)
-    entity_type   = Column(String(20), index=True)
-    linkedin_sector = Column(Unicode(STR_MAX), index=True)
-    entity_name   = Column(Unicode(STR_MAX), index=True)
-    match_count   = Column(Integer)
-    short_description = Column(Unicode(STR_MAX))
-    description   = Column(Unicode(STR_MAX))
-    description_url = Column(String(STR_MAX))
-    description_source = Column(Unicode(STR_MAX))
-    edited        = Column(Boolean, nullable=False)
-
-    __table_args__ = (UniqueConstraint('entity_type', 'linkedin_sector',
-                                       'entity_name'),)
 
 
 def _remove_invisibles(d):
@@ -323,98 +306,8 @@ class CareerDefinitionDB(SQLDatabase):
         SQLDatabase.__init__(self, SQLBase.metadata,
                              url=url, session=session, engine=engine)
 
-    def _get_entity_description(self, entity_type, linkedin_sector, entity_name,
-                                watson_lookup=False):
-        entity_types = [entity_type]
-        if entity_type is not None:
-            entity_types.append(None)
-        linkedin_sectors = [linkedin_sector]
-        if linkedin_sector is not None:
-            linkedin_sectors.append(None)
-
-        entity = None
-        for entity_type in entity_types:
-            for linkedin_sector in linkedin_sectors:
-                if entity is not None:
-                    break
-                entity = self.query(EntityDescription) \
-                             .filter(EntityDescription.entity_type \
-                                     == entity_type,
-                                     EntityDescription.linkedin_sector \
-                                     == linkedin_sector,
-                                     EntityDescription.entity_name \
-                                     == entity_name) \
-                             .first()
-        if entity is not None:
-            return dict_from_row(entity, pkeys=False)
-        if not watson_lookup:
-            return None
-
-        r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'label_search',
-                         params={'query' : entity_name,
-                                 'concept_fields' : '{"link":1}',
-                                 'prefix' : 'false',
-                                 'limit' : '1'},
-                         auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD)) \
-                    .json()
-        try:
-            match_count = len(r['matches'])
-            label = r['matches'][0]['label']
-        except:
-            match_count = 0
-            label = None
-        if label:
-            r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL \
-                             +'concepts/'+label.replace(' ', '_'),
-                             auth=(conf.WATSON_USERNAME,
-                                   conf.WATSON_PASSWORD)) \
-                        .json()
-            entity = EntityDescription(entity_type=None,
-                                       linkedin_sector=None,
-                                       entity_name=entity_name,
-                                       description=r.get('abstract', None),
-                                       description_url=r.get('link', None),
-                                       description_source='Wikipedia',
-                                       match_count=match_count,
-                                       edited=False)
-        else:
-            entity = EntityDescription(entity_type=None,
-                                       linkedin_sector=None,
-                                       entity_name=entity_name,
-                                       match_count=match_count,
-                                       edited=False)
-
-        self.add(entity)
-        self.flush()
-        return dict_from_row(entity, pkeys=False)
-
-    def get_descriptions(self, career):
-        sector, = self.query(Sector.name) \
-                      .filter(Sector.id == career.sector_id) \
-                      .first()
-        self._get_entity_description(
-            'title', sector, career.title, watson_lookup=True)
-        for skill in career.skill_cloud:
-            self._get_entity_description(
-                'skill', sector, skill.skill_name, watson_lookup=True)
-        for company in career.company_cloud:
-            self._get_entity_description(
-                'company', sector, company.company_name, watson_lookup=True)
-        for subject in career.education_subjects:
-            self._get_entity_description(
-                'subject', sector, subject.subject_name, watson_lookup=True)
-        for institute in career.education_institutes:
-            self._get_entity_description(
-                'institute', sector, institute.institute_name,
-                watson_lookup=True)
-        for title in career.previous_titles:
-            self._get_entity_description(
-                'title', sector, title.previous_title, watson_lookup=True)
-        for title in career.next_titles:
-            self._get_entity_description(
-                'title', sector, title.next_title, watson_lookup=True)
     
-    def add_career(self, careerdict, get_descriptions=False):
+    def add_career(self, careerdict):
         career = self.add_from_dict(
             careerdict, Career, protect=['visible',
                                          ('skill_cloud', 'visible'),
@@ -422,8 +315,6 @@ class CareerDefinitionDB(SQLDatabase):
                                          ('education_institutes', 'visible'),
                                          ('previous_titles', 'visible'),
                                          ('next_titles', 'visible')])
-        if get_descriptions:
-            self.get_descriptions(career)
         return career
 
     def add_sector_skill(self, skilldict):
