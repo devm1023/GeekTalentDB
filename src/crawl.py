@@ -83,6 +83,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, headers={},
         count = 0
         valid_count = 0
         crawl_start = datetime.now()
+        discovered_websites = []
         for url in urls:
             timestamp = datetime.now()
             if timestamp > deadline:
@@ -145,21 +146,13 @@ def crawl_urls(site, urls, parsefunc, database, deadline, headers={},
             if valid and leaf is False:
                 if level is not None:
                     level += 1
+                added_links = set()
                 for link_url, link_is_leaf in links:
-                    website = crdb.query(Website) \
-                                  .filter(Website.site == site,
-                                          Website.url == link_url) \
-                                  .order_by(Website.timestamp.desc()) \
-                                  .first()
-                    if website is None:
-                        website = Website(site=site, url=link_url, valid=False,
-                                          leaf=link_is_leaf, fail_count=0,
-                                          level=level)
-                        crdb.add(website)
-                    elif level is not None and \
-                         (website.level is None or website.level > level):
-                        website.level = level
-
+                    if link_url in added_links:
+                        continue
+                    else:
+                        added_links.add(link_url)
+                    discovered_websites.append((link_url, link_is_leaf, level))
                     link = Link(site=site,
                                 from_url=redirect_url,
                                 to_url=link_url,
@@ -178,7 +171,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, headers={},
                 new_identity(port=control_port, password=tor_password)
                 logger.log('done.\n')
 
-        return count, valid_count, last_ipchanges
+        return count, valid_count, last_ipchanges, discovered_websites
 
 
 def crawl(site, parsefunc, database, headers={}, urls_from=None,
@@ -251,7 +244,8 @@ def crawl(site, parsefunc, database, headers={}, urls_from=None,
             if jobs == 1:
                 success = False
                 try:
-                    count, valid_count, last_ipchange_batches[0] = crawl_urls(
+                    count, valid_count, last_ipchange_batches[0], \
+                        discovered_website_list = crawl_urls(
                         site, urls, parsefunc, database, deadline, headers,
                         ports, control_ports, tor_password, last_ipchange_batches[0],
                         ip_lifetime, delay, request_timeout)
@@ -283,15 +277,46 @@ def crawl(site, parsefunc, database, headers={}, urls_from=None,
                     count = 0
                     valid_count = 0
                     last_ipchange_batches = []
-                    for batch_count, batch_valid_count, last_ipchange_batch \
-                        in results:
+                    discovered_website_list = []
+                    for batch_count, batch_valid_count, last_ipchange_batch, \
+                        discovered_websites_batch in results:
                         count += batch_count
                         valid_count += batch_valid_count
                         last_ipchange_batches.append(last_ipchange_batch)
+                        discovered_website_list.extend(
+                            discovered_websites_batch)
                     success = True
                 except TimeoutError:
                     count = 0
                     valid_count = 0
+
+            # add discovered websites
+            discovered_websites = {}
+            for url, leaf, level in discovered_website_list:
+                oldleaf, oldlevel = discovered_websites.get(url, (None, None))
+                if leaf is None:
+                    leaf = oldleaf
+                if level is None or (oldlevel is not None and oldlevel < level):
+                    level = oldlevel
+                discovered_websites[url] = (leaf, level)
+            for url, (leaf, level) in discovered_websites.items():
+                website = crdb.query(Website) \
+                              .filter(Website.site == site,
+                                      Website.url == url) \
+                              .order_by(Website.timestamp.desc()) \
+                              .first()
+                if website is None:
+                    website = Website(site=site, url=url, valid=False,
+                                      leaf=leaf, fail_count=0, level=level)
+                    crdb.add(website)
+                else:
+                    if leaf is not None and website.leaf is None:
+                        website.leaf = leaf
+                    if level is not None and \
+                       (website.level is None or website.level > level):
+                        website.level = level
+            crdb.commit()
+                
             
             tfinish = datetime.now()
             if not success:
