@@ -7,7 +7,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--max-skills', type=int, default=25,
-                        help='Maximum number of displayed skills.')
+                        help='Maximum number of displayed skills. Default: 25')
     args = parser.parse_args()
     
     cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)

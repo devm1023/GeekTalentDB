@@ -13,7 +13,6 @@ __all__ = [
     'NextTitle',
     'SalaryBin',
     'SalaryHistoryPoint',
-    'EntityDescription',
     'CareerDefinitionDB',
     ]
 
