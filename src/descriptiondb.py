@@ -150,3 +150,23 @@ class DescriptionDB(SQLDatabase):
         self.flush()
         return dict_from_row(entity, pkeys=False)
 
+    def find_descriptions(self, tpe, queries, sector=None):
+        if tpe == 'sector':
+            table = SectorDescription
+        elif tpe == 'career':
+            table = CareerDescription
+        elif tpe == 'skill':
+            table = SkillDescription
+        else:
+            raise ValueError('Invalid entity type {0:s}'.repr(tpe))
+
+        if not queries:
+            return []
+        
+        q = self.query(table) \
+                .filter(table.name.in_(queries))
+        if sector is not None and tpe != 'sector':
+            q = q.filter(table.sector == sector)
+            
+        return [dict_from_row(row, pkeys=False) for row in q]
+    

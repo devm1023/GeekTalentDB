@@ -45,12 +45,7 @@ def get_descriptions():
         return jsonify({'message' : 'Invalid or missing `type` parameter.'})
     sector = request.args.get('sector')
     queries = request.args.getlist('q')
-    results = []
-    for query in queries:
-        description = dscdb.get_description(tpe, sector, query)
-        if description is None:
-            description = {'name' : query}
-        results.append(description)
+    results = dscdb.find_descriptions(tpe, queries, sector=sector)
     end = datetime.now()
     response = jsonify({'results' : results,
                         'query_time' : (end-start).microseconds//1000,
