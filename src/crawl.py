@@ -207,7 +207,7 @@ def crawl(site, parsefunc, database, headers={}, urls_from=None,
         q = q.filter(in_values(Website.url, urls))
     if leafs_only:
         q = q.filter(Website.leaf)
-    q = q.limit(EXCESS*batch_size*jobs)
+    q = q.order_by(Website.id).limit(EXCESS*batch_size*jobs)
 
     with TorProxyList(jobs*batch_ips,
                       restart_after=tor_timeout,
