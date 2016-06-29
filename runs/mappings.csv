@@ -11,10 +11,15 @@ sector,en,,E-Learning,Digital Tech
 sector,en,,Animation,Digital Tech
 sector,en,,Program Development,Digital Tech
 sector,en,,Software,Digital Tech
-sector,en,,Hospital & Health Care,Health Care
-sector,en,,Medical Practice,Health Care
-#sector,en,,Mental Health Care,Health Care
-sector,en,,Financial Services,Finance
+sector,en,,Hospital & Health Care,Healthcare
+sector,en,,Medical Practice,Healthcare
+sector,en,,Financial Services,Financial Services
+sector,en,,Accounting,Financial Services
+sector,en,,Banking,Financial Services
+sector,en,,Insurance,Financial Services
+sector,en,,Investment Banking,Financial Services
+sector,en,,Investment Management,Financial Services
+sector,en,,Venture Capital & Private Equity,Financial Services
 #
 # skill mappings
 #
@@ -148,6 +153,40 @@ skill,en,,Qs9000,QS 9000
 skill,en,,Qs 9000,QS 9000
 skill,en,,Mrp,MRP
 skill,en,,Plc,PLC
+skill,en,,Bls,BLS
+skill,en,,Cpr Certified,CPR Certified
+skill,en,,Icu,ICU
+skill,en,,Acls,ACLS
+skill,en,,Iv,IV
+skill,en,,Emr,EMR
+skill,en,,Gcp,GCP
+skill,en,,Cro,CRO
+skill,en,,Ich Gcp,ICH GCP
+skill,en,,Ctms,CTMS
+skill,en,,Pcr,PCR
+skill,en,,Icd 10,ICD 10
+skill,en,,Hipaa,HIPAA
+skill,en,,Ehr,EHR
+skill,en,,Cbt,CBT
+skill,en,,Tmj Dysfunction,TMJ Dysfunction
+skill,en,,Iosh,IOSH
+skill,en,,Ehs,EHS
+skill,en,,Mri,MRI
+skill,en,,Pacs,PACS
+skill,en,,X Ray,X-ray
+skill,en,,Ris,RIS
+skill,en,,Dicom,DICOM
+skill,en,,Pre-Hospital Care,Pre Hospital Care
+skill,en,,Pals,PALS
+skill,en,,Phtls,PHTLS
+skill,en,,Aed,AED
+skill,en,,Atls,ATLS
+skill,en,,Ekg,EKG
+skill,en,,Emt,EMT
+skill,en,,Cbrn,CBRN
+skill,en,,Gmp,GMP
+skill,en,Healthcare,Elisa,ELISA
+skill,en,,Aac,AAC
 # deleted skills
 skill,en,Digital Tech,Construction,
 #
@@ -173,6 +212,72 @@ company,en,,BSkyB,Sky
 company,en,,Huawei Technologies,Huawei
 company,en,,British Telecom Professional Services,BT
 company,en,,sdk,SDK
+company,en,,NHS,National Health Service (NHS)
+company,en,,NHS Trust,National Health Service (NHS)
+company,en,,NHS England,National Health Service (NHS)
+company,en,,National Health Service,National Health Service (NHS)
+company,en,,NHS Wales,National Health Service (NHS)
+company,en,,NHS Greater Glasgow and Clyde,National Health Service (NHS)
+company,en,,NHS National Services Scotland,National Health Service (NHS)
+company,en,,Imperial College Healthcare NHS Trust,National Health Service (NHS)
+company,en,,Leeds Teaching Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Barts Health NHS Trust,National Health Service (NHS)
+company,en,,Maidstone and Tunbridge Wells NHS Trust,National Health Service (NHS)
+company,en,,St Georges Healthcare NHS Trust,National Health Service (NHS)
+company,en,,Heart of England NHS Foundation Trust,National Health Service (NHS)
+company,en,,Cambridge University Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,North Bristol NHS Trust,National Health Service (NHS)
+company,en,,NHS Grampian,National Health Service (NHS)
+company,en,,NHS Lanarkshire,National Health Service (NHS)
+company,en,,East London NHS Foundation Trust,National Health Service (NHS)
+company,en,,Pennine Acute Hospitals NHS Trust,National Health Service (NHS)
+company,en,,The Royal Marsden NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Tayside,National Health Service (NHS)
+company,en,,King's College Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,East Kent Hospitals University NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Berkshire NHS Foundation Trust,National Health Service (NHS)
+company,en,,University Hospital Southampton NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Free London NHS Foundation Trust,National Health Service (NHS)
+company,en,,Guy's and St Thomas' NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Lothian,National Health Service (NHS)
+company,en,,Great Ormond Street Hospital for Children NHS Foundation Trust,National Health Service (NHS)
+company,en,,Homerton University Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,Barts and The London NHS Trust,National Health Service (NHS)
+company,en,,"Barking, Redbrige and Havering NHS Trust",National Health Service (NHS)
+company,en,,Great Western Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Southern Health NHS Foundation Trust,National Health Service (NHS)
+company,en,,Oxleas NHS Foundation Trust,National Health Service (NHS)
+company,en,,Frimley Park Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Gloucestershire (Gloucestershire Primary Care Trust),National Health Service (NHS)
+company,en,,Oxford Radcliffe Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Lewisham Healthcare NHS Trust,National Health Service (NHS)
+company,en,,The Mid Yorkshire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Lancashire Teaching Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Birmingham Children's Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,UCLH NHS Foundation Trust,National Health Service (NHS)
+company,en,,Plymouth Hospitals NHS Trust,National Health Service (NHS)
+company,en,,University Hospitals of Leicester NHS Trust,National Health Service (NHS)
+company,en,,United Lincolnshire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,East Lancashire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,NHS Highland,National Health Service (NHS)
+company,en,,Portsmouth Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Fife NHS Board,National Health Service (NHS)
+company,en,,Royal Brompton & Harefield NHS Foundation Trust,National Health Service (NHS)
+company,en,,University College London Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Bedford Hospital NHS Trust,National Health Service (NHS)
+company,en,,South Tees Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Newcastle Upon Tyne NHS Foundation Trust,National Health Service (NHS)
+company,en,,Oxford University Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Chelsea and Westminster Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,Ashford and St. Peter's Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Royal Liverpool and Broadgreen University Hospital NHS Trust,National Health Service (NHS)
+company,en,,The Christie NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Wolverhampton Hospitals NHS Trust,National Health Service (NHS)
+company,en,,University Hospitals of North Staffordshire NHS Trust,National Health Service (NHS)
+company,en,,Kent and Medway NHS & Social Care Partnership Trust,National Health Service (NHS)
+company,en,,Belfast Health & Social Care Trust,National Health Service (NHS)
+company,en,,care home,Care Home
+company,en,,nursing home,Nursing Home
 # deleted companies
 company,en,,None,
 company,en,,Retired and enjoying time to pursue personal interests and family,
@@ -197,6 +302,14 @@ company,en,,Test,
 company,en,,Testing,
 company,en,,Freelance Web Developer,
 company,en,,Freelance Web Designer (Self-employed),
+company,en,,Hospital,
+company,en,,Home,
+company,en,,Dental Practice,
+company,en,,Dentist,
+company,en,,Dental Surgery,
+company,en,,Dentistry,
+company,en,,dental,
+company,en,,Dental Clinic,
 #
 # subject mappings
 #
@@ -506,7 +619,7 @@ title,en,Automotive,Maintenance Engineer,Maintenance Engineer
 title,en,Automotive,Maintenance Technician,Maintenance Engineer
 #
 #
-###### Health Care careers ######
+###### Healthcare careers ######
 #
 # Nurse
 title,en,,Nurse,Nurse
@@ -536,10 +649,10 @@ title,en,,Community Matron,Nurse
 title,en,,Clinical Physiologist,Nurse
 title,en,,Clinical Nurse Manager,Nurse
 title,en,,Theatre Sister,Nurse
-title,en,Health Care,Nursery Nurse,Nurse
+title,en,Healthcare,Nursery Nurse,Nurse
 title,en,,Deputy Ward Manager,Nurse
-title,en,Health Care,Mrs,Nurse
-title,en,Health Care,Unit Manager,Nurse
+title,en,Healthcare,Mrs,Nurse
+title,en,Healthcare,Unit Manager,Nurse
 title,en,,CNS,Nurse
 title,en,,Student Nurse,Nurse
 title,en,,Nurse Practitioner,Nurse
@@ -555,43 +668,43 @@ title,en,,Dietitian,Nurse
 title,en,,School Nurse,Nurse
 title,en,,Specialist Dietitian,Nurse
 title,en,,Community Nursery Nurse,Nurse
-# Health Care Assistant
-title,en,,Care Assistant,Health Care Assistant
-title,en,,Health Care Assistant,Health Care Assistant
-title,en,,Healthcare Assistant,Health Care Assistant
-title,en,,Clinical Support Worker,Health Care Assistant
-title,en,,Medical Laboratory Assistant,Health Care Assistant
-title,en,,Healthcare Support Worker,Health Care Assistant
-title,en,,MLA,Health Care Assistant
-title,en,,ODP,Health Care Assistant
-title,en,,HCA,Health Care Assistant
-title,en,Health Care,Carer,Health Care Assistant
-title,en,,Nursing Assistant,Health Care Assistant
-title,en,,health care worker,Health Care Assistant
-title,en,,Phlebotomist,Health Care Assistant
-title,en,,Assistant Practitioner,Health Care Assistant
-title,en,,Auxiliary Nurse,Health Care Assistant
-title,en,,Health Care Support Worker,Health Care Assistant
+# Healthcare Assistant
+title,en,,Care Assistant,Healthcare Assistant
+title,en,,Health Care Assistant,Healthcare Assistant
+title,en,,Healthcare Assistant,Healthcare Assistant
+title,en,,Clinical Support Worker,Healthcare Assistant
+title,en,,Medical Laboratory Assistant,Healthcare Assistant
+title,en,,Healthcare Support Worker,Healthcare Assistant
+title,en,,MLA,Healthcare Assistant
+title,en,,ODP,Healthcare Assistant
+title,en,,HCA,Healthcare Assistant
+title,en,Healthcare,Carer,Healthcare Assistant
+title,en,,Nursing Assistant,Healthcare Assistant
+title,en,,health care worker,Healthcare Assistant
+title,en,,Phlebotomist,Healthcare Assistant
+title,en,,Assistant Practitioner,Healthcare Assistant
+title,en,,Auxiliary Nurse,Healthcare Assistant
+title,en,,Health Care Support Worker,Healthcare Assistant
 # Care Worker
 title,en,,Care Worker,Care Worker
-title,en,Health Care,Support Worker,Care Worker
+title,en,Healthcare,Support Worker,Care Worker
 title,en,,health worker,Care Worker
 title,en,,Care Coordinator,Care Worker
 title,en,,Care Support Worker,Care Worker
-title,en,Health Care,Social Worker,Care Worker
+title,en,Healthcare,Social Worker,Care Worker
 title,en,,Home Carer,Care Worker
 title,en,,CSW,Care Worker
 title,en,,Community Carer,Care Worker
 title,en,,HCSW,Care Worker
 title,en,,Community Care Worker,Care Worker
-title,en,Health Care,Social Care Worker,Care Worker
-title,en,Health Care,Community Support Worker,Care Worker
-title,en,Health Care,Caregiver,Care Worker
+title,en,Healthcare,Social Care Worker,Care Worker
+title,en,Healthcare,Community Support Worker,Care Worker
+title,en,Healthcare,Caregiver,Care Worker
 title,en,,careworker,Care Worker
 # Doctor
 title,en,,Doctor,Doctor
 title,en,,Medical Doctor,Doctor
-title,en,Health Care,Dr,Doctor
+title,en,Healthcare,Dr,Doctor
 title,en,,Medical Officer,Doctor
 title,en,,Medical Practitioner,Doctor
 title,en,,Physician,Doctor
@@ -605,7 +718,7 @@ title,en,,Audiologist,Doctor
 title,en,,Clinical Team Leader,Doctor
 title,en,,Clinical Advisor,Doctor
 title,en,,Clinical Services Manager,Doctor
-title,en,Health Care,Senior Practitioner,Doctor
+title,en,Healthcare,Senior Practitioner,Doctor
 title,en,,Consultant Physician,Doctor
 title,en,,Medical Director,Doctor
 title,en,,Specialist Registrar,Doctor
@@ -618,9 +731,9 @@ title,en,,Consultant Histopathologist,Doctor
 title,en,,Hospital Doctor,Doctor
 title,en,,Speciality Registrar,Doctor
 title,en,,Consultant Microbiologist,Doctor
-title,en,Health Care,Specialist,Doctor
+title,en,Healthcare,Specialist,Doctor
 title,en,,Consultant Clinical Oncologist,Doctor
-title,en,Health Care,Registrar,Doctor
+title,en,Healthcare,Registrar,Doctor
 title,en,,Consultant Urologist,Doctor
 title,en,,Clinical Fellow,Doctor
 title,en,,Clinical Research Fellow,Doctor
@@ -671,7 +784,7 @@ title,en,,Dental Nurse,Dentist
 title,en,,Dental Surgeon,Dentist
 title,en,,Dental Hygienist,Dentist
 title,en,,Principal Dentist,Dentist
-title,en,Health Care,Dental Technician,Dentist
+title,en,Healthcare,Dental Technician,Dentist
 title,en,,Orthodontic Therapist,Dentist
 # Physiotherapist
 title,en,,Physiotherapist,Physiotherapist
@@ -681,25 +794,26 @@ title,en,,Chartered Physiotherapist,Physiotherapist
 title,en,,Physio,Physiotherapist
 title,en,,Paediatric Physiotherapist,Physiotherapist
 title,en,,Physiotherapy Assistant,Physiotherapist
-title,en,Health Care,Osteopath,Physiotherapist
-title,en,Health Care,Chiropodist,Physiotherapist
+title,en,Healthcare,Osteopath,Physiotherapist
+title,en,Healthcare,Chiropodist,Physiotherapist
 # Occupational Therapist
 title,en,,Occupational Therapist,Occupational Therapist
 title,en,,Specialist Occupational Therapist,Occupational Therapist
 title,en,,OT,Occupational Therapist
 title,en,,Paediatric Occupational Therapist,Occupational Therapist
-title,en,,Health Advisor,Occupational Therapist
-title,en,Health Care,Occupational Health Advisor,Occupational Therapist
+# Health Advisor
+title,en,,Health Advisor,Health Advisor
+title,en,Healthcare,Occupational Health Advisor,Health Advisor
 # Speech and Language Therapist
 title,en,,Speech and Language Therapist,Speech and Language Therapist
 title,en,,Specialist Speech and Language Therapist,Speech and Language Therapist
 # Care Manager
 title,en,,Care Manager,Care Manager
 title,en,,Home Manager,Care Manager
-title,en,Health Care,full time carer,Care Manager
+title,en,Healthcare,full time carer,Care Manager
 title,en,,Registered Manager,Care Manager
 title,en,,Care Home Manager,Care Manager
-title,en,Health Care,social care,Care Manager
+title,en,Healthcare,social care,Care Manager
 title,en,,Registered Care Manager,Care Manager
 # Paramedic
 title,en,,Ambulance Driver,Paramedic
@@ -711,36 +825,36 @@ title,en,,Emergency Medical Technician,Paramedic
 title,en,,Emergency Care Assistant,Paramedic
 title,en,,Ambulance Care Assistant,Paramedic
 title,en,,EMT,Paramedic
-# Health Care Administrator
-title,en,Health Care,Administrator,Health Care Administrator
-title,en,,Medical Receptionist,Health Care Administrator
-title,en,Health Care,Secretary,Health Care Administrator
-title,en,,Medical Administrator,Health Care Administrator
-title,en,Health Care,Personal Assistant,Health Care Administrator
-title,en,,Ward Clerk,Health Care Administrator
-title,en,,Domestic Assistant,Health Care Administrator
-title,en,Health Care,PA,Health Care Administrator
-title,en,,Dental Receptionist,Health Care Administrator
-title,en,Health Care,Clerical Officer,Health Care Administrator
-title,en,,Assistant Practice Manager,Health Care Administrator
-title,en,Health Care,Admin Assistant,Health Care Administrator
-title,en,Health Care,Administration Manager,Health Care Administrator
-title,en,,Ward Administrator,Health Care Administrator
-title,en,Health Care,Team Administrator,Health Care Administrator
-title,en,Health Care,Receptionist/Administrator,Health Care Administrator
-title,en,,Medical Secretary,Health Care Administrator
-title,en,,Medical PA,Health Care Administrator
-title,en,,Clinical Coder,Health Care Administrator
-title,en,,PA/Medical Secretary,Health Care Administrator
+# Healthcare Administrator
+title,en,Healthcare,Administrator,Healthcare Administrator
+title,en,,Medical Receptionist,Healthcare Administrator
+title,en,Healthcare,Secretary,Healthcare Administrator
+title,en,,Medical Administrator,Healthcare Administrator
+title,en,Healthcare,Personal Assistant,Healthcare Administrator
+title,en,,Ward Clerk,Healthcare Administrator
+title,en,,Domestic Assistant,Healthcare Administrator
+title,en,Healthcare,PA,Healthcare Administrator
+title,en,,Dental Receptionist,Healthcare Administrator
+title,en,Healthcare,Clerical Officer,Healthcare Administrator
+title,en,,Assistant Practice Manager,Healthcare Administrator
+title,en,Healthcare,Admin Assistant,Healthcare Administrator
+title,en,Healthcare,Administration Manager,Healthcare Administrator
+title,en,,Ward Administrator,Healthcare Administrator
+title,en,Healthcare,Team Administrator,Healthcare Administrator
+title,en,Healthcare,Receptionist/Administrator,Healthcare Administrator
+title,en,,Medical Secretary,Healthcare Administrator
+title,en,,Medical PA,Healthcare Administrator
+title,en,,Clinical Coder,Healthcare Administrator
+title,en,,PA/Medical Secretary,Healthcare Administrator
 # Health Service Manager
-title,en,Health Care,Service Manager,Health Service Manager
-title,en,Health Care,Practice Manager,Health Service Manager
-title,en,Health Care,Deputy Manager,Health Service Manager
+title,en,Healthcare,Service Manager,Health Service Manager
+title,en,Healthcare,Practice Manager,Health Service Manager
+title,en,Healthcare,Deputy Manager,Health Service Manager
 title,en,,NHS Manager,Health Service Manager
 title,en,,Hospital Manager,Health Service Manager
-title,en,Health Care,Information Analyst,Health Service Manager
-title,en,Health Care,Commissioning Manager,Health Service Manager
-title,en,Health Care,Locality Manager,Health Service Manager
+title,en,Healthcare,Information Analyst,Health Service Manager
+title,en,Healthcare,Commissioning Manager,Health Service Manager
+title,en,Healthcare,Locality Manager,Health Service Manager
 # Biomedical Scientist
 title,en,,Biomedical Scientist,Biomedical Scientist
 title,en,,Specialist Biomedical Scientist,Biomedical Scientist
@@ -756,17 +870,17 @@ title,en,,Superintendent Radiographer,Radiographer
 title,en,,Therapy Radiographer,Radiographer
 # Optician
 title,en,,Optometrist,Optician
-title,en,Health Care,Dispensing Optician,Optician
-title,en,Health Care,Optician,Optician
+title,en,Healthcare,Dispensing Optician,Optician
+title,en,Healthcare,Optician,Optician
 # Pharmacist
 title,en,,Clinical Pharmacist,Pharmacist
-title,en,Health Care,Pharmacist,Pharmacist
-title,en,Health Care,Pharmacy Technician,Pharmacist
-title,en,Health Care,Pharmacy Manager,Pharmacist
-title,en,Health Care,Locum Pharmacist,Pharmacist
-title,en,Health Care,Pre-registration Pharmacist,Pharmacist
-title,en,Health Care,Pharmacy Assistant,Pharmacist
-title,en,Health Care,Dispenser,Pharmacist
+title,en,Healthcare,Pharmacist,Pharmacist
+title,en,Healthcare,Pharmacy Technician,Pharmacist
+title,en,Healthcare,Pharmacy Manager,Pharmacist
+title,en,Healthcare,Locum Pharmacist,Pharmacist
+title,en,Healthcare,Pre-registration Pharmacist,Pharmacist
+title,en,Healthcare,Pharmacy Assistant,Pharmacist
+title,en,Healthcare,Dispenser,Pharmacist
 # Midwife
 title,en,,Midwife,Midwife
 title,en,,Community Midwife,Midwife
