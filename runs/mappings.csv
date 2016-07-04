@@ -16,7 +16,7 @@ sector,en,,Medical Practice,Healthcare
 sector,en,,Financial Services,Financial Services
 sector,en,,Accounting,Financial Services
 sector,en,,Banking,Financial Services
-sector,en,,Insurance,Financial Services
+# sector,en,,Insurance,Financial Services
 sector,en,,Investment Banking,Financial Services
 sector,en,,Investment Management,Financial Services
 sector,en,,Venture Capital & Private Equity,Financial Services
@@ -761,15 +761,15 @@ title,en,,Paediatrician,Doctor
 title,en,,Paediatric Registrar,Doctor
 title,en,,Consultant Neonatologist,Doctor
 # General Practitioner (GP)
-title,en,,GP,General Practicioner (GP)
-title,en,,General Practitioner,General Practicioner (GP)
-title,en,,GP Partner,General Practicioner (GP)
-title,en,,General Medical Practitioner,General Practicioner (GP)
-title,en,,Salaried GP,General Practicioner (GP)
-title,en,,GP Principal,General Practicioner (GP)
-title,en,,General Practioner,General Practicioner (GP)
-title,en,,GP Registrar,General Practicioner (GP)
-title,en,,GP Trainee,General Practicioner (GP)
+title,en,,GP,General Practitioner (GP)
+title,en,,General Practitioner,General Practitioner (GP)
+title,en,,GP Partner,General Practitioner (GP)
+title,en,,General Medical Practitioner,General Practitioner (GP)
+title,en,,Salaried GP,General Practitioner (GP)
+title,en,,GP Principal,General Practitioner (GP)
+title,en,,General Practioner,General Practitioner (GP)
+title,en,,GP Registrar,General Practitioner (GP)
+title,en,,GP Trainee,General Practitioner (GP)
 # Surgeon
 title,en,,Consultant Surgeon,Surgeon
 title,en,,Orthopaedic Surgeon,Surgeon
