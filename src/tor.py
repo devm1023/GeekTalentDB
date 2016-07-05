@@ -74,7 +74,8 @@ class TorProxyList:
                                '--HashedControlPassword', '',
                                '--ControlPort', str(self.control_ports[i]),
                                '--SocksPort', str(self.ports[i]),
-                               '--DataDirectory', data_dir+'tor.'+str(i)]
+                               '--DataDirectory', os.path.join(data_dir,
+                                                               'tor.'+str(i))]
                         self._procs[i] \
                             = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                                bufsize=0)
