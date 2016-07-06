@@ -89,6 +89,8 @@ class Sector(db.Model):
     education_institutes = db.relationship(
         'SectorInstitute', order_by='desc(SectorInstitute.count)',
         cascade='all, delete-orphan', backref='sector')
+    careers = db.relationship(
+        'Career', order_by='Career.title', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.name
@@ -180,6 +182,12 @@ class Career(db.Model):
     next_titles = db.relationship(
         'NextTitle', backref='career',
         order_by='desc(NextTitle.count)', cascade='all, delete-orphan')
+    salary_bins = db.relationship(
+        'SalaryBin', backref='career',
+        order_by='SalaryBin.lower_bound', cascade='all, delete-orphan')
+    salary_history_points = db.relationship(
+        'SalaryHistoryPoint', backref='career',
+        order_by='SalaryHistoryPoint.date', cascade='all, delete-orphan')
 
     def __str__(self):
         return self.title
@@ -271,6 +279,23 @@ class NextTitle(db.Model):
     def __str__(self):
         return self.next_title
 
+class SalaryBin(db.Model):
+    __tablename__ = 'salary_bin'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    career_id     = db.Column(db.BigInteger, db.ForeignKey('career.id'),
+                           index=True, nullable=False)
+    lower_bound   = db.Column(db.Float)
+    upper_bound   = db.Column(db.Float)
+    count         = db.Column(db.Integer)
+
+
+class SalaryHistoryPoint(db.Model):
+    __tablename__ = 'salary_history_point'
+    id            = db.Column(db.BigInteger, primary_key=True)
+    career_id     = db.Column(db.BigInteger, db.ForeignKey('career.id'),
+                              index=True, nullable=False)
+    date          = db.Column(db.Date)
+    salary        = db.Column(db.Float)
 
 
 class ModelView(sqla.ModelView):
