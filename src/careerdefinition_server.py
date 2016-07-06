@@ -354,7 +354,9 @@ class ModelView(sqla.ModelView):
 
 
 class SectorView(ModelView):
+    form_excluded_columns = ('careers',)
     form_widget_args = {
+        'name' : {'readonly' : True},
         'count' : {'readonly' : True},
         'total_count' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},
@@ -363,16 +365,20 @@ class SectorView(ModelView):
     inline_models = [
         (SectorSkill, {'form_widget_args' : {
             'relevance_score' : {'readonly' : True},
+            'skill_name' : {'readonly' : True},
             'count' : {'readonly' : True},
         }}),
         (SectorCompany, {'form_widget_args' : {
             'relevance_score' : {'readonly' : True},
+            'company_name' : {'readonly' : True},
             'count' : {'readonly' : True}
         }}),
         (SectorSubject,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'count' : {'readonly' : True},
+                                'subject_name' : {'readonly' : True}}}),
         (SectorInstitute,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'count' : {'readonly' : True},
+                                'institute_name' : {'readonly' : True}}}),
     ]
     column_filters = ['name', 'visible']
 
@@ -381,6 +387,7 @@ class SectorSkillView(ModelView):
     column_filters = ['sector', 'skill_name', 'visible']
     form_widget_args = {
         'count' : {'readonly' : True},
+        'skill_name' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
     }
 
@@ -389,22 +396,27 @@ class SectorCompanyView(ModelView):
     column_filters = ['sector', 'company_name', 'visible']
     form_widget_args = {
         'count' : {'readonly' : True},
+        'company_name' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
     }
 
 
 class SectorSubjectView(ModelView):
     column_filters = ['sector', 'subject_name', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'count' : {'readonly' : True},
+                        'subject_name' : {'readonly' : True}}
 
 
 class SectorInstituteView(ModelView):
     column_filters = ['sector', 'institute_name', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'count' : {'readonly' : True},
+                        'institute_name' : {'readonly' : True}}
     
 
 class CareerView(ModelView):
+    form_excluded_columns = ('salary_bins', 'salary_history_points')
     form_widget_args = {
+        'title' : {'readonly' : True},
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},
@@ -414,21 +426,27 @@ class CareerView(ModelView):
     }
     inline_models = [
         (CareerSkill, {'form_widget_args' : {
+            'skill_name' : {'readonly' : True},
             'relevance_score' : {'readonly' : True},
             'count' : {'readonly' : True},
         }}),
         (CareerCompany, {'form_widget_args' : {
+            'company_name' : {'readonly' : True},
             'relevance_score' : {'readonly' : True},
             'count' : {'readonly' : True}
         }}),
         (CareerSubject,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'subject_name' : {'readonly' : True},
+                                'count' : {'readonly' : True}}}),
         (CareerInstitute,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'institute_name' : {'readonly' : True},
+                                'count' : {'readonly' : True}}}),
         (PreviousTitle,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'previous_title' : {'readonly' : True},
+                                'count' : {'readonly' : True}}}),
         (NextTitle,
-         {'form_widget_args' : {'count' : {'readonly' : True}}}),
+         {'form_widget_args' : {'next_title' : {'readonly' : True},
+                                'count' : {'readonly' : True}}}),
     ]
     column_filters = ['sector', 'title', 'visible']
 
@@ -436,6 +454,7 @@ class CareerView(ModelView):
 class CareerSkillView(ModelView):
     column_filters = ['career', 'skill_name', 'visible']
     form_widget_args = {
+        'skill_name' : {'readonly' : True},
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
     }
@@ -444,6 +463,7 @@ class CareerSkillView(ModelView):
 class CareerCompanyView(ModelView):
     column_filters = ['career', 'company_name', 'visible']
     form_widget_args = {
+        'company_name' : {'readonly' : True},
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
     }
@@ -451,22 +471,26 @@ class CareerCompanyView(ModelView):
 
 class CareerSubjectView(ModelView):
     column_filters = ['career', 'subject_name', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'subject_name' : {'readonly' : True},
+                        'count' : {'readonly' : True}}
 
 
 class CareerInstituteView(ModelView):
     column_filters = ['career', 'institute_name', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'institute_name' : {'readonly' : True},
+                        'count' : {'readonly' : True}}
 
 
 class PreviousTitleView(ModelView):
     column_filters = ['career', 'previous_title', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'previous_title' : {'readonly' : True},
+                        'count' : {'readonly' : True}}
 
 
 class NextTitleView(ModelView):
     column_filters = ['career', 'next_title', 'visible']
-    form_widget_args = {'count' : {'readonly' : True}}
+    form_widget_args = {'next_title' : {'readonly' : True},
+                        'count' : {'readonly' : True}}
 
 
 # Create admin

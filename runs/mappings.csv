@@ -187,6 +187,13 @@ skill,en,,Cbrn,CBRN
 skill,en,,Gmp,GMP
 skill,en,Healthcare,Elisa,ELISA
 skill,en,,Aac,AAC
+skill,en,,Vat,VAT
+skill,en,,Ifrs,IFRS
+skill,en,,Powerpoint,PowerPoint
+skill,en,,Sipp,SIPP
+skill,en,,Uk Gaap,UK GAAP
+skill,en,,Gaap,GAAP
+skill,en,,Us Gaap,US GAAP
 # deleted skills
 skill,en,Digital Tech,Construction,
 #
@@ -206,8 +213,21 @@ company,en,,BT Global Services,BT
 company,en,,Capita IT Services,Capita
 company,en,,Capita IT Professional Services,Capita
 company,en,,Barclays Capital,Barclays
+company,en,,Barclays Bank,Barclays
+company,en,,Barclays Wealth and Investment Management,Barclays
+company,en,,Barclays Corporate Banking,Barclays
+company,en,,Barclays Corporate,Barclays
 company,en,,HSBC Global Banking and Markets,HSBC
+company,en,,HSBC Bank plc,HSBC
+company,en,,HSBC Commercial Banking,HSBC
+company,en,,HSBC Retail Banking and Wealth Management,HSBC
 company,en,,RBS,Royal Bank of Scotland
+company,en,,RBS Invoice Finance,Royal Bank of Scotland
+company,en,,Bank of Scotland,Royal Bank of Scotland
+company,en,,Lloyds Bank,Lloyds
+company,en,,Lloyds Banking Group,Lloyds
+company,en,,Lloyds Bank Commercial Banking,Lloyds
+company,en,,NatWest Bank,NatWest
 company,en,,BSkyB,Sky
 company,en,,Huawei Technologies,Huawei
 company,en,,British Telecom Professional Services,BT
@@ -278,6 +298,11 @@ company,en,,Kent and Medway NHS & Social Care Partnership Trust,National Health 
 company,en,,Belfast Health & Social Care Trust,National Health Service (NHS)
 company,en,,care home,Care Home
 company,en,,nursing home,Nursing Home
+company,en,,Banco Santander,Santander
+company,en,,Santander UK Corporate & Commercial,Santander
+company,en,,Santander UK Corporate Banking,Santander
+company,en,,Merrill Lynch,Bank of America Merrill Lynch
+company,en,,Wesleyan Assurance Society,Wesleyan
 # deleted companies
 company,en,,None,
 company,en,,Retired and enjoying time to pursue personal interests and family,
@@ -310,6 +335,9 @@ company,en,,Dental Surgery,
 company,en,,Dentistry,
 company,en,,dental,
 company,en,,Dental Clinic,
+company,en,,Self Employed Bookkeeper,
+company,en,,Self Employed Accountant,
+company,en,,Accountant,
 #
 # subject mappings
 #
@@ -910,6 +938,8 @@ title,en,Financial Services,Finance Administrator,Accountant
 title,en,Financial Services,Assistant Management Accountant,Accountant
 title,en,Financial Services,Accounts Officer,Accountant
 title,en,Financial Services,Purchase Ledger Clerk,Accountant
+title,en,Financial Services,Group Accountant,Audit Manager
+title,en,Financial Services,Financial Accountant,Audit Manager
 # Relationship Manager
 title,en,,Relationship Manager,Relationship Manager
 title,en,,Corporate Manager,Relationship Manager
@@ -933,6 +963,7 @@ title,en,Financial Services,Finance,Financial Analyst
 title,en,Financial Services,Finance Analyst,Financial Analyst
 title,en,Financial Services,Finance Business Partner,Financial Analyst
 title,en,Financial Services,Project Accountant,Financial Analyst
+title,en,,Operations Analyst,Operations Analyst
 # Portfolio Manager
 title,en,,Portfolio Manager,Portfolio Manager
 title,en,,Investment Manager,Portfolio Manager
@@ -960,17 +991,16 @@ title,en,Financial Services,Compliance Manager,Risk Manager
 title,en,Financial Services,Compliance Officer,Risk Manager
 title,en,,Operational Risk Manager,Risk Manager
 # Operations Analyst
-title,en,,Operations Analyst,Operations Analyst
-title,en,,Pensions Administrator,Operations Analyst
-title,en,Financial Services,Customer Advisor,Operations Analyst
-title,en,,Compliance Analyst,Operations Analyst
-title,en,,Complaint Handler,Operations Analyst
-title,en,,Adjudicator,Operations Analyst
-title,en,Financial Services,Cashier,Operations Analyst
-title,en,Financial Services,Customer Service Advisor,Operations Analyst
-title,en,Financial Services,Customer Service Officer,Operations Analyst
-title,en,Financial Services,Customer Service Representative,Operations Analyst
-title,en,Financial Services,Case Handler,Operations Analyst
+#title,en,,Pensions Administrator,Customer Advisor
+title,en,Financial Services,Customer Advisor,Customer Advisor
+#title,en,,Compliance Analyst,Customer Advisor
+title,en,,Complaint Handler,Customer Advisor
+#title,en,,Adjudicator,Customer Advisor
+title,en,Financial Services,Cashier,Customer Advisor
+title,en,Financial Services,Customer Service Advisor,Customer Advisor
+title,en,Financial Services,Customer Service Officer,Customer Advisor
+title,en,Financial Services,Customer Service Representative,Customer Advisor
+title,en,Financial Services,Case Handler,Customer Advisor
 # Tax Manager
 title,en,,Tax Manager,Tax Manager
 title,en,,Tax Advisor,Tax Manager
@@ -1005,11 +1035,9 @@ title,en,,Internal Auditor,Audit Manager
 title,en,,Audit Intern,Audit Manager
 title,en,,Audit Senior,Audit Manager
 title,en,,Audit Assistant,Audit Manager
-title,en,Financial Services,Financial Accountant,Audit Manager
 title,en,Financial Services,Auditor,Audit Manager
 title,en,,Audit Executive,Audit Manager
-title,en,Financial Services,Group Accountant,Audit Manager
-title,en,Financial Services,Group Financial Controller,Audit Manager
+#title,en,Financial Services,Group Financial Controller,Audit Manager
 title,en,,Audit Associate,Audit Manager
 title,en,,Audit Trainee,Audit Manager
 # Bank Manager
