@@ -205,10 +205,15 @@ class Crawler(ConfigurableObject):
         parallel jobs before killing them. Parallel jobs will be killed after
         running for ``(1+batch_time_tolerance)*batch_time`` seconds. If this
         happens the ``on_timeout`` method will be called. Defaults to 1.
-      workdir (str): Working directory for parallel jobs. Defaults to
+      workdir (str, optional): Working directory for parallel jobs. Defaults to
         ``'crawljobs'``.
-      prefix (str): Prefix for temporary files in `workdir`. Defaults to
-        ``'crawljob'``.
+      prefix (str, optional): Prefix for temporary files in `workdir`. Defaults
+        to ``'crawljob'``.
+      share_proxies (bool, optional): Whether proxies are shared between
+        parallel processes. Should be set by derived classes and can only be
+        ``True`` for crawlers which use stateless proxies (i.e. when the proxy
+        states returned by the ``init_proxies``, ``on_visit``, and
+        ``on_timeout`` methods are ``None``). Defaults to ``False``.
       logger (Logger object, optional): Object for writing logging information.
         defaults to ``Logger(None)``, which does not generate any output.
 
@@ -227,6 +232,7 @@ class Crawler(ConfigurableObject):
             raise ValueError('Number of jobs must an int be greater than 0.')
         
     def __init__(self, site, database, **kwargs):
+        self.share_proxies = kwargs.pop('share_proxies', False)
         ConfigurableObject.__init__(
             self,
             site=site,
@@ -326,6 +332,15 @@ class Crawler(ConfigurableObject):
         """
         pass
 
+    def _check_proxy_states(self, proxy_states, proxies):
+        if self.share_proxies:
+            proxy_states = [None]*len(proxies)
+        if len(proxy_states) != len(proxies):
+            raise RuntimeError('List of proxy states and list of proxies '
+                               'must have the same length.')
+        return proxy_states
+        
+    
     def crawl(self, **kwargs):
         """Crawl a website.
 
@@ -381,7 +396,8 @@ class Crawler(ConfigurableObject):
             q = q.filter(Website.leaf)
         q = q.limit(EXCESS*batch_size*jobs)
         
-        proxy_states = self.init_proxies(config)
+        proxy_states = self._check_proxy_states(self.init_proxies(config),
+                                                proxies)
         try:
             tstart = datetime.now()
             total_count = 0
@@ -420,8 +436,13 @@ class Crawler(ConfigurableObject):
                         valid_count = 0
                 else:
                     url_batches = equipartition(urls, jobs)
-                    proxy_batches = equipartition(proxies, jobs)
-                    proxy_state_batches = equipartition(proxy_states, jobs)
+                    if self.share_proxies:
+                        proxy_batches = [proxies[:] for i in range(jobs)]
+                        proxy_state_batches \
+                            = [proxy_states[:] for i in range(jobs)]
+                    else:
+                        proxy_batches = equipartition(proxies, jobs)
+                        proxy_state_batches = equipartition(proxy_states, jobs)
                     # DEBUG
                     # for ibatch, url_batch in enumerate(url_batches):
                     #     logger.log('\nBATCH {0:d}\n'.format(ibatch))
@@ -452,6 +473,8 @@ class Crawler(ConfigurableObject):
                             proxy_states.extend(proxy_state_batch)
                             discovered_website_list.extend(
                                 discovered_websites_batch)
+                        if self.share_proxies:
+                            proxy_states = [None]*len(proxies)
                         success = True
                     except TimeoutError:
                         count = 0
@@ -492,7 +515,8 @@ class Crawler(ConfigurableObject):
                 if not success:
                     logger.log('Crawl timed out at {0:s}.\n' \
                                .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
-                    proxy_states = self.on_timeout(config, proxy_states)
+                    proxy_states = self._check_proxy_states(
+                        self.on_timeout(config, proxy_states), proxies)
                 else:
                     logger.log('Finished batch at {0:s}.\n'
                                'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '

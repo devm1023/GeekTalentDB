@@ -1,5 +1,5 @@
 import conf
-from crawl import Crawler
+from crawler import Crawler
 from tor import TorProxyList, new_identity
 from logger import Logger
 import re

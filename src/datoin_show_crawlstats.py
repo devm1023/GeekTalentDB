@@ -48,9 +48,10 @@ def make_linkedin_plots(obj, pdf):
             plt.close()
         else:
             plt.show()
-        
+
     from_date = obj['from_date']
     lidata = obj['linkedin']
+    print(lidata['indexed_on'].data)
     index_hist = cumulated_histogram(
         lidata['indexed_on'], const=lidata['indexed_before'])
     newcrawl_hist = cumulated_histogram(

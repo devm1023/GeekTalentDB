@@ -10,15 +10,25 @@ class ConfigurableObject:
         pass
 
     def __getattr__(self, attr):
-        if attr in self._config:
-            return self._config[attr]
+        try:
+            config = object.__getattr__(self, attr)
+        except AttributeError:
+            object.__getattr__(self, attr)
+            return
+        if attr in config:
+            return config[attr]
         else:
-            raise AttributeError('No attribute {0:s}.'.format(repr(attr)))
+            object.__getattr__(self, attr)
 
     def __setattr__(self, attr, value):
-        if attr in self._config:
-            self._config[attr] = value
-            self.check_config(self._config)
+        try:
+            config = object.__getattr__(self, attr)
+        except AttributeError:
+            object.__setattr__(self, attr, value)
+            return
+        if attr in config:
+            config[attr] = value
+            self.check_config(config)
         else:
             object.__setattr__(self, attr, value)
 
