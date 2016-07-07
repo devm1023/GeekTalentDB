@@ -10,7 +10,8 @@ Set up config files
 * To improve performance edit
 
     /etc/postgresql/9.4/main/postgresql.conf
-
+    (for MacOS with Homebrew: /usr/local/var/postgres/postgresql.conf)
+    
 and change
 
     shared_buffers = 128MB
