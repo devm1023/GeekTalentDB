@@ -194,6 +194,17 @@ skill,en,,Sipp,SIPP
 skill,en,,Uk Gaap,UK GAAP
 skill,en,,Gaap,GAAP
 skill,en,,Us Gaap,US GAAP
+skill,en,,Lbo,LBO
+skill,en,,Aml,AML
+skill,en,,Kyc,KYC
+skill,en,,Fsa,FSA
+skill,en,,Fx Options,FX Options
+skill,en,,Fx Trading,FX Trading
+skill,en,,Etfs,ETFs
+skill,en,,Alm,ALM
+skill,en,,Adp Payroll,ADP Payroll
+skill,en,,Hris,HRMS
+skill,en,,Hr Policies,HR Policies
 # deleted skills
 skill,en,Digital Tech,Construction,
 #
@@ -215,18 +226,27 @@ company,en,,Capita IT Professional Services,Capita
 company,en,,Barclays Capital,Barclays
 company,en,,Barclays Bank,Barclays
 company,en,,Barclays Wealth and Investment Management,Barclays
+company,en,,Barclays Wealth,Barclays
 company,en,,Barclays Corporate Banking,Barclays
 company,en,,Barclays Corporate,Barclays
+company,en,,Barclays Investment Bank,Barclays
+company,en,,Barclays UK Retail and Business Bank,Barclays
 company,en,,HSBC Global Banking and Markets,HSBC
 company,en,,HSBC Bank plc,HSBC
 company,en,,HSBC Commercial Banking,HSBC
 company,en,,HSBC Retail Banking and Wealth Management,HSBC
+company,en,,HSBC Private Bank,HSBC
 company,en,,RBS,Royal Bank of Scotland
 company,en,,RBS Invoice Finance,Royal Bank of Scotland
+company,en,,RBS Markets and International Banking,RBS
 company,en,,Bank of Scotland,Royal Bank of Scotland
 company,en,,Lloyds Bank,Lloyds
 company,en,,Lloyds Banking Group,Lloyds
 company,en,,Lloyds Bank Commercial Banking,Lloyds
+company,en,,Lloyds Private Banking,Lloyds
+company,en,,Lloyds TSB Bank plc,Lloyds TSB
+company,en,,LTSB,Lloyds TSB
+company,en,,Lloyds TSB Commercial Finance,Lloyds TSB
 company,en,,NatWest Bank,NatWest
 company,en,,BSkyB,Sky
 company,en,,Huawei Technologies,Huawei
@@ -301,8 +321,18 @@ company,en,,nursing home,Nursing Home
 company,en,,Banco Santander,Santander
 company,en,,Santander UK Corporate & Commercial,Santander
 company,en,,Santander UK Corporate Banking,Santander
+company,en,,"Santander Bank, N.A.",Santander
+company,en,,Santander Bank,Santander
 company,en,,Merrill Lynch,Bank of America Merrill Lynch
 company,en,,Wesleyan Assurance Society,Wesleyan
+company,en,,Associate Partner Practice of St. James's Place Wealth Management,St. James's Place Wealth Management
+company,en,,St James's Place,St. James's Place Wealth Management
+company,en,,Partner Practice of St. James's Place Wealth Management,St. James's Place Wealth Management
+company,en,,True Potential Wealth Management,True Potential Wealth Management LLP
+company,en,,UBS Investment Bank,UBS
+company,en,,Nomura International,Nomura
+company,en,,Nat West,NatWest
+company,en,,EBRD,European Bank for Reconstruction and Development (EBRD)
 # deleted companies
 company,en,,None,
 company,en,,Retired and enjoying time to pursue personal interests and family,
@@ -338,11 +368,14 @@ company,en,,Dental Clinic,
 company,en,,Self Employed Bookkeeper,
 company,en,,Self Employed Accountant,
 company,en,,Accountant,
+company,en,,Bank,
+company,en,,Banking,
 #
 # subject mappings
 #
 subject,en,,Maths,Mathematics
 subject,en,,IT,Information Technology
+subject,en,, English Language and Literature,English Language and Literature
 # deleted subjects
 subject,en,,2:1,
 subject,en,,2.1,
@@ -352,6 +385,7 @@ subject,en,,BSc,
 subject,en,, Electrical,
 subject,en,,Informatique,
 subject,en,,Informatica,
+subject,en,,A Levels
 #
 # title mappings
 #
@@ -963,7 +997,7 @@ title,en,Financial Services,Finance,Financial Analyst
 title,en,Financial Services,Finance Analyst,Financial Analyst
 title,en,Financial Services,Finance Business Partner,Financial Analyst
 title,en,Financial Services,Project Accountant,Financial Analyst
-title,en,,Operations Analyst,Operations Analyst
+title,en,,Operations Analyst,Financial Analyst
 # Portfolio Manager
 title,en,,Portfolio Manager,Portfolio Manager
 title,en,,Investment Manager,Portfolio Manager
@@ -990,7 +1024,7 @@ title,en,,Compliance,Risk Manager
 title,en,Financial Services,Compliance Manager,Risk Manager
 title,en,Financial Services,Compliance Officer,Risk Manager
 title,en,,Operational Risk Manager,Risk Manager
-# Operations Analyst
+# Customer Advisor
 #title,en,,Pensions Administrator,Customer Advisor
 title,en,Financial Services,Customer Advisor,Customer Advisor
 #title,en,,Compliance Analyst,Customer Advisor
