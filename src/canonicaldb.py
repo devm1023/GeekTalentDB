@@ -21,6 +21,8 @@ __all__ = [
     'GHProfile',
     'GHProfileSkill',
     'GHLink',
+    'Entity',
+    'Word',
     'Location',
     'CanonicalDB',
     ]
@@ -49,6 +51,8 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape
+from shapely.geometry import Point
 from phraseextract import PhraseExtractor
 from textnormalization import tokenized_skill
 import time
@@ -703,6 +707,37 @@ class GHLink(SQLBase):
     url           = Column(String(STR_MAX))
 
 
+# Entities
+
+class Entity(SQLBase):
+    __tablename__ = 'entity'
+    nrm_name      = Column(Unicode(STR_MAX),
+                           primary_key=True,
+                           autoincrement=False)
+    type          = Column(String(20), index=True)
+    source        = Column(String(20), index=True)
+    language      = Column(String(20), index=True)
+    name          = Column(Unicode(STR_MAX))
+    profile_count = Column(BigInteger, index=True)
+    sub_document_count = Column(BigInteger, index=True)
+
+
+class Word(SQLBase):
+    __tablename__ = 'word'
+    word          = Column(Unicode(STR_MAX),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    nrm_name      = Column(Unicode(STR_MAX),
+                           ForeignKey('entity.nrm_name'),
+                           index=True,
+                           primary_key=True,
+                           autoincrement=False)
+    type          = Column(String(20), index=True)
+    source        = Column(String(20), index=True)
+    language      = Column(String(20), index=True)
+
+
 # Locations
 
 class Location(SQLBase):
@@ -717,6 +752,10 @@ class Location(SQLBase):
     maxlon        = Column(Float)
     tries         = Column(Integer, index=True)
     ambiguous     = Column(Boolean)
+    nuts0         = Column(String(20), index=True)
+    nuts1         = Column(String(20), index=True)
+    nuts2         = Column(String(20), index=True)
+    nuts3         = Column(String(20), index=True)
 
 
 def _joinfields(*args):
@@ -1794,7 +1833,8 @@ class CanonicalDB(SQLDatabase):
 
         return ghprofile
 
-    def add_location(self, nrm_name, retry=False, logger=Logger(None)):
+    def add_location(self, nrm_name, retry=False, nuts=None,
+                     recompute_nuts=False, logger=Logger(None)):
         """Add a location to the database.
 
         Args:
@@ -1809,6 +1849,13 @@ class CanonicalDB(SQLDatabase):
                        .filter(Location.nrm_name == nrm_name) \
                        .first()
         if location is not None:
+            if nuts is not None and recompute_nuts:
+                point = to_shape(location.geo)
+                (location.nuts0, location.nuts1,
+                 location.nuts2, location.nuts3) \
+                 = nuts.get_ids(point,
+                                minlon=location.minlon, minlat=location.minlat,
+                                maxlon=location.maxlon, maxlat=location.maxlat)
             if not retry or location.place_id is not None:
                 return location
         else:
@@ -1882,11 +1929,13 @@ class CanonicalDB(SQLDatabase):
             else:
                 if attempts < maxattempts:
                     logger.log('URL: {0:s}\n Unknown status "{0:s}". '
-                               'Waiting 2 secs and retrying.\n')
+                               'Waiting 2 secs and retrying.\n' \
+                               .format(r['status']))
                     time.sleep(2)
                 else:
                     logger.log('URL: {0:s}\n Unknown status "{0:s}". '
-                               'Giving up.\n')
+                               'Giving up.\n' \
+                               .format(r['status']))
                     msg = 'Unknown status "'+r['status']+'". URL: '+url
                     raise GooglePlacesError(msg)
 
@@ -1918,6 +1967,16 @@ class CanonicalDB(SQLDatabase):
                     del address[i+1]
         address = ', '.join(address)
 
+        # get NUTS IDs
+        if nuts is not None:
+            point = Point(lon, lat)
+            nuts0, nuts1, nuts2, nuts3 \
+                = nuts.get_ids(point,
+                               minlon=minlon, minlat=minlat,
+                               maxlon=maxlon, maxlat=maxlat)
+        else:
+            nuts0, nuts1, nuts2, nuts3 = (None,)*4
+
         # update record
         location.name = address
         location.place_id = place_id
@@ -1926,5 +1985,9 @@ class CanonicalDB(SQLDatabase):
         location.minlon = minlon
         location.maxlat = maxlat
         location.maxlon = maxlon
+        location.nuts0 = nuts0
+        location.nuts1 = nuts1
+        location.nuts2 = nuts2
+        location.nuts3 = nuts3
 
         return location
