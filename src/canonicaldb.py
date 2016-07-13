@@ -1849,7 +1849,8 @@ class CanonicalDB(SQLDatabase):
                        .filter(Location.nrm_name == nrm_name) \
                        .first()
         if location is not None:
-            if nuts is not None and recompute_nuts:
+            if nuts is not None and location.geo is not None \
+               and recompute_nuts:
                 point = to_shape(location.geo)
                 (location.nuts0, location.nuts1,
                  location.nuts2, location.nuts3) \
