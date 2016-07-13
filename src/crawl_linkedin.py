@@ -14,8 +14,10 @@ class LinkedInCrawler(Crawler):
         r'^https?://uk\.linkedin\.com/pub/dir/.+/gb-0-United-Kingdom')
 
     def __init__(self, site='linkedin', **kwargs):
-        if 'headers' not in kwargs:
-            kwargs['headers'] = {
+        if 'request_args' not in kwargs:
+            kwargs['request_args'] = {}
+        if 'headers' not in kwargs['request_args']:
+            kwargs['request_args']['headers'] = {
                 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Encoding' : 'gzip, deflate, sdch',
                 'Accept-Language' : 'en-US,en;q=0.8,de;q=0.6',
@@ -94,7 +96,7 @@ if __name__ == "__main__":
     
     logger = Logger()
 
-    proxies = ['socks5://127.0.0.1:9050']
+    proxies = [('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')]
     if args.proxies_from is not None:
         proxies = []
         with open(args.proxies_from, 'r') as inputfile:
@@ -102,8 +104,12 @@ if __name__ == "__main__":
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-                proxies.append(line)
-    
+                proxy = tuple(line.split())
+                if len(proxy) != 2:
+                    raise ValueError('Invalid line in proxy file: {0:s}' \
+                                     .format(repr(line)))
+                proxies.append(proxy)
+
     crawler = LinkedInCrawler(
         proxies=proxies,
         crawl_rate=args.crawl_rate,

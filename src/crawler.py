@@ -23,6 +23,7 @@ from configurable_object import *
 from logger import Logger
 
 # DEBUG
+from pprint import pprint
 # from collections import namedtuple
 # Response = namedtuple('Response', ['url', 'text'])
 
@@ -38,13 +39,15 @@ def equipartition(l, p):
     bounds = np.linspace(0, len(l), p+1, dtype=int)
     return [l[lb:ub] for lb, ub in zip(bounds[:-1], bounds[1:])]
 
-def get_url(site, url, proxy='socks5://127.0.0.1:9050',
-            headers={}, timeout=None, logger=Logger(None)):
-    proxies = {'http':  proxy, 'https': proxy}
+def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
+                              'socks5://127.0.0.1:9050'),
+            request_args={}, timeout=None, logger=Logger(None)):
+    request_args = request_args.copy()
+    request_args['proxies'] = {'http': proxy[0], 'https': proxy[1]}
+    request_args['timeout'] = timeout
     success = False
     try:
-        result = requests.get(url, proxies=proxies, headers=headers,
-                              timeout=timeout)
+        result = requests.get(url, **request_args)
         # result = Response(url=url,
         #                   text='<html><head><title></title></head></html>')
         success = True
@@ -57,7 +60,7 @@ def get_url(site, url, proxy='socks5://127.0.0.1:9050',
 
 
 def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
-               headers, proxies, timeout, hook, proxy_states):
+               request_args, proxies, timeout, hook, proxy_states):
     html_parser = etree.HTMLParser()
     logger = Logger()
     nproxies = len(proxies)
@@ -83,13 +86,12 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
             min_request_time = random.uniform(0.5*mean_request_time,
                                               1.5*mean_request_time)
             
-            # DEBUG
-            logger.log('Visiting {0:s}\n'.format(url))
-            
+            logger.log('Visiting {0:s}\n'.format(url))            
             iproxy = random.randint(0, nproxies-1)
             proxy = proxies[iproxy]
-            
-            response = get_url(site, url, proxy=proxy, headers=headers,
+
+            response = get_url(site, url, proxy=proxy,
+                               request_args=request_args,
                                timeout=timeout, logger=logger)
             
             if response is None:
@@ -175,10 +177,11 @@ class Crawler(ConfigurableObject):
       database (str): URL for the crawl database.
       crawl_rate (float, optional): Desired number of requests/sec. Defaults to
         ``None``, which means crawl as fast as possible.
-      proxies (list of str, optional): List of http(s) proxies to use. Defaults
-        to ``['socks5://127.0.0.1:9050']``.
-      headers (dict, optional): A ``dict`` holding the request headers (passed
-        as `headers` argument to ``requests.get``) Defaults to ``{}``.
+      proxies (list of tuples of str, optional): List of tuples of the form
+        ``(http_proxy, https_proxy)`` specifying proxies to use. Defaults
+        to ``[('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')]``.
+      request_args (dict, optional): A ``dict`` holding additional keyword
+        arguments to ``requests.get``. Defaults to ``{}``.
       request_timeout (float, optional): Timeout in seconds for requests.
         Defaults to 30.
       urls_from (iterable or None, optional): The URLs to crawl. Defaults to
@@ -238,8 +241,8 @@ class Crawler(ConfigurableObject):
             site=site,
             database=database,
             crawl_rate=None,
-            proxies=['socks5://127.0.0.1:9050'],
-            headers={},
+            proxies=[('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')],
+            request_args={},
             request_timeout=30,
             urls_from=None,
             leafs_only=False,
@@ -355,7 +358,7 @@ class Crawler(ConfigurableObject):
         database = config['database']
         crawl_rate = config['crawl_rate']
         proxies = config['proxies']
-        headers = config['headers']
+        request_args = config['request_args']
         request_timeout = config['request_timeout']
         urls_from = config['urls_from']
         leafs_only = config['leafs_only']
@@ -428,8 +431,8 @@ class Crawler(ConfigurableObject):
                         count, valid_count, proxy_states, \
                             discovered_website_list = crawl_urls(
                                 site, urls, parsefunc, database, deadline,
-                                crawl_rate, headers, proxies, request_timeout,
-                                self.on_visit, proxy_states)
+                                crawl_rate, request_args, proxies,
+                                request_timeout, self.on_visit, proxy_states)
                         success = True
                     except TimeoutError:
                         count = 0
@@ -453,8 +456,8 @@ class Crawler(ConfigurableObject):
                             url_batches, proxy_batches, proxy_state_batches):
                         pargs.append(
                             (site, url_batch, parsefunc, database, deadline,
-                             crawl_rate, headers, proxy_batch, request_timeout,
-                             self.on_visit, proxy_state_batch))
+                             crawl_rate, request_args, proxy_batch,
+                             request_timeout, self.on_visit, proxy_state_batch))
                     pfunc = ParallelFunction(crawl_urls, batchsize=1,
                                              workdir=workdir, prefix=prefix,
                                              timeout=(1+batch_time_tolerance) \
