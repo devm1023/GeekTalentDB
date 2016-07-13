@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import random
 
 from lxml import etree
-from io import StringIO
+from io import StringIO, BytesIO
 
 from tor import new_identity, TorProxyList
 import requests
@@ -61,7 +61,7 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
 
 def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                request_args, proxies, timeout, hook, proxy_states):
-    html_parser = etree.HTMLParser()
+    html_parser = etree.HTMLParser(encoding='utf-8')
     logger = Logger()
     nproxies = len(proxies)
     if nproxies < 1:
@@ -86,7 +86,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
             min_request_time = random.uniform(0.5*mean_request_time,
                                               1.5*mean_request_time)
             
-            logger.log('Visiting {0:s}\n'.format(url))            
+            logger.log('{0:s}: Visiting {1:s}\n'.format(str(timestamp), url))
             iproxy = random.randint(0, nproxies-1)
             proxy = proxies[iproxy]
 
@@ -100,8 +100,8 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 valid = False
                 leaf = None
             else:
-                html = response.text
-                parsed_html = etree.parse(StringIO(html), html_parser)
+                html = response.text.encode('utf-8')
+                parsed_html = etree.parse(BytesIO(html), html_parser)
                 redirect_url = response.url
                 valid, leaf, links = parsefunc(site, url, redirect_url,
                                                parsed_html)
@@ -124,6 +124,9 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                               .format(url, repr(site)))
             if website.valid:
                 # DEBUG
+                logger.log('{0:s} {1:s} {2:s} {3:s}\n' \
+                           .format(str(timestamp), str(website.valid),
+                                   str(website.timestamp), website.url))
                 raise RuntimeError('Recrawling url {0:s}'.format(url))
                 website = Website(site=site, url=url, fail_count=0,
                                   level=website.level)
@@ -402,9 +405,15 @@ class Crawler(ConfigurableObject):
         proxy_states = self._check_proxy_states(self.init_proxies(config),
                                                 proxies)
         try:
-            tstart = datetime.now()
+            tstart = datetime.now()            
             total_count = 0
             while True:
+                logger.log('Starting batch at {0:s}.\n' \
+                           .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
+
+                # reset session
+                crdb.new_session()
+
                 # get URLs
                 urls = set()
                 offset = 0
@@ -521,11 +530,9 @@ class Crawler(ConfigurableObject):
                     proxy_states = self._check_proxy_states(
                         self.on_timeout(config, proxy_states), proxies)
                 else:
-                    logger.log('Finished batch at {0:s}.\n'
-                               'Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
+                    logger.log('Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
                                'Crawl rate: {3:5.3f} URLs/sec.\n' \
-                               .format(tfinish.strftime('%Y-%m-%d %H:%M:%S'),
-                                       valid_count, valid_count/count*100,
+                               .format(valid_count, valid_count/count*100,
                                        valid_count/ \
                                        (tfinish-tstart).total_seconds()))
                 tstart = tfinish

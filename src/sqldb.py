@@ -19,15 +19,25 @@ class SQLDatabase:
         if session is None:
             if engine is None:
                 engine = create_engine(url)
-            session = sessionmaker(bind=engine)()
-        self.metadata = metadata
-        self.session = session
-        self.query = session.query
-        self.flush = session.flush
-        self.commit = session.commit
-        self.add = session.add
-        self.execute = session.execute
+            self.Session = sessionmaker(bind=engine)
+        else:
+            self.Session = session
 
+        self.session = None
+        self.metadata = metadata
+        self.new_session()
+
+    def new_session(self):
+        if self.session is not None:
+            self.session.close()
+        self.session = self.Session()
+        self.query = self.session.query
+        self.flush = self.session.flush
+        self.commit = self.session.commit
+        self.add = self.session.add
+        self.execute = self.session.execute
+        self.close = self.session.close
+        
     def __enter__(self):
         return self
 
@@ -35,6 +45,11 @@ class SQLDatabase:
         self.session.close()
         return False
 
+    def query(*args, **kwargs):
+        return self.session.query(*args, **kwargs)
+
+    
+    
     def drop_all(self):
         self.metadata.drop_all(self.session.bind)
 

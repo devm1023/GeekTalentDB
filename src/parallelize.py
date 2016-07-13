@@ -212,7 +212,7 @@ class SlurmRunner(BasicRunner):
 
 
 def _parallelize(f, batches, workdir='.', prefix=None, prelude=None,
-                 runner=LocalRunner, tries=2, log=sys.stdout, loglevel=1,
+                 runner=LocalRunner, tries=1, log=sys.stdout, loglevel=1,
                  refresh=1, cleanup=0, autocancel=True, options=[],
                  timeout=None):
     if os.path.exists(workdir):
@@ -421,7 +421,7 @@ class ParallelFunction:
         :py:class:`~my_fitter.BasicRunner`. Defaults to
         :py:class:`~my_fitter.LocalRunner`.
       tries (int, optional): Maximal number of attempts to re-start a crashed
-        job. Defaults to 2.
+        job. Defaults to 1.
       log (output stream or None, optional): Output stream for log messages.
         Defaults to ``None``, in which case no messages are printed.
       loglevel (int, optional): Amount of information to log. Defaults to
@@ -440,7 +440,7 @@ class ParallelFunction:
 
     """
     def __init__(self, f, njobs=2, batchsize=None, workdir='.', prefix=None,
-                 prelude=None, runner=LocalRunner, tries=2, log=None, loglevel=1,
+                 prelude=None, runner=LocalRunner, tries=1, log=None, loglevel=1,
                  refresh=1, cleanup=2, autocancel=True, options=[],
                  timeout=None):
         self.f = f
