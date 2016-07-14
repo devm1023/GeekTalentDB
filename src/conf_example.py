@@ -23,6 +23,10 @@ CAREERDEFINITION_DB \
 DESCRIPTION_DB \
     = 'postgresql://geektalent:geektalent@localhost/description'
 
+# Watson Database
+WATSON_DB \
+    = 'postgresql://geektalent:geektalent@localhost/watson'
+
 
 # paths for tor browser
 #

@@ -5,7 +5,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('database',
                     choices=['crawl', 'datoin', 'canonical', 'analytics',
-                             'geekmaps', 'careerdefinition', 'description'],
+                             'geekmaps', 'careerdefinition', 'description',
+                             'watson'],
                     help='The database to initialize.')
 parser.add_argument('--no-create', action='store_true',
                     help='Do not create new tables.')
@@ -61,6 +62,13 @@ elif args.database == 'careerdefinition':
 elif args.database == 'description':
     from descriptiondb import DescriptionDB
     dscdb = DescriptionDB(url=conf.DESCRIPTION_DB)
+    if not nodelete:
+        dscdb.drop_all()
+    if not nocreate:
+        dscdb.create_all()
+elif args.database == 'watson':
+    from watsondb import WatsonDB
+    dscdb = WatsonDB(url=conf.WATSON_DB)
     if not nodelete:
         dscdb.drop_all()
     if not nocreate:
