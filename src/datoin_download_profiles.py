@@ -11,6 +11,7 @@ import argparse
 
 
 timestamp0 = datetime(year=1970, month=1, day=1)
+STR_MAX = 100000
 
 class FieldError(Exception):
     pass
@@ -203,6 +204,11 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
              ('crawled_date', 'crawledDate', int,   True),
              ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
+            if inprofile['description']:
+                inprofile['description'] = inprofile['description'][:STR_MAX]
+            if inprofile['additional_information']:
+                inprofile['additional_information'] \
+                    = inprofile['additional_information'][:STR_MAX]
             inprofile[name] = get_field(inprofiledoc, fieldname, fieldtype,
                                         required=required)
 
@@ -225,6 +231,9 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
+                    if experience['description']:
+                        experience['description'] \
+                            = experience['description'][:STR_MAX]
                     experience[name] = get_field(subdocument, fieldname,
                                                  fieldtype,
                                                  required=required,
@@ -242,6 +251,9 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
+                    if education['description']:
+                        education['description'] \
+                            = education['description'][:STR_MAX]
                     education[name] = get_field(subdocument, fieldname,
                                                 fieldtype,
                                                 required=required,
@@ -257,6 +269,9 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
+                    if certification['description']:
+                        certification['description'] \
+                            = certification['description'][:STR_MAX]
                     certification[name] = get_field(subdocument, fieldname,
                                                     fieldtype,
                                                     required=required,
