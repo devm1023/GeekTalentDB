@@ -204,9 +204,9 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
              ('crawled_date', 'crawledDate', int,   True),
              ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
-            if inprofile['description']:
+            if inprofile.get('description', None):
                 inprofile['description'] = inprofile['description'][:STR_MAX]
-            if inprofile['additional_information']:
+            if inprofile.get('additional_information', None):
                 inprofile['additional_information'] \
                     = inprofile['additional_information'][:STR_MAX]
             inprofile[name] = get_field(inprofiledoc, fieldname, fieldtype,
@@ -231,7 +231,7 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
-                    if experience['description']:
+                    if experience.get('description', None):
                         experience['description'] \
                             = experience['description'][:STR_MAX]
                     experience[name] = get_field(subdocument, fieldname,
@@ -251,7 +251,7 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
-                    if education['description']:
+                    if education.get('description', None):
                         education['description'] \
                             = education['description'][:STR_MAX]
                     education[name] = get_field(subdocument, fieldname,
@@ -269,7 +269,7 @@ def add_inprofile(dtdb, inprofiledoc, dtsession, logger):
                      ('date_to',     'dateTo',      int,   False),
                      ('description', 'description', str,   False),
                     ]:
-                    if certification['description']:
+                    if certification.get('description', None):
                         certification['description'] \
                             = certification['description'][:STR_MAX]
                     certification[name] = get_field(subdocument, fieldname,
