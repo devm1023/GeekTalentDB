@@ -434,6 +434,7 @@ class Crawler(ConfigurableObject):
 
                 deadline = datetime.now() + batch_time
 
+                # run parallel jobs
                 if jobs == 1:
                     success = False
                     try:
@@ -455,11 +456,6 @@ class Crawler(ConfigurableObject):
                     else:
                         proxy_batches = equipartition(proxies, jobs)
                         proxy_state_batches = equipartition(proxy_states, jobs)
-                    # DEBUG
-                    # for ibatch, url_batch in enumerate(url_batches):
-                    #     logger.log('\nBATCH {0:d}\n'.format(ibatch))
-                    #     for url in url_batch:
-                    #         logger.log('{0:s}\n'.format(url))
                     pargs = []
                     for url_batch, proxy_batch, proxy_state_batch in zip(
                             url_batches, proxy_batches, proxy_state_batches):
@@ -530,8 +526,8 @@ class Crawler(ConfigurableObject):
                     proxy_states = self._check_proxy_states(
                         self.on_timeout(config, proxy_states), proxies)
                 else:
-                    logger.log('Crawled {1:d} URLs. Success rate: {2:3.0f}%, '
-                               'Crawl rate: {3:5.3f} URLs/sec.\n' \
+                    logger.log('Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
+                               'Crawl rate: {2:5.3f} URLs/sec.\n' \
                                .format(valid_count, valid_count/count*100,
                                        valid_count/ \
                                        (tfinish-tstart).total_seconds()))
