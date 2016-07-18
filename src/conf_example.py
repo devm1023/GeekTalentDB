@@ -3,6 +3,9 @@ import os
 # Crawl Database
 CRAWL_DB      = 'postgresql://geektalent:geektalent@localhost/crawl'
 
+# Parse Database
+PARSE_DB      = 'postgresql://geektalent:geektalent@localhost/parse'
+
 # Datoin Database 
 DATOIN_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 

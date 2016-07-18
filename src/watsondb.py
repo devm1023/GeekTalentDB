@@ -105,8 +105,14 @@ class WatsonDB(SQLDatabase):
                 logger.log('Looking up label {0:s}...'.format(label))
                 r = requests.get(
                     conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'concepts/'+label,
-                    auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD)).json()
-                logger.log('done.\n')
+                    auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD))
+                try:
+                    r = r.json()
+                    logger.log('done.\n')
+                except:
+                    logger.log('failed.\n')
+                    continue
+                    
                 description = Description(label=label,
                                           text=r.get('abstract', None),
                                           url=r.get('link', None))
