@@ -76,10 +76,10 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
     with CrawlDB(database) as crdb:
         count = 0
         valid_count = 0
-        crawl_start = datetime.now()
+        crawl_start = datetime.utcnow()
         discovered_websites = []
         for url in urls:
-            timestamp = datetime.now()
+            timestamp = datetime.utcnow()
             if timestamp > deadline:
                 break
 
@@ -170,7 +170,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 proxy_states[iproxy] \
                     = hook(proxy_states[iproxy], valid, iproxy, proxy)
             
-            request_time = (datetime.now() - timestamp).total_seconds()
+            request_time = (datetime.utcnow() - timestamp).total_seconds()
             if request_time < min_request_time:
                 time.sleep(min_request_time - request_time)
 
@@ -410,7 +410,7 @@ class Crawler(ConfigurableObject):
         proxy_states = self._check_proxy_states(self.init_proxies(config),
                                                 proxies)
         try:
-            tstart = datetime.now()            
+            tstart = datetime.utcnow()            
             total_count = 0
             while True:
                 logger.log('Starting batch at {0:s}.\n' \
@@ -437,7 +437,7 @@ class Crawler(ConfigurableObject):
                 if limit is not None and len(urls) > limit - total_count:
                     urls = urls[:args.limit - total_count]
 
-                deadline = datetime.now() + batch_time
+                deadline = datetime.utcnow() + batch_time
 
                 # run parallel jobs
                 if jobs == 1:
@@ -524,7 +524,7 @@ class Crawler(ConfigurableObject):
                             website.level = level
                 crdb.commit()
 
-                tfinish = datetime.now()
+                tfinish = datetime.utcnow()
                 if not success:
                     logger.log('Crawl timed out at {0:s}.\n' \
                                .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
