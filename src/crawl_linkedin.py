@@ -96,6 +96,15 @@ if __name__ == "__main__":
     
     logger = Logger()
 
+    headers = {
+        'Accept-Encoding' : 'gzip, deflate, br',
+        'User-Agent' : 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0',
+        'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8',
+        'Accept-Language' : 'en-US,en;q=0.5',
+        'Connection' : 'keep-alive',
+    }
+    request_args = {'headers' : headers}
+
     proxies = [('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')]
     if args.proxies_from is not None:
         proxies = []
@@ -113,6 +122,7 @@ if __name__ == "__main__":
     crawler = LinkedInCrawler(
         proxies=proxies,
         crawl_rate=args.crawl_rate,
+        request_args=request_args,
         request_timeout=args.request_timeout,
         urls_from=args.urls_from,
         leafs_only=args.leafs_only,

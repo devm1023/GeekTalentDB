@@ -101,7 +101,12 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 leaf = None
             else:
                 html = response.text.encode('utf-8')
-                parsed_html = etree.parse(BytesIO(html), html_parser)
+                try:
+                    parsed_html = etree.parse(BytesIO(html), html_parser)
+                except:
+                    logger.log('Error parsing HTML:\n')
+                    logger.log(response.text)
+                    raise
                 redirect_url = response.url
                 valid, leaf, links = parsefunc(site, url, redirect_url,
                                                parsed_html)
