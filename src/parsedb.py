@@ -39,7 +39,7 @@ class LIProfile(SQLBase):
     location      = Column(Unicode(STR_MAX))
     sector        = Column(Unicode(STR_MAX))
     title         = Column(Unicode(STR_MAX))
-    description   = Column(Unicode(STR_MAX))
+    summary       = Column(Unicode(STR_MAX))
     connections   = Column(String(STR_MAX))
 
     experiences   = relationship('LIExperience',
@@ -63,10 +63,11 @@ class LIExperience(SQLBase):
                            index=True)
     title         = Column(Unicode(STR_MAX))
     company       = Column(Unicode(STR_MAX))
-    url           = Column(String(STR_MAX))
+    company_url   = Column(String(STR_MAX))
     location      = Column(Unicode(STR_MAX))
-    start         = Column(Date)
-    end           = Column(Date)
+    current       = Column(Boolean)
+    start         = Column(Unicode(STR_MAX))
+    end           = Column(Unicode(STR_MAX))
     description   = Column(Unicode(STR_MAX))
 
 class LIEducation(SQLBase):

@@ -1,0 +1,69 @@
+from lxml.html import fromstring as parse_html
+
+
+def get_text(element):
+    return element.text
+
+def get_stripped_text(element):
+    text = element.text
+    if text:
+        text = text.strip()
+    if not text:
+        return None
+    return text
+
+def _get_attr(attr, element):
+    if attr not in element.attrib:
+        raise RuntimeError('No attribute {0:s} in {1:s} element' \
+                           .format(repr(attr), element.tag))
+    return element.get(attr)
+
+def get_attr(attr):
+    return lambda element: _get_attr(attr, element)
+
+def _tokenize_string(text):
+    if text is None:
+        return []
+    return text.split()
+
+def _tokenize_element(element):
+    tokens = _tokenize_string(element.text)
+    for child in element.getchildren():
+        if child.tag == 'br':
+            tokens.append('\n')
+        tokens.extend(_tokenize_element(child))
+        tokens.extend(_tokenize_string(child.tail))
+    return tokens
+
+def format_content(element):
+    tokens = _tokenize_element(element)
+    tokens = [t for t in tokens if t]
+    strings = []
+    for token in tokens:
+        if strings and not token.isspace() and not strings[-1].isspace():
+            strings.append(' ')
+        strings.append(token)
+    return ''.join(strings)
+
+
+def _extract(doc, xpath, f=get_stripped_text, one=False,
+                  required=False):
+    elements = doc.xpath(xpath)
+    if not elements and required:
+        raise RuntimeError('No elements found at {0:s}'.format(xpath))
+    if one and len(elements) > 1:
+        raise RuntimeError('Multiple elements found at {0:s}'.format(xpath))
+    results = [f(element) for element in elements]
+    if one:
+        if not results:
+            return None
+        else:
+            return results[0]
+    else:
+        return results
+
+def extract(doc, xpath, f=get_stripped_text, required=False):
+    return _extract(doc, xpath, f=f, one=True, required=required)
+
+def extract_many(doc, xpath, f=get_stripped_text, required=False):
+    return _extract(doc, xpath, f=f, one=False, required=required)
