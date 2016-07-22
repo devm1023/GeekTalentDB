@@ -46,21 +46,25 @@ def format_content(element):
     return ''.join(strings)
 
 
-def _extract(doc, xpath, f=get_stripped_text, one=False,
-                  required=False):
-    elements = doc.xpath(xpath)
-    if not elements and required:
-        raise RuntimeError('No elements found at {0:s}'.format(xpath))
-    if one and len(elements) > 1:
-        raise RuntimeError('Multiple elements found at {0:s}'.format(xpath))
-    results = [f(element) for element in elements]
-    if one:
-        if not results:
-            return None
-        else:
+def _extract(doc, xpaths, f=get_stripped_text, one=False,
+             required=False):
+    if isinstance(xpaths, str):
+        xpaths = [xpaths]
+    results = []
+    for xpath in xpaths:
+        elements = doc.xpath(xpath)
+        if one and len(elements) > 1:
+            raise RuntimeError('Multiple elements found at {0:s}'.format(xpath))
+        results.extend(f(element) for element in elements)
+        if one and results:
             return results[0]
-    else:
-        return results
+    if not results:
+        if required:
+            raise RuntimeError('No elements found at xpaths {0:s}' \
+                               .format(str(xpaths)))
+        elif one:
+            return None
+    return results
 
 def extract(doc, xpath, f=get_stripped_text, required=False):
     return _extract(doc, xpath, f=f, one=True, required=required)

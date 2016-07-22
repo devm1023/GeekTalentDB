@@ -21,6 +21,7 @@ from sqlalchemy import \
     Date, \
     DateTime, \
     Float, \
+    Boolean, \
     func
 from sqlalchemy.orm import relationship
 
@@ -39,7 +40,7 @@ class LIProfile(SQLBase):
     location      = Column(Unicode(STR_MAX))
     sector        = Column(Unicode(STR_MAX))
     title         = Column(Unicode(STR_MAX))
-    summary       = Column(Unicode(STR_MAX))
+    description   = Column(Unicode(STR_MAX))
     connections   = Column(String(STR_MAX))
 
     experiences   = relationship('LIExperience',
@@ -79,8 +80,7 @@ class LIEducation(SQLBase):
                            index=True)
     institute     = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
-    subject       = Column(Unicode(STR_MAX))
-    qualification = Column(Unicode(STR_MAX))
+    course        = Column(Unicode(STR_MAX))
     start         = Column(BigInteger)
     end           = Column(BigInteger)
     description   = Column(Unicode(STR_MAX))
@@ -103,7 +103,7 @@ class LISkill(SQLBase):
                            nullable=False,
                            index=True)
     name          = Column(Unicode(STR_MAX))
-    url           = Column(Unicode(STR_MAX))
+    url           = Column(String(STR_MAX))
 
 
 class ParseDB(SQLDatabase):
