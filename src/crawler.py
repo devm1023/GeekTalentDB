@@ -5,14 +5,14 @@ import os
 from datetime import datetime, timedelta
 import random
 
-from lxml import etree
-from io import StringIO, BytesIO
+from lxml.html import fromstring as parse_html
 
 from tor import new_identity, TorProxyList
 import requests
 
 from sqlalchemy import func
 import numpy as np
+import uuid
 
 from crawldb import *
 from logger import Logger
@@ -61,7 +61,6 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
 
 def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                request_args, proxies, timeout, hook, proxy_states):
-    html_parser = etree.HTMLParser(encoding='utf-8')
     logger = Logger()
     nproxies = len(proxies)
     if nproxies < 1:
@@ -94,19 +93,19 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                                request_args=request_args,
                                timeout=timeout, logger=logger)
             
-            if response is None:
-                html = None
-                redirect_url = None
-                valid = False
-                leaf = None
-            else:
-                html = response.text.encode('utf-8')
+            html = None
+            redirect_url = None
+            valid = False
+            leaf = None
+            if response is not None:
+                html = response.text
                 try:
-                    parsed_html = etree.parse(BytesIO(html), html_parser)
+                    parsed_html = parse_html(html)
                 except:
-                    logger.log('Error parsing HTML:\n')
-                    logger.log(response.text)
-                    raise
+                    logger.log('Error parsing HTML.\n')
+                    filename = 'parsefail-{0:s}.html'.format(str(uuid.uuid4()))
+                    with open(filename, 'w') as htmlfile:
+                        htmlfile.write(html)
                 redirect_url = response.url
                 valid, leaf, links = parsefunc(site, url, redirect_url,
                                                parsed_html)
