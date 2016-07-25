@@ -322,7 +322,6 @@ company,en,,Banco Santander,Santander
 company,en,,Santander UK Corporate & Commercial,Santander
 company,en,,Santander UK Corporate Banking,Santander
 company,en,,"Santander Bank, N.A.",Santander
-company,en,,Santander Bank,Santander
 company,en,,Merrill Lynch,Bank of America Merrill Lynch
 company,en,,Wesleyan Assurance Society,Wesleyan
 company,en,,Associate Partner Practice of St. James's Place Wealth Management,St. James's Place Wealth Management
@@ -385,7 +384,7 @@ subject,en,,BSc,
 subject,en,, Electrical,
 subject,en,,Informatique,
 subject,en,,Informatica,
-subject,en,,A Levels
+subject,en,,A Levels,
 #
 # title mappings
 #

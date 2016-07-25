@@ -88,6 +88,34 @@ class NutsRegions:
             currentlevel += 1
         return currentid
 
+    def get_ids(self, point,
+                minlon=None, minlat=None, maxlon=None, maxlat=None):
+        nutsids = [None]*4
+        if point is not None:
+            nutsid = self.find(point, level=3)
+            if nutsid:
+                nutsids = [nutsid[:-3], nutsid[:-2], nutsid[:-1], nutsid]
+            if all(nutsids) \
+               and minlat is not None \
+               and maxlat is not None \
+               and minlon is not None \
+               and maxlon is not None:
+                viewport = geo.Polygon([(minlon, minlat), (maxlon, minlat),
+                                        (maxlon, maxlat), (minlon, maxlat)])
+                delete_rest = False
+                for i, nutsid in enumerate(nutsids):
+                    if delete_rest:
+                        nutsids[i] = None
+                        continue
+                    region = self[nutsid]
+                    area = region.area
+                    intersection_area = region.intersection(viewport).area
+                    if intersection_area > 0.9*area:
+                        delete_rest = True
+
+        return tuple(nutsids)
+        
+
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt

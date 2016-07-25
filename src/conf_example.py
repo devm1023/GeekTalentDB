@@ -3,6 +3,9 @@ import os
 # Crawl Database
 CRAWL_DB      = 'postgresql://geektalent:geektalent@localhost/crawl'
 
+# Parse Database
+PARSE_DB      = 'postgresql://geektalent:geektalent@localhost/parse'
+
 # Datoin Database 
 DATOIN_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 
@@ -22,6 +25,10 @@ CAREERDEFINITION_DB \
 # Description Database
 DESCRIPTION_DB \
     = 'postgresql://geektalent:geektalent@localhost/description'
+
+# Watson Database
+WATSON_DB \
+    = 'postgresql://geektalent:geektalent@localhost/watson'
 
 
 # paths for tor browser

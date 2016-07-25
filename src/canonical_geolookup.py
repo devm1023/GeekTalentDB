@@ -5,14 +5,17 @@ from datetime import datetime, timedelta
 from logger import Logger
 from sqlalchemy import and_
 from windowquery import split_process, process_db
+from nuts import NutsRegions
 from datetime import datetime, timedelta
 import time
 import argparse
 
 
 def process_locations(jobid, fromlocation, tolocation,
-                     fromdate, todate, by_indexed_on, source, retry, maxretry):
+                      fromdate, todate, by_indexed_on, source, retry, maxretry,
+                      recompute_nuts):
     cndb = CanonicalDB(url=conf.CANONICAL_DB)
+    nuts = NutsRegions(conf.NUTS_DATA)
     logger = Logger(sys.stdout)
 
     if source == 'linkedin':
@@ -57,7 +60,8 @@ def process_locations(jobid, fromlocation, tolocation,
         q = q1.union(q2)
 
     def add_location(rec):
-        cndb.add_location(rec[0], retry=retry, logger=logger)
+        cndb.add_location(rec[0], retry=retry, nuts=nuts,
+                          recompute_nuts=recompute_nuts, logger=logger)
 
     process_db(q, add_location, cndb, logger=logger)
 
@@ -113,9 +117,9 @@ def run(args, maxretry):
         q = q1.union(q2)
 
     split_process(q, process_locations, args.batch_size, njobs=args.jobs,
-                 args=[args.from_date, args.to_date, args.by_index_date,
-                       args.source, args.retry, maxretry],
-                 logger=logger, workdir='jobs', prefix='canonical_geoupdate')
+                  args=[args.from_date, args.to_date, args.by_index_date,
+                        args.source, args.retry, maxretry, args.recompute_nuts],
+                  logger=logger, workdir='jobs', prefix='canonical_geoupdate')
 
 
 def main(args):
@@ -165,6 +169,8 @@ if __name__ == '__main__':
                         're-tried. If specified the failed lookups in the '
                         'existing locations table are re-tried. Do not specify '
                         'if you want to add new locations to the table.')
+    parser.add_argument('--recompute-nuts', action='store_true', help=
+                        'Re-compute all NUTS codes.')
     parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
                         'Source type to process. If not specified all sources '
                         'are processed.')

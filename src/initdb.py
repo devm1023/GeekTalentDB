@@ -4,8 +4,9 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('database',
-                    choices=['crawl', 'datoin', 'canonical', 'analytics',
-                             'geekmaps', 'careerdefinition', 'description'],
+                    choices=['crawl', 'parse', 'datoin', 'canonical',
+                             'analytics', 'geekmaps', 'careerdefinition',
+                             'description', 'watson'],
                     help='The database to initialize.')
 parser.add_argument('--no-create', action='store_true',
                     help='Do not create new tables.')
@@ -23,6 +24,13 @@ if args.database == 'crawl':
         crdb.drop_all()
     if not nocreate:
         crdb.create_all()
+if args.database == 'parse':
+    from parsedb import ParseDB
+    padb = ParseDB(url=conf.PARSE_DB)
+    if not nodelete:
+        padb.drop_all()
+    if not nocreate:
+        padb.create_all()
 elif args.database == 'datoin':
     from datoindb import DatoinDB
     dtdb = DatoinDB(url=conf.DATOIN_DB)
@@ -61,6 +69,13 @@ elif args.database == 'careerdefinition':
 elif args.database == 'description':
     from descriptiondb import DescriptionDB
     dscdb = DescriptionDB(url=conf.DESCRIPTION_DB)
+    if not nodelete:
+        dscdb.drop_all()
+    if not nocreate:
+        dscdb.create_all()
+elif args.database == 'watson':
+    from watsondb import WatsonDB
+    dscdb = WatsonDB(url=conf.WATSON_DB)
     if not nodelete:
         dscdb.drop_all()
     if not nocreate:
