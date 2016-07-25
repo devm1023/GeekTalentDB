@@ -10,6 +10,7 @@ from sqlalchemy.orm import aliased
 from htmlextract import parse_html, extract, extract_many, \
     get_attr, format_content
 
+import re
 import argparse
 
 
@@ -17,13 +18,13 @@ import argparse
 xp_picture  = ('//*[@id="topcard"]/div[@class="profile-card vcard"]'
                '/div[@class="profile-picture"]/a/img')
 xp_name     = '//*[@id="name"]'
-xp_title    = '//*[@class="headline title"]/span'
+xp_title    = '//*[@class="headline title"]'
 xp_location = '//*[@id="demographics"]/dd[@class="descriptor adr"]/span'
 xp_sector   = '//*[@id="demographics"]/dd[@class="descriptor"]/span'
-xp_description = '//*[@id="summary"]/div[@class="description"]/p'
+xp_description = '//*[@id="summary"]/div[@class="description"]'
 xp_connections = '//*[@class="member-connections"]/strong'
-xp_skills = '//*[@id="skills"]/ul/li[@class="skill"]'
-xp_extraskills = '//*[@id="skills"]/ul/li[@class="skill extra"]'
+xp_skills = ['//*[@id="skills"]/ul/li[@class="skill"]',
+             '//*[@id="skills"]/ul/li[@class="skill extra"]']
 xp_experiences = ('//*[@id="experience"]/ul[@class="positions"]'
                   '/li[@class="position"]')
 xp_educations = '//*[@id="education"]/ul/li'
@@ -33,28 +34,42 @@ xp_skill_url = 'a'
 xp_skill_name = './/span'
 
 # experience xpaths
-xp_exp_title = ['header/h4[@class="item-title"]/a/span',
-                'header/h4[@class="item-title"]/a',
-                'header/h4[@class="item-title"]']
+xp_exp_title = 'header/h4[@class="item-title"]'
 xp_exp_company_url = 'header/h5[@class="item-subtitle"]/a'
-xp_exp_company = ['header/h5[@class="item-subtitle"]/a/span',
-                  'header/h5[@class="item-subtitle"]/a',
-                  'header/h5[@class="item-subtitle"]']
+xp_exp_company = 'header/h5[@class="item-subtitle"]'
 xp_exp_daterange = 'div[@class="meta"]/span[@class="date-range"]/time'
 xp_exp_location = 'div[@class="meta"]/span[@class="location"]'
-xp_exp_description = ['div[@class="description"]/p',
-                      'p[@class="description"]']
+xp_exp_description = '*[@class="description"]'
 
 # education xpaths
-xp_edu_institute = ['header/*[@class="item-title"]/a/span',
-                    'header/*[@class="item-title"]/a',
-                    'header/*[@class="item-title"]']
+xp_edu_institute = 'header/*[@class="item-title"]'
 xp_edu_url = 'header/*[@class="item-title"]/a'
-xp_edu_course = ['header/*[@class="item-subtitle"]/span',
-                 'header/*[@class="item-subtitle"]']
+xp_edu_course = 'header/*[@class="item-subtitle"]'
 xp_edu_daterange = 'div[@class="meta"]/span[@class="date-range"]/time'
-xp_edu_description = ['div[@class="description"]/p',
-                      'p[@class="description"]']
+xp_edu_description = '*[@class="description"]'
+
+
+# login page url regexp
+re_login = re.compile(r'^https?://(www|[a-z][a-z])\.linkedin\.com(/hp)?/?$')
+
+
+def check_profile(url, redirect_url, timestamp, doc):
+    title_elem = doc.xpath('/html/head/title')
+    invalid_titles = [
+        '999: request failed',
+        'Profile Not Found | LinkedIn']
+    if not title_elem or title_elem[0].text in invalid_titles:
+        return False
+
+    if re_login.match(redirect_url):
+        print('Got login page for URL {0:s}'.format(url))
+        return False
+
+    if not doc.xpath(xp_name):
+        print('Missing name field for URL {0:s}'.format(url))
+        return False
+    
+    return True
 
 
 def parse_skill(element):
@@ -69,8 +84,8 @@ def parse_skill(element):
 def parse_experience(element):
     d = {}
     d['current'] = element.get('data-section') == 'currentPositionsDetails'
-    d['title'] = extract(element, xp_exp_title, required=True)
-    d['company'] = extract(element, xp_exp_company)
+    d['title'] = extract(element, xp_exp_title, format_content, required=True)
+    d['company'] = extract(element, xp_exp_company, format_content)
     url = extract(element, xp_exp_company_url, get_attr('href'))
     d['company_url'] = url.split('?')[0] if url else None
     daterange = extract_many(element, xp_exp_daterange)
@@ -89,10 +104,10 @@ def parse_experience(element):
 
 def parse_education(element):
     d = {}
-    d['institute'] = extract(element, xp_edu_institute)
+    d['institute'] = extract(element, xp_edu_institute, format_content)
     url = extract(element, xp_edu_url, get_attr('href'))
     d['url'] = url.split('?')[0] if url else None
-    d['course'] = extract(element, xp_edu_course)
+    d['course'] = extract(element, xp_edu_course, format_content)
     daterange = extract_many(element, xp_edu_daterange)
     d['start'] = d['end'] = None
     if len(daterange) > 0:
@@ -107,6 +122,9 @@ def parse_education(element):
 
 
 def parse_profile(url, redirect_url, timestamp, doc):
+    if not check_profile(url, redirect_url, timestamp, doc):
+        return None
+    
     d = {'url' : redirect_url,
          'timestamp' : timestamp}
 
@@ -114,12 +132,11 @@ def parse_profile(url, redirect_url, timestamp, doc):
     d['name'] = extract(doc, xp_name, required=True)
     d['location'] = extract(doc, xp_location)
     d['sector'] = extract(doc, xp_sector)
-    d['title'] = extract(doc, xp_title)
+    d['title'] = extract(doc, xp_title, format_content)
     d['description'] = extract(doc, xp_description, format_content)
     d['connections'] = extract(doc, xp_connections)
 
     d['skills'] = extract_many(doc, xp_skills, parse_skill)
-    d['skills'].extend(extract_many(doc, xp_extraskills, parse_skill))
     d['experiences'] = extract_many(doc, xp_experiences, parse_experience)
     d['educations'] = extract_many(doc, xp_educations, parse_education)
     

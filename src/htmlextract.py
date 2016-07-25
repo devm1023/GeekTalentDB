@@ -31,6 +31,11 @@ def _tokenize_element(element):
     for child in element.getchildren():
         if child.tag == 'br':
             tokens.append('\n')
+        elif child.tag == 'p':
+            if len(tokens) < 1 or tokens[-1] != '\n':
+                tokens.extend(['\n', '\n'])
+            elif len(tokens) < 2 or tokens[-2] != '\n':
+                tokens.append('\n')
         tokens.extend(_tokenize_element(child))
         tokens.extend(_tokenize_string(child.tail))
     return tokens
@@ -43,7 +48,7 @@ def format_content(element):
         if strings and not token.isspace() and not strings[-1].isspace():
             strings.append(' ')
         strings.append(token)
-    return ''.join(strings)
+    return ''.join(strings).strip()
 
 
 def _extract(doc, xpaths, f=get_stripped_text, one=False,
