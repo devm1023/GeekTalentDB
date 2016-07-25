@@ -12,6 +12,7 @@ class LinkedInCrawler(Crawler):
         r'^https?://uk\.linkedin\.com/pub/dir/')
     ukname_url_pattern = re.compile(
         r'^https?://uk\.linkedin\.com/pub/dir/.+/gb-0-United-Kingdom')
+    re_login = re.compile(r'^https?://(www|[a-z][a-z])\.linkedin\.com(/hp)?/?$')
 
     def __init__(self, site='linkedin', **kwargs):
         if 'request_args' not in kwargs:
@@ -33,7 +34,14 @@ class LinkedInCrawler(Crawler):
     
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
-        valid = bool(doc.xpath('/html/head/title'))
+        valid = False
+        title_elem = doc.xpath('/html/head/title')
+        invalid_titles = ['999: request failed']
+        if title_elem and title_elem[0] not in invalid_titles:
+            valid = True
+        if cls.re_login.match(redirect_url):
+            valid = False
+            
         if not valid:
             leaf = None,
             links = []

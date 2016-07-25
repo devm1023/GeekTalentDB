@@ -48,8 +48,9 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
     success = False
     try:
         result = requests.get(url, **request_args)
-        # result = Response(url=url,
-        #                   text='<html><head><title></title></head></html>')
+        if result.status_code < 200 or result.status_code > 399:
+            raise RuntimeError('Received status code {0:d}.' \
+                               .format(result.status_code))
         success = True
     except Exception as e:
         logger.log('Failed getting URL {0:s}\n{1:s}\n' \
