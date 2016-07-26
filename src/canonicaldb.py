@@ -49,7 +49,7 @@ from sqlalchemy import \
     Float, \
     Boolean, \
     func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, aliased
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
@@ -1992,3 +1992,60 @@ class CanonicalDB(SQLDatabase):
         location.nuts3 = nuts3
 
         return location
+
+    
+    def find_entities(self, querytype, source, language, querytext,
+                      min_profile_count=None, min_sub_document_count=None,
+                      exact=False, normalize=True):
+        if exact:
+            if normalize:
+                entitynames = [normalized_entity(
+                    querytype, source, language, querytext)]
+            else:
+                entitynames = [make_nrm_name(
+                    querytype, source, language, querytext)]
+        else:
+            if normalize:
+                words = split_nrm_name(normalized_entity(
+                    querytype, source, language, querytext))[-1].split()
+            else:
+                words = querytext.split()
+            words = list(set(words))
+            if not words:
+                return [], []
+
+            q = self.query(Word.nrm_name)
+            filters = [Word.type == querytype,
+                       Word.source == source,
+                       Word.language == language,
+                       Word.word == words[0]]
+            for word in words[1:]:
+                word_alias = aliased(Word)
+                q = q.join(word_alias, word_alias.nrm_name == Word.nrm_name)
+                filters.append(word_alias.word == word)
+            q = q.filter(*filters).distinct()
+            entitynames = [entity for entity, in q]
+
+        entities = []
+        if entitynames:
+            q = self.query(Entity.nrm_name,
+                           Entity.name,
+                           Entity.profile_count,
+                           Entity.sub_document_count) \
+                    .filter(Entity.nrm_name.in_(entitynames))
+            if min_profile_count is not None:
+                q = q.filter(Entity.profile_count >= min_profile_count)
+            if min_sub_document_count is not None and querytype != 'sector':
+                q = q.filter(Entity.sub_document_count \
+                             >= min_sub_document_count)
+            for nrm_name, name, profile_count, sub_document_count in q:
+                if not profile_count:
+                    profile_count = 0
+                if not sub_document_count:
+                    sub_document_count = 0
+                entities.append((nrm_name, name, profile_count,
+                                 sub_document_count))
+
+        return entities
+
+
