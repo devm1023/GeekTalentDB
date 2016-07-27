@@ -318,9 +318,10 @@ def add_uwprofile(dtdb, uwprofiledoc, dtsession, logger):
         for subdocument in uwprofiledoc.get('subDocuments', []):
             check_field(subdocument, 'type',
                        ['profile-experience',
+                        'profile-jobs',
                         'profile-education',
                         'profile-tests'])
-            if subdocument['type'] == 'profile-experience':
+            if subdocument['type'] in ['profile-experience', 'profile-jobs']:
                 experience = {}
                 for name, fieldname, fieldtype, required in \
                     [('name',        'name',        str,   False),
@@ -400,7 +401,7 @@ def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
               False),
              ('categories',  'categories',  [str], False),
              ('indexed_on',  'indexedOn',   int,   True),
-             ('crawled_date', 'crawledDate', int,   True),
+             ('crawled_date', 'crawledDate', int,   False),
              ('crawl_fail_count', 'crawlFailCount', int, True),
             ]:
             muprofile[name] = get_field(muprofiledoc, fieldname, fieldtype,
@@ -425,14 +426,14 @@ def add_muprofile(dtdb, muprofiledoc, dtsession, logger):
                      ('name',        'name',        str,   False),
                      ('category_name', 'categoryName', str, False),
                      ('category_shortname', 'categoryShortname', str, False),
-                     ('category_id', 'categoryId',  str,   False),
+                     ('category_id', 'categoryId',  int,   False),
                      ('description', 'description', str,   False),
                      ('url',         'url',         'url', False),
                      ('urlname',     'urlname',     str,   False),
                      ('picture_url', 'pictureUrl',  'url', False),
                      ('picture_id',  'pictureId',   int,   False),
                      ('hq_picture_url', 'HQPictureUrl', 'url', False),
-                     ('thumb_picture_url', 'url', False),
+                     ('thumb_picture_url', 'url',   str,   False),
                      ('join_mode',   'joinMode',    str,   False),
                      ('rating',      'rating',      float, False),
                      ('organizer_name', 'organizerName', str, False),
