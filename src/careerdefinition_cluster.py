@@ -42,12 +42,13 @@ def get_skillvectors(filename, titles_from):
                     continue
                 title_set.discard(title)
                 titles.append(title)
-                titlecounts.append(int(row[4]))
+                titlecount = int(row[4])
+                titlecounts.append(titlecount)
                 skillvectors.append({})
             elif row[0] == 's':
                 if skip:
                     continue
-                skillvectors[-1][row[1]] = float(row[2])
+                skillvectors[-1][row[1]] = float(row[2])*titlecount
             else:
                 raise IOError('Invalid row {0:s}'.format(row))
 
