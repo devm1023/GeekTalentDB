@@ -15,7 +15,7 @@ import os
 from datetime import datetime, timedelta
 import random
 
-from lxml.html import fromstring as parse_html
+from htmlextract import parse_html
 
 from tor import new_identity, TorProxyList
 import requests
