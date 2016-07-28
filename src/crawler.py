@@ -168,6 +168,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
             leaf = None
             if response is not None:
                 html = response.text
+                parsed_html = None
                 try:
                     # try parsing the HTML
                     parsed_html = parse_html(html)
@@ -178,9 +179,10 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                                .format(time_to_microsec(timestamp))
                     with open(filename, 'w') as htmlfile:
                         htmlfile.write(html)
-                redirect_url = response.url
-                valid, leaf, links = parsefunc(site, url, redirect_url,
-                                               parsed_html)
+                if parsed_html is not None:
+                    redirect_url = response.url
+                    valid, leaf, links = parsefunc(site, url, redirect_url,
+                                                   parsed_html)
                 if not valid:
                     leaf = None
                 
