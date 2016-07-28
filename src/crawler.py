@@ -468,7 +468,7 @@ class Crawler(ConfigurableObject):
         q = crdb.query(Website.url) \
                 .filter(website_filter,
                         Website.site == site,
-                        Website.fail_count < max_fail_count)
+                        Website.fail_count <= max_fail_count)
         if max_level is not None:
             q = q.filter(Website.level <= max_level)
         if urls_from:
