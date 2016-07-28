@@ -162,10 +162,12 @@ def split_process(query, f, batchsize, njobs=1, args=[],
         fromrow_batch = None
         torow_batch = None
         parallel_process = ParallelFunction(f,
-                                           batchsize=1,
-                                           workdir=workdir,
-                                           prefix=prefix,
-                                           tries=1)
+                                            batchsize=1,
+                                            workdir=workdir,
+                                            prefix=prefix,
+                                            tries=1,
+                                            cleanup=1,
+                                            append=False)
         for fromid, toid, fromrow, torow, nrows in windows(query, batchsize):
             pargs.append([len(pargs), fromid, toid]+args)
             if fromid_batch is None or fromid < fromid_batch:
@@ -190,6 +192,8 @@ def split_process(query, f, batchsize, njobs=1, args=[],
                 toid_batch = None
                 fromrow_batch = None
                 torow_batch = None
+
+            parallel_process.append = True
         if pargs:
             starttime = datetime.now()
             _log_batchstart(logger, starttime, fromid_batch)

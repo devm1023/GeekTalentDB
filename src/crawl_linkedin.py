@@ -61,6 +61,9 @@ class LinkedInCrawler(Crawler):
         else:
             leaf = True
             links = []
+            if not doc.xpath('//*[@id="name"]'):
+                valid = False
+                leaf = None
 
         return valid, leaf, links
 

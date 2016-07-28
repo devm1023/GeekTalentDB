@@ -11,6 +11,7 @@ from htmlextract import parse_html, extract, extract_many, \
     get_attr, format_content
 
 import re
+from datetime import datetime
 import argparse
 
 
@@ -53,7 +54,7 @@ xp_edu_description = '*[@class="description"]'
 re_login = re.compile(r'^https?://(www|[a-z][a-z])\.linkedin\.com(/hp)?/?$')
 
 
-def check_profile(url, redirect_url, timestamp, doc):
+def check_profile(url, redirect_url, timestamp, doc, logger=Logger(None)):
     title_elem = doc.xpath('/html/head/title')
     invalid_titles = [
         '999: request failed',
@@ -62,11 +63,11 @@ def check_profile(url, redirect_url, timestamp, doc):
         return False
 
     if re_login.match(redirect_url):
-        print('Got login page for URL {0:s}'.format(url))
+        logger.log('Got login page for URL {0:s}\n'.format(url))
         return False
 
     if not doc.xpath(xp_name):
-        print('Missing name field for URL {0:s}'.format(url))
+        logger.log('Missing name field for URL {0:s}\n'.format(url))
         return False
     
     return True
@@ -122,7 +123,8 @@ def parse_education(element):
 
 
 def parse_profile(url, redirect_url, timestamp, doc):
-    if not check_profile(url, redirect_url, timestamp, doc):
+    logger = Logger()
+    if not check_profile(url, redirect_url, timestamp, doc, logger=logger):
         return None
     
     d = {'url' : redirect_url,
@@ -143,7 +145,7 @@ def parse_profile(url, redirect_url, timestamp, doc):
     return d
 
 
-def parse_profiles(jobid, from_url, to_url):
+def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     logger = Logger()
     filters = [Website.valid,
                Website.leaf,
@@ -163,6 +165,10 @@ def parse_profiles(jobid, from_url, to_url):
         WebsiteAlias = aliased(Website, subq)
         q = crdb.query(WebsiteAlias) \
                 .filter(subq.c.timestamp == subq.c.maxts)
+        if from_ts is not None:
+            q = q.filter(subq.c.maxts >= from_ts)
+        if to_ts is not None:
+            q = q.filter(subq.c.maxts < to_ts)
 
         def process_row(website):
             doc = parse_html(website.html)
@@ -177,7 +183,15 @@ def parse_profiles(jobid, from_url, to_url):
                 psdb.add_from_dict(parsed_profile, LIProfile)
             
         process_db(q, process_row, psdb, logger=logger)
-        
+
+
+def make_datetime(date):
+    if date is None:
+        return None
+    if '_' in date:
+        return datetime.strptime(date, '%Y-%m-%d_%H:%M:%S')
+    return datetime.strptime(date, '%Y-%m-%d')
+
 
 def main(args):
     logger = Logger()
@@ -185,6 +199,12 @@ def main(args):
     filters = [Website.valid,
                Website.leaf,
                Website.site == 'linkedin']
+    from_ts = make_datetime(args.from_date)
+    if from_ts:
+        filters.append(Website.timestamp >= from_ts)
+    to_ts = make_datetime(args.to_date)
+    if to_ts:
+        filters.append(Website.timestamp < to_ts)
     if args.from_url is not None:
         filters.append(Website.url >= args.from_url)
     
@@ -192,13 +212,17 @@ def main(args):
         q = crdb.query(Website.url).filter(*filters)
 
         split_process(q, parse_profiles, args.batch_size,
-                      njobs=args.jobs, logger=logger,
+                      args=[from_ts, to_ts], njobs=args.jobs, logger=logger,
                       workdir='jobs', prefix='parse_linkedin')
             
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--from-date',
+                        help='Start of date range. Format: YYYY-MM-DD_HH:MM:SS')
+    parser.add_argument('--to-date',
+                        help='End of date range. Format: YYYY-MM-DD_HH:MM:SS')
     parser.add_argument('--jobs', type=int, default=1,
                         help='Number of parallel jobs.')
     parser.add_argument('--batch-size', type=int, default=1000,

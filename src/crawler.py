@@ -1,3 +1,13 @@
+"""Crawl websites and store the HTML in the `crawl` database.
+
+This module provides the ``Crawler`` class which serves as a base class for
+objects that crawl specific websites and store the HTML in the `crawl` database.
+
+Created by: Martin Wiebusch
+Last modified: 2016-07-27 MW
+
+"""
+
 __all__ = ['Crawler']
 
 import time
@@ -12,7 +22,6 @@ import requests
 
 from sqlalchemy import func
 import numpy as np
-import uuid
 
 from crawldb import *
 from logger import Logger
@@ -22,16 +31,15 @@ from pgvalues import in_values
 from configurable_object import *
 from logger import Logger
 
-# DEBUG
-from pprint import pprint
-# from collections import namedtuple
-# Response = namedtuple('Response', ['url', 'text'])
-
 EXCESS = 100
 MIN_EXCESS = 10
+EPOCH = datetime(1970, 1, 1)
 
 
 def equipartition(l, p):
+    """Partition list `l` into `p` (approximately) even-sized chunks.
+
+    """
     if p < 1:
         raise ValueError('Number of partitions must be greater than zero.')
     if p == 1:
@@ -39,9 +47,41 @@ def equipartition(l, p):
     bounds = np.linspace(0, len(l), p+1, dtype=int)
     return [l[lb:ub] for lb, ub in zip(bounds[:-1], bounds[1:])]
 
+
+def time_to_microsec(t):
+    """Convert time `t` to an integer timestamp at microsecond precision.
+
+    Returns the number of microseconds after Jan 1, 1970.
+
+    """
+    return int((t - EPOCH).total_seconds()*1e6)
+
+
 def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
                               'socks5://127.0.0.1:9050'),
             request_args={}, timeout=None, logger=Logger(None)):
+    """Attempt to retreive URL through a given proxy.
+
+    Note:
+      This function catches all exceptions from ``requests.get``, logs them and
+      returns ``None`` in the case of a failed request.
+
+    Args:
+      site (str): String identifying the crawled website. Currently not used.
+      url (str): The URL to visit.
+      proxy (tuple of str, optional): Tuple holding the URLs of the http and
+        https proxies (in that order). Default settings assume a local Tor
+        proxy.
+      request_args (dict, optional): Keyword arguments for the call to
+        ``requests.get``. Defaults to ``{}``.
+      timeout (float or None, optional): Timeout for the request in secs.
+        Defaults to ``None``, in which case no timeout is set.
+      logger (Logger object, optional): Object for writing log messages.
+
+    Returns:
+      A valid response object or ``None`` in case of a failed request.
+
+    """
     request_args = request_args.copy()
     request_args['proxies'] = {'http': proxy[0], 'https': proxy[1]}
     request_args['timeout'] = timeout
@@ -62,6 +102,34 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
 
 def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                request_args, proxies, timeout, hook, proxy_states):
+    """Sequentially crawl a list of URLs and store the HTML.
+
+    Note:
+      For each request this function randomly selects a proxy from a supplied
+      list of proxies. If required, state information about the proxies can
+      be supplied via the `proxy_states` argument and managed via the `hook`
+      argument.
+
+    Args:
+      site (str): String identifying the website.
+      urls (list of str): List of URLs to visit.
+      parsefunc (callable): Function for validating the HTML and extracting
+        links. See documentation of ``Crawler.parse``.
+      database (session object): Database session for storing the HTML.
+      deadline (datetime object): Time by which the function should terminate.
+        URLs which were not crawled by `deadline` will be skipped.
+      crawl_rate (float): Desired crawl rate in requests per second.
+      request_args (dict): Keyword arguments for ``requests.get``.
+      proxies (list of tuples of str): List of proxies to (randomly) choose
+        from. Each tuple holds the URLs of the http and https proxy (in that
+        order).
+      timeout (float): Timeout for requests in secs.
+      hook (callable or None): Hook for updating proxy states. Called after
+        each request. See ``Crawler.on_visit`` for function signature.
+      proxy_states (list of object): Objects describing the states of the
+        proxies.
+
+    """
     logger = Logger()
     nproxies = len(proxies)
     if nproxies < 1:
@@ -101,10 +169,13 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
             if response is not None:
                 html = response.text
                 try:
+                    # try parsing the HTML
                     parsed_html = parse_html(html)
                 except:
+                    # write HTML to a file if parsing failed
                     logger.log('Error parsing HTML.\n')
-                    filename = 'parsefail-{0:s}.html'.format(str(uuid.uuid4()))
+                    filename = 'parsefail-{0:d}.html' \
+                               .format(time_to_microsec(timestamp))
                     with open(filename, 'w') as htmlfile:
                         htmlfile.write(html)
                 redirect_url = response.url
@@ -119,6 +190,10 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 logger.log('Invalid response for {0:s}\n' \
                            .format(url))
 
+            # Create a new row if the last visit to this site was successful.
+            # Update the row this visit was successful and this is the first
+            # visit or the last one was unsuccessful.
+            # Increment fail_count if this and the last visit were unsuccessful.
             website = crdb.query(Website) \
                           .filter(Website.site == site,
                                   Website.url == url) \
@@ -128,11 +203,6 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 raise IOError('URL {0:s} not found for site {1:s}.' \
                               .format(url, repr(site)))
             if website.valid:
-                # DEBUG
-                logger.log('{0:s} {1:s} {2:s} {3:s}\n' \
-                           .format(str(timestamp), str(website.valid),
-                                   str(website.timestamp), website.url))
-                raise RuntimeError('Recrawling url {0:s}'.format(url))
                 website = Website(site=site, url=url, fail_count=0,
                                   level=website.level)
                 crdb.add(website)
@@ -166,10 +236,12 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
                 crdb.commit()
 
             count += 1
+            # Update proxy state.
             if hook is not None:
                 proxy_states[iproxy] \
                     = hook(proxy_states[iproxy], valid, iproxy, proxy)
-            
+
+            # Throttle crawl to desired crawl rate
             request_time = (datetime.utcnow() - timestamp).total_seconds()
             if request_time < min_request_time:
                 time.sleep(min_request_time - request_time)
@@ -316,7 +388,7 @@ class Crawler(ConfigurableObject):
 
         Returns:
           valid (bool): True if the website was valid.
-          leaf (bool): True of the website is a leaf (i.e. contains no links
+          leaf (bool): True if the website is a leaf (i.e. contains no links
             that need to be followed).
           links (list): A list of tuples of the form ``(url, is_leaf)`` holding
             the links found on the web page, where `url` is the link URL and

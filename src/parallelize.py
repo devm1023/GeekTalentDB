@@ -112,8 +112,8 @@ class LocalRunner(BasicRunner):
     """
     def __init__(self, *args, **kwargs):
         BasicRunner.__init__(self, *args, **kwargs)
-        self.outfile = open(os.path.join(self.workdir, self.stdout), 'w')
-        self.errfile = open(os.path.join(self.workdir, self.stderr), 'w')
+        self.outfile = open(os.path.join(self.workdir, self.stdout), 'a')
+        self.errfile = open(os.path.join(self.workdir, self.stderr), 'a')
         self.outfile.write(' '.join([self.pyexec, self.script]+self.args)+'\n')
         self.outfile.flush()
         self._proc = subprocess.Popen([self.pyexec, self.script]+self.args,
@@ -213,8 +213,8 @@ class SlurmRunner(BasicRunner):
 
 def _parallelize(f, batches, workdir='.', prefix=None, prelude=None,
                  runner=LocalRunner, tries=1, log=sys.stdout, loglevel=1,
-                 refresh=1, cleanup=0, autocancel=True, options=[],
-                 timeout=None):
+                 refresh=1, cleanup=0, append=False, autocancel=True,
+                 options=[], timeout=None):
     if os.path.exists(workdir):
         if not os.path.isdir(workdir):
             raise RuntimeError('Cannot create `'+workdir+'`. File exists.')
@@ -277,8 +277,9 @@ fout.close()
 
     for i in range(nbatches):
         _silentremove(stem+'.r'+str(i))
-        _silentremove(stem+'.o'+str(i))
-        _silentremove(stem+'.e'+str(i))
+        if not append:
+            _silentremove(stem+'.o'+str(i))
+            _silentremove(stem+'.e'+str(i))
 
     fails = [0]*nbatches
     finished = [False]*nbatches
@@ -432,6 +433,8 @@ class ParallelFunction:
         deleted after all jobs have finished. Defaults to 2 in which case all
         files except non-empty error logs are removed.  If `cleanup` is 0 no
         files are removed.
+      append (bool, optional): Whether output and error files of the
+        sub-processes should be appended to. Defaults to ``False``.
       options (str or list of str, optional): Extra command line options for the
         batch system. Defaults to ``[]``.
       timeout (float or None, optional): Number of seconds after which parallel
@@ -440,9 +443,9 @@ class ParallelFunction:
 
     """
     def __init__(self, f, njobs=2, batchsize=None, workdir='.', prefix=None,
-                 prelude=None, runner=LocalRunner, tries=1, log=None, loglevel=1,
-                 refresh=1, cleanup=2, autocancel=True, options=[],
-                 timeout=None):
+                 prelude=None, runner=LocalRunner, tries=1, log=None,
+                 loglevel=1, refresh=1, cleanup=2, append=False,
+                 autocancel=True, options=[], timeout=None):
         self.f = f
         self.njobs = njobs
         self.batchsize = batchsize
@@ -455,6 +458,7 @@ class ParallelFunction:
         self.loglevel = loglevel
         self.refresh = refresh
         self.cleanup = cleanup
+        self.append = append
         self.autocancel = autocancel
         self.options = options
         self.timeout = timeout
@@ -493,6 +497,7 @@ class ParallelFunction:
                                loglevel=self.loglevel,
                                refresh=self.refresh,
                                cleanup=self.cleanup,
+                               append=self.append,
                                autocancel=self.autocancel,
                                options=self.options,
                                timeout=self.timeout)
