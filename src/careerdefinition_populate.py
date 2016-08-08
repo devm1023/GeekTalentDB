@@ -4,6 +4,7 @@ from canonicaldb import *
 from entitycloud import entity_cloud, relevance_score
 from textnormalization import normalized_entity, make_nrm_name, split_nrm_name
 from windowquery import collapse
+from pgvalues import in_values
 from careerdefinitiondb import CareerDefinitionDB, Sector
 from entity_mapper import EntityMapper
 from sqlalchemy import func, or_
@@ -75,9 +76,11 @@ def get_skill_cloud(cndb, mapper, nrm_sector, profilec, categoryc,
     if titles_nosf is not None:
         titles_filter = []
         if titles_nosf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_nosf))
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_nosf))
         if titles_sf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_sf) & \
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_sf) & \
                                  LIProfile.nrm_sector.in_(sectors))
         coincidenceq = coincidenceq.filter(or_(*titles_filter))
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
@@ -117,9 +120,11 @@ def get_company_cloud(cndb, mapper, nrm_sector, profilec, categoryc,
     if titles_nosf is not None:
         titles_filter = []
         if titles_nosf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_nosf))
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_nosf))
         if titles_sf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_sf) & \
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_sf) & \
                                  LIProfile.nrm_sector.in_(sectors))
         coincidenceq = coincidenceq.filter(or_(*titles_filter))
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
@@ -222,9 +227,11 @@ def get_subjects(cndb, mapper, nrm_sector, titles_nosf, titles_sf,
     if titles_nosf is not None:
         titles_filter = []
         if titles_nosf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_nosf))
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_nosf))
         if titles_sf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_sf) & \
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_sf) & \
                                  LIProfile.nrm_sector.in_(sectors))
         q = q.filter(or_(*titles_filter))
     else:
@@ -268,9 +275,11 @@ def get_institutes(cndb, mapper, nrm_sector, titles_nosf, titles_sf,
     if titles_nosf is not None:
         titles_filter = []
         if titles_nosf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_nosf))
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_nosf))
         if titles_sf:
-            titles_filter.append(LIProfile.nrm_curr_title.in_(titles_sf) & \
+            titles_filter.append(in_values(LIProfile.nrm_curr_title,
+                                           titles_sf) & \
                                  LIProfile.nrm_sector.in_(sectors))
         q = q.filter(or_(*titles_filter))
     else:
