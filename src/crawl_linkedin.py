@@ -1,3 +1,7 @@
+"""Crawl public LinkedIn profiles.
+
+"""
+
 import conf
 from crawler import Crawler
 from tor import TorProxyList, new_identity
@@ -6,6 +10,17 @@ import re
 import argparse
 
 class LinkedInCrawler(Crawler):
+    """Crawler class for LinkedIn profiles and the people directory.
+
+    Args:
+      site (str, optional): String ID of the crawled website. Defaults to
+        ``'linkedin'``.
+      **kwargs (optional): All other keyword arguments are passed to the
+        constructor of ``crawler.Crawler``.
+
+    """
+
+    # static regexes for matching different types of URLs
     directory_url_pattern = re.compile(
         r'^https?://uk\.linkedin\.com/directory/')
     name_url_pattern = re.compile(
@@ -36,9 +51,11 @@ class LinkedInCrawler(Crawler):
     def parse(cls, site, url, redirect_url, doc):
         valid = False
         title_elem = doc.xpath('/html/head/title')
+        # check for blacklisted page titles
         invalid_titles = ['999: request failed']
         if title_elem and title_elem[0] not in invalid_titles:
             valid = True
+        # check if we've been redirected to login page
         if cls.re_login.match(redirect_url):
             valid = False
             
@@ -46,21 +63,26 @@ class LinkedInCrawler(Crawler):
             leaf = None,
             links = []
         elif cls.directory_url_pattern.match(redirect_url):
+            # We are crawling the people directory
             leaf = False
             linktags = doc.xpath(
                 '//*[@id="seo-dir"]/div/div[@class="section last"]/div/ul/li/a')
             links = [(tag.get('href'), False) for tag in linktags]
         elif cls.ukname_url_pattern.match(redirect_url):
+            # We're on a name disambiguation page restricted to UK profiles
             leaf = False
             linktags = doc.xpath('//div[@class="profile-card"]/div/h3/a')
             links = [(tag.get('href'), True) for tag in linktags]
         elif cls.name_url_pattern.match(redirect_url):
+            # We're on an international name disambiguation page
             leaf = False
             linktags = doc.xpath('//a[@class="country-specific-link"]')
             links = [(tag.get('href'), False) for tag in linktags]
         else:
+            # We're on a profile page
             leaf = True
             links = []
+            # Check if the name field exists
             if not doc.xpath('//*[@id="name"]'):
                 valid = False
                 leaf = None
@@ -107,6 +129,7 @@ if __name__ == "__main__":
     
     logger = Logger()
 
+    # header recommended by shader.io
     headers = {
         'Accept-Encoding' : 'gzip, deflate, br',
         'User-Agent' : 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0',

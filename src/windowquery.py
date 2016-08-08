@@ -1,3 +1,61 @@
+"""Functions for partitioning queries and parallel processing of the results.
+
+The most common pattern for processing the results of a large query in
+parallel uses the ``split_process`` and ``process_db`` functions. It goes
+as follows::
+
+  from windowquery import split_process, process_db
+  from logger import Logger
+  from mydb import MyDB    # database session class
+  from mydb import MyTable # some table in mydb
+  from myotherdb import MyOtherDB    # another database session class
+  from myotherdb import MyOtherTable # some table in myotherdb
+
+
+  db1 = MyDB(...)
+  logger = Logger()
+
+
+  def process_rows(jobid, fromid, toid, *args):
+      # can't use global object here because of parallelisation
+      db1 = MyDB(...) 
+      logger = Logger()
+
+      db2 = MyOtherDB(...)
+
+      # construct a query with the same filters as the one in the global
+      # scope, but also restrict the `id` column to the range given by
+      # `fromid` and `toid`. You can use `args` to pass filter
+      # parameters from the global scope.
+      q = db1.query(...) \
+             .filter(...) \
+             .filter(MyTable.id >= fromid)
+      if toid is not None:
+          q = q.filter(MyTable.id < toid)
+      
+      def process_row(row):
+          newrow = MyOtherTable(...) # construct from row
+          db2.add(newrow)
+
+      process_db(q, process_row, db2, logger=logger, batchsize=100)
+      
+  
+  # query to select the IDs to process.
+  q = db1.query(MyTable.id) \
+         .filter(...)
+  batchsize = 1000
+  # extra arguments passed to process_rows
+  args = [...] 
+  split_process(q, process_rows, batchsize, njobs=2, args=args,
+                logger=logger, workdir='myjobs', prefix='myprefix')
+
+
+
+Created by: Martin Wiebusch
+Last modified: 2016-08-08 MW
+
+"""
+
 __all__ = [
     'windows',
     'window_query',
@@ -13,8 +71,9 @@ from parallelize import ParallelFunction
 from datetime import datetime
 from math import ceil
 
+
 def windows(query, windowsize=None, nwindows=None):
-    """Generate a series of intervals break a given column into windows.
+    """Generate a series of intervals to break a given column into windows.
 
     Args:
       query (sqlalchemy Query object): The query returning the values to split
@@ -71,7 +130,7 @@ def windows(query, windowsize=None, nwindows=None):
 
 
 def window_query(q, column, windowsize=10000, values=None):
-    """"Break a query into windows on a given column.
+    """"Break a query with many results into windows to save RAM.
 
     Args:
       q (query object): The query to split into windows.
@@ -106,6 +165,7 @@ def _log_batchstart(logger, starttime, fromid):
                .format(starttime.strftime('%Y-%m-%d %H:%M:%S%z')))
     logger.log('First record: {0:s}\n'.format(repr(fromid)))
 
+
 def _log_batchend(logger, starttime, endtime, firststart,
                   fromrow, torow, nrows):
     logger.log('Completed batch {0:s} at {1:f} records/sec.\n' \
@@ -124,22 +184,47 @@ def split_process(query, f, batchsize, njobs=1, args=[],
                  logger=Logger(None), workdir='.', prefix=None):
     """Apply a function to ranges of distinct values returned by a query.
 
+    This function partitions the values returned by `query` into intervals of
+    at most `batchsize` distinct values. It then executes the function `f`
+    in parallel, passing to it a job ID and the lower and upper bounds of the
+    intervals.
+
+    Example:
+      Assume that `query` returns the letters 'a' to 'z' (in any order and
+      possibly with repetitions). Then
+
+          split_process(query, f, 10, njobs=2, args=['foo', 'bar'])
+
+      will first execute
+    
+          f(1, 'a', 'k', 'foo', 'bar')
+          f(2, 'k', 'u', 'foo', 'bar')
+
+      in parallel and then execute
+
+          f(1, 'u', None, 'foo', 'bar')
+
+    If `logger` is supplied messages indicating the progress and the 
+    estimated time to finish will be logged.
+
     Args:
       query (sqlalchemy Query object): The query returning the values to split
-        on. `query` must have exactly one column.
-      f (callable): The function to apply to the ranges. The first two arguments
-        passed to `f` are the lower (inclusive) and upper (exclusive) limits for
-        the values returned by `query`. The second argument may be ``None``,
-        which means no upper limit. The third argument passed to `f` is the
-        ID of the parallel job.
+        on. `query` must have exactly one column, but the returned values do
+        not need to be distinct or sorted.
+      f (callable): The function to apply to the ranges. `f` will be called
+        in parallel as ``f(i, lb, ub, *args)``, where `i` is the index of the
+        parallel job, `lb` is the lower (inclusive) bound of a subrange of
+        the values returned by `query`, `ub` is the upper (exclusive) bound
+        of the subrange (or ``None`` for the last batch), and `args` are
+        additional arguments supplied in `args`.
       batchsize (int): The size (i.e. number of distinct `query` values) of the
         intervals that are passed to `f`.
       njobs (int, optional): Number of parallel processes to start. Defaults to
         1.
       args (list, optional): Additional arguments to pass to `f`. Defaults to
         ``[]``.
-      logger (Logger object, optional): Object to write log messages to. Defaults
-        to ``Logger(None)``.
+      logger (Logger object, optional): Object to write log messages to.
+        Defaults to ``Logger(None)``.
       workdir (str, optional): Working directory for parallel jobs. Defaults to
         ``'.'``.
       prefix (str or None, optional): Prefix for creating temporary files.
@@ -205,6 +290,26 @@ def split_process(query, f, batchsize, njobs=1, args=[],
 
 def process_db(q, f, db, batchsize=1000, logger=Logger(None),
                msg='process_db: {0:d} records processed.\n'):
+    """Apply a function to all rows returned by query and commit in bulk.
+
+    This function applies `f` to all rows returned by `q` and calls 
+    ``db.commit()`` after processing `batchsize` rows. Progress information
+    will be logged if `logger` is supplied.
+
+    Args:
+      q (query object): Query yielding rows to process.
+      f (callable): Function to process rows. It will be called as
+        ``f(row)`` where `row` is a row returned by `q` (usually a tuple).
+      db (session object): The database session to commit. The function `f`
+        should insert or update rows in `db`.
+      batchsize (int, optional): Number of processed rows after which
+        ``db.commit()`` is called.
+      logger (Logger object, optional): Object to write log messages to.
+      msg (str, optional): Format string for constructing log messages. The
+        messages will be constructed with ``msg.format(n)`` where `n` is the
+        number of rows processed so far.
+
+    """
     recordcount = 0
     for rec in q:
         f(rec)
@@ -218,6 +323,33 @@ def process_db(q, f, db, batchsize=1000, logger=Logger(None),
 
 
 def collapse(q, on=1):
+    """Collapse the results of a query over one or more of its columns.
+
+    Example:
+      Assume that `q` yields the following rows:
+
+        ('foo', 1 'a')
+        ('foo', 1 'b')
+        ('foo', 2 'c')
+        ('bar', 1 'd')
+        ('bar', 1 'e')
+        ('bar', 1 'f')
+        ('bar', 2 'g')
+        ('bar', 2 'h')
+
+      Then ``collapse(q, on=2)`` will yield
+      
+        ('foo', 1, ['a', 'b'])
+        ('foo', 2, ['c'])
+        ('bar', 1, ['d', 'e', 'f'])
+        ('bar', 2, ['g', 'h'])
+
+    Args:
+      q (query object): The query to collapse.
+      on (int, optional): The number of columns (from the left) on which to
+        collapse.
+
+    """
     currentid = None
     rows = []
     for row in q:
