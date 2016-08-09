@@ -32,7 +32,7 @@ from sqlalchemy.orm import relationship
 STR_MAX = 100000
 
 # base class for table objects
-SQLBase = sqlbase()
+SQLBase = declarative_base()
 # default database engine
 engine = create_engine(conf.PARSE_DB)
 
