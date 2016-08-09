@@ -85,8 +85,8 @@ class LIEducation(SQLBase):
     institute     = Column(Unicode(STR_MAX))
     url           = Column(String(STR_MAX))
     course        = Column(Unicode(STR_MAX))
-    start         = Column(BigInteger)
-    end           = Column(BigInteger)
+    start         = Column(Unicode(STR_MAX))
+    end           = Column(Unicode(STR_MAX))
     description   = Column(Unicode(STR_MAX))
 
 
