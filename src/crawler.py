@@ -449,166 +449,171 @@ class Crawler(ConfigurableObject):
         prefix = config['prefix']
         logger = config['logger']
 
-        crdb = CrawlDB()
-        batch_time = timedelta(seconds=batch_time)
-        if crawl_rate is not None:
-            crawl_rate = crawl_rate/jobs
-        nproxies = len(proxies)
+        with CrawlDB() as crdb:
+            batch_time = timedelta(seconds=batch_time)
+            if crawl_rate is not None:
+                crawl_rate = crawl_rate/jobs
+            nproxies = len(proxies)
 
-        if recrawl is not None:
-            website_filter \
-                = (~Website.valid) | (Website.timestamp < recrawl_date)
-        else:
-            website_filter = ~Website.valid
-        q = crdb.query(Website.url) \
-                .filter(website_filter,
-                        Website.site == site,
-                        Website.fail_count <= max_fail_count)
-        if max_level is not None:
-            q = q.filter(Website.level <= max_level)
-        if urls_from:
-            with open(args.urls_from, 'r') as inputfile:
-                urls = [line.strip() for line in inputfile]
-            q = q.filter(in_values(Website.url, urls))
-        if leafs_only:
-            q = q.filter(Website.leaf)
-        q = q.limit(EXCESS*batch_size*jobs)
-        
-        proxy_states = self._check_proxy_states(self.init_proxies(config),
-                                                proxies)
-        try:
-            tstart = datetime.utcnow()            
-            total_count = 0
-            while True:
-                logger.log('Starting batch at {0:s}.\n' \
-                           .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
+            if recrawl is not None:
+                website_filter \
+                    = (~Website.valid) | (Website.timestamp < recrawl_date)
+            else:
+                website_filter = ~Website.valid
+            q = crdb.query(Website.url) \
+                    .filter(website_filter,
+                            Website.site == site,
+                            Website.fail_count <= max_fail_count)
+            if max_level is not None:
+                q = q.filter(Website.level <= max_level)
+            if urls_from:
+                with open(args.urls_from, 'r') as inputfile:
+                    urls = [line.strip() for line in inputfile]
+                q = q.filter(in_values(Website.url, urls))
+            if leafs_only:
+                q = q.filter(Website.leaf)
+            q = q.limit(EXCESS*batch_size*jobs)
 
-                # reset session
-                crdb.close()
-                crdb = CrawlDB()
+            proxy_states = self._check_proxy_states(self.init_proxies(config),
+                                                    proxies)
+            try:
+                tstart = datetime.utcnow()            
+                total_count = 0
+                while True:
+                    logger.log('Starting batch at {0:s}.\n' \
+                               .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
 
-                # get URLs
-                urls = set()
-                offset = 0
-                while len(urls) < MIN_EXCESS*batch_size*jobs:
-                    new_urls = [url for url, in q.offset(offset)]
-                    if not new_urls:
+                    # get URLs
+                    urls = set()
+                    offset = 0
+                    while len(urls) < MIN_EXCESS*batch_size*jobs:
+                        new_urls = [url for url, in q.offset(offset)]
+                        if not new_urls:
+                            break
+                        offset += EXCESS*batch_size*jobs
+                        urls.update(new_urls)
+                    urls = list(urls)
+                    random.shuffle(urls)
+                    urls = urls[:batch_size*jobs]
+
+                    if not urls:
                         break
-                    offset += EXCESS*batch_size*jobs
-                    urls.update(new_urls)
-                urls = list(urls)
-                random.shuffle(urls)
-                urls = urls[:batch_size*jobs]
+                    if limit is not None and len(urls) > limit - total_count:
+                        urls = urls[:args.limit - total_count]
 
-                if not urls:
-                    break
-                if limit is not None and len(urls) > limit - total_count:
-                    urls = urls[:args.limit - total_count]
+                    deadline = datetime.utcnow() + batch_time
 
-                deadline = datetime.utcnow() + batch_time
-
-                # run parallel jobs
-                if jobs == 1:
-                    success = False
-                    try:
-                        count, valid_count, proxy_states, \
-                            discovered_website_list = crawl_urls(
-                                site, urls, parsefunc, deadline,
-                                crawl_rate, request_args, proxies,
-                                request_timeout, self.on_visit, proxy_states)
-                        success = True
-                    except TimeoutError:
-                        count = 0
-                        valid_count = 0
-                else:
-                    url_batches = equipartition(urls, jobs)
-                    if self.share_proxies:
-                        proxy_batches = [proxies[:] for i in range(jobs)]
-                        proxy_state_batches \
-                            = [proxy_states[:] for i in range(jobs)]
+                    # run parallel jobs
+                    if jobs == 1:
+                        success = False
+                        try:
+                            count, valid_count, proxy_states, \
+                                discovered_website_list = crawl_urls(
+                                    site, urls, parsefunc, deadline,
+                                    crawl_rate, request_args, proxies,
+                                    request_timeout, self.on_visit,
+                                    proxy_states)
+                            success = True
+                        except TimeoutError:
+                            count = 0
+                            valid_count = 0
                     else:
-                        proxy_batches = equipartition(proxies, jobs)
-                        proxy_state_batches = equipartition(proxy_states, jobs)
-                    pargs = []
-                    for url_batch, proxy_batch, proxy_state_batch in zip(
-                            url_batches, proxy_batches, proxy_state_batches):
-                        pargs.append(
-                            (site, url_batch, parsefunc, deadline,
-                             crawl_rate, request_args, proxy_batch,
-                             request_timeout, self.on_visit, proxy_state_batch))
-                    pfunc = ParallelFunction(crawl_urls, batchsize=1,
-                                             workdir=workdir, prefix=prefix,
-                                             timeout=(1+batch_time_tolerance) \
-                                             *batch_time.total_seconds())
-                    success = False
-                    try:
-                        results = pfunc(pargs)
-                        count = 0
-                        valid_count = 0
-                        proxy_states = []
-                        discovered_website_list = []
-                        for batch_count, batch_valid_count, proxy_state_batch, \
-                            discovered_websites_batch in results:
-                            count += batch_count
-                            valid_count += batch_valid_count
-                            proxy_states.extend(proxy_state_batch)
-                            discovered_website_list.extend(
-                                discovered_websites_batch)
+                        url_batches = equipartition(urls, jobs)
                         if self.share_proxies:
-                            proxy_states = [None]*len(proxies)
-                        success = True
-                    except TimeoutError:
-                        count = 0
-                        valid_count = 0
-                        proxy_states = None
-                        discovered_website_list = []
+                            proxy_batches = [proxies[:] for i in range(jobs)]
+                            proxy_state_batches \
+                                = [proxy_states[:] for i in range(jobs)]
+                        else:
+                            proxy_batches = equipartition(proxies, jobs)
+                            proxy_state_batches = equipartition(proxy_states,
+                                                                jobs)
+                        pargs = []
+                        for url_batch, proxy_batch, proxy_state_batch \
+                            in zip(url_batches, proxy_batches,
+                                   proxy_state_batches):
+                            pargs.append(
+                                (site, url_batch, parsefunc, deadline,
+                                 crawl_rate, request_args, proxy_batch,
+                                 request_timeout, self.on_visit,
+                                 proxy_state_batch))
+                        pfunc = ParallelFunction(
+                            crawl_urls, batchsize=1, workdir=workdir,
+                            prefix=prefix, timeout=(1+batch_time_tolerance) \
+                            *batch_time.total_seconds())
+                        success = False
+                        try:
+                            results = pfunc(pargs)
+                            count = 0
+                            valid_count = 0
+                            proxy_states = []
+                            discovered_website_list = []
+                            for batch_count, batch_valid_count, \
+                                proxy_state_batch, discovered_websites_batch \
+                                in results:
+                                
+                                count += batch_count
+                                valid_count += batch_valid_count
+                                proxy_states.extend(proxy_state_batch)
+                                discovered_website_list.extend(
+                                    discovered_websites_batch)
+                            if self.share_proxies:
+                                proxy_states = [None]*len(proxies)
+                            success = True
+                        except TimeoutError:
+                            count = 0
+                            valid_count = 0
+                            proxy_states = None
+                            discovered_website_list = []
 
-                # add discovered websites
-                discovered_websites = {}
-                for url, leaf, level in discovered_website_list:
-                    oldleaf, oldlevel \
-                        = discovered_websites.get(url, (None, None))
-                    if leaf is None:
-                        leaf = oldleaf
-                    if level is None or \
-                       (oldlevel is not None and oldlevel < level):
-                        level = oldlevel
-                    discovered_websites[url] = (leaf, level)
-                for url, (leaf, level) in discovered_websites.items():
-                    website = crdb.query(Website) \
-                                  .filter(Website.site == site,
-                                          Website.url == url) \
-                                  .order_by(Website.timestamp.desc()) \
-                                  .first()
-                    if website is None:
-                        website = Website(site=site, url=url, valid=False,
-                                          leaf=leaf, fail_count=0, level=level)
-                        crdb.add(website)
+                    # add discovered websites
+                    discovered_websites = {}
+                    for url, leaf, level in discovered_website_list:
+                        oldleaf, oldlevel \
+                            = discovered_websites.get(url, (None, None))
+                        if leaf is None:
+                            leaf = oldleaf
+                        if level is None or \
+                           (oldlevel is not None and oldlevel < level):
+                            level = oldlevel
+                        discovered_websites[url] = (leaf, level)
+                    for url, (leaf, level) in discovered_websites.items():
+                        website = crdb.query(Website) \
+                                      .filter(Website.site == site,
+                                              Website.url == url) \
+                                      .order_by(Website.timestamp.desc()) \
+                                      .first()
+                        if website is None:
+                            website = Website(site=site, url=url, valid=False,
+                                              leaf=leaf, fail_count=0,
+                                              level=level)
+                            crdb.add(website)
+                        else:
+                            if leaf is not None and website.leaf is None:
+                                website.leaf = leaf
+                            if level is not None and \
+                               (website.level is None or website.level > level):
+                                website.level = level
+                    crdb.commit()
+
+                    tfinish = datetime.utcnow()
+                    if not success:
+                        logger.log(
+                            'Crawl timed out at {0:s}.\n' \
+                            .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
+                        proxy_states = self._check_proxy_states(
+                            self.on_timeout(config, proxy_states), proxies)
                     else:
-                        if leaf is not None and website.leaf is None:
-                            website.leaf = leaf
-                        if level is not None and \
-                           (website.level is None or website.level > level):
-                            website.level = level
-                crdb.commit()
+                        logger.log(
+                            'Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
+                            'Crawl rate: {2:5.3f} URLs/sec.\n' \
+                            .format(valid_count, valid_count/count*100,
+                                    valid_count/ \
+                                    (tfinish-tstart).total_seconds()))
+                    tstart = tfinish
 
-                tfinish = datetime.utcnow()
-                if not success:
-                    logger.log('Crawl timed out at {0:s}.\n' \
-                               .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
-                    proxy_states = self._check_proxy_states(
-                        self.on_timeout(config, proxy_states), proxies)
-                else:
-                    logger.log('Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
-                               'Crawl rate: {2:5.3f} URLs/sec.\n' \
-                               .format(valid_count, valid_count/count*100,
-                                       valid_count/ \
-                                       (tfinish-tstart).total_seconds()))
-                tstart = tfinish
-
-                total_count += count
-                if limit is not None and total_count >= limit:
-                    break
-        finally:
-            self.finish_proxies(config, proxy_states)
+                    total_count += count
+                    if limit is not None and total_count >= limit:
+                        break
+            finally:
+                self.finish_proxies(config, proxy_states)
         
