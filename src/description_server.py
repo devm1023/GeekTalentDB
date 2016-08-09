@@ -17,7 +17,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Create database session
-dscdb = DescriptionDB(conf.DESCRIPTION_DB)
+dscdb = DescriptionDB()
 
 # Create dummy secrey key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'

@@ -1,4 +1,3 @@
-import conf
 from crawldb import *
 from logger import Logger
 import argparse
@@ -15,9 +14,9 @@ if __name__ == '__main__':
                         help='The file holding the URLs to add.')
     args = parser.parse_args()
 
-    crdb = CrawlDB(conf.CRAWL_DB)
     logger = Logger()
-    
-    crdb.load_urls(args.site, args.leafs, args.level, args.input_file,
-                   logger=logger)
+
+    with CrawlDB() as crdb:
+        crdb.load_urls(args.site, args.leafs, args.level, args.input_file,
+                       logger=logger)
     

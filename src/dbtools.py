@@ -1,60 +1,31 @@
 __all__ = [
-    'SQLDatabase',
-    'sqlbase',
+    'create_engine',
+    'declarative_base',
+    'Session',
+    'sessionmaker',
     'dict_from_row',
     'row_from_dict',
     'update_row_from_dict',
 ]
 
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.collections import bulk_replace
-from sqlalchemy.ext.declarative import declarative_base as sqlbase
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, inspect, UniqueConstraint
+import sqlalchemy.orm
+import sqlalchemy.orm.session
 from copy import deepcopy
 
-class SQLDatabase:
-    def __init__(self, metadata, url=None, session=None, engine=None):
-        if session is None and engine is None and url is None:
-            raise ValueError('One of url, session, or engine must be specified')
-        if session is None:
-            if engine is None:
-                engine = create_engine(url)
-            self.Session = sessionmaker(bind=engine)
-        else:
-            self.Session = session
 
-        self.session = None
-        self.metadata = metadata
-        self.new_session()
-
-    def new_session(self):
-        if self.session is not None:
-            self.session.close()
-        self.session = self.Session()
-        self.query = self.session.query
-        self.flush = self.session.flush
-        self.commit = self.session.commit
-        self.add = self.session.add
-        self.execute = self.session.execute
-        self.close = self.session.close
-        
+class Session(sqlalchemy.orm.session.Session):
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self.session.close()
+        if type is None:
+            self.close()
+        else:
+            self.rollback()
+            self.close()
         return False
-
-    def query(*args, **kwargs):
-        return self.session.query(*args, **kwargs)
-
-    
-    
-    def drop_all(self):
-        self.metadata.drop_all(self.session.bind)
-
-    def create_all(self):
-        self.metadata.create_all(self.session.bind)
 
     def add_from_dict(self, d, table, update=True, flush=False, delete=True,
                       protect=[]):
@@ -81,7 +52,8 @@ class SQLDatabase:
                     if any(d.get(c.key, None) is None \
                            for c in constraint.columns):
                         continue
-                    whereclauses = [c == d[c.key] for c in constraint.columns]
+                    whereclauses = [c == d[c.key] \
+                                    for c in constraint.columns]
                     row = self.query(table).filter(*whereclauses).first()
                     if row is not None:
                         break
@@ -95,6 +67,12 @@ class SQLDatabase:
             self.flush()
             _update_ids(d, row)
         return row
+
+
+def sessionmaker(**kwargs):
+    kwargs.setdefault('class_', Session)
+    return sqlalchemy.orm.sessionmaker(**kwargs)
+
 
 def _update_ids(d, row, fkeynames=[]):
     mapper = inspect(type(row))

@@ -1,4 +1,3 @@
-import conf
 from canonicaldb import *
 from sqldb import dict_from_row
 from sqlalchemy import func
@@ -80,7 +79,7 @@ def entities2(q):
         yield currententity, bestprofilename, profilecount, experiencecount
 
 def add_skills(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':
@@ -143,7 +142,7 @@ def add_skills(batchsize, source_id):
 
 
 def add_titles(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':
@@ -187,7 +186,7 @@ def add_titles(batchsize, source_id):
 
 
 def add_companies(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':
@@ -230,7 +229,7 @@ def add_companies(batchsize, source_id):
               logger=logger)
 
 def add_sectors(batchsize):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     q = cndb.query(LIProfile.nrm_sector, LIProfile.sector, \
@@ -258,7 +257,7 @@ def add_sectors(batchsize):
 
 
 def add_institutes(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':
@@ -292,7 +291,7 @@ def add_institutes(batchsize, source_id):
 
 
 def add_degrees(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':
@@ -326,7 +325,7 @@ def add_degrees(batchsize, source_id):
 
 
 def add_subjects(batchsize, source_id):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     if source_id == 'linkedin':

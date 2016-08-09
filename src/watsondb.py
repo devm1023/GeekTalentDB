@@ -1,9 +1,11 @@
 __all__ = [
     'SkillDescription',
     'WatsonDB',
+    'create_all',
+    'drop_all',
     ]
 
-from sqldb import *
+from dbtools import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -28,7 +30,8 @@ from logger import Logger
 
 STR_MAX = 100000
 
-SQLBase = sqlbase()
+SQLBase = declarative_base()
+engine = create_engine(conf.WATSON_DB)
 
 
 class Description(SQLBase):
@@ -53,11 +56,7 @@ class ConceptLabel(SQLBase):
     __table_args__ = (UniqueConstraint('concept', 'label'),)
     
 
-class WatsonDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
-
+class WatsonDBSession(Session):
     def get_descriptions(self, concept, lookup=False,
                          logger=Logger(None)):
         concept = concept.strip().lower()
@@ -126,3 +125,16 @@ class WatsonDB(SQLDatabase):
             
         self.commit()
         return descriptions
+
+
+WatsonDB = sessionmaker(class_=WatsonDBSession, bind=engine)
+
+
+def create_all():
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    SQLBase.metadata.drop_all(engine)
+
+

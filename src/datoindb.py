@@ -19,9 +19,12 @@ __all__ = [
     'GHProfile',
     'GHLink',
     'DatoinDB',
+    'create_all',
+    'drop_all',
     ]
 
-from sqldb import *
+import conf
+from dbtools import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -41,7 +44,9 @@ from sqlalchemy.dialects.postgresql import ARRAY as Array
 
 STR_MAX = 100000
 
-SQLBase = sqlbase()
+SQLBase = declarative_base()
+engine = create_engine(conf.DATOIN_DB)
+
 
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
@@ -446,8 +451,14 @@ class GHRepository(SQLBase):
     tags          = Column(Array(Unicode(STR_MAX)))
 
 
-class DatoinDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
+def create_all():
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    SQLBase.metadata.drop_all(engine)
+
+
+DatoinDB = sessionmaker(bind=engine)
+
 

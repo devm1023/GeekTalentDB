@@ -5,9 +5,12 @@ __all__ = [
     'LIGroup',
     'LISkill',
     'ParseDB',
+    'create_all',
+    'drop_all',
     ]
 
-from sqldb import *
+import conf
+from dbtools import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -25,10 +28,14 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship
 
-
+# character limit for string columns
 STR_MAX = 100000
 
+# base class for table objects
 SQLBase = sqlbase()
+# default database engine
+engine = create_engine(conf.PARSE_DB)
+
 
 class LIProfile(SQLBase):
     __tablename__ = 'liprofile'
@@ -71,6 +78,7 @@ class LIExperience(SQLBase):
     end           = Column(Unicode(STR_MAX))
     description   = Column(Unicode(STR_MAX))
 
+
 class LIEducation(SQLBase):
     __tablename__ = 'lieducation'
     id            = Column(BigInteger, primary_key=True)
@@ -85,6 +93,7 @@ class LIEducation(SQLBase):
     end           = Column(BigInteger)
     description   = Column(Unicode(STR_MAX))
 
+
 class LIGroup(SQLBase):
     __tablename__ = 'ligroup'
     id            = Column(BigInteger, primary_key=True)
@@ -94,6 +103,7 @@ class LIGroup(SQLBase):
                            index=True)
     name          = Column(Unicode(STR_MAX))
     url           = Column(Unicode(STR_MAX))
+
 
 class LISkill(SQLBase):
     __tablename__ = 'liskill'
@@ -106,8 +116,20 @@ class LISkill(SQLBase):
     url           = Column(String(STR_MAX))
 
 
-class ParseDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
+# database session class
+ParseDB = sessionmaker(bind=engine)
+
+
+def create_all():
+    """Create all tables in `parse` database
+
+    """
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    """Drop all tables in `parse` database
+
+    """
+    SQLBase.metadata.drop_all(engine)
 

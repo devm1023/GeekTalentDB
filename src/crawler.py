@@ -100,7 +100,7 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
     return result
 
 
-def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
+def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
                request_args, proxies, timeout, hook, proxy_states):
     """Sequentially crawl a list of URLs and store the HTML.
 
@@ -115,7 +115,6 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
       urls (list of str): List of URLs to visit.
       parsefunc (callable): Function for validating the HTML and extracting
         links. See documentation of ``Crawler.parse``.
-      database (session object): Database session for storing the HTML.
       deadline (datetime object): Time by which the function should terminate.
         URLs which were not crawled by `deadline` will be skipped.
       crawl_rate (float): Desired crawl rate in requests per second.
@@ -141,7 +140,7 @@ def crawl_urls(site, urls, parsefunc, database, deadline, crawl_rate,
     if proxy_states is None:
         proxy_states = [None]*nproxies
     
-    with CrawlDB(database) as crdb:
+    with CrawlDB() as crdb:
         count = 0
         valid_count = 0
         crawl_start = datetime.utcnow()
@@ -256,7 +255,6 @@ class Crawler(ConfigurableObject):
     
     Args:
       site (str): String ID of the site to crawl.
-      database (str): URL for the crawl database.
       crawl_rate (float, optional): Desired number of requests/sec. Defaults to
         ``None``, which means crawl as fast as possible.
       proxies (list of tuples of str, optional): List of tuples of the form
@@ -267,7 +265,7 @@ class Crawler(ConfigurableObject):
       request_timeout (float, optional): Timeout in seconds for requests.
         Defaults to 30.
       urls_from (iterable or None, optional): The URLs to crawl. Defaults to
-        ``None``, in which case all pages from `database` are crawled
+        ``None``, in which case all pages from the database are crawled
         (subject to constraints defined by the `leafs_only`, `recrawl`,
         `max_level`, `limit`, and `max_fail_count` arguments).
       leafs_only (bool, optional): Crawl only leaf pages. Defaults to ``False``.
@@ -275,7 +273,7 @@ class Crawler(ConfigurableObject):
         is earlier than `recrawl`. Defaults to ``None``, in which case only
         URLs that have not been visited at all are crawled.
       max_level (int or None, optional): Only crawl URLs whose level (click
-        distance from the level-0 URLs in `database`) is equal or less than
+        distance from the level-0 URLs in the database) is equal or less than
         `max_level`. Defaults to ``None``, in which case all levels are crawled.
       limit (int or None, optional): Crawl at most `limit` URLs. Defaults to
         ``None``, in which case no limit is applied.
@@ -306,9 +304,6 @@ class Crawler(ConfigurableObject):
     def check_config(self, config):
         if not isinstance(config['site'], str) or not config['site']:
             raise ValueError('Config option `site` must be non-empy string.')
-        if not isinstance(config['database'], str) or not config['database']:
-            raise ValueError(
-                'Config option `database` must be non-empty string.')
         if not isinstance(config['proxies'], list):
             raise ConfigError("'proxies' option must be a list.")
         if len(config['proxies']) < 1:
@@ -316,12 +311,11 @@ class Crawler(ConfigurableObject):
         if not isinstance(config['jobs'], int) or config['jobs'] < 1:
             raise ValueError('Number of jobs must an int be greater than 0.')
         
-    def __init__(self, site, database, **kwargs):
+    def __init__(self, site, **kwargs):
         self.share_proxies = kwargs.pop('share_proxies', False)
         ConfigurableObject.__init__(
             self,
             site=site,
-            database=database,
             crawl_rate=None,
             proxies=[('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')],
             request_args={},
@@ -437,7 +431,6 @@ class Crawler(ConfigurableObject):
         config = self.get_config(**kwargs)
         site = config['site']
         parsefunc = self.parse
-        database = config['database']
         crawl_rate = config['crawl_rate']
         proxies = config['proxies']
         request_args = config['request_args']
@@ -456,7 +449,7 @@ class Crawler(ConfigurableObject):
         prefix = config['prefix']
         logger = config['logger']
 
-        crdb = CrawlDB(database)
+        crdb = CrawlDB()
         batch_time = timedelta(seconds=batch_time)
         if crawl_rate is not None:
             crawl_rate = crawl_rate/jobs
@@ -491,7 +484,8 @@ class Crawler(ConfigurableObject):
                            .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
 
                 # reset session
-                crdb.new_session()
+                crdb.close()
+                crdb = CrawlDB()
 
                 # get URLs
                 urls = set()
@@ -519,7 +513,7 @@ class Crawler(ConfigurableObject):
                     try:
                         count, valid_count, proxy_states, \
                             discovered_website_list = crawl_urls(
-                                site, urls, parsefunc, database, deadline,
+                                site, urls, parsefunc, deadline,
                                 crawl_rate, request_args, proxies,
                                 request_timeout, self.on_visit, proxy_states)
                         success = True
@@ -539,7 +533,7 @@ class Crawler(ConfigurableObject):
                     for url_batch, proxy_batch, proxy_state_batch in zip(
                             url_batches, proxy_batches, proxy_state_batches):
                         pargs.append(
-                            (site, url_batch, parsefunc, database, deadline,
+                            (site, url_batch, parsefunc, deadline,
                              crawl_rate, request_args, proxy_batch,
                              request_timeout, self.on_visit, proxy_state_batch))
                     pfunc = ParallelFunction(crawl_urls, batchsize=1,

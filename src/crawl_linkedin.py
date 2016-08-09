@@ -2,7 +2,6 @@
 
 """
 
-import conf
 from crawler import Crawler
 from tor import TorProxyList, new_identity
 from logger import Logger
@@ -44,8 +43,7 @@ class LinkedInCrawler(Crawler):
                 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
             }
         kwargs.pop('share_proxies', None)
-        Crawler.__init__(self, site, conf.CRAWL_DB, share_proxies=True,
-                         **kwargs)
+        Crawler.__init__(self, site, share_proxies=True, **kwargs)
     
     @classmethod
     def parse(cls, site, url, redirect_url, doc):

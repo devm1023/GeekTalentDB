@@ -3,9 +3,11 @@ __all__ = [
     'CareerDescription',
     'SkillDescription',
     'DescriptionDB',
+    'create_all',
+    'drop_all',
     ]
 
-from sqldb import *
+from dbtools import *
 from sqlalchemy import \
     Column, \
     ForeignKey, \
@@ -30,7 +32,8 @@ from logger import Logger
 
 STR_MAX = 100000
 
-SQLBase = sqlbase()
+SQLBase = declarative_base()
+engine = create_engine(conf.DESCRIPTION_DB)
 
 
 class SectorDescription(SQLBase):
@@ -76,11 +79,7 @@ class SkillDescription(SQLBase):
     __table_args__ = (UniqueConstraint('sector', 'name'),)
     
 
-class DescriptionDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
-
+class DescriptionDBSession(Session):
     def get_description(self, tpe, sector, name, watson_lookup=False,
                         logger=Logger(None)):
         if tpe == 'sector':
@@ -170,3 +169,15 @@ class DescriptionDB(SQLDatabase):
             
         return [dict_from_row(row, pkeys=False) for row in q]
     
+
+DescriptionDB = sessionmaker(class_=DescriptionDBSession, bind=engine)
+
+
+def create_all():
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    SQLBase.metadata.drop_all(engine)
+
+

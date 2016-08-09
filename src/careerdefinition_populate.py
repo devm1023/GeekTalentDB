@@ -1,4 +1,3 @@
-import conf
 from logger import Logger
 from canonicaldb import *
 from entitycloud import entity_cloud, relevance_score
@@ -374,8 +373,8 @@ if __name__ == '__main__':
 
 
     logger = Logger()
-    cndb = CanonicalDB(conf.CANONICAL_DB)
-    cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
+    cndb = CanonicalDB()
+    cddb = CareerDefinitionDB()
     mapper = EntityMapper(cndb, args.mappings)
 
     nrm_sector = normalized_entity('sector', 'linkedin', 'en', args.sector)

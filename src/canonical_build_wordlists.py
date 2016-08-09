@@ -1,4 +1,3 @@
-import conf
 from canonicaldb import *
 from sqlalchemy import func
 from logger import Logger
@@ -9,7 +8,7 @@ import argparse
 
 
 def add_words(jobid, fromentity, toentity):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     q = cndb.query(Entity.nrm_name) \
@@ -38,7 +37,7 @@ def main(args):
     batchsize = args.batch_size
     startval = args.from_entity
 
-    cndb = CanonicalDB(conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     logger = Logger(sys.stdout)
 
     q = cndb.query(Entity.nrm_name)

@@ -7,10 +7,11 @@ import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--update', action='store_true')
+    parser.add_argument('--update', action='store_true',
+                        help='Update existing salary data')
     args = parser.parse_args()    
     
-    cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
+    cddb = CareerDefinitionDB()
     logger = Logger()
     
     q = cddb.query(Career, Sector.name) \

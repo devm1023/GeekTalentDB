@@ -1,4 +1,3 @@
-import conf
 from careerdefinitiondb import CareerDefinitionDB, Career, Sector
 from descriptiondb import DescriptionDB
 from logger import Logger
@@ -10,8 +9,8 @@ if __name__ == '__main__':
                         help='Maximum number of displayed skills. Default: 25')
     args = parser.parse_args()
     
-    cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
-    dscdb = DescriptionDB(conf.DESCRIPTION_DB)
+    cddb = CareerDefinitionDB()
+    dscdb = DescriptionDB()
     logger = Logger()
     
     q = cddb.query(Career, Sector.name) \

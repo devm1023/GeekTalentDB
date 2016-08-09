@@ -1,4 +1,3 @@
-import conf
 from crawldb import *
 from parsedb import ParseDB, LIProfile
 from windowquery import split_process, process_db
@@ -154,8 +153,7 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     if to_url is not None:
         filters.append(Website.url < to_url)
     
-    with CrawlDB(conf.CRAWL_DB) as crdb, \
-         ParseDB(conf.PARSE_DB) as psdb:
+    with CrawlDB() as crdb, ParseDB() as psdb:
         maxts = func.max(Website.timestamp) \
                     .over(partition_by=Website.timestamp) \
                     .label('maxts')
@@ -208,7 +206,7 @@ def main(args):
     if args.from_url is not None:
         filters.append(Website.url >= args.from_url)
     
-    with CrawlDB(conf.CRAWL_DB) as crdb:
+    with CrawlDB() as crdb:
         q = crdb.query(Website.url).filter(*filters)
 
         split_process(q, parse_profiles, args.batch_size,

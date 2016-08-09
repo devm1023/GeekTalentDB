@@ -14,10 +14,12 @@ __all__ = [
     'SalaryBin',
     'SalaryHistoryPoint',
     'CareerDefinitionDB',
+    'create_all',
+    'drop_all',
     ]
 
 import conf
-from sqldb import *
+from dbtools import *
 from windowquery import collapse
 from sqlalchemy import \
     Column, \
@@ -44,7 +46,8 @@ from pprint import pprint
 
 STR_MAX = 100000
 
-SQLBase = sqlbase()
+SQLBase = declarative_base()
+engine = create_engine(conf.CAREERDEFINITION_DB)
 
 
 class Sector(SQLBase):
@@ -283,6 +286,7 @@ def _remove_invisibles(d):
             
     return d
 
+
 def _average_salary(bins):
     wsum = 0.0
     totalcount = 0
@@ -300,12 +304,7 @@ def _average_salary(bins):
         return None
     
     
-class CareerDefinitionDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
-
-    
+class CareerDefinitionDBSession(Session):
     def add_career(self, careerdict):
         career = self.add_from_dict(
             careerdict, Career, protect=['visible',
@@ -396,3 +395,17 @@ class CareerDefinitionDB(SQLDatabase):
 
             results.append(careerdict)
         return results
+
+
+CareerDefinitionDB = sessionmaker(class_=CareerDefinitionDBSession,
+                                  bind=engine)
+
+
+def create_all():
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    SQLBase.metadata.drop_all(engine)
+
+

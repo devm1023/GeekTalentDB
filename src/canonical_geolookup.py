@@ -14,7 +14,7 @@ import argparse
 def process_locations(jobid, fromlocation, tolocation,
                       fromdate, todate, by_indexed_on, source, retry, maxretry,
                       recompute_nuts):
-    cndb = CanonicalDB(url=conf.CANONICAL_DB)
+    cndb = CanonicalDB()
     nuts = NutsRegions(conf.NUTS_DATA)
     logger = Logger(sys.stdout)
 
@@ -84,7 +84,7 @@ def run(args, maxretry):
     else:
         raise ValueError('Invalid source.')
 
-    cndb = CanonicalDB(url=conf.CANONICAL_DB)
+    cndb = CanonicalDB()
 
     if args.retry:
         q = cndb.query(Location.nrm_name) \

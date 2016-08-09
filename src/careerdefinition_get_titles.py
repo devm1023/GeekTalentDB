@@ -1,6 +1,5 @@
-import conf
-from analyticsdb import *
-from analytics_get_entitycloud import entity_cloud
+from canonicaldb import *
+from entitycloud import entity_cloud
 from careerdefinitiondb import CareerDefinitionDB
 from textnormalization import normalized_entity, normalized_sector
 from entity_mapper import EntityMapper
@@ -47,15 +46,15 @@ if __name__ == '__main__':
                         help='The LinkedIn sectors to scan.')
     args = parser.parse_args()
 
-    andb = AnalyticsDB(conf.ANALYTICS_DB)
-    mapper = EntityMapper(andb, args.mappings)
+    cndb = CanonicalDB()
+    mapper = EntityMapper(cndb, args.mappings)
     sectors = get_sectors(args.sector, args.sectors_from, mapper)
     if not sectors:
         sys.stderr.write('You must specify at least one sector.\n')
         sys.stderr.flush()
         sys.exit(1)
 
-    totalc = andb.query(LIProfile.id) \
+    totalc = cndb.query(LIProfile.id) \
                  .join(Location) \
                  .filter(LIProfile.nrm_sector != None,
                          LIProfile.language == 'en',
@@ -69,8 +68,9 @@ if __name__ == '__main__':
     for nrm_sector in sectors:
         sector = mapper.name(nrm_sector)
         lisectors = mapper.inv(nrm_sector)
-        sectorc = andb.query(LIProfile.id) \
-                      .join(Location) \
+        sectorc = cndb.query(LIProfile.id) \
+                      .join(Location,
+                            Location.nrm_name == LIProfile.nrm_location) \
                       .filter(LIProfile.nrm_sector.in_(lisectors),
                               LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
@@ -78,15 +78,17 @@ if __name__ == '__main__':
 
         # build title cloud
         entityq = lambda entities: \
-                  andb.query(LIProfile.nrm_curr_title, countcol) \
-                      .join(Location) \
+                  cndb.query(LIProfile.nrm_curr_title, countcol) \
+                      .join(Location,
+                            Location.nrm_name == LIProfile.nrm_location) \
                       .filter(in_values(LIProfile.nrm_curr_title, entities),
                               LIProfile.nrm_sector != None,
                               LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
                       .group_by(LIProfile.nrm_curr_title)
-        coincidenceq = andb.query(LIProfile.nrm_curr_title, countcol) \
-                           .join(Location) \
+        coincidenceq = cndb.query(LIProfile.nrm_curr_title, countcol) \
+                           .join(Location,
+                                 Location.nrm_name == LIProfile.nrm_location) \
                            .filter(LIProfile.nrm_sector.in_(lisectors),
                                    LIProfile.language == 'en',
                                    Location.nuts0 == 'UK')

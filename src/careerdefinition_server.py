@@ -18,8 +18,8 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Create database sessions
-cddb = CareerDefinitionDB(conf.CAREERDEFINITION_DB)
-dscdb = DescriptionDB(conf.DESCRIPTION_DB)
+cddb = CareerDefinitionDB()
+dscdb = DescriptionDB()
 
 # Create dummy secrey key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'

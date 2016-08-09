@@ -1,4 +1,3 @@
-import conf
 from datoindb import *
 from datetime import datetime, timedelta
 from histograms import Histogram1D, cumulated_histogram
@@ -11,7 +10,7 @@ from windowquery import window_query
 
 logger = Logger()
 timestamp0 = datetime(year=1970, month=1, day=1)
-dtdb = DatoinDB(conf.DATOIN_DB)
+dtdb = DatoinDB()
 
 
 def days(dt):

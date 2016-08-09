@@ -86,8 +86,8 @@ def lastvalid(q):
 def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
-    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
 
     q = dtdb.query(LIProfile).filter(LIProfile.id >= fromid)
     if by_indexed_on:
@@ -185,8 +185,8 @@ def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
-    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
 
     q = dtdb.query(INProfile).filter(INProfile.id >= fromid)
     if by_indexed_on:
@@ -295,8 +295,8 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
-    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
 
     q = dtdb.query(UWProfile).filter(UWProfile.id >= fromid)
     if by_indexed_on:
@@ -357,8 +357,8 @@ def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
-    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
 
     q = dtdb.query(MUProfile).filter(MUProfile.id >= fromid)
     if by_indexed_on:
@@ -429,8 +429,8 @@ def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
-    cndb = nf.CanonicalDB(url=conf.CANONICAL_DB)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
 
     q = dtdb.query(GHProfile).filter(GHProfile.id >= fromid)
     if by_indexed_on:
@@ -520,7 +520,7 @@ def parse_profiles(njobs, batchsize,
     else:
         raise ValueError('Invalid source type.')
 
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    dtdb = DatoinDB()
 
     query = dtdb.query(table.id)
     if by_indexed_on:

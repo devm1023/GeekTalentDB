@@ -1,4 +1,3 @@
-import conf
 from canonicaldb import *
 from watsondb import WatsonDB
 from logger import Logger
@@ -7,8 +6,8 @@ import argparse
 
 
 def main(args):
-    cndb = CanonicalDB(conf.CANONICAL_DB)
-    wtdb = WatsonDB(conf.WATSON_DB)
+    cndb = CanonicalDB()
+    wtdb = WatsonDB()
     logger = Logger()
 
     q = cndb.query(Entity.name) \

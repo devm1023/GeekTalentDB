@@ -605,7 +605,7 @@ def add_ghprofile(dtdb, ghprofiledoc, dtsession, logger):
 
 def download_profiles(from_ts, to_ts, maxprofiles, by_indexed_on, source_id):
     logger = Logger(sys.stdout)
-    dtdb = DatoinDB(url=conf.DATOIN_DB)
+    dtdb = DatoinDB()
     dtsession = datoin.Session(logger=logger)
     BATCH_SIZE = 1000
 

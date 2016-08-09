@@ -25,13 +25,15 @@ __all__ = [
     'Word',
     'Location',
     'CanonicalDB',
+    'create_all',
+    'drop_all',
     ]
 
 import conf
 import numpy as np
 import requests
 from copy import deepcopy
-from sqldb import *
+from dbtools import *
 from textnormalization import *
 from logger import Logger
 from sqlalchemy import \
@@ -62,7 +64,8 @@ from pprint import pprint
 
 STR_MAX = 100000
 
-SQLBase = sqlbase()
+SQLBase = declarative_base()
+engine = create_engine(conf.CANONICAL_DB)
 
 
 # LinkedIn
@@ -1345,11 +1348,7 @@ def _make_ghprofile_skill(skillname, language):
 class GooglePlacesError(Exception):
     pass
 
-class CanonicalDB(SQLDatabase):
-    def __init__(self, url=None, session=None, engine=None):
-        SQLDatabase.__init__(self, SQLBase.metadata,
-                             url=url, session=session, engine=engine)
-
+class CanonicalDBSession(Session):
     def rank_skills(self, profile, source):
         if source == 'linkedin':
             experience_skill_tab = LIExperienceSkill
@@ -2047,5 +2046,16 @@ class CanonicalDB(SQLDatabase):
                                  sub_document_count))
 
         return entities
+
+
+CanonicalDB = sessionmaker(class_=CanonicalDBSession, bind=engine)
+
+
+def create_all():
+    SQLBase.metadata.create_all(engine)
+
+
+def drop_all():
+    SQLBase.metadata.drop_all(engine)
 
 

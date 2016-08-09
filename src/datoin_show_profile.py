@@ -1,4 +1,3 @@
-import conf
 from datoindb import *
 from sqldb import dictFromRow
 from pprint import pprint
@@ -22,7 +21,7 @@ except ValueError:
 fromTs = (fromdate-timestamp0).total_seconds()*1000
 toTs   = (todate-timestamp0).total_seconds()*1000
 
-dtdb = DatoinDB(conf.DATOIN_DB)
+dtdb = DatoinDB()
 
 for liprofile in dtdb.query(LIProfile) \
                      .filter(LIProfile.crawledDate >= fromTs,
