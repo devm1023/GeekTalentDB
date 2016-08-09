@@ -15,19 +15,26 @@ nocreate = args.no_create
 nodelete = args.no_delete
 
 if args.database == 'crawl':
-    import crawldb as db
+    from crawldb import CrawlDB
+    db = CrawlDB()
 if args.database == 'parse':
-    import parsedb as db
+    from parsedb import ParseDB
+    db = ParseDB()
 elif args.database == 'datoin':
-    import datoindb as db
+    from datoindb import DatoinDB
+    db = DatoinDB()
 elif args.database == 'canonical':
-    import canonicaldb as db
+    from canonicaldb import CanonicalDB
+    db = CanonicalDB()
 elif args.database == 'careerdefinition':
-    import careerdefinitiondb as db
+    from careerdefinitiondb import CareerDefinitionDB
+    db = CareerDefinitionDB()
 elif args.database == 'description':
-    import descriptiondb as db
+    from descriptiondb import DescriptionDB
+    db = DescriptionDB()
 elif args.database == 'watson':
-    import watsondb as db
+    from watsondb import WatsonDB
+    db = WatsonDB()
 
 if not nodelete:
     db.drop_all()

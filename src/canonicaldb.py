@@ -25,8 +25,6 @@ __all__ = [
     'Word',
     'Location',
     'CanonicalDB',
-    'create_all',
-    'drop_all',
     ]
 
 import conf
@@ -59,13 +57,11 @@ from phraseextract import PhraseExtractor
 from textnormalization import tokenized_skill
 import time
 import random
-from pprint import pprint
 
 
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.CANONICAL_DB)
 
 
 # LinkedIn
@@ -2048,14 +2044,9 @@ class CanonicalDBSession(Session):
         return entities
 
 
-CanonicalDB = sessionmaker(class_=CanonicalDBSession, bind=engine)
-
-
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
-
+class CanonicalDB(Session):
+    def __init__(self, url=conf.CANONICAL_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)

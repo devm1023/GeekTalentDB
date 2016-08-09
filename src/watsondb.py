@@ -1,8 +1,6 @@
 __all__ = [
     'SkillDescription',
     'WatsonDB',
-    'create_all',
-    'drop_all',
     ]
 
 from dbtools import *
@@ -31,7 +29,6 @@ from logger import Logger
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.WATSON_DB)
 
 
 class Description(SQLBase):
@@ -127,14 +124,9 @@ class WatsonDBSession(Session):
         return descriptions
 
 
-WatsonDB = sessionmaker(class_=WatsonDBSession, bind=engine)
-
-
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
-
+class WatsonDB(Session):
+    def __init__(self, url=conf.WATSON_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)

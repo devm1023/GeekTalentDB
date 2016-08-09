@@ -19,8 +19,6 @@ __all__ = [
     'GHProfile',
     'GHLink',
     'DatoinDB',
-    'create_all',
-    'drop_all',
     ]
 
 import conf
@@ -45,7 +43,6 @@ from sqlalchemy.dialects.postgresql import ARRAY as Array
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.DATOIN_DB)
 
 
 class LIProfile(SQLBase):
@@ -451,14 +448,10 @@ class GHRepository(SQLBase):
     tags          = Column(Array(Unicode(STR_MAX)))
 
 
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
-
-DatoinDB = sessionmaker(bind=engine)
-
-
+class DatoinDB(Session):
+    def __init__(self, url=conf.DATOIN_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
+    

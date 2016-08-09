@@ -2,8 +2,6 @@ __all__ = [
     'Website',
     'Link',
     'CrawlDB',
-    'create_all',
-    'drop_all',
     ]
 
 import conf
@@ -29,7 +27,6 @@ from logger import Logger
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.CRAWL_DB)
 
 
 class Website(SQLBase):
@@ -57,17 +54,15 @@ class Link(SQLBase):
     timestamp     = Column(DateTime, index=True, nullable=False)
 
     __table_args__ = (UniqueConstraint('from_url', 'to_url', 'timestamp'),)
+
+
+class CrawlDB(Session):
+    def __init__(self, url=conf.CRAWL_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
     
-
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
-
-class CrawlDBSession(Session):
     def load_urls(self, site, leaf, level, filename,
                   batch_size=10000, logger=Logger(None)):
         with open(filename, 'r') as inputfile:
@@ -86,6 +81,3 @@ class CrawlDBSession(Session):
             if count % batch_size != 0:
                 logger.log('{0:d} records processed.\n'.format(count))
             self.commit()
-
-
-CrawlDB = sessionmaker(class_=CrawlDBSession, bind=engine)

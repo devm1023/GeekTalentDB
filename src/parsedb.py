@@ -5,8 +5,6 @@ __all__ = [
     'LIGroup',
     'LISkill',
     'ParseDB',
-    'create_all',
-    'drop_all',
     ]
 
 import conf
@@ -33,8 +31,6 @@ STR_MAX = 100000
 
 # base class for table objects
 SQLBase = declarative_base()
-# default database engine
-engine = create_engine(conf.PARSE_DB)
 
 
 class LIProfile(SQLBase):
@@ -117,19 +113,9 @@ class LISkill(SQLBase):
 
 
 # database session class
-ParseDB = sessionmaker(bind=engine)
-
-
-def create_all():
-    """Create all tables in `parse` database
-
-    """
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    """Drop all tables in `parse` database
-
-    """
-    SQLBase.metadata.drop_all(engine)
-
+class ParseDB(Session):
+    def __init__(self, url=conf.PARSE_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)

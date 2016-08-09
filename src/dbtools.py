@@ -1,8 +1,6 @@
 __all__ = [
-    'create_engine',
     'declarative_base',
     'Session',
-    'sessionmaker',
     'dict_from_row',
     'row_from_dict',
     'update_row_from_dict',
@@ -16,9 +14,42 @@ from copy import deepcopy
 
 
 class Session(sqlalchemy.orm.session.Session):
+    """Class for handling database sessions.
+
+    This class is derived from ``sqlalchemy.orm.session.Session`` and improves
+    it in the following ways:
+
+      * On initialisation it will automatically create the database engine if
+        the `url` argument is set and no engine is specified via the `bind`
+        argument.
+      * It can be used in a ``with`` statement.
+      * It provides the ``add_from_dict`` method which can be used to insert
+        or update rows in multiple tables linked by one-to-many relationships.
+
+    Args:
+      url (str or None, optional): The connection URL for the database engine.
+        Will be passed to ``create_engine``. Only used if `bind` argument is
+        not specified. Defaults to ``None``, in which case no engine is created.
+      engine_args (list, optional): Extra positional arguments for
+        ``create_engine``. Defaults to `[]`.
+      engine_kwargs (dict, optional): Keyword arguments for ``create_engine``.
+        Defaults to ``{}``.
+      **kwargs: All additional keyword arguments are passed to
+        ``sqlalchemy.orm.session.Session``.
+
+    """
+    def __init__(self, url=None, metadata=None, engine_args=[],
+                 engine_kwargs={}, **kwargs):
+        if url is not None and 'bind' not in kwargs:
+            kwargs['bind'] = create_engine(url, *engine_args, **engine_kwargs)
+        sqlalchemy.orm.session.Session.__init__(self, **kwargs)
+        self.metadata = metadata
+
+        
     def __enter__(self):
         return self
 
+    
     def __exit__(self, type, value, traceback):
         if type is None:
             self.close()
@@ -27,8 +58,52 @@ class Session(sqlalchemy.orm.session.Session):
             self.close()
         return False
 
+    
+    def create_all(self):
+        if self.metadata is not None:
+            self.metadata.create_all(self.bind)
+
+            
+    def drop_all(self):
+        if self.metadata is not None:
+            self.metadata.drop_all(self.bind)
+        
+
     def add_from_dict(self, d, table, update=True, flush=False, delete=True,
                       protect=[]):
+        """Insert or update nested data in the database.
+
+        Examples:
+          Assume that ``session`` is a database session and ``Table`` is a
+          class representing a table in the corresponding database.
+
+              session.add_from_dict({'col1': val1, 'col2': val2, ...},
+                                    Table)
+
+          inserts a row in ``Table`` with column `col1` set to `val1`,
+          `col2` set to `val2` etc. Columns which are not specified in `d`
+          are incremented if they are autoincrementing indices or set to null
+          otherwise. If any of the specified columns is the primary key or
+          a non-null column with a unique constraint the corresponding row
+          is updated if it exists or inserted otherwise. Unique constraints
+          across multiple non-null columns are handled in the same way.
+
+          If ``Table`` has a one-to-many relationship `rel` with another table
+          ``Table2`` and ``'rel'`` is specified in `d` then ``Table2`` will be
+          updated accordingly:
+
+              session.add_from_dict({'c1': v1,
+                                     'rel': [{'c2': v2, 'c3': v3, ...}, ...]},
+                                    Table)
+
+          Foreign key columns do not need to be included in the child documents.
+          The rows in ``Table2`` which are associated with the new (or updated)
+          row in ``Table`` are *exactly* the ones specified in ``'rel'``, i.e.
+          additional children which may exist in ``Table2`` are deleted.
+          (Although this behaviour can be changed with the `delete` keyword
+          argument.)
+
+        """
         if d is None:
             return None
         pkeycols, pkey = _get_pkey(d, table)
@@ -67,11 +142,6 @@ class Session(sqlalchemy.orm.session.Session):
             self.flush()
             _update_ids(d, row)
         return row
-
-
-def sessionmaker(**kwargs):
-    kwargs.setdefault('class_', Session)
-    return sqlalchemy.orm.sessionmaker(**kwargs)
 
 
 def _update_ids(d, row, fkeynames=[]):

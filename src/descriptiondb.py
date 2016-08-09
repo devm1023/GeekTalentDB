@@ -3,8 +3,6 @@ __all__ = [
     'CareerDescription',
     'SkillDescription',
     'DescriptionDB',
-    'create_all',
-    'drop_all',
     ]
 
 from dbtools import *
@@ -170,14 +168,10 @@ class DescriptionDBSession(Session):
         return [dict_from_row(row, pkeys=False) for row in q]
     
 
-DescriptionDB = sessionmaker(class_=DescriptionDBSession, bind=engine)
-
-
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
+class DescriptionDB(Session):
+    def __init__(self, url=conf.DESCRIPTION_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)    
 

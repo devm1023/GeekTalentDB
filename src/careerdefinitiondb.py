@@ -14,8 +14,6 @@ __all__ = [
     'SalaryBin',
     'SalaryHistoryPoint',
     'CareerDefinitionDB',
-    'create_all',
-    'drop_all',
     ]
 
 import conf
@@ -47,7 +45,6 @@ from pprint import pprint
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.CAREERDEFINITION_DB)
 
 
 class Sector(SQLBase):
@@ -397,15 +394,10 @@ class CareerDefinitionDBSession(Session):
         return results
 
 
-CareerDefinitionDB = sessionmaker(class_=CareerDefinitionDBSession,
-                                  bind=engine)
-
-
-def create_all():
-    SQLBase.metadata.create_all(engine)
-
-
-def drop_all():
-    SQLBase.metadata.drop_all(engine)
-
+class CareerDefinitionDB(Session):
+    def __init__(self, url=conf.CAREERDEFINITION_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
 
