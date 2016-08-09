@@ -268,6 +268,7 @@ def split_process(query, f, batchsize, njobs=1, args=[],
                 starttime = datetime.now()
                 _log_batchstart(logger, starttime, fromid_batch)
                 parallel_process(pargs)
+                parallel_process.append = True
                 endtime = datetime.now()
                 _log_batchend(logger, starttime, endtime, firststart,
                               fromrow_batch, torow_batch, nrows)
@@ -278,7 +279,6 @@ def split_process(query, f, batchsize, njobs=1, args=[],
                 fromrow_batch = None
                 torow_batch = None
 
-            parallel_process.append = True
         if pargs:
             starttime = datetime.now()
             _log_batchstart(logger, starttime, fromid_batch)

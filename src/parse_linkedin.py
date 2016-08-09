@@ -155,7 +155,7 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     
     with CrawlDB() as crdb, ParseDB() as psdb:
         maxts = func.max(Website.timestamp) \
-                    .over(partition_by=Website.timestamp) \
+                    .over(partition_by=Website.url) \
                     .label('maxts')
         subq = crdb.query(Website, maxts) \
                    .filter(*filters) \
