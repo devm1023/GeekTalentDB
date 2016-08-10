@@ -19,8 +19,10 @@ xp_picture  = ('//*[@id="topcard"]/div[@class="profile-card vcard"]'
                '/div[@class="profile-picture"]/a/img')
 xp_name     = '//*[@id="name"]'
 xp_title    = '//*[@class="headline title"]'
-xp_location = '//*[@id="demographics"]/dd[@class="descriptor adr"]/span'
-xp_sector   = '//*[@id="demographics"]/dd[@class="descriptor"]/span'
+xp_location = ['//*[@id="demographics"]/dd[@class="descriptor adr"]/span',
+               '//*[@id="demographics"]/dd[@class="descriptor adr"]']
+xp_sector   = ['//*[@id="demographics"]/dd[@class="descriptor"]/span',
+               '//*[@id="demographics"]/dd[@class="descriptor"]']
 xp_description = '//*[@id="summary"]/div[@class="description"]'
 xp_connections = '//*[@class="member-connections"]/strong'
 xp_skills = ['//*[@id="skills"]/ul/li[@class="skill"]',
