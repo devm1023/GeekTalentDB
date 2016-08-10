@@ -1,9 +1,21 @@
+"""Auxiliary classes and functions for database interaction via SQLAlchemy.
+
+The module provides an improved version of SQLAlchemy's ``Session`` class and
+functions for converting between Python dicts and mapped SQLALchemy table
+objects. Relationships are handled consistently and represented by nested
+dicts.
+
+Note:
+  The functions in this module currently don't work if you have declared
+  circular relationships such as back-references.
+
+"""
+
+
 __all__ = [
     'declarative_base',
     'Session',
     'dict_from_row',
-    'row_from_dict',
-    'update_row_from_dict',
 ]
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -86,7 +98,8 @@ class Session(sqlalchemy.orm.session.Session):
           otherwise. If any of the specified columns is the primary key or
           a non-null column with a unique constraint the corresponding row
           is updated if it exists or inserted otherwise. Unique constraints
-          across multiple non-null columns are handled in the same way.
+          across multiple non-null columns are handled in the same way. You
+          can disable this feature with the `update` argument.
 
           If ``Table`` has a one-to-many relationship `rel` with another table
           ``Table2`` and ``'rel'`` is specified in `d` then ``Table2`` will be
@@ -100,8 +113,36 @@ class Session(sqlalchemy.orm.session.Session):
           The rows in ``Table2`` which are associated with the new (or updated)
           row in ``Table`` are *exactly* the ones specified in ``'rel'``, i.e.
           additional children which may exist in ``Table2`` are deleted.
-          (Although this behaviour can be changed with the `delete` keyword
-          argument.)
+          This behaviour can be changed with the `delete` keyword
+          argument.
+
+        Args:
+          d (dict): Holds the values to be inserted into `table`. The keys must
+            be names of columns or one-to-many relationships of `table`. Missing
+            columns are incremented if they are auto-incrementing or set to
+            null otherwise. The values associated with one-to-many relationships
+            must be lists of dicts holding the child documents. Foreign key
+            columns can be omitted.
+          table (mapped table class): The class representing the table to
+            insert to.
+          update (bool, optional): If ``True`` an existing column in `table`
+            will be updated if the data provided in `d` is sufficient to
+            uniquely identify it. This can be accomplished by including primary
+            key columns in `d` or values for any set of non-nullable columns
+            with a unique constraint. Updates are also recursively applied for
+            child documents, re-using auto-incrementing primary keys if
+            possible. Defaults to ``True``.
+          delete (bool, optional): If ``True``, when updating a row in `table`
+            any child documents which exist in the database but are not listed
+            in `d` are deleted. Defaults to ``True``.
+          flush (bool, optional): Whether to flush the session at the end of
+            the inserts or updates. If ``True``, `d` is modified to also hold
+            the values of any auto-incrementing columns or foreign key columns
+            which were omitted in `d` or its sub-documents.
+          protect (list of str or tuple of str): When updating a row, columns
+            listed in `protect` will not be modified, even if they are present
+            in `d`. Columns in relationships by including tuples in in `protect`
+            holding the "path" to the relationship column.
 
         """
         if d is None:
@@ -178,6 +219,25 @@ def _get_pkey(d, table):
         return pkeycols, None
 
 def dict_from_row(row, pkeys=True, fkeys=True, exclude=[]):
+    """Create a dict representation of a database row and its relations.
+
+    Args:
+      row (mapped table object): The mapped table object from which to construct
+        a dict representation.
+      pkeys (bool, optional): Whether to include auto-incrementing primary keys
+        in the result. Defaults to ``True``.
+      fkeys (bool, optional): Whether to include foreign key columns in
+        sub-documents. Defaults to ``True``.
+      exclude (list of str, optional): List of columns to exclude from the
+        result.
+
+    Returns:
+      dict: Dictionary representation of `row`. The keys are the column and
+        relationship names. For one-to-one and many-to-one relationships the
+        value is a dict, for one-to-many relationships the value is a list
+        of dicts.
+    
+    """
     if row is None:
         return None
     if isinstance(row, list):
@@ -208,6 +268,7 @@ def dict_from_row(row, pkeys=True, fkeys=True, exclude=[]):
 
     return result
 
+
 def row_from_dict(d, rowtype):
     result = rowtype()
     mapper = inspect(rowtype)
@@ -236,6 +297,7 @@ def row_from_dict(d, rowtype):
                 setattr(result, relation.key, None)
 
     return result
+
 
 def _merge_lists(rows, dicts, rowtype, strict=False, delete=True, protect=[]):
     if not rows:
