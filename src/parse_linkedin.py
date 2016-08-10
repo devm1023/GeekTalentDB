@@ -169,7 +169,10 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
             q = q.filter(subq.c.maxts < to_ts)
 
         def process_row(website):
-            doc = parse_html(website.html)
+            try:
+                doc = parse_html(website.html)
+            except:
+                return
             try:
                 parsed_profile = parse_profile(
                     website.url, website.redirect_url, website.timestamp, doc)
