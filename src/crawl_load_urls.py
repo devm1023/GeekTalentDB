@@ -4,8 +4,6 @@ import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--leafs', action='store_true',
-                        help='Mark URLs as leaf pages.')
     parser.add_argument('--level', type=int, default=None,
                         help='Level of the URLs. Default: None')
     parser.add_argument('site',
@@ -17,6 +15,6 @@ if __name__ == '__main__':
     logger = Logger()
 
     with CrawlDB() as crdb:
-        crdb.load_urls(args.site, args.leafs, args.level, args.input_file,
+        crdb.load_urls(args.site, args.level, args.input_file,
                        logger=logger)
     

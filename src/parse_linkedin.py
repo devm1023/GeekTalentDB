@@ -11,6 +11,7 @@ from htmlextract import parse_html, extract, extract_many, \
 
 import re
 from datetime import datetime
+from parse_datetime import parse_datetime
 import argparse
 
 
@@ -149,7 +150,6 @@ def parse_profile(url, redirect_url, timestamp, doc):
 def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     logger = Logger()
     filters = [Website.valid,
-               Website.leaf,
                Website.site == 'linkedin',
                Website.url >= from_url]
     if to_url is not None:
@@ -188,24 +188,15 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
         process_db(q, process_row, psdb, logger=logger)
 
 
-def make_datetime(date):
-    if date is None:
-        return None
-    if '_' in date:
-        return datetime.strptime(date, '%Y-%m-%d_%H:%M:%S')
-    return datetime.strptime(date, '%Y-%m-%d')
-
-
 def main(args):
     logger = Logger()
     batch_size = args.batch_size
     filters = [Website.valid,
-               Website.leaf,
                Website.site == 'linkedin']
-    from_ts = make_datetime(args.from_date)
+    from_ts = parse_datetime(args.from_timestamp)
     if from_ts:
         filters.append(Website.timestamp >= from_ts)
-    to_ts = make_datetime(args.to_date)
+    to_ts = parse_datetime(args.to_timestamp)
     if to_ts:
         filters.append(Website.timestamp < to_ts)
     if args.from_url is not None:
@@ -222,10 +213,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--from-date',
-                        help='Start of date range. Format: YYYY-MM-DD_HH:MM:SS')
-    parser.add_argument('--to-date',
-                        help='End of date range. Format: YYYY-MM-DD_HH:MM:SS')
+    parser.add_argument('--from-timestamp',
+                        help='Start of timestamp range.')
+    parser.add_argument('--to-timestamp',
+                        help='End of timestamp range.')
     parser.add_argument('--jobs', type=int, default=1,
                         help='Number of parallel jobs.')
     parser.add_argument('--batch-size', type=int, default=1000,

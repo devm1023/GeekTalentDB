@@ -39,8 +39,10 @@ class Website(SQLBase):
     html          = Column(Text)
     level         = Column(Integer, index=True)
     valid         = Column(Boolean, index=True)
-    leaf          = Column(Boolean, index=True)
     fail_count    = Column(Integer, index=True)
+
+    links         = relationship('Link',
+                                 cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('url', 'timestamp'),)
 
@@ -48,12 +50,14 @@ class Website(SQLBase):
 class Link(SQLBase):
     __tablename__ = 'link'
     id            = Column(BigInteger, primary_key=True)
-    site          = Column(String(20), index=True, nullable=False)
-    from_url      = Column(String(STR_MAX), index=True, nullable=False)
-    to_url        = Column(String(STR_MAX), index=True, nullable=False)
-    timestamp     = Column(DateTime, index=True, nullable=False)
+    parent_id     = Column(BigInteger,
+                           ForeignKey('website.id'),
+                           nullable=False,
+                           index=True)
+    url           = Column(String(STR_MAX), index=True, nullable=False)
+    level         = Column(Integer, index=True)
 
-    __table_args__ = (UniqueConstraint('from_url', 'to_url', 'timestamp'),)
+    __table_args__ = (UniqueConstraint('parent_id', 'url'),)
 
 
 class CrawlDB(Session):
@@ -63,7 +67,7 @@ class CrawlDB(Session):
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
     
-    def load_urls(self, site, leaf, level, filename,
+    def load_urls(self, site, level, filename,
                   batch_size=10000, logger=Logger(None)):
         with open(filename, 'r') as inputfile:
             count = 0
@@ -73,7 +77,7 @@ class CrawlDB(Session):
                 q = self.query(Website.id) \
                         .filter(Website.url == url)
                 if q.first() is None:
-                    self.add(Website(site=site, url=url, leaf=leaf,
+                    self.add(Website(site=site, url=url,
                                      level=level, fail_count=0, valid=False))
                 if count % batch_size == 0:
                     self.commit()
