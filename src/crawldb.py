@@ -10,6 +10,7 @@ from sqlalchemy import \
     Column, \
     ForeignKey, \
     UniqueConstraint, \
+    Index, \
     Integer, \
     BigInteger, \
     Unicode, \
@@ -35,16 +36,22 @@ class Website(SQLBase):
     site          = Column(String(20), index=True, nullable=False)
     url           = Column(String(STR_MAX), index=True, nullable=False)
     redirect_url  = Column(String(STR_MAX), index=True)
-    timestamp     = Column(DateTime, index=True)
+    timestamp     = Column(DateTime)
     html          = Column(Text)
-    level         = Column(Integer, index=True)
-    valid         = Column(Boolean, index=True)
-    fail_count    = Column(Integer, index=True)
+    type          = Column(String(STR_MAX))
+    valid         = Column(Boolean)
+    fail_count    = Column(Integer)
 
     links         = relationship('Link',
                                  cascade='all, delete-orphan')
 
-    __table_args__ = (UniqueConstraint('url', 'timestamp'),)
+    __table_args__ = (
+        UniqueConstraint('url', 'timestamp'),
+        Index('ix_website_site_timestamp', 'site', 'timestamp'),
+        Index('ix_website_site_type', 'site', 'type'),
+        Index('ix_website_site_valid', 'site', 'valid'),
+        Index('ix_website_site_fail_count', 'site', 'fail_count'),
+    )
 
 
 class Link(SQLBase):
@@ -55,7 +62,7 @@ class Link(SQLBase):
                            nullable=False,
                            index=True)
     url           = Column(String(STR_MAX), index=True, nullable=False)
-    level         = Column(Integer, index=True)
+    type          = Column(String(STR_MAX), index=True)
 
     __table_args__ = (UniqueConstraint('parent_id', 'url'),)
 

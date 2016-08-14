@@ -41,7 +41,25 @@ class LinkedInCrawler(Crawler):
     
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
+        def get_type(url):
+            if cls.directory_url_pattern.match(url):
+                return 'people-directory'
+            elif cls.ukname_url_pattern.match(url):
+                return 'name-disambiguation-uk'
+            elif cls.name_url_pattern.match(redirect_url):
+                return 'name-disambiguation'
+            else:
+                return 'profile'
+
+        if doc is None:
+            return False, get_type(redirect_url), []
+            
         valid = False
+        type = get_type(redirect_url)
+        links = []
+        if doc is None:
+            return False, type, []
+        
         title_elem = doc.xpath('/html/head/title')
         # check for blacklisted page titles
         invalid_titles = ['999: request failed']
@@ -50,27 +68,25 @@ class LinkedInCrawler(Crawler):
         # check if we've been redirected to login page
         if cls.re_login.match(redirect_url):
             valid = False
-            
-        if not valid:
-            links = []
-        elif cls.directory_url_pattern.match(redirect_url):
-            # We are crawling the people directory
-            linktags = doc.xpath(
-                '//*[@id="seo-dir"]/div/div[@class="section last"]/div/ul/li/a')
-            links = [(tag.get('href'), False) for tag in linktags]
-        elif cls.ukname_url_pattern.match(redirect_url):
-            # We're on a name disambiguation page restricted to UK profiles
-            linktags = doc.xpath('//div[@class="profile-card"]/div/h3/a')
-            links = [(tag.get('href'), True) for tag in linktags]
-        elif cls.name_url_pattern.match(redirect_url):
-            # We're on an international name disambiguation page
-            linktags = doc.xpath('//a[@class="country-specific-link"]')
-            links = [(tag.get('href'), False) for tag in linktags]
-        else:
-            # We're on a profile page
-            links = []
-            # Check if the name field exists
-            if not doc.xpath('//*[@id="name"]'):
-                valid = False
 
-        return valid, links
+        if valid:
+            if type == 'people-directory':
+                linktags = doc.xpath(
+                    '//*[@id="seo-dir"]/div/div[@class="section last"]'
+                    '/div/ul/li/a')
+                links = [(tag.get('href'), get_type(tag.get('href'))) \
+                         for tag in linktags]
+            elif type == 'name-disambiguation-uk':
+                linktags = doc.xpath('//div[@class="profile-card"]/div/h3/a')
+                links = [(tag.get('href'), get_type(tag.get('href'))) \
+                         for tag in linktags]
+            elif type == 'name-disambiguation':
+                linktags = doc.xpath('//a[@class="country-specific-link"]')
+                links = [(tag.get('href'), get_type(tag.get('href'))) \
+                         for tag in linktags]
+            else:
+                links = []
+                if not doc.xpath('//*[@id="name"]'):
+                    valid = False
+
+        return valid, type, links

@@ -112,8 +112,8 @@ def _in_range(ts, from_ts, to_ts):
     return True
 
 
-def make_website(id, site, url, redirect_url, timestamp, html, level, parsefunc,
-                 require_valid_html=False, logger=Logger(None)):
+def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
+                 parsefunc, require_valid_html=False, logger=Logger(None)):
     if timestamp is None:
         return dict(
             id=None,
@@ -122,7 +122,7 @@ def make_website(id, site, url, redirect_url, timestamp, html, level, parsefunc,
             redirect_url=None,
             timestamp=None,
             html=None,
-            level=level,
+            type=expected_type,
             valid=None,
             fail_count=0,
             links=[]
@@ -147,16 +147,26 @@ def make_website(id, site, url, redirect_url, timestamp, html, level, parsefunc,
                 with open(filename, 'w') as htmlfile:
                     htmlfile.write(html)
 
-    valid = False
-    links = []
-    if parsed_html is not None:
-        valid, links = parsefunc(site, url, redirect_url, parsed_html)
-        if not isinstance(valid, bool):
-            raise RuntimeError(
-                'Parse function must return boolean value for `valid`')
-        if not isinstance(links, list):
-            raise RuntimeError(
-                'Parse function must return list value for `links`')
+    valid, type, links = parsefunc(site, url, redirect_url, parsed_html)
+    if parsed_html is None:
+        valid = False
+        links = []
+
+    if not valid:
+        type = expected_type
+    
+    if parsed_html is not None and not isinstance(valid, bool):
+        raise RuntimeError(
+            'Parse function must return boolean value for `valid`')
+    if not isinstance(type, str) and type is not None:
+        raise RuntimeError(
+            'Parse function must return None or string for `type`')
+    if not isinstance(links, list):
+        raise RuntimeError(
+            'Parse function must return list value for `links`')
+    if expected_type is not None and type != expected_type:
+        raise RuntimeError(
+            'Website type does not match expected type')
 
     website = dict(
         id=None,
@@ -166,14 +176,13 @@ def make_website(id, site, url, redirect_url, timestamp, html, level, parsefunc,
         timestamp=timestamp,
         fail_count=1 if valid is False else 0,
         html=html,
+        type=type,
         valid=valid,
-        level=level,
         links=[]
     )
 
-    link_level = None if level is None else level + 1
-    added_links = set()
-    for link_url in links:
+    added_links = {}
+    for link_url, link_type in links:
         if not isinstance(link_url, str):
             raise RuntimeError(
                 'Parse function must return str value for link URL')
@@ -181,15 +190,23 @@ def make_website(id, site, url, redirect_url, timestamp, html, level, parsefunc,
         if not link_url:
             raise RuntimeError(
                 'Parse function must return non-empty string for link URL')
+        if not isinstance(link_type, str) and link_type is not None:
+            raise RuntimeError(
+                'Parse function must return None or string for link type')
 
         if link_url in added_links:
-            continue
+            if link_type == added_links[link_url]:
+                continue
+            else:
+                raise RuntimeError(
+                    'Inconsistent link type for link URL {0:s}' \
+                    .format(link_url))
         link = dict(
             url=link_url,
-            level=link_level
+            type=link_type
         )
         website['links'].append(link)
-        added_links.add(link_url)
+        added_links[link_url] = link_type
 
     return website
 
@@ -252,7 +269,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 needs_repair = False
                 wdict = make_website(
                     w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html,
-                    w.level, parsefunc, require_valid_html=require_valid_html,
+                    w.type, parsefunc, require_valid_html=require_valid_html,
                     logger=logger)
                 wdict['id'] = w.id
                 if wdict['valid'] is False and w.valid is False:
@@ -276,8 +293,8 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                         needs_repair = True
                     else:
                         raise CrawlDBCheckError(msg)
-                old_links = set((l.url, l.level) for l in w.links)
-                new_links = set((l['url'], l['level']) \
+                old_links = set((l.url, l.type) for l in w.links)
+                new_links = set((l['url'], l['type']) \
                                 for l in wdict['links'])
                 for link in old_links:
                     if link not in new_links:
@@ -409,7 +426,7 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             # visit or the last one was unsuccessful.
             # Increment fail_count if this and the last visit were unsuccessful.
             website_dict = make_website(
-                None, site, url, redirect_url, timestamp, html, website.level,
+                None, site, url, redirect_url, timestamp, html, website.type,
                 parsefunc, require_valid_html=False, logger=logger)
             if website.valid is not True:
                 website_dict['id'] = website.id
@@ -448,14 +465,16 @@ class Crawler(ConfigurableObject):
         Defaults to 30.
       urls_from (iterable or None, optional): The URLs to crawl. Defaults to
         ``None``, in which case all pages from the database are crawled
-        (subject to constraints defined by the `recrawl`,
-        `max_level`, `limit`, and `max_fail_count` arguments).
+        (subject to constraints defined by the `recrawl`, `limit`, 
+        `max_fail_count`, `types` and `exclude_types` arguments).
       recrawl (datetime or None, optional): Recrawl URLs whose latest timestamp
         is earlier than `recrawl`. Defaults to ``None``, in which case only
         URLs that have not been visited at all are crawled.
-      max_level (int or None, optional): Only crawl URLs whose level (click
-        distance from the level-0 URLs in the database) is equal or less than
-        `max_level`. Defaults to ``None``, in which case all levels are crawled.
+      types (list of str or None, optional): Only crawl URLs whose type one of
+        those listed in `types`. Defaults to ``None``, in which case all types
+        of URLs are crawled.
+      exclude_types (list of str, optional): Exclude URLs of the specified types
+        from crawl. Defaults to ``[]``.
       limit (int or None, optional): Crawl at most `limit` URLs. Defaults to
         ``None``, in which case no limit is applied.
       max_fail_count (int, optional): Only crawl URLs with at most
@@ -503,7 +522,8 @@ class Crawler(ConfigurableObject):
             request_timeout=30,
             urls_from=None,
             recrawl=None,
-            max_level=None,
+            types=None,
+            exclude_types=[],
             limit=None,
             max_fail_count=10,
             jobs=1,
@@ -567,7 +587,7 @@ class Crawler(ConfigurableObject):
           links (list or str): A list of the link URLs found on the web page.
 
         """
-        return True, []
+        return True, None, []
 
     @classmethod
     def on_visit(cls, iproxy, proxy, proxy_state, valid):
@@ -611,7 +631,8 @@ class Crawler(ConfigurableObject):
         request_timeout = config['request_timeout']
         urls_from = config['urls_from']
         recrawl = config['recrawl']
-        max_level = config['max_level']
+        types = config['types']
+        exclude_types = config['exclude_types']
         limit = config['limit']
         max_fail_count = config['max_fail_count']
         jobs = config['jobs']
@@ -637,8 +658,10 @@ class Crawler(ConfigurableObject):
                     .filter(website_filter,
                             Website.site == site,
                             Website.fail_count <= max_fail_count)
-            if max_level is not None:
-                q = q.filter(Website.level <= max_level)
+            if types:
+                q = q.filter(Website.type.in_(types))
+            if exclude_types:
+                q = q.filter(~Website.type.in_(exclude_types))
             if urls_from:
                 with open(args.urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
