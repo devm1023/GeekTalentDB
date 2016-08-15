@@ -74,7 +74,7 @@ class CrawlDB(Session):
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
     
-    def load_urls(self, site, level, filename,
+    def load_urls(self, site, type, filename,
                   batch_size=10000, logger=Logger(None)):
         with open(filename, 'r') as inputfile:
             count = 0
@@ -85,7 +85,7 @@ class CrawlDB(Session):
                         .filter(Website.url == url)
                 if q.first() is None:
                     self.add(Website(site=site, url=url,
-                                     level=level, fail_count=0, valid=False))
+                                     type=type, fail_count=0, valid=False))
                 if count % batch_size == 0:
                     self.commit()
                     logger.log('{0:d} records processed.\n'.format(count))

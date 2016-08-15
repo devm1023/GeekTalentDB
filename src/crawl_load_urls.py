@@ -4,8 +4,8 @@ import argparse
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--level', type=int, default=None,
-                        help='Level of the URLs. Default: None')
+    parser.add_argument('--type', default=None,
+                        help='Type of the URLs. Default: None')
     parser.add_argument('site',
                         help='ID string of the crawled site.')
     parser.add_argument('input_file',
@@ -15,6 +15,6 @@ if __name__ == '__main__':
     logger = Logger()
 
     with CrawlDB() as crdb:
-        crdb.load_urls(args.site, args.level, args.input_file,
+        crdb.load_urls(args.site, args.type, args.input_file,
                        logger=logger)
     
