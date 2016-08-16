@@ -2,27 +2,43 @@
 
 """
 
-from linkedin_crawler import Crawler
+from linkedin_crawler import LinkedInCrawler
+from tor_crawler import TorCrawler
 from parse_datetime import parse_datetime
 from logger import Logger
 import argparse
+
+
+class LinkedInTorCrawler(TorCrawler, LinkedInCrawler):
+    def __init__(self, site='linkedin', nproxies=1, tor_base_port=13000,
+                 tor_timeout=60, tor_retries=3, **kwargs):
+        TorCrawler.__init__(self, site,
+                            nproxies=nproxies,
+                            tor_base_port=tor_base_port,
+                            tor_timeout=tor_timeout,
+                            tor_retries=tor_retries)
+        kwargs['proxies'] = self.proxies
+        LinkedInCrawler.__init__(self, site=site, **kwargs)
+        self.share_proxies = False
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--proxies-from', default=None,
                         help='Load proxy URLs from text file. '
-                        'Default proxy: ')
-    parser.add_argument('--max-level', type=int, default=None,
-                        help='Maximum click distance from seed websites.')
-    parser.add_argument('--recrawl', 
-                        help='Recrawl URLs with a timestamp earlier than '
-                        'RECRAWL.')
-    parser.add_argument('--leafs-only', action='store_true',
-                        help='Only crawl leaf pages.')
+                        'Uses Tor if not specified.')
     parser.add_argument('--max-fail-count', type=int, default=10,
                         help='Maximum number of failed crawls before '
                         'giving up. Default: 10')
+    parser.add_argument('--types', default=None,
+                        help='Comma-separated list of page types to crawl. '
+                        'If not specified all pages are crawled.')
+    parser.add_argument('--exclude-types', default=None,
+                        help='Comma-separated list of page types to exclude '
+                        'from crawl.')
+    parser.add_argument('--recrawl', 
+                        help='Recrawl URLs with a timestamp earlier than '
+                        'RECRAWL.')
     parser.add_argument('--limit', type=int,
                         help='Maximum number of URLs to crawl.')
     parser.add_argument('--urls-from', 
@@ -39,12 +55,30 @@ if __name__ == "__main__":
                         help='Desired number of requests per second.')
     parser.add_argument('--request-timeout', type=int, default=30,
                         help='Timeout for requests in secs. Default: 30')
+    parser.add_argument('--tor-proxies', type=int, default=1,
+                        help='Number of Tor proxies to start. Default: 1')
+    parser.add_argument('--tor-base-port', type=int, default=13000,
+                        help='Smallest port for Tor proxies. Default: 13000')
+    parser.add_argument('--tor-timeout', type=int, default=60,
+                        help='Timeout in secs for starting Tor process. '
+                        'Default: 60')
+    parser.add_argument('--tor-retries', type=int, default=3,
+                        help='Number of retries for starting Tor process. '
+                        'Default: 3')
     args = parser.parse_args()
 
     recrawl = None
     if args.recrawl is not None:
         recrawl = parse_datetime(args.recrawl)
-    
+
+    types = None
+    if args.types:
+        types = args.types.split(',')
+
+    exclude_types = None
+    if args.exclude_types:
+        exclude_types = args.exclude_types.split(',')
+
     logger = Logger()
 
     # header recommended by shader.io
@@ -57,7 +91,7 @@ if __name__ == "__main__":
     }
     request_args = {'headers' : headers}
 
-    proxies = [('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')]
+    proxies = None
     if args.proxies_from is not None:
         proxies = []
         with open(args.proxies_from, 'r') as inputfile:
@@ -71,21 +105,41 @@ if __name__ == "__main__":
                                      .format(repr(line)))
                 proxies.append(proxy)
 
-    crawler = LinkedInCrawler(
-        proxies=proxies,
-        crawl_rate=args.crawl_rate,
-        request_args=request_args,
-        request_timeout=args.request_timeout,
-        urls_from=args.urls_from,
-        leafs_only=args.leafs_only,
-        recrawl=recrawl,
-        max_level=args.max_level,
-        limit=args.limit,
-        max_fail_count=args.max_fail_count,
-        jobs=args.jobs,
-        batch_size=args.batch_size,
-        batch_time=args.batch_time,
-        logger=logger)
+    if proxies:
+        crawler = LinkedInCrawler(
+            proxies=proxies,
+            crawl_rate=args.crawl_rate,
+            request_args=request_args,
+            request_timeout=args.request_timeout,
+            urls_from=args.urls_from,
+            recrawl=recrawl,
+            types=types,
+            exclude_types=exclude_types,
+            limit=args.limit,
+            max_fail_count=args.max_fail_count,
+            jobs=args.jobs,
+            batch_size=args.batch_size,
+            batch_time=args.batch_time,
+            logger=logger)
+    else:
+        crawler = LinkedInTorCrawler(
+            nproxies=args.tor_proxies,
+            crawl_rate=args.crawl_rate,
+            request_args=request_args,
+            request_timeout=args.request_timeout,
+            urls_from=args.urls_from,
+            recrawl=recrawl,
+            types=types,
+            exclude_types=exclude_types,
+            limit=args.limit,
+            max_fail_count=args.max_fail_count,
+            jobs=args.jobs,
+            batch_size=args.batch_size,
+            batch_time=args.batch_time,
+            tor_base_port=args.tor_base_port,
+            tor_timeout=args.tor_timeout,
+            tor_retries=args.tor_retries,
+            logger=logger)
 
     crawler.crawl()
     

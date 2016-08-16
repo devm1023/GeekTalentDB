@@ -46,16 +46,17 @@ class LinkedInCrawler(Crawler):
                 return 'people-directory'
             elif cls.ukname_url_pattern.match(url):
                 return 'name-disambiguation-uk'
-            elif cls.name_url_pattern.match(redirect_url):
+            elif cls.name_url_pattern.match(url):
                 return 'name-disambiguation'
             else:
                 return 'profile'
 
-        if doc is None:
-            return False, get_type(redirect_url), []
+        if redirect_url:
+            type = get_type(redirect_url)
+        else:
+            type = get_type(url)
             
         valid = False
-        type = get_type(redirect_url)
         links = []
         if doc is None:
             return False, type, []

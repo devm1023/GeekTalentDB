@@ -90,6 +90,7 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
     request_args['proxies'] = {'http': proxy[0], 'https': proxy[1]}
     request_args['timeout'] = timeout
     success = False
+
     try:
         result = requests.get(url, **request_args)
         if result.status_code < 200 or result.status_code > 399:
@@ -432,7 +433,7 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
                 website_dict['id'] = website.id
                 if not website_dict['valid']:
                     website_dict['fail_count'] += website.fail_count
-            crdb.add_from_dict(website)
+            crdb.add_from_dict(website_dict, Website)
             crdb.commit()
 
             count += 1

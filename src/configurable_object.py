@@ -3,35 +3,29 @@ class ConfigError(Exception):
 
 class ConfigurableObject:
     def __init__(self, **kwargs):
-        object.__setattr__(self, '_config', kwargs.copy())
+        if hasattr(self, '_config'):
+            self._config.update(kwargs)
+        else:
+            object.__setattr__(self, '_config', kwargs.copy())
         self.check_config(self._config)
 
-    def check_config(self):
+    def check_config(self, config):
         pass
 
     def __getattr__(self, attr):
-        try:
-            config = object.__getattr__(self, attr)
-        except AttributeError:
-            object.__getattr__(self, attr)
-            return
-        if attr in config:
-            return config[attr]
+        if attr != '_config' and attr in self._config:
+            return self._config[attr]
         else:
-            object.__getattr__(self, attr)
+            raise AttributeError('{0:s} object has no attribute {1:s}' \
+                                 .format(repr(self.__class__.__name__),
+                                         repr(attr)))
 
     def __setattr__(self, attr, value):
-        try:
-            config = object.__getattr__(self, attr)
-        except AttributeError:
-            object.__setattr__(self, attr, value)
-            return
-        if attr in config:
-            config[attr] = value
-            self.check_config(config)
+        if hasattr(self, '_config') and attr in self._config:
+            self._config[attr] = value
         else:
             object.__setattr__(self, attr, value)
-
+    
     def get_config(self, **kwargs):
         result = self._config.copy()
         for key, value in kwargs.items():
@@ -62,3 +56,13 @@ class ConfigurableObject:
 
         self.check_config(self._config)
 
+
+if __name__ == '__main__':
+    obj = ConfigurableObject(a=1, b=2)
+    obj.a = 3
+    obj.x = 4
+    print(obj.a)
+    print(obj.b)
+    print(obj.x)
+    print(obj.get_config(b=10))
+    
