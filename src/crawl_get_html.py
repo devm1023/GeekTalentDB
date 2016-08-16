@@ -12,8 +12,8 @@ if __name__ == "__main__":
 
     crdb = CrawlDB()
 
-    q = crdb.query(Website.html) \
-            .filter(Website.id == args.id)
+    q = crdb.query(Webpage.html) \
+            .filter(Webpage.id == args.id)
     for html, in q:
         sys.stdout.write(html)
         sys.stdout.flush()

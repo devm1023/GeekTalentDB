@@ -149,38 +149,38 @@ def parse_profile(url, redirect_url, timestamp, doc):
 
 def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     logger = Logger()
-    filters = [Website.valid,
-               Website.site == 'linkedin',
-               Website.url >= from_url]
+    filters = [Webpage.valid,
+               Webpage.site == 'linkedin',
+               Webpage.url >= from_url]
     if to_url is not None:
-        filters.append(Website.url < to_url)
+        filters.append(Webpage.url < to_url)
     
     with CrawlDB() as crdb, ParseDB() as psdb:
-        maxts = func.max(Website.timestamp) \
-                    .over(partition_by=Website.url) \
+        maxts = func.max(Webpage.timestamp) \
+                    .over(partition_by=Webpage.url) \
                     .label('maxts')
-        subq = crdb.query(Website, maxts) \
+        subq = crdb.query(Webpage, maxts) \
                    .filter(*filters) \
                    .subquery()
-        WebsiteAlias = aliased(Website, subq)
-        q = crdb.query(WebsiteAlias) \
+        WebpageAlias = aliased(Webpage, subq)
+        q = crdb.query(WebpageAlias) \
                 .filter(subq.c.timestamp == subq.c.maxts)
         if from_ts is not None:
             q = q.filter(subq.c.maxts >= from_ts)
         if to_ts is not None:
             q = q.filter(subq.c.maxts < to_ts)
 
-        def process_row(website):
+        def process_row(webpage):
             try:
-                doc = parse_html(website.html)
+                doc = parse_html(webpage.html)
             except:
                 return
             try:
                 parsed_profile = parse_profile(
-                    website.url, website.redirect_url, website.timestamp, doc)
+                    webpage.url, webpage.redirect_url, webpage.timestamp, doc)
             except:
                 logger.log('Error parsing HTML from URL {0:s}\n' \
-                           .format(website.url))
+                           .format(webpage.url))
                 raise
             if parsed_profile is not None:
                 psdb.add_from_dict(parsed_profile, LIProfile)
@@ -191,19 +191,19 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
 def main(args):
     logger = Logger()
     batch_size = args.batch_size
-    filters = [Website.valid,
-               Website.site == 'linkedin']
+    filters = [Webpage.valid,
+               Webpage.site == 'linkedin']
     from_ts = parse_datetime(args.from_timestamp)
     if from_ts:
-        filters.append(Website.timestamp >= from_ts)
+        filters.append(Webpage.timestamp >= from_ts)
     to_ts = parse_datetime(args.to_timestamp)
     if to_ts:
-        filters.append(Website.timestamp < to_ts)
+        filters.append(Webpage.timestamp < to_ts)
     if args.from_url is not None:
-        filters.append(Website.url >= args.from_url)
+        filters.append(Webpage.url >= args.from_url)
     
     with CrawlDB() as crdb:
-        q = crdb.query(Website.url).filter(*filters)
+        q = crdb.query(Webpage.url).filter(*filters)
 
         split_process(q, parse_profiles, args.batch_size,
                       args=[from_ts, to_ts], njobs=args.jobs, logger=logger,

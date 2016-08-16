@@ -1,5 +1,5 @@
 __all__ = [
-    'Website',
+    'Webpage',
     'Link',
     'CrawlDB',
     ]
@@ -30,8 +30,8 @@ STR_MAX = 100000
 SQLBase = declarative_base()
 
 
-class Website(SQLBase):
-    __tablename__ = 'website'
+class Webpage(SQLBase):
+    __tablename__ = 'webpage'
     id            = Column(BigInteger, primary_key=True)
     site          = Column(String(20), index=True, nullable=False)
     url           = Column(String(STR_MAX), index=True, nullable=False)
@@ -40,17 +40,17 @@ class Website(SQLBase):
     html          = Column(Text)
     type          = Column(String(STR_MAX))
     valid         = Column(Boolean, nullable=False)
-    fail_count    = Column(Integer)
+    fail_count    = Column(Integer, nullable=False)
 
     links         = relationship('Link',
                                  cascade='all, delete-orphan')
 
     __table_args__ = (
         UniqueConstraint('url', 'timestamp'),
-        Index('ix_website_site_timestamp', 'site', 'timestamp'),
-        Index('ix_website_site_type', 'site', 'type'),
-        Index('ix_website_site_valid', 'site', 'valid'),
-        Index('ix_website_site_fail_count', 'site', 'fail_count'),
+        Index('ix_webpage_site_timestamp', 'site', 'timestamp'),
+        Index('ix_webpage_site_type', 'site', 'type'),
+        Index('ix_webpage_site_valid', 'site', 'valid'),
+        Index('ix_webpage_site_fail_count', 'site', 'fail_count'),
     )
 
 
@@ -58,7 +58,7 @@ class Link(SQLBase):
     __tablename__ = 'link'
     id            = Column(BigInteger, primary_key=True)
     parent_id     = Column(BigInteger,
-                           ForeignKey('website.id'),
+                           ForeignKey('webpage.id'),
                            nullable=False,
                            index=True)
     url           = Column(String(STR_MAX), index=True, nullable=False)
@@ -73,7 +73,18 @@ class CrawlDB(Session):
         Session.__init__(self, url=url, metadata=SQLBase.metadata,
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
-    
+
+    def add_url(self, site, type, url):
+        q = self.query(Webpage.id) \
+                .filter(Webpage.site == site,
+                        Webpage.url == url)
+        webpage = None
+        if q.first() is None:
+            webpage = Webpage(site=site, url=url,
+                              type=type, fail_count=0, valid=False)
+            self.add(webpage)
+        return webpage
+        
     def load_urls(self, site, type, filename,
                   batch_size=10000, logger=Logger(None)):
         with open(filename, 'r') as inputfile:
@@ -81,10 +92,10 @@ class CrawlDB(Session):
             for line in inputfile:
                 count += 1
                 url = line.strip()
-                q = self.query(Website.id) \
-                        .filter(Website.url == url)
+                q = self.query(Webpage.id) \
+                        .filter(Webpage.url == url)
                 if q.first() is None:
-                    self.add(Website(site=site, url=url,
+                    self.add(Webpage(site=site, url=url,
                                      type=type, fail_count=0, valid=False))
                 if count % batch_size == 0:
                     self.commit()

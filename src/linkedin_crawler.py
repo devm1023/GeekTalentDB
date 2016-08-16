@@ -6,7 +6,7 @@ class LinkedInCrawler(Crawler):
     """Crawler class for LinkedIn profiles and the people directory.
 
     Args:
-      site (str, optional): String ID of the crawled website. Defaults to
+      site (str, optional): String ID of the crawled webpage. Defaults to
         ``'linkedin'``.
       **kwargs (optional): All other keyword arguments are passed to the
         constructor of ``crawler.Crawler``.

@@ -1,7 +1,7 @@
-"""Crawl websites and store the HTML in the `crawl` database.
+"""Crawl webpages and store the HTML in the `crawl` database.
 
 This module provides the ``Crawler`` class which serves as a base class for
-objects that crawl specific websites and store the HTML in the `crawl` database.
+objects that crawl specific webpages and store the HTML in the `crawl` database.
 
 Created by: Martin Wiebusch
 Last modified: 2016-07-27 MW
@@ -71,7 +71,7 @@ def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
       returns ``None`` in the case of a failed request.
 
     Args:
-      site (str): String identifying the crawled website. Currently not used.
+      site (str): String identifying the crawled webpage. Currently not used.
       url (str): The URL to visit.
       proxy (tuple of str, optional): Tuple holding the URLs of the http and
         https proxies (in that order). Default settings assume a local Tor
@@ -113,7 +113,7 @@ def _in_range(ts, from_ts, to_ts):
     return True
 
 
-def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
+def make_webpage(id, site, url, redirect_url, timestamp, html, expected_type,
                  parsefunc, require_valid_html=False, logger=Logger(None)):
     if timestamp is None:
         return dict(
@@ -167,9 +167,9 @@ def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
             'Parse function must return list value for `links`')
     if expected_type is not None and type != expected_type:
         raise RuntimeError(
-            'Website type does not match expected type')
+            'Webpage type does not match expected type')
 
-    website = dict(
+    webpage = dict(
         id=None,
         site=site,
         url=url,
@@ -206,43 +206,43 @@ def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
             url=link_url,
             type=link_type
         )
-        website['links'].append(link)
+        webpage['links'].append(link)
         added_links[link_url] = link_type
 
-    return website
+    return webpage
 
 
 def check_urls(jobid, from_url, to_url, site, parsefunc,
                repair, from_ts, to_ts):
     logger = Logger()
     with CrawlDB() as crdb:
-        q = crdb.query(Website.url, Website) \
-                .filter(Website.site == site,
-                        Website.url >= from_url)
+        q = crdb.query(Webpage.url, Webpage) \
+                .filter(Webpage.site == site,
+                        Webpage.url >= from_url)
         if to_url is not None:
-            q = q.filter(Website.url < to_url)
-        q = q.order_by(Website.url, Website.timestamp)
+            q = q.filter(Webpage.url < to_url)
+        q = q.order_by(Webpage.url, Webpage.timestamp)
 
-        for url, websites in collapse(q):
-            websites = [w for w, in websites]
+        for url, webpages in collapse(q):
+            webpages = [w for w, in webpages]
 
             # check consistency of fields
-            if len(websites) > 1:
-                if any(w.timestamp is None for w in websites):
+            if len(webpages) > 1:
+                if any(w.timestamp is None for w in webpages):
                     raise CrawlDBCheckError(
                         'Found multiple crawls and a missing timestamp for '
                         'URL {0:s}'.format(url))
-                w = websites[-1]
+                w = webpages[-1]
                 if not w.valid and w.fail_count <= 0:
                     raise CrawlDBCheckError(
                         'Multiple crawls and failed last crawl with '
                         'non-positive fail count for ID {0:d}'.format(w.id))
-            for w in websites[:-1]:
+            for w in webpages[:-1]:
                 if not w.valid:
                     raise CrawlDBCheckError(
                         'Failed crawl which is not last crawl for '
                         'ID {0:d}'.format(w.id))
-            for w in websites:
+            for w in webpages:
                 if w.redirect_url is None and w.html is not None:
                     raise CrawlDBCheckError(
                         'Missing redirect URL for ID {0:d}'.format(w.id))
@@ -259,13 +259,13 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                     else:
                         raise CrawlDBCheckError(msg)
 
-            # check validity of websites
-            for w in websites:
+            # check validity of webpages
+            for w in webpages:
                 if not _in_range(w.timestamp, from_ts, to_ts):
                     continue
                 require_valid_html = w.valid and not repair
                 needs_repair = False
-                wdict = make_website(
+                wdict = make_webpage(
                     w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html,
                     w.type, parsefunc, require_valid_html=require_valid_html,
                     logger=logger)
@@ -323,24 +323,24 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                         raise CrawlDBCheckError(msg)
 
                 if needs_repair:
-                    crdb.add_from_dict(wdict, Website)
+                    crdb.add_from_dict(wdict, Webpage)
                     crdb.flush()
 
             # check conditions for multiple crawls again
-            if len(websites) > 1:
-               if any(w.timestamp is None for w in websites):
+            if len(webpages) > 1:
+               if any(w.timestamp is None for w in webpages):
                    raise RuntimeError(
                        'Found multiple crawls and a missing timestamp for '
                        'URL {0:s} after repair'.format(url))
-               if any(w.valid is None for w in websites):
+               if any(w.valid is None for w in webpages):
                    raise RuntimeError(
                        'Found multiple crawls and valid = null for '
                        'URL {0:s} after repair'.format(url))
 
             # combine subsequent failed crawls
-            if websites and repair:
-                lastw = websites[0]
-                for w in websites[1:]:
+            if webpages and repair:
+                lastw = webpages[0]
+                for w in webpages[1:]:
                     if not lastw.valid:
                         if not w.valid:
                             w.fail_count += lastw.fail_count
@@ -361,7 +361,7 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
       argument.
 
     Args:
-      site (str): String identifying the website.
+      site (str): String identifying the webpage.
       urls (list of str): List of URLs to visit.
       parsefunc (callable): Function for validating the HTML and extracting
         links. See documentation of ``Crawler.parse``.
@@ -394,7 +394,6 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
         count = 0
         valid_count = 0
         crawl_start = datetime.utcnow()
-        discovered_websites = []
         for url in urls:
             timestamp = datetime.utcnow()
             if timestamp > deadline:
@@ -419,12 +418,12 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
                 redirect_url=response.url
 
             # retrieve last crawl from database
-            website = crdb.query(Website) \
-                          .filter(Website.site == site,
-                                  Website.url == url) \
-                          .order_by(Website.timestamp.desc()) \
+            webpage = crdb.query(Webpage) \
+                          .filter(Webpage.site == site,
+                                  Webpage.url == url) \
+                          .order_by(Webpage.timestamp.desc()) \
                           .first()
-            if website is None:
+            if webpage is None:
                 raise IOError('URL {0:s} not found for site {1:s}.' \
                               .format(url, repr(site)))
 
@@ -432,14 +431,14 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             # Update the row if this visit was successful and this is the first
             # visit or the last one was unsuccessful.
             # Increment fail_count if this and the last visit were unsuccessful.
-            website_dict = make_website(
-                None, site, url, redirect_url, timestamp, html, website.type,
+            webpage_dict = make_webpage(
+                None, site, url, redirect_url, timestamp, html, webpage.type,
                 parsefunc, require_valid_html=False, logger=logger)
-            if website.valid is not True:
-                website_dict['id'] = website.id
-                if not website_dict['valid']:
-                    website_dict['fail_count'] += website.fail_count
-            crdb.add_from_dict(website_dict, Website)
+            if webpage.valid is not True:
+                webpage_dict['id'] = webpage.id
+                if not webpage_dict['valid']:
+                    webpage_dict['fail_count'] += webpage.fail_count
+            crdb.add_from_dict(webpage_dict, Webpage)
             crdb.commit()
 
             count += 1
@@ -583,14 +582,14 @@ class Crawler(ConfigurableObject):
         """User-definable static method for parsing web pages.
 
         Args:
-          site (str): The string ID of the crawled website.
+          site (str): The string ID of the crawled webpage.
           url (str): The visited URL.
           redirect_url (str): The URL that the request was redirected to.
           doc (lxml.etree): The lxml etree structure representing the HTML
             code of the web page.
 
         Returns:
-          valid (bool): True if the website was valid.
+          valid (bool): True if the webpage was valid.
           links (list or str): A list of the link URLs found on the web page.
 
         """
@@ -622,7 +621,7 @@ class Crawler(ConfigurableObject):
         
     
     def crawl(self, **kwargs):
-        """Crawl a website.
+        """Crawl a webpage.
 
         Args:
           **kwargs (optional): Accepts the same keyword arguments as the
@@ -657,22 +656,22 @@ class Crawler(ConfigurableObject):
             nproxies = len(proxies)
 
             if recrawl is not None:
-                website_filter \
-                    = (~Website.valid) | (Website.timestamp < recrawl_date)
+                webpage_filter \
+                    = (~Webpage.valid) | (Webpage.timestamp < recrawl_date)
             else:
-                website_filter = ~Website.valid
-            q = crdb.query(Website.url) \
-                    .filter(website_filter,
-                            Website.site == site,
-                            Website.fail_count <= max_fail_count)
+                webpage_filter = ~Webpage.valid
+            q = crdb.query(Webpage.url) \
+                    .filter(webpage_filter,
+                            Webpage.site == site,
+                            Webpage.fail_count <= max_fail_count)
             if types:
-                q = q.filter(Website.type.in_(types))
+                q = q.filter(Webpage.type.in_(types))
             if exclude_types:
-                q = q.filter(~Website.type.in_(exclude_types))
+                q = q.filter(~Webpage.type.in_(exclude_types))
             if urls_from:
                 with open(args.urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
-                q = q.filter(in_values(Website.url, urls))
+                q = q.filter(in_values(Webpage.url, urls))
             q = q.limit(EXCESS*batch_size*jobs)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
@@ -795,8 +794,8 @@ class Crawler(ConfigurableObject):
         logger = config['logger']
 
         with CrawlDB() as crdb:
-            q = crdb.query(Website.url) \
-                    .filter(Website.site == site)
+            q = crdb.query(Webpage.url) \
+                    .filter(Webpage.site == site)
 
             split_process(q, check_urls, batch_size, njobs=jobs,
                           args=[site, self.parse,
