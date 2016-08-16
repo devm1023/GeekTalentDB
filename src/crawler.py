@@ -176,7 +176,7 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, expected_type,
         redirect_url=redirect_url,
         timestamp=timestamp,
         fail_count=1 if not valid and timestamp is not None else 0,
-        html=html,
+        html=html if html else None,
         type=type,
         valid=valid,
         links=[]
@@ -243,7 +243,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                         'Failed crawl which is not last crawl for '
                         'ID {0:d}'.format(w.id))
             for w in webpages:
-                if w.redirect_url is None and w.html is not None:
+                if w.valid and w.redirect_url is None:
                     raise CrawlDBCheckError(
                         'Missing redirect URL for ID {0:d}'.format(w.id))
                 if w.timestamp is None and w.valid:
