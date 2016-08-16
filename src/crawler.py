@@ -113,22 +113,8 @@ def _in_range(ts, from_ts, to_ts):
     return True
 
 
-def make_webpage(id, site, url, redirect_url, timestamp, html, expected_type,
+def make_webpage(id, site, url, redirect_url, timestamp, html,
                  parsefunc, require_valid_html=False, logger=Logger(None)):
-    if timestamp is None:
-        return dict(
-            id=None,
-            site=site,
-            url=url,
-            redirect_url=None,
-            timestamp=None,
-            html=None,
-            type=expected_type,
-            valid=False,
-            fail_count=0,
-            links=[]
-        )
-
     parsed_html = None
     if html is not None:
         try:
@@ -153,9 +139,6 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, expected_type,
         valid = False
         links = []
 
-    if not valid:
-        type = expected_type
-    
     if not isinstance(valid, bool):
         raise RuntimeError(
             'Parse function must return boolean value for `valid`')
@@ -165,9 +148,6 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, expected_type,
     if not isinstance(links, list):
         raise RuntimeError(
             'Parse function must return list value for `links`')
-    if expected_type is not None and type != expected_type:
-        raise RuntimeError(
-            'Webpage type does not match expected type')
 
     webpage = dict(
         id=None,
@@ -267,7 +247,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 needs_repair = False
                 wdict = make_webpage(
                     w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html,
-                    w.type, parsefunc, require_valid_html=require_valid_html,
+                    parsefunc, require_valid_html=require_valid_html,
                     logger=logger)
                 wdict['id'] = w.id
                 if w.timestamp and not wdict['valid'] and not w.valid:
@@ -432,7 +412,7 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             # visit or the last one was unsuccessful.
             # Increment fail_count if this and the last visit were unsuccessful.
             webpage_dict = make_webpage(
-                None, site, url, redirect_url, timestamp, html, webpage.type,
+                None, site, url, redirect_url, timestamp, html,
                 parsefunc, require_valid_html=False, logger=logger)
             if webpage.valid is not True:
                 webpage_dict['id'] = webpage.id
