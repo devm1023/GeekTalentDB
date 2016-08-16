@@ -124,7 +124,7 @@ def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
             timestamp=None,
             html=None,
             type=expected_type,
-            valid=None,
+            valid=False,
             fail_count=0,
             links=[]
         )
@@ -156,7 +156,7 @@ def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
     if not valid:
         type = expected_type
     
-    if parsed_html is not None and not isinstance(valid, bool):
+    if not isinstance(valid, bool):
         raise RuntimeError(
             'Parse function must return boolean value for `valid`')
     if not isinstance(type, str) and type is not None:
@@ -175,7 +175,7 @@ def make_website(id, site, url, redirect_url, timestamp, html, expected_type,
         url=url,
         redirect_url=redirect_url,
         timestamp=timestamp,
-        fail_count=1 if valid is False else 0,
+        fail_count=1 if not valid and timestamp is not None else 0,
         html=html,
         type=type,
         valid=valid,
@@ -228,14 +228,15 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
 
             # check consistency of fields
             if len(websites) > 1:
-               if any(w.timestamp is None for w in websites):
-                   raise CrawlDBCheckError(
-                       'Found multiple crawls and a missing timestamp for '
-                       'URL {0:s}'.format(url))
-               if any(w.valid is None for w in websites):
-                   raise CrawlDBCheckError(
-                       'Found multiple crawls and valid = null for '
-                       'URL {0:s}'.format(url))
+                if any(w.timestamp is None for w in websites):
+                    raise CrawlDBCheckError(
+                        'Found multiple crawls and a missing timestamp for '
+                        'URL {0:s}'.format(url))
+                w = websites[-1]
+                if not w.valid and w.fail_count <= 0:
+                    raise CrawlDBCheckError(
+                        'Multiple crawls and failed last crawl with '
+                        'non-positive fail count for ID {0:d}'.format(w.id))
             for w in websites[:-1]:
                 if not w.valid:
                     raise CrawlDBCheckError(
@@ -245,22 +246,18 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 if w.redirect_url is None and w.html is not None:
                     raise CrawlDBCheckError(
                         'Missing redirect URL for ID {0:d}'.format(w.id))
-                if w.timestamp is None and w.valid is not None:
+                if w.timestamp is None and w.valid:
                     raise CrawlDBCheckError(
-                        'Missing timestamp for crawl with valid != null for '
+                        'Valid crawl with missing timestamp for '
                         'ID {0:d}'.format(w.id))
-                if w.valid is not False and w.fail_count != 0:
-                    msg = ('Crawl with non-zero fail count and valid != false '
-                           'for ID {0:d}'.format(w.id))
+                if w.valid and w.fail_count != 0:
+                    msg = ('Valid crawl with non-zero fail count for '
+                           'ID {0:d}'.format(w.id))
                     if repair and _in_range(w.timestamp, from_ts, to_ts):
                         logger.log('{0:s}. Repairing.\n'.format(msg))
                         w.fail_count = 0
                     else:
                         raise CrawlDBCheckError(msg)
-                if w.valid is False and w.fail_count <= 0:
-                    raise CrawlDBCheckError(
-                        'Failed crawl with timestamp and zero '
-                        'fail count for ID {0:d}'.format(w.id))
 
             # check validity of websites
             for w in websites:
@@ -273,7 +270,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                     w.type, parsefunc, require_valid_html=require_valid_html,
                     logger=logger)
                 wdict['id'] = w.id
-                if wdict['valid'] is False and w.valid is False:
+                if w.timestamp and not wdict['valid'] and not w.valid:
                     wdict['fail_count'] = w.fail_count
 
                 if w.valid != wdict['valid']:
@@ -289,6 +286,15 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                     msg = ('Wrong `fail_count` field for ID {0:d}. '
                            'Is {1:d}, should be {2:d}.') \
                            .format(w.id, w.fail_count, wdict['fail_count'])
+                    if repair:
+                        logger.log(msg+' Repairing.\n')
+                        needs_repair = True
+                    else:
+                        raise CrawlDBCheckError(msg)
+                if w.type != wdict['type']:
+                    msg = ('Wrong `type` field for ID {0:d}. '
+                           'Is {1:s}, should be {2:s}.') \
+                           .format(w.id, repr(w.type), repr(wdict['type']))
                     if repair:
                         logger.log(msg+' Repairing.\n')
                         needs_repair = True

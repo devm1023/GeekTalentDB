@@ -39,7 +39,7 @@ class Website(SQLBase):
     timestamp     = Column(DateTime)
     html          = Column(Text)
     type          = Column(String(STR_MAX))
-    valid         = Column(Boolean)
+    valid         = Column(Boolean, nullable=False)
     fail_count    = Column(Integer)
 
     links         = relationship('Link',
