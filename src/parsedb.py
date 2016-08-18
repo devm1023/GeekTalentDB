@@ -115,26 +115,36 @@ class LISkill(SQLBase):
     url           = Column(String(STR_MAX))
 
 class WUSubject(SQLBase):
-    __tablename__         = 'wusubject'
-    id                    = Column(BigInteger, primary_key=True)
-    title                 = Column(Unicode(STR_MAX))
-    description           = Column(Unicode(STR_MAX))
-    average_salary        = Column(BigInteger)
-    employed_furtherstudy = Column(Float)
-    url                   = Column(Unicode(STR_MAX))
-    alevels               = relationship('WUALevel',
-                                cascade='all, delete-orphan')
-    careers               = relationship('WUCareer',
-                                cascade='all, delete-orphan')
+    __tablename__                = 'wusubject'
+    id                           = Column(BigInteger, primary_key=True)
+    title                        = Column(Unicode(STR_MAX))
+    description                  = Column(Unicode(STR_MAX))
+    average_salary               = Column(Unicode(STR_MAX))
+    average_salary_rating        = Column(Unicode(STR_MAX))
+    employed_furtherstudy        = Column(Unicode(STR_MAX))
+    employed_furtherstudy_rating = Column(Unicode(STR_MAX))
+    url                          = Column(Unicode(STR_MAX))
+    alevels                      = relationship('WUALevel',
+                                        cascade='all, delete-orphan')
+    careers                      = relationship('WUCareer',
+                                        cascade='all, delete-orphan')
 
 class WUALevel(SQLBase):
     __tablename__ = 'wualevel'
     id            = Column(BigInteger, primary_key=True)
+    subject_id    = Column(BigInteger,
+                           ForeignKey('wusubject.id'),
+                           nullable=False,
+                           index=True)
     title         = Column(Unicode(STR_MAX))
 
 class WUCareer(SQLBase):
     __tablename__ = 'wucareer'
     id            = Column(BigInteger, primary_key=True)
+    subject_id    = Column(BigInteger,
+                           ForeignKey('wusubject.id'),
+                           nullable=False,
+                           index=True)
     title         = Column(Unicode(STR_MAX))
 
 

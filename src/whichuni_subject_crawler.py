@@ -22,8 +22,8 @@ class WhichUniSubjectCrawler(Crawler):
         page_type = 'alevel-explorer'
         if doc is None:
             return False, page_type, []
-        title_elem = doc.xpath('/html/head/title')
-        if title_elem:
+        is_subjects = doc.xpath('//li[contains(@class, "result-card")]')
+        if is_subjects:
             valid = True
         return valid, page_type, links
         

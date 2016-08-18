@@ -1,7 +1,6 @@
-from urllib.parse import quote
 
 def urlify(comp):
-    return quote(comp.lower())
+    return comp.lower().replace(' ', '-')
 
 valid_alevels = ["Afrikaans", "Anthropology", "Arabic",
     "Archaeology", "Art and Design", "Bahasa", "Basque", 
