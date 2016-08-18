@@ -648,8 +648,14 @@ class Crawler(ConfigurableObject):
                               Webpage.fail_count,
                               Webpage.timestamp,
                               maxts) \
-                       .filter(Webpage.site == site) \
-                       .subquery()
+                       .filter(Webpage.site == site,
+                               Webpage.fail_count <= max_fail_count)
+            if types:
+                subq = subq.filter(Webpage.type.in_(types))
+            if exclude_types:
+                subq = subq.filter(~Webpage.type.in_(exclude_types))
+            subq = subq.subquery()
+                       
             q = crdb.query(subq.c.url) \
                     .filter(((subq.c.timestamp == None) \
                              & (subq.c.maxts == None)) \
