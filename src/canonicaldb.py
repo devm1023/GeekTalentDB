@@ -1344,7 +1344,14 @@ def _make_ghprofile_skill(skillname, language):
 class GooglePlacesError(Exception):
     pass
 
-class CanonicalDBSession(Session):
+
+class CanonicalDB(Session):
+    def __init__(self, url=conf.CANONICAL_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
+
     def rank_skills(self, profile, source):
         if source == 'linkedin':
             experience_skill_tab = LIExperienceSkill
@@ -2042,11 +2049,3 @@ class CanonicalDBSession(Session):
                                  sub_document_count))
 
         return entities
-
-
-class CanonicalDB(Session):
-    def __init__(self, url=conf.CANONICAL_DB,
-                 engine_args=[], engine_kwargs={}, **kwargs):
-        Session.__init__(self, url=url, metadata=SQLBase.metadata,
-                         engine_args=engine_args, engine_kwargs=engine_kwargs,
-                         **kwargs)
