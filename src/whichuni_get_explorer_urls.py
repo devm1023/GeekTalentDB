@@ -3,12 +3,6 @@ from urllib.parse import quote
 def urlify(comp):
     return quote(comp.lower())
 
-def contains(list, filter):
-    for x in list:
-        if filter(x):
-            return True
-    return False
-
 valid_alevels = ["Afrikaans", "Anthropology", "Arabic",
     "Archaeology", "Art and Design", "Bahasa", "Basque", 
     "Bengali", "Biology", "Business Studies", "Chemistry", 
