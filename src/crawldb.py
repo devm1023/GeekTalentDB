@@ -84,22 +84,3 @@ class CrawlDB(Session):
                               type=type, fail_count=0, valid=False)
             self.add(webpage)
         return webpage
-        
-    def load_urls(self, site, type, filename,
-                  batch_size=10000, logger=Logger(None)):
-        with open(filename, 'r') as inputfile:
-            count = 0
-            for line in inputfile:
-                count += 1
-                url = line.strip()
-                q = self.query(Webpage.id) \
-                        .filter(Webpage.url == url)
-                if q.first() is None:
-                    self.add(Webpage(site=site, url=url,
-                                     type=type, fail_count=0, valid=False))
-                if count % batch_size == 0:
-                    self.commit()
-                    logger.log('{0:d} records processed.\n'.format(count))
-            if count % batch_size != 0:
-                logger.log('{0:d} records processed.\n'.format(count))
-            self.commit()

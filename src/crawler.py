@@ -31,8 +31,7 @@ from pgvalues import in_values
 from windowquery import split_process, collapse
 
 
-EXCESS = 100
-MIN_EXCESS = 10
+EXCESS = 5
 EPOCH = datetime(1970, 1, 1)
 
 
@@ -668,7 +667,7 @@ class Crawler(ConfigurableObject):
                 with open(args.urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
                 q = q.filter(in_values(subq.c.url, urls))
-            q = q.limit(batch_size*jobs)
+            q = q.limit(batch_size*jobs*EXCESS)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
                                                     proxies)
@@ -687,6 +686,7 @@ class Crawler(ConfigurableObject):
                         break
                     if limit is not None and len(urls) > limit - total_count:
                         urls = urls[:args.limit - total_count]
+                    urls = urls[:batch_size*jobs]
                         
                     tcrawlstart = datetime.utcnow()
                     logger.log('Retreived URLs at {0:s}.\n' \
