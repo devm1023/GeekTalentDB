@@ -652,7 +652,9 @@ class Crawler(ConfigurableObject):
                        .filter(Webpage.site == site) \
                        .subquery()
             q = crdb.query(subq.c.url) \
-                    .filter(subq.c.timestamp == subq.c.maxts,
+                    .filter(((subq.c.timestamp == None) \
+                             & (subq.c.maxts == None)) \
+                            | (subq.c.timestamp == subq.c.maxts),
                             subq.c.fail_count <= max_fail_count)
             if recrawl is not None:
                 q = q.filter(~subq.c.valid | subq.c.maxts < recrawl_date)
