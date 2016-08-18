@@ -21,6 +21,9 @@ def parse_datetime(s):
     The returned datetime objects are timezone-unaware.
 
     """
+    if s is None:
+        return None
+    
     tokens = s.replace('_', ' ').split()
     if not tokens:
         raise DateTimeParseError('blank time data')
