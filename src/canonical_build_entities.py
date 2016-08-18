@@ -1,5 +1,5 @@
 from canonicaldb import *
-from sqldb import dict_from_row
+from dbtools import dict_from_row
 from sqlalchemy import func
 from sqlalchemy.sql.expression import literal_column
 from geoalchemy2.functions import ST_AsText

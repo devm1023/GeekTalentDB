@@ -3,7 +3,7 @@ import canonicaldb as nf
 from windowquery import split_process, process_db
 from phraseextract import PhraseExtractor
 from textnormalization import tokenized_skill
-from sqldb import dict_from_row
+from dbtools import dict_from_row
 from sqlalchemy import and_
 import conf
 import sys
