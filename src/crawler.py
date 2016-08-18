@@ -392,7 +392,6 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             
             html = None
             redirect_url = None
-            valid = False
             if response is not None:
                 html = response.text
                 redirect_url=response.url
@@ -421,11 +420,16 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             crdb.add_from_dict(webpage_dict, Webpage)
             crdb.commit()
 
+            # update counts
             count += 1
+            if webpage_dict['valid']:
+                valid_count += 1
+            
             # Update proxy state.
             if hook is not None:
                 proxy_states[iproxy] \
-                    = hook(proxy_states[iproxy], valid, iproxy, proxy)
+                    = hook(proxy_states[iproxy],
+                           webpage_dict['valid'], iproxy, proxy)
 
             # Throttle crawl to desired crawl rate
             request_time = (datetime.utcnow() - timestamp).total_seconds()
@@ -635,24 +639,34 @@ class Crawler(ConfigurableObject):
                 crawl_rate = crawl_rate/jobs
             nproxies = len(proxies)
 
+            # construct query for retreiving URLs
+            maxts = func.max(Webpage.timestamp) \
+                        .over(partition_by=Webpage.url) \
+                        .label('maxts')
+            subq = crdb.query(Webpage.url,
+                              Webpage.type,
+                              Webpage.valid,
+                              Webpage.fail_count,
+                              Webpage.timestamp,
+                              maxts) \
+                       .filter(Webpage.site == site) \
+                       .subquery()
+            q = crdb.query(subq.c.url) \
+                    .filter(subq.c.timestamp == subq.c.maxts,
+                            subq.c.fail_count <= max_fail_count)
             if recrawl is not None:
-                webpage_filter \
-                    = (~Webpage.valid) | (Webpage.timestamp < recrawl_date)
+                q = q.filter(~subq.c.valid | subq.c.maxts < recrawl_date)
             else:
-                webpage_filter = ~Webpage.valid
-            q = crdb.query(Webpage.url) \
-                    .filter(webpage_filter,
-                            Webpage.site == site,
-                            Webpage.fail_count <= max_fail_count)
+                q = q.filter(~subq.c.valid)
             if types:
-                q = q.filter(Webpage.type.in_(types))
+                q = q.filter(subq.c.type.in_(types))
             if exclude_types:
-                q = q.filter(~Webpage.type.in_(exclude_types))
+                q = q.filter(~subq.c.type.in_(exclude_types))
             if urls_from:
                 with open(args.urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
-                q = q.filter(in_values(Webpage.url, urls))
-            q = q.limit(EXCESS*batch_size*jobs)
+                q = q.filter(in_values(subq.c.url, urls))
+            q = q.limit(batch_size*jobs)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
                                                     proxies)
@@ -663,25 +677,20 @@ class Crawler(ConfigurableObject):
                     logger.log('Starting batch at {0:s}.\n' \
                                .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
 
-                    # get URLs
-                    urls = set()
-                    offset = 0
-                    while len(urls) < MIN_EXCESS*batch_size*jobs:
-                        new_urls = [url for url, in q.offset(offset)]
-                        if not new_urls:
-                            break
-                        offset += EXCESS*batch_size*jobs
-                        urls.update(new_urls)
+                    # retreive URLs
+                    urls = set(url for url, in q)
                     urls = list(urls)
                     random.shuffle(urls)
-                    urls = urls[:batch_size*jobs]
-
                     if not urls:
                         break
                     if limit is not None and len(urls) > limit - total_count:
                         urls = urls[:args.limit - total_count]
-
-                    deadline = datetime.utcnow() + batch_time
+                        
+                    tcrawlstart = datetime.utcnow()
+                    logger.log('Retreived URLs at {0:s}.\n' \
+                               .format(datetime.utcnow() \
+                                       .strftime('%Y-%m-%d %H:%M:%S')))
+                    deadline = tcrawlstart + batch_time
 
                     # run parallel jobs
                     if jobs == 1:
