@@ -156,13 +156,13 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'linkedin',
-               Webpage.url >= from_url]
+               Webpage.redirect_url >= from_url]
     if to_url is not None:
-        filters.append(Webpage.url < to_url)
+        filters.append(Webpage.redirect_url < to_url)
     
     with CrawlDB() as crdb, ParseDB() as psdb:
         maxts = func.max(Webpage.timestamp) \
-                    .over(partition_by=Webpage.url) \
+                    .over(partition_by=Webpage.redirect_url) \
                     .label('maxts')
         subq = crdb.query(Webpage, maxts) \
                    .filter(*filters) \
@@ -205,10 +205,10 @@ def main(args):
     if to_ts:
         filters.append(Webpage.timestamp < to_ts)
     if args.from_url is not None:
-        filters.append(Webpage.url >= args.from_url)
+        filters.append(Webpage.redirect_url >= args.from_url)
     
     with CrawlDB() as crdb:
-        q = crdb.query(Webpage.url).filter(*filters)
+        q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_profiles, args.batch_size,
                       args=[from_ts, to_ts], njobs=args.jobs, logger=logger,
