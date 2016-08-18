@@ -38,6 +38,8 @@ xp_skill_name = './/span'
 
 # experience xpaths
 xp_exp_title = 'header/h4[@class="item-title"]'
+xp_exp_logo_company = 'header/h5[@class="logo"]/a/img'
+xp_exp_logo_url = 'header/h5[@class="logo"]/a'
 xp_exp_company_url = 'header/h5[@class="item-subtitle"]/a'
 xp_exp_company = 'header/h5[@class="item-subtitle"]'
 xp_exp_daterange = 'div[@class="meta"]/span[@class="date-range"]/time'
@@ -87,8 +89,11 @@ def parse_skill(element):
 def parse_experience(element):
     d = {}
     d['current'] = element.get('data-section') == 'currentPositionsDetails'
-    d['title'] = extract(element, xp_exp_title, format_content, required=True)
-    d['company'] = extract(element, xp_exp_company, format_content)
+    d['title'] = extract(element, xp_exp_title, format_content)
+    d['logo_company'] = extract(element, xp_exp_logo_company, get_attr('alt'))
+    url = extract(element, xp_exp_logo_url, get_attr('href'))
+    d['logo_url'] = url.split('?')[0] if url else None
+    d['company'] = extract(element, xp_exp_company)
     url = extract(element, xp_exp_company_url, get_attr('href'))
     d['company_url'] = url.split('?')[0] if url else None
     daterange = extract_many(element, xp_exp_daterange)

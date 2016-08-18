@@ -71,6 +71,8 @@ class LIExperience(SQLBase):
     title         = Column(Unicode(STR_MAX))
     company       = Column(Unicode(STR_MAX))
     company_url   = Column(String(STR_MAX))
+    logo_company  = Column(Unicode(STR_MAX))
+    logo_url      = Column(String(STR_MAX))
     location      = Column(Unicode(STR_MAX))
     current       = Column(Boolean)
     start         = Column(Unicode(STR_MAX))
