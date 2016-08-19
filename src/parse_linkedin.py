@@ -81,7 +81,8 @@ def parse_skill(element):
     d = {}
     url = extract(element, xp_skill_url, get_attr('href'))
     d['url'] = url.split('?')[0] if url else None
-    d['name'] = extract(element, xp_skill_name, required=True)
+    print(element.tag)
+    d['name'] = extract(element, xp_skill_name)
 
     return d
 
