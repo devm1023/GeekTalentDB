@@ -21,6 +21,7 @@ from tor import new_identity, TorProxyList
 import requests
 
 from sqlalchemy import func
+from sqlalchemy.orm import aliased
 import numpy as np
 
 from configurable_object import *
@@ -639,40 +640,29 @@ class Crawler(ConfigurableObject):
             nproxies = len(proxies)
 
             # construct query for retreiving URLs
-            maxts = func.max(Webpage.timestamp) \
-                        .over(partition_by=Webpage.url) \
-                        .label('maxts')
-            subq = crdb.query(Webpage.url,
-                              Webpage.type,
-                              Webpage.valid,
-                              Webpage.fail_count,
-                              Webpage.timestamp,
-                              maxts) \
-                       .filter(Webpage.site == site,
-                               Webpage.fail_count <= max_fail_count)
-            if types:
-                subq = subq.filter(Webpage.type.in_(types))
-            if exclude_types:
-                subq = subq.filter(~Webpage.type.in_(exclude_types))
-            subq = subq.subquery()
-                       
-            q = crdb.query(subq.c.url) \
-                    .filter(((subq.c.timestamp == None) \
+            Webpage2 = aliased(Webpage)
+            subq = crdb.query(Webpage2.url,
+                              func.max(Webpage2.timestamp).label('maxts')) \
+                       .group_by(Webpage2.url) \
+                       .subquery('subq')
+            q = crdb.query(Webpage.url) \
+                    .join(subq, Webpage.url == subq.c.url) \
+                    .filter(((Webpage.timestamp == None) \
                              & (subq.c.maxts == None)) \
-                            | (subq.c.timestamp == subq.c.maxts),
-                            subq.c.fail_count <= max_fail_count)
+                            | (Webpage.timestamp == subq.c.maxts),
+                            Webpage.fail_count <= max_fail_count)
             if recrawl is not None:
-                q = q.filter(~subq.c.valid | subq.c.maxts < recrawl_date)
+                q = q.filter(~Webpage.valid | Webpage.timestamp < recrawl_date)
             else:
-                q = q.filter(~subq.c.valid)
+                q = q.filter(~Webpage.valid)
             if types:
-                q = q.filter(subq.c.type.in_(types))
+                q = q.filter(Webpage.type.in_(types))
             if exclude_types:
-                q = q.filter(~subq.c.type.in_(exclude_types))
+                q = q.filter(~Webpage.type.in_(exclude_types))
             if urls_from:
                 with open(args.urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
-                q = q.filter(in_values(subq.c.url, urls))
+                q = q.filter(in_values(Webpage.url, urls))
             q = q.limit(batch_size*jobs*EXCESS)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
