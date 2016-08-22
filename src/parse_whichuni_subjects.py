@@ -1,7 +1,9 @@
 from crawldb import *
+from dbtools import dict_from_row
 from parsedb import ParseDB, WUSubject
 from windowquery import split_process, process_db
 from logger import Logger
+from pprint import pprint
 
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
@@ -17,26 +19,28 @@ xp_subjects = '//li[contains(@class, "result-card")]'
 
 xp_subject_title = 'h2'
 xp_subject_description = 'h3'
-xp_subject_url = 'div[@class="result-card__link-container"]'
-xp_subject_average_salary = '/div/ul[contains(@class, "result-card__outcome-salary-6months")]/li/span[@class="value"]'
-xp_subject_average_salary_rating = '/div/ul[contains(@class, "result-card__outcome-salary-6months")]/li/span[@class="band"]'
-xp_subject_employed_furtherstudy = '/div/ul[contains(@class, "result-card__outcome-employment-6months-facts")]/li/span[@class="value"]'
-xp_subject_employed_furtherstudy_rating = '/div/ul[contains(@class, "result-card__outcome-employment-6months-facts")]/li/span[@class="band"]'
-xp_subject_alevels = '/div/ul/li[contains(@class, "entry-alevel")]'
-xp_subject_careers = '/div/ul/li[contains(@class, "popular-career")]'
+xp_subject_url = 'div[@class="result-card__link-container"]/a'
+xp_subject_average_salary = 'div/ul[contains(@class, "result-card__outcome-salary-6months")]/li/span[@class="value"]'
+xp_subject_average_salary_rating = 'div/ul[contains(@class, "result-card__outcome-salary-6months")]/li/span[contains(@class, "band")]'
+xp_subject_employed_furtherstudy = 'div/ul[contains(@class, "result-card__outcome-employment-6months-facts")]/li/span[@class="value"]'
+xp_subject_employed_furtherstudy_rating = 'div/ul[contains(@class, "result-card__outcome-employment-6months-facts")]/li/span[contains(@class, "band")]'
+xp_subject_alevels = 'div/ul/li[contains(@class, "entry-alevel")]/span'
+xp_subject_careers = 'div/ul/li[contains(@class, "popular-career")]/span'
+xp_subject_courses_url = 'div/ul/li[contains(@class, "subject-link") and contains(@class, "last")]/a'
 
 
 def parse_subject(element):
     d = {}
     d['title'] = extract(element, xp_subject_title, required=True)
     d['description'] = extract(element, xp_subject_description, required=True)
-    d['url'] = extract(element, xp_subject_url, get_attr('href'))
+    d['url'] = 'http://university.which.co.uk'+ extract(element, xp_subject_url, get_attr('href'))
     d['average_salary'] = extract(element, xp_subject_average_salary)
     d['average_salary_rating'] = extract(element, xp_subject_average_salary_rating)
     d['employed_furtherstudy'] = extract(element, xp_subject_employed_furtherstudy)
     d['employed_furtherstudy_rating'] = extract(element, xp_subject_employed_furtherstudy_rating)
-    d['alevels'] = extract_many(element, xp_subject_alevels)
-    d['careers'] = extract_many(element, xp_subject_careers)
+    d['courses_url'] = 'http://university.which.co.uk' + extract(element, xp_subject_courses_url, get_attr('href'))
+    d['alevels'] = [{ "title": title } for title in extract_many(element, xp_subject_alevels)]
+    d['careers'] = [{ "title": title } for title in extract_many(element, xp_subject_careers)]
     return d
 
 def parse_page(doc):
@@ -67,11 +71,13 @@ def parse_pages(jobid, from_url, to_url):
                 return
             try:
                 parsed_page = parse_page(doc)
-                logger.log(parsed_page)
             except:
                 logger.log('Error parsing HTML from URL {0:s}\n' \
                            .format(webpage.url))
                 raise
+            if parsed_page is not None:
+                for subject in parsed_page['subjects']:
+                    psdb.add_from_dict(subject, WUSubject)
         process_db(q, process_row, psdb, logger=logger)
 
 def main(args):

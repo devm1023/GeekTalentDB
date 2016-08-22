@@ -126,6 +126,7 @@ class WUSubject(SQLBase):
     employed_furtherstudy        = Column(Unicode(STR_MAX))
     employed_furtherstudy_rating = Column(Unicode(STR_MAX))
     url                          = Column(Unicode(STR_MAX))
+    courses_url                  = Column(Unicode(STR_MAX))
     alevels                      = relationship('WUALevel',
                                         cascade='all, delete-orphan')
     careers                      = relationship('WUCareer',
