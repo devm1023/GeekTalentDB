@@ -6,7 +6,7 @@ from htmlextract import parse_html
 from pprint import pprint
 
 site = 'linkedin'
-url = 'https://uk.linkedin.com/pub/chris-moss-ma-assoc-cipd/50/814/5b1'
+url = 'https://www.linkedin.com/pub/laura-keilty/99/b3/a4a?trk=pub-pbmap'
 
 with open('profile.html', 'r') as inputfile:
     html = inputfile.read()
