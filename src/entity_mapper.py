@@ -39,8 +39,6 @@ class EntityMapper:
                                                 entity1)
                 nrm_entity2 = normalized_entity(type, 'linkedin', language,
                                                 entity2)
-                if entity1 == 'M D':
-                    raise SystemExit()
                 if not nrm_entity1:
                     raise IOError('Invalid row in CSV file:\n{0:s}\n' \
                                   .format(repr(row)))
