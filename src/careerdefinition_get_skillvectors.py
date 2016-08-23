@@ -1,8 +1,8 @@
 import conf
-from analyticsdb import *
+from canonicaldb import *
 from logger import Logger
 from textnormalization import normalized_entity, split_nrm_name
-from analytics_get_entitycloud import relevance_scores
+from entitycloud import relevance_scores
 from entity_mapper import EntityMapper
 from sqlalchemy import func
 from pgvalues import in_values
