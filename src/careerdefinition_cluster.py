@@ -81,9 +81,10 @@ if __name__ == '__main__':
     parser.add_argument('--titles-from',
                         help='CSV file holding the titles to cluster.')
     parser.add_argument('--clusters', type=int, default=20,
-                        help='Number of clusters.')
-    parser.add_argument('--power', type=float, default=0.0,
-                        help='p-parameter for the clustering algorithm.')    
+                        help='Number of clusters. Default: 20')
+    parser.add_argument('--power', type=float, default=1.0,
+                        help='p-parameter for the clustering algorithm. '
+                        'Default: 1, which corresponds to k_t.')    
     parser.add_argument('--output', 
                         help='Name of CSV file to write clusters to.')
     parser.add_argument('--mapping-output',
