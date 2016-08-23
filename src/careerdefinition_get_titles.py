@@ -28,11 +28,14 @@ def get_sectors(sectors, filename, mapper):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--min-count', type=int, default=1,
-                        help='Minimum count for a job title to be included.')
+                        help='Minimum count for a job title to be included. '
+                        'Default: 1')
     parser.add_argument('--max-titles', type=int, default=20,
-                        help='Maximum number of titles per sector.')
+                        help='Maximum number of titles per sector. '
+                        'Default: 20')
     parser.add_argument('--sigma', type=int, default=3,
-                        help='Minimal significance of relevance scores.')
+                        help='Minimal significance of relevance scores. '
+                        'Default: 3')
     parser.add_argument('--sector-filter-fraction', type=float, default=0.5,
                         help='Apply sector filter for job titles where the '
                         'fraction of people coming from other sectors is '
@@ -43,7 +46,7 @@ if __name__ == '__main__':
                         help='Name of a csv file holding entity mappings. '
                         'Columns: type | lang | sector | name | mapped name')
     parser.add_argument('sector', nargs='*', default=[],
-                        help='The LinkedIn sectors to scan.')
+                        help='The merged sectors to scan.')
     args = parser.parse_args()
 
     cndb = CanonicalDB()
@@ -55,7 +58,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     totalc = cndb.query(LIProfile.id) \
-                 .join(Location) \
+                 .join(Location,
+                       Location.nrm_name == LIProfile.nrm_location) \
                  .filter(LIProfile.nrm_sector != None,
                          LIProfile.language == 'en',
                          Location.nuts0 == 'UK') \
