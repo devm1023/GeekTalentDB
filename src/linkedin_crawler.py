@@ -48,6 +48,8 @@ class LinkedInCrawler(Crawler):
         try:
             result = requests.get(url, **request_args)
             while result.status_code == 301 and 'Location' in result.headers:
+                logger.log('Following redirect to {0:s}\n' \
+                           .format(result.headers['Location']))
                 result = requests.get(result.headers['Location'],
                                       **request_args)
             if result.status_code < 200 or result.status_code > 399:
