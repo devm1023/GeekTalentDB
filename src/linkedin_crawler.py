@@ -1,5 +1,6 @@
 from crawler import Crawler
 import re
+import requests
 
 
 class LinkedInCrawler(Crawler):
@@ -36,9 +37,31 @@ class LinkedInCrawler(Crawler):
                 'Upgrade-Insecure-Requests' : '1',
                 'User-Agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
             }
-        kwargs.pop('share_proxies', None)
-        Crawler.__init__(self, site, share_proxies=True, **kwargs)
-    
+        kwargs['share_proxies'] = True
+        Crawler.__init__(self, site, **kwargs)
+
+
+    @classmethod
+    def get_url(cls, url, request_args, logger):
+        request_args['allow_redirects'] = False
+        success = False
+        try:
+            result = requests.get(url, **request_args)
+            while result.status_code == 301 and 'Location' in result.headers:
+                result = requests.get(result.headers['Location'],
+                                      **request_args)
+            if result.status_code < 200 or result.status_code > 399:
+                raise RuntimeError('Received status code {0:d}.' \
+                                   .format(result.status_code))
+            success = True
+        except Exception as e:
+            logger.log('Failed getting URL {0:s}\n{1:s}\n' \
+                       .format(url, str(e)))
+        if not success:
+            return None
+        return result
+        
+        
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
         def get_type(url):

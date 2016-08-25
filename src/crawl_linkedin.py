@@ -55,7 +55,7 @@ if __name__ == "__main__":
                         help='Desired number of requests per second.')
     parser.add_argument('--request-timeout', type=int, default=30,
                         help='Timeout for requests in secs. Default: 30')
-    parser.add_argument('--tor-proxies', type=int, default=1,
+    parser.add_argument('--tor-proxies', type=int, default=None,
                         help='Number of Tor proxies to start. Default: 1')
     parser.add_argument('--tor-base-port', type=int, default=13000,
                         help='Smallest port for Tor proxies. Default: 13000')
@@ -91,9 +91,8 @@ if __name__ == "__main__":
     }
     request_args = {'headers' : headers}
 
-    proxies = None
+    proxies = []
     if args.proxies_from is not None:
-        proxies = []
         with open(args.proxies_from, 'r') as inputfile:
             for line in inputfile:
                 line = line.strip()
@@ -105,7 +104,7 @@ if __name__ == "__main__":
                                      .format(repr(line)))
                 proxies.append(proxy)
 
-    if proxies:
+    if not args.tor_proxies:
         crawler = LinkedInCrawler(
             proxies=proxies,
             crawl_rate=args.crawl_rate,
