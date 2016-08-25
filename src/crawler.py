@@ -710,9 +710,9 @@ class Crawler(ConfigurableObject):
                             in zip(url_batches, proxy_batches,
                                    proxy_state_batches):
                             pargs.append(
-                                (site, url_batch, parsefunc, deadline,
-                                 crawl_rate, request_args, proxy_batch,
-                                 request_timeout, self.on_visit,
+                                (site, url_batch, parsefunc, requestfunc,
+                                 deadline, crawl_rate, request_args,
+                                 proxy_batch, request_timeout, self.on_visit,
                                  proxy_state_batch))
                         pfunc = ParallelFunction(
                             crawl_urls, batchsize=1, workdir=workdir,
