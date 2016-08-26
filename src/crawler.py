@@ -518,7 +518,7 @@ class Crawler(ConfigurableObject):
         return proxy_states
 
     @classmethod
-    def get_url(cls, url, proxy, request_args, logger):
+    def get_url(cls, url, request_args, logger):
         """Attempt to retreive URL through a given proxy.
 
         Note:
@@ -528,11 +528,9 @@ class Crawler(ConfigurableObject):
 
         Args:
           url (str): The URL to visit.
-          proxy (tuple of str): Tuple holding the URLs of the HTTP and
-            HTTPS proxies (in that order).
           request_args (dict): Keyword arguments for the call to
             ``requests.get``. 
-          logger (Logger object, optional): Object for writing log messages.
+          logger (Logger object): Object for writing log messages.
 
         Returns:
           A valid response object or ``None`` in case of a failed request.
