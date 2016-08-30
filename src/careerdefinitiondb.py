@@ -301,7 +301,13 @@ def _average_salary(bins):
         return None
     
     
-class CareerDefinitionDBSession(Session):
+class CareerDefinitionDB(Session):
+    def __init__(self, url=conf.CAREERDEFINITION_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
+
     def add_career(self, careerdict):
         career = self.add_from_dict(
             careerdict, Career, protect=['visible',
@@ -392,12 +398,3 @@ class CareerDefinitionDBSession(Session):
 
             results.append(careerdict)
         return results
-
-
-class CareerDefinitionDB(Session):
-    def __init__(self, url=conf.CAREERDEFINITION_DB,
-                 engine_args=[], engine_kwargs={}, **kwargs):
-        Session.__init__(self, url=url, metadata=SQLBase.metadata,
-                         engine_args=engine_args, engine_kwargs=engine_kwargs,
-                         **kwargs)
-

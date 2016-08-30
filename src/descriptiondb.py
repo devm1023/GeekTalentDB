@@ -24,6 +24,7 @@ from sqlalchemy import \
 from sqlalchemy.orm import relationship
 
 import conf
+from watsondb import *
 import requests
 from logger import Logger
 
@@ -31,7 +32,6 @@ from logger import Logger
 STR_MAX = 100000
 
 SQLBase = declarative_base()
-engine = create_engine(conf.DESCRIPTION_DB)
 
 
 class SectorDescription(SQLBase):
@@ -77,7 +77,13 @@ class SkillDescription(SQLBase):
     __table_args__ = (UniqueConstraint('sector', 'name'),)
     
 
-class DescriptionDBSession(Session):
+class DescriptionDB(Session):
+    def __init__(self, url=conf.DESCRIPTION_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)    
+
     def get_description(self, tpe, sector, name, watson_lookup=False,
                         logger=Logger(None)):
         if tpe == 'sector':
@@ -112,35 +118,20 @@ class DescriptionDBSession(Session):
             return None
 
         logger.log('Looking up {0:s}...'.format(repr(name)))
-        r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL+'label_search',
-                         params={'query' : name,
-                                 'concept_fields' : '{"link":1}',
-                                 'prefix' : 'false',
-                                 'limit' : '1'},
-                         auth=(conf.WATSON_USERNAME, conf.WATSON_PASSWORD)) \
-                    .json()
-        try:
-            match_count = len(r['matches'])
-            label = r['matches'][0]['label']
-        except:
-            match_count = 0
-            label = None
-        if label:
-            r = requests.get(conf.WATSON_CONCEPT_INSIGHTS_GRAPH_URL \
-                             +'concepts/'+label.replace(' ', '_'),
-                             auth=(conf.WATSON_USERNAME,
-                                   conf.WATSON_PASSWORD)) \
-                        .json()
-            entity = table(name=name,
-                           text=r.get('abstract', None),
-                           url=r.get('link', None),
-                           source='Wikipedia',
-                           match_count=match_count,
-                           approved=None)
-        else:
-            entity = table(name=name,
-                           match_count=match_count,
-                           approved=None)
+        with WatsonDB() as wsdb:
+            descriptions = wsdb.get_descriptions(name)
+            if descriptions:
+                r = descriptions[0]
+                entity = table(name=name,
+                               text=r.get('text', None),
+                               url=r.get('url', None),
+                               source='Wikipedia',
+                               match_count=len(descriptions),
+                               approved=None)
+            else:
+                entity = table(name=name,
+                               match_count=0,
+                               approved=None)
         logger.log('done.\n')
 
         self.add(entity)
@@ -166,12 +157,4 @@ class DescriptionDBSession(Session):
             q = q.filter(table.sector == sector)
             
         return [dict_from_row(row, pkeys=False) for row in q]
-    
-
-class DescriptionDB(Session):
-    def __init__(self, url=conf.DESCRIPTION_DB,
-                 engine_args=[], engine_kwargs={}, **kwargs):
-        Session.__init__(self, url=url, metadata=SQLBase.metadata,
-                         engine_args=engine_args, engine_kwargs=engine_kwargs,
-                         **kwargs)    
 
