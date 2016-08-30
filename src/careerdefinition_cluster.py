@@ -10,7 +10,6 @@ import argparse
 
 from clustering import find_clusters
 import numpy as np
-from sklearn import manifold
 
 
 def get_skillvectors(filename, titles_from):
