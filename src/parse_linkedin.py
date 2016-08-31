@@ -162,6 +162,7 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
         filters.append(Webpage.redirect_url < to_url)
     
     with CrawlDB() as crdb, ParseDB() as psdb:
+        # construct query that retreives the latest version of each profile
         maxts = func.max(Webpage.timestamp) \
                     .over(partition_by=Webpage.redirect_url) \
                     .label('maxts')
@@ -170,12 +171,14 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
                    .subquery()
         WebpageAlias = aliased(Webpage, subq)
         q = crdb.query(WebpageAlias) \
-                .filter(subq.c.timestamp == subq.c.maxts)
+                .filter(subq.c.timestamp == subq.c.maxts,
+                        subq.c.type == 'profile')
         if from_ts is not None:
             q = q.filter(subq.c.maxts >= from_ts)
         if to_ts is not None:
             q = q.filter(subq.c.maxts < to_ts)
 
+        # this function does the parsing
         def process_row(webpage):
             try:
                 doc = parse_html(webpage.html)
@@ -190,7 +193,9 @@ def parse_profiles(jobid, from_url, to_url, from_ts, to_ts):
                 raise
             if parsed_profile is not None:
                 psdb.add_from_dict(parsed_profile, LIProfile)
-            
+
+        # apply process_row to each row returned by q and commit to psdb
+        # in regular intervals
         process_db(q, process_row, psdb, logger=logger)
 
 
@@ -209,6 +214,9 @@ def main(args):
         filters.append(Webpage.redirect_url >= args.from_url)
     
     with CrawlDB() as crdb:
+        # construct a query which returns the redirect_url fields of the pages
+        # to process. This query is only used to partition the data. The actual
+        # processing happens in parse_profiles.
         q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_profiles, args.batch_size,

@@ -2,9 +2,15 @@ from lxml.html import fromstring as parse_html
 
 
 def get_text(element):
+    """Retreive the text of an ``HtmlElement`` object.
+
+    """
     return element.text
 
 def get_stripped_text(element):
+    """Retreive the text of an ``HtmlElement`` object stripped of whitespace.
+
+    """
     text = element.text
     if text:
         text = text.strip()
@@ -19,6 +25,9 @@ def _get_attr(attr, element):
     return element.get(attr)
 
 def get_attr(attr):
+    """Return a function that extracts attribute `attr` from an ``HtmlElement``.
+
+    """
     return lambda element: _get_attr(attr, element)
 
 def _tokenize_string(text):
@@ -41,6 +50,9 @@ def _tokenize_element(element):
     return tokens
 
 def format_content(element):
+    """Return the content of `element` with tags removed and basic formatting.
+
+    """
     tokens = _tokenize_element(element)
     tokens = [t for t in tokens if t]
     strings = []
@@ -72,7 +84,44 @@ def _extract(doc, xpaths, f=get_stripped_text, one=False,
     return results
 
 def extract(doc, xpath, f=get_stripped_text, required=False):
+    """Extract information from a specific sub-tag in a ``HtmlElement`` tree.
+
+    Args:
+      doc (HtmlElement): The parsed HTML code.
+      xpath (str): XPATH string which locates the HTML element of interest in
+        `doc`. The XPATH should match at most one element in `doc`.
+      f (callable, optional): Function to apply to the element located by
+        `xpath`. Defaults to ``get_stripped_text``.
+      required (bool, optional): Whether to raise an exception when no elements
+        match `xpath`. Defaults to ``False``.
+
+    Raises:
+      RuntimeError: More than one element matched `xpath` or no element matched
+        `xpath` and `required` was ``True``.
+
+    Returns:
+      The return value of `f` applied to the element located by `xpath`.
+
+    """
     return _extract(doc, xpath, f=f, one=True, required=required)
 
 def extract_many(doc, xpath, f=get_stripped_text, required=False):
+    """Extract information from sub-tags in a ``HtmlElement`` tree.
+
+    Args:
+      doc (HtmlElement): The parsed HTML code.
+      xpath (str): XPATH string which selects the HTML elements of interest in
+        `doc`.
+      f (callable, optional): Function to apply to the elements selected by
+        `xpath`. Defaults to ``get_stripped_text``.
+      required (bool, optional): Whether to raise an exception when no elements
+        match `xpath`. Defaults to ``False``.
+
+    Raises:
+      RuntimeError: No element matched `xpath` and `required` was ``True``.
+
+    Returns:
+      The return values of `f` applied to the elements selected by `xpath`.
+
+    """
     return _extract(doc, xpath, f=f, one=False, required=required)

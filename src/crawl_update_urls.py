@@ -39,10 +39,10 @@ def update_urls(jobid, from_url, to_url,
             elif len(webpages) > 1 and webpages[-2].valid:
                 new_url = webpages[-2].redirect_url
 
-            if new_url:
+            if new_url and new_url != url:
+                logger.log('Updating {0:s} to {1:s}\n' \
+                           .format(url, new_url))
                 for webpage in webpages:
-                    logger.log('Updating {0:s} to {1:s}\n' \
-                               .format(url, new_url))
                     webpage.url = new_url
             
         process_db(collapse(q), do_update, crdb, logger=logger)
