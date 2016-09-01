@@ -633,7 +633,12 @@ class Crawler(ConfigurableObject):
             Webpage2 = aliased(Webpage)
             subq = crdb.query(Webpage2.url,
                               func.max(Webpage2.timestamp).label('maxts')) \
-                       .group_by(Webpage2.url) \
+                       .filter(Webpage2.site == site)
+            if urls_from:
+                with open(urls_from, 'r') as inputfile:
+                    urls = [line.strip() for line in inputfile]
+                subq = subq.filter(in_values(Webpage2.url, urls))
+            subq = subq.group_by(Webpage2.url) \
                        .subquery('subq')
             q = crdb.query(Webpage.url) \
                     .join(subq, Webpage.url == subq.c.url) \
@@ -649,10 +654,6 @@ class Crawler(ConfigurableObject):
                 q = q.filter(Webpage.type.in_(types))
             if exclude_types:
                 q = q.filter(~Webpage.type.in_(exclude_types))
-            if urls_from:
-                with open(args.urls_from, 'r') as inputfile:
-                    urls = [line.strip() for line in inputfile]
-                q = q.filter(in_values(Webpage.url, urls))
             q = q.limit(batch_size*jobs*EXCESS)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
@@ -660,6 +661,7 @@ class Crawler(ConfigurableObject):
             try:
                 tstart = datetime.utcnow()            
                 total_count = 0
+                firstbatch = True
                 while True:
                     logger.log('Starting batch at {0:s}.\n' \
                                .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
@@ -714,9 +716,11 @@ class Crawler(ConfigurableObject):
                                  proxy_state_batch))
                         pfunc = ParallelFunction(
                             crawl_urls, batchsize=1, workdir=workdir,
-                            prefix=prefix, timeout=(1+batch_time_tolerance) \
+                            prefix=prefix, cleanup=1, append=not firstbatch,
+                            timeout=(1+batch_time_tolerance) \
                             *batch_time.total_seconds())
                         success = False
+                        firstbatch = False
                         try:
                             results = pfunc(pargs)
                             count = 0
