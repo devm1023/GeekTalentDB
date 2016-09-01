@@ -336,7 +336,6 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
             min_request_time = random.uniform(0.5*mean_request_time,
                                               1.5*mean_request_time)
             
-            logger.log('{0:s}: Visiting {1:s}\n'.format(str(timestamp), url))
                 
 
             current_request_args = request_args.copy()
@@ -345,6 +344,11 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
                 proxy = proxies[iproxy]
                 current_request_args['proxies'] \
                     = {'http': proxy[0], 'https': proxy[1]}
+                logger.log('{0:s}: Visiting {1:s} via {2:s}\n' \
+                           .format(str(timestamp), url, proxy[0]))
+            else:
+                logger.log('{0:s}: Visiting {1:s}\n' \
+                           .format(str(timestamp), url))
             current_request_args['timeout'] = timeout
             response = requestfunc(url, current_request_args, logger)
             
