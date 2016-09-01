@@ -3,8 +3,10 @@ from functools import wraps
 from whichunidb import *
 from dbtools import dict_from_row
 from sqlalchemy import func
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 wudb = WhichUniDB()
 
 def check_auth(username, password):
