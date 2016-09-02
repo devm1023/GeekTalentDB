@@ -48,10 +48,12 @@ class LinkedInCrawler(Crawler):
         try:
             result = requests.get(url, **request_args)
             while result.status_code == 301 and 'Location' in result.headers:
-                logger.log('Following redirect to {0:s}\n' \
-                           .format(result.headers['Location']))
-                result = requests.get(result.headers['Location'],
-                                      **request_args)
+                # logger.log('Following redirect to {0:s}\n' \
+                #            .format(result.headers['Location']))
+                # result = requests.get(result.headers['Location'],
+                #                       **request_args)
+                result.text = '<html><div id="helloworld">Redirected</div></html>'
+                result.url = result.headers['Location']
             if result.status_code < 200 or result.status_code > 399:
                 raise RuntimeError('Received status code {0:d}.' \
                                    .format(result.status_code))
@@ -66,7 +68,9 @@ class LinkedInCrawler(Crawler):
         
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
-        def get_type(url):
+        def get_type(url, doc=None):
+            if doc is not None and doc.xpath('/html/div[@id="helloworld"]'):
+                return 'redirected'
             if cls.directory_url_pattern.match(url):
                 return 'people-directory'
             elif cls.ukname_url_pattern.match(url):
