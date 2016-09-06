@@ -1,3 +1,8 @@
+# This script it takes the data from 
+# parseDb and inserts it into canonical
+# It adds the data into canonicalDb without dropping the database
+# so additional profiles can be added into a current database
+# this does not include geo/word processing
 from parsedb import *
 from canonicaldb import CanonicalDB
 from windowquery import split_process, process_db
