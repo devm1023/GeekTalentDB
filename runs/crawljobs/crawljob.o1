@@ -1,0 +1,5 @@
+/usr/local/opt/python3/bin/python3.5 crawljob.py crawljob.fn crawljob.i1 crawljob.r1
+2016-09-06 13:24:04.831152: Visiting https://uk.linkedin.com/pub/roberta-flag/a/448/639 via http://geektalent:NEe2Yue6Jj@198.105.97.106:60000
+Redirected to https://uk.linkedin.com/in/roberta-flag-639448a
+2016-09-06 13:24:12.029929: Visiting https://uk.linkedin.com/pub/kate12-toure/87/55b/953 via http://geektalent:NEe2Yue6Jj@198.105.98.21:60000
+Redirected to https://uk.linkedin.com/in/kate12-toure-95355b87

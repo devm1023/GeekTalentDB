@@ -1,0 +1,5 @@
+/usr/local/opt/python3/bin/python3.5 crawljob.py crawljob.fn crawljob.i3 crawljob.r3
+2016-09-06 13:24:04.866634: Visiting https://uk.linkedin.com/pub/sajahan-sheikh/9/589/286 via http://geektalent:NEe2Yue6Jj@198.105.99.187:60000
+Redirected to https://uk.linkedin.com/in/sajahan-sheikh-2865899
+2016-09-06 13:24:13.629621: Visiting https://uk.linkedin.com/pub/steve-boldy/19/369/5b2 via http://geektalent:NEe2Yue6Jj@198.105.99.106:60000
+Redirected to https://uk.linkedin.com/in/steve-boldy-5b236919
