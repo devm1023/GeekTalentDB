@@ -4,7 +4,7 @@ This module provides the ``Crawler`` class which serves as a base class for
 objects that crawl specific webpages and store the HTML in the `crawl` database.
 
 Created by: Martin Wiebusch
-Last modified: 2016-07-27 MW
+Last modified: 2016-09-07 Keiran Collins
 
 """
 
@@ -626,6 +626,7 @@ class Crawler(ConfigurableObject):
         workdir = config['workdir']
         prefix = config['prefix']
         logger = config['logger']
+        recrawl_date = config['recrawl']
 
         with CrawlDB() as crdb:
             batch_time = timedelta(seconds=batch_time)
@@ -651,7 +652,7 @@ class Crawler(ConfigurableObject):
                             | (Webpage.timestamp == subq.c.maxts),
                             Webpage.fail_count <= max_fail_count)
             if recrawl is not None:
-                q = q.filter(~Webpage.valid | Webpage.timestamp < recrawl_date)
+                q = q.filter(~Webpage.valid | (Webpage.timestamp < recrawl_date))
             else:
                 q = q.filter(~Webpage.valid)
             if types:
@@ -786,4 +787,3 @@ class Crawler(ConfigurableObject):
                           args=[site, self.parse,
                                 repair, from_timestamp, to_timestamp],
                           logger=logger, workdir=workdir, prefix=prefix)
-
