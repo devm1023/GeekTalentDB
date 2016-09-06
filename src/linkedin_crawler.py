@@ -1,6 +1,7 @@
 from crawler import Crawler
 import re
 import requests
+import lxml
 
 
 class LinkedInCrawler(Crawler):
@@ -47,12 +48,14 @@ class LinkedInCrawler(Crawler):
         success = False
         try:
             result = requests.get(url, **request_args)
-            while result.status_code == 301 and 'Location' in result.headers:
+            if result.status_code == 301 and 'Location' in result.headers:
                 # logger.log('Following redirect to {0:s}\n' \
                 #            .format(result.headers['Location']))
                 # result = requests.get(result.headers['Location'],
                 #                       **request_args)
-                result.text = '<html><div id="helloworld">Redirected</div></html>'
+                logger.log('Redirected to {0:s}\n' \
+                            .format(result.headers['Location']))
+                result._content = b'<html><div id="li-redirected">pKTDZqJUvshaTZke</div></html>'
                 result.url = result.headers['Location']
             if result.status_code < 200 or result.status_code > 399:
                 raise RuntimeError('Received status code {0:d}.' \
@@ -68,8 +71,8 @@ class LinkedInCrawler(Crawler):
         
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
-        def get_type(url, doc=None):
-            if doc is not None and doc.xpath('/html/div[@id="helloworld"]'):
+        def get_type(url, doc):
+            if doc is not None and doc.xpath("//text()[contains(.,'pKTDZqJUvshaTZke')]"):
                 return 'redirected'
             if cls.directory_url_pattern.match(url):
                 return 'people-directory'
@@ -81,9 +84,9 @@ class LinkedInCrawler(Crawler):
                 return 'profile'
 
         if redirect_url:
-            type = get_type(redirect_url)
+            type = get_type(redirect_url, doc)
         else:
-            type = get_type(url)
+            type = get_type(url, doc)
             
         valid = False
         links = []
@@ -98,7 +101,6 @@ class LinkedInCrawler(Crawler):
         # check if we've been redirected to login page
         if cls.re_login.match(redirect_url):
             valid = False
-
         if valid:
             if type == 'people-directory':
                 linktags = doc.xpath(
@@ -118,5 +120,7 @@ class LinkedInCrawler(Crawler):
                 links = []
                 if not doc.xpath('//*[@id="name"]'):
                     valid = False
+        if type == 'redirected':
+            valid = True
 
         return valid, type, links
