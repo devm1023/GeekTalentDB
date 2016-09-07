@@ -72,16 +72,21 @@ def careers():
 @app.route('/api/careers/<string:career_name>')
 @requires_auth
 def career(career_name):
-    q = dict_from_row(wudb.query(WUCareer) \
-        .filter(func.lower(career_name) == func.lower(WUCareer.title))
-        .first())
-    if q is None:
-        for career in q:
-            qq = dict_from_row(wudb.query(WUSubjectCareer) \
-                .filter(WUSubjectCareer.career_id == career.id))
-            return jsonify(qq)
-            
-        return jsonify(q)
+    q = wudb.query(WUCareer) \
+        .filter(func.lower(career_name) == func.lower(WUCareer.title)) \
+        .first()
+
+    subjects_query = wudb.query(WUSubject) \
+                         .join(WUSubjectCareer) \
+                         .join(WUCareer) \
+                         .filter(WUSubjectCareer.career_id == q.id) \
+                         .all()
+    careerdict = dict(
+        title = q.title,
+        subject = dict_from_row(subjects_query)[0]
+    )
+    if q is not None:
+        return jsonify(careerdict)
     else:
         return not_found()
     
