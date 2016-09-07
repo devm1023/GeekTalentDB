@@ -1,8 +1,8 @@
 import conf
-from analyticsdb import *
+from canonicaldb import *
 from logger import Logger
 from textnormalization import normalized_entity, split_nrm_name
-from analytics_get_entitycloud import relevance_scores
+from entitycloud import relevance_scores
 from entity_mapper import EntityMapper
 from sqlalchemy import func
 from pgvalues import in_values
@@ -18,18 +18,20 @@ def _iter_items(keys, d):
 
 
 def skillvectors(titles, mappings, mincount=1):
-    andb = AnalyticsDB(conf.ANALYTICS_DB)
+    cndb = CanonicalDB()
     logger = Logger()
-    mapper = EntityMapper(andb, mappings)
+    mapper = EntityMapper(cndb, mappings)
 
     logger.log('Counting profiles.\n')
-    totalc_nosf = andb.query(LIProfile.id) \
-                      .join(Location) \
+    totalc_nosf = cndb.query(LIProfile.id) \
+                      .join(Location,
+                            Location.nrm_name == LIProfile.nrm_location) \
                       .filter(LIProfile.language == 'en',
                               Location.nuts0 == 'UK') \
                       .count()
-    totalc_sf = andb.query(LIProfile.id) \
-                    .join(Location) \
+    totalc_sf = cndb.query(LIProfile.id) \
+                    .join(Location,
+                          Location.nrm_name == LIProfile.nrm_location) \
                     .filter(LIProfile.nrm_sector != None,
                             LIProfile.language == 'en',
                             Location.nuts0 == 'UK') \
@@ -37,17 +39,19 @@ def skillvectors(titles, mappings, mincount=1):
 
     logger.log('Counting skills.\n')
     countcol = func.count().label('counts')
-    q = andb.query(LIProfileSkill.nrm_name, countcol) \
+    q = cndb.query(LIProfileSkill.nrm_name, countcol) \
             .join(LIProfile) \
-            .join(Location) \
+            .join(Location,
+                  Location.nrm_name == LIProfile.nrm_location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en') \
             .group_by(LIProfileSkill.nrm_name) \
             .having(countcol >= mincount)
     skillcounts_nosf = dict(q)
-    q = andb.query(LIProfileSkill.nrm_name, countcol) \
+    q = cndb.query(LIProfileSkill.nrm_name, countcol) \
             .join(LIProfile) \
-            .join(Location) \
+            .join(Location,
+                  Location.nrm_name == LIProfile.nrm_location) \
             .filter(Location.nuts0 == 'UK',
                     LIProfile.language == 'en',
                     LIProfile.nrm_sector != None) \
@@ -79,23 +83,27 @@ def skillvectors(titles, mappings, mincount=1):
             similar_titles.add(nrm_title)
             tpe, source, language, words = split_nrm_name(nrm_title)
             if len(words.split()) > 1:
-                for entity, _, _, _ in andb.find_entities(
+                for entity, _, _, _ in cndb.find_entities(
                         tpe, source, language, words, normalize=False):
                     similar_titles.add(entity)
             
-        titlec = andb.query(LIProfile.id) \
-                     .join(Location) \
+        titlec = cndb.query(LIProfile.id) \
+                     .join(Location,
+                           Location.nrm_name == LIProfile.nrm_location) \
                      .filter(LIProfile.language == 'en',
                              Location.nuts0 == 'UK',
-                             in_values(LIProfile.nrm_curr_title, similar_titles),
+                             in_values(LIProfile.nrm_curr_title,
+                                       similar_titles),
                              *sector_clause) \
                      .count()
-        coincidenceq = andb.query(LIProfileSkill.nrm_name, func.count()) \
+        coincidenceq = cndb.query(LIProfileSkill.nrm_name, func.count()) \
                            .join(LIProfile) \
-                           .join(Location) \
+                           .join(Location,
+                                 Location.nrm_name == LIProfile.nrm_location) \
                            .filter(LIProfile.language == 'en',
                                    Location.nuts0 == 'UK',
-                                   in_values(LIProfile.nrm_curr_title, similar_titles),
+                                   in_values(LIProfile.nrm_curr_title,
+                                             similar_titles),
                                    *sector_clause)
         
         skillvector = {}

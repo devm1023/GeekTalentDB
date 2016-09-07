@@ -4,7 +4,7 @@ This module provides the ``Crawler`` class which serves as a base class for
 objects that crawl specific webpages and store the HTML in the `crawl` database.
 
 Created by: Martin Wiebusch
-Last modified: 2016-07-27 MW
+Last modified: 2016-09-07 Keiran Collins
 
 """
 
@@ -59,50 +59,6 @@ def time_to_microsec(t):
 
     """
     return int((t - EPOCH).total_seconds()*1e6)
-
-
-def get_url(site, url, proxy=('socks5://127.0.0.1:9050',
-                              'socks5://127.0.0.1:9050'),
-            request_args={}, timeout=None, logger=Logger(None)):
-    """Attempt to retreive URL through a given proxy.
-
-    Note:
-      This function catches all exceptions from ``requests.get``, logs them and
-      returns ``None`` in the case of a failed request.
-
-    Args:
-      site (str): String identifying the crawled webpage. Currently not used.
-      url (str): The URL to visit.
-      proxy (tuple of str, optional): Tuple holding the URLs of the http and
-        https proxies (in that order). Default settings assume a local Tor
-        proxy.
-      request_args (dict, optional): Keyword arguments for the call to
-        ``requests.get``. Defaults to ``{}``.
-      timeout (float or None, optional): Timeout for the request in secs.
-        Defaults to ``None``, in which case no timeout is set.
-      logger (Logger object, optional): Object for writing log messages.
-
-    Returns:
-      A valid response object or ``None`` in case of a failed request.
-
-    """
-    request_args = request_args.copy()
-    request_args['proxies'] = {'http': proxy[0], 'https': proxy[1]}
-    request_args['timeout'] = timeout
-    success = False
-
-    try:
-        result = requests.get(url, **request_args)
-        if result.status_code < 200 or result.status_code > 399:
-            raise RuntimeError('Received status code {0:d}.' \
-                               .format(result.status_code))
-        success = True
-    except Exception as e:
-        logger.log('Failed getting URL {0:s}\n{1:s}\n' \
-                   .format(url, str(e)))
-    if not success:
-        return None
-    return result
 
 
 def _in_range(ts, from_ts, to_ts):
@@ -330,7 +286,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
             crdb.commit()
 
 
-def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
+def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
                request_args, proxies, timeout, hook, proxy_states):
     """Sequentially crawl a list of URLs and store the HTML.
 
@@ -361,8 +317,6 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
     """
     logger = Logger()
     nproxies = len(proxies)
-    if nproxies < 1:
-        raise ValueError('At least one port is needed.')
     if crawl_rate is not None:
         mean_request_time = 1/crawl_rate
     else:
@@ -382,13 +336,21 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
             min_request_time = random.uniform(0.5*mean_request_time,
                                               1.5*mean_request_time)
             
-            logger.log('{0:s}: Visiting {1:s}\n'.format(str(timestamp), url))
-            iproxy = random.randint(0, nproxies-1)
-            proxy = proxies[iproxy]
+                
 
-            response = get_url(site, url, proxy=proxy,
-                               request_args=request_args,
-                               timeout=timeout, logger=logger)
+            current_request_args = request_args.copy()
+            if proxies:
+                iproxy = random.randint(0, nproxies-1)
+                proxy = proxies[iproxy]
+                current_request_args['proxies'] \
+                    = {'http': proxy[0], 'https': proxy[1]}
+                logger.log('{0:s}: Visiting {1:s} via {2:s}\n' \
+                           .format(str(timestamp), url, proxy[0]))
+            else:
+                logger.log('{0:s}: Visiting {1:s}\n' \
+                           .format(str(timestamp), url))
+            current_request_args['timeout'] = timeout
+            response = requestfunc(url, current_request_args, logger)
             
             html = None
             redirect_url = None
@@ -426,7 +388,7 @@ def crawl_urls(site, urls, parsefunc, deadline, crawl_rate,
                 valid_count += 1
             
             # Update proxy state.
-            if hook is not None:
+            if proxies and hook is not None:
                 proxy_states[iproxy] \
                     = hook(proxy_states[iproxy],
                            webpage_dict['valid'], iproxy, proxy)
@@ -448,7 +410,7 @@ class Crawler(ConfigurableObject):
         ``None``, which means crawl as fast as possible.
       proxies (list of tuples of str, optional): List of tuples of the form
         ``(http_proxy, https_proxy)`` specifying proxies to use. Defaults
-        to ``[('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')]``.
+        to ``[]`` in which case no proxy is used.
       request_args (dict, optional): A ``dict`` holding additional keyword
         arguments to ``requests.get``. Defaults to ``{}``.
       request_timeout (float, optional): Timeout in seconds for requests.
@@ -496,8 +458,6 @@ class Crawler(ConfigurableObject):
             raise ValueError('Config option `site` must be non-empy string.')
         if not isinstance(config['proxies'], list):
             raise ConfigError("'proxies' option must be a list.")
-        if len(config['proxies']) < 1:
-            raise ValueError('At least one proxy is needed.')
         if not isinstance(config['jobs'], int) or config['jobs'] < 1:
             raise ValueError('Number of jobs must an int be greater than 0.')
         
@@ -507,7 +467,7 @@ class Crawler(ConfigurableObject):
             self,
             site=site,
             crawl_rate=None,
-            proxies=[('socks5://127.0.0.1:9050', 'socks5://127.0.0.1:9050')],
+            proxies=[],
             request_args={},
             request_timeout=30,
             urls_from=None,
@@ -560,6 +520,39 @@ class Crawler(ConfigurableObject):
 
         """
         return proxy_states
+
+    @classmethod
+    def get_url(cls, url, request_args, logger):
+        """Attempt to retreive URL through a given proxy.
+
+        Note:
+          Derived classes may override this method. It typically delegates
+          the HTTP request to ``requests.get``. It should catch all exceptions,
+          logs them and return ``None`` in the case of a failed request.
+
+        Args:
+          url (str): The URL to visit.
+          request_args (dict): Keyword arguments for the call to
+            ``requests.get``. 
+          logger (Logger object): Object for writing log messages.
+
+        Returns:
+          A valid response object or ``None`` in case of a failed request.
+
+        """
+        success = False
+        try:
+            result = requests.get(url, **request_args)
+            if result.status_code < 200 or result.status_code > 399:
+                raise RuntimeError('Received status code {0:d}.' \
+                                   .format(result.status_code))
+            success = True
+        except Exception as e:
+            logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
+                       .format(url, request_args['proxies']['http'], str(e)))
+        if not success:
+            return None
+        return result
 
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
@@ -615,6 +608,7 @@ class Crawler(ConfigurableObject):
         config = self.get_config(**kwargs)
         site = config['site']
         parsefunc = self.parse
+        requestfunc = self.get_url
         crawl_rate = config['crawl_rate']
         proxies = config['proxies']
         request_args = config['request_args']
@@ -632,6 +626,7 @@ class Crawler(ConfigurableObject):
         workdir = config['workdir']
         prefix = config['prefix']
         logger = config['logger']
+        recrawl_date = config['recrawl']
 
         with CrawlDB() as crdb:
             batch_time = timedelta(seconds=batch_time)
@@ -643,7 +638,12 @@ class Crawler(ConfigurableObject):
             Webpage2 = aliased(Webpage)
             subq = crdb.query(Webpage2.url,
                               func.max(Webpage2.timestamp).label('maxts')) \
-                       .group_by(Webpage2.url) \
+                       .filter(Webpage2.site == site)
+            if urls_from:
+                with open(urls_from, 'r') as inputfile:
+                    urls = [line.strip() for line in inputfile]
+                subq = subq.filter(in_values(Webpage2.url, urls))
+            subq = subq.group_by(Webpage2.url) \
                        .subquery('subq')
             q = crdb.query(Webpage.url) \
                     .join(subq, Webpage.url == subq.c.url) \
@@ -652,17 +652,13 @@ class Crawler(ConfigurableObject):
                             | (Webpage.timestamp == subq.c.maxts),
                             Webpage.fail_count <= max_fail_count)
             if recrawl is not None:
-                q = q.filter(~Webpage.valid | Webpage.timestamp < recrawl_date)
+                q = q.filter(Webpage.timestamp < recrawl_date)
             else:
                 q = q.filter(~Webpage.valid)
             if types:
                 q = q.filter(Webpage.type.in_(types))
             if exclude_types:
                 q = q.filter(~Webpage.type.in_(exclude_types))
-            if urls_from:
-                with open(args.urls_from, 'r') as inputfile:
-                    urls = [line.strip() for line in inputfile]
-                q = q.filter(in_values(Webpage.url, urls))
             q = q.limit(batch_size*jobs*EXCESS)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
@@ -670,6 +666,7 @@ class Crawler(ConfigurableObject):
             try:
                 tstart = datetime.utcnow()            
                 total_count = 0
+                firstbatch = True
                 while True:
                     logger.log('Starting batch at {0:s}.\n' \
                                .format(tstart.strftime('%Y-%m-%d %H:%M:%S')))
@@ -681,7 +678,7 @@ class Crawler(ConfigurableObject):
                     if not urls:
                         break
                     if limit is not None and len(urls) > limit - total_count:
-                        urls = urls[:args.limit - total_count]
+                        urls = urls[limit - total_count]
                     urls = urls[:batch_size*jobs]
                         
                     tcrawlstart = datetime.utcnow()
@@ -695,7 +692,7 @@ class Crawler(ConfigurableObject):
                         success = False
                         try:
                             count, valid_count, proxy_states = crawl_urls(
-                                site, urls, parsefunc, deadline,
+                                site, urls, parsefunc, requestfunc, deadline,
                                 crawl_rate, request_args, proxies,
                                 request_timeout, self.on_visit,
                                 proxy_states)
@@ -718,15 +715,17 @@ class Crawler(ConfigurableObject):
                             in zip(url_batches, proxy_batches,
                                    proxy_state_batches):
                             pargs.append(
-                                (site, url_batch, parsefunc, deadline,
-                                 crawl_rate, request_args, proxy_batch,
-                                 request_timeout, self.on_visit,
+                                (site, url_batch, parsefunc, requestfunc,
+                                 deadline, crawl_rate, request_args,
+                                 proxy_batch, request_timeout, self.on_visit,
                                  proxy_state_batch))
                         pfunc = ParallelFunction(
                             crawl_urls, batchsize=1, workdir=workdir,
-                            prefix=prefix, timeout=(1+batch_time_tolerance) \
+                            prefix=prefix, cleanup=1, append=not firstbatch,
+                            timeout=(1+batch_time_tolerance) \
                             *batch_time.total_seconds())
                         success = False
+                        firstbatch = False
                         try:
                             results = pfunc(pargs)
                             count = 0
@@ -788,4 +787,3 @@ class Crawler(ConfigurableObject):
                           args=[site, self.parse,
                                 repair, from_timestamp, to_timestamp],
                           logger=logger, workdir=workdir, prefix=prefix)
-

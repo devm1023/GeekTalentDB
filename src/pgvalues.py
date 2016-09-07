@@ -25,6 +25,7 @@ def compile_values(element, compiler, asfrom=False, **kw):
                 for elem, column in zip(tup, columns))
         for tup in element.list
     )
+    v = v.replace('%', '%%')
     if asfrom:
         if element.alias_name:
             v = "(%s) AS %s (%s)" % (v, element.alias_name, (", ".join(c.name for c in element.columns)))

@@ -1,5 +1,6 @@
 __all__ = [
-    'SkillDescription',
+    'Description',
+    'ConceptLabel',
     'WatsonDB',
     ]
 
@@ -53,7 +54,13 @@ class ConceptLabel(SQLBase):
     __table_args__ = (UniqueConstraint('concept', 'label'),)
     
 
-class WatsonDBSession(Session):
+class WatsonDB(Session):
+    def __init__(self, url=conf.WATSON_DB,
+                 engine_args=[], engine_kwargs={}, **kwargs):
+        Session.__init__(self, url=url, metadata=SQLBase.metadata,
+                         engine_args=engine_args, engine_kwargs=engine_kwargs,
+                         **kwargs)
+
     def get_descriptions(self, concept, lookup=False,
                          logger=Logger(None)):
         concept = concept.strip().lower()
@@ -122,11 +129,3 @@ class WatsonDBSession(Session):
             
         self.commit()
         return descriptions
-
-
-class WatsonDB(Session):
-    def __init__(self, url=conf.WATSON_DB,
-                 engine_args=[], engine_kwargs={}, **kwargs):
-        Session.__init__(self, url=url, metadata=SQLBase.metadata,
-                         engine_args=engine_args, engine_kwargs=engine_kwargs,
-                         **kwargs)

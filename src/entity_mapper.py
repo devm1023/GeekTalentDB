@@ -1,6 +1,6 @@
 __all__ = ['EntityMapper']
 
-from analyticsdb import Entity
+from canonicaldb import Entity
 from textnormalization import normalized_entity, normalized_sector
 import csv
 
