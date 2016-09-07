@@ -652,7 +652,7 @@ class Crawler(ConfigurableObject):
                             | (Webpage.timestamp == subq.c.maxts),
                             Webpage.fail_count <= max_fail_count)
             if recrawl is not None:
-                q = q.filter(~Webpage.valid | (Webpage.timestamp < recrawl_date))
+                q = q.filter(Webpage.timestamp < recrawl_date)
             else:
                 q = q.filter(~Webpage.valid)
             if types:
@@ -678,7 +678,7 @@ class Crawler(ConfigurableObject):
                     if not urls:
                         break
                     if limit is not None and len(urls) > limit - total_count:
-                        urls = urls[:args.limit - total_count]
+                        urls = urls[config['limit'] - total_count]
                     urls = urls[:batch_size*jobs]
                         
                     tcrawlstart = datetime.utcnow()
