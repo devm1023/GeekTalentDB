@@ -43,7 +43,22 @@ def main():
                     .query(WUCareer) \
                     .filter(func.lower(WUCareer.title) == func.lower(row[1])) \
                     .first()
-                print(repr(dict_from_row(career)))
+                subject = wudb \
+                    .query(WUSubject) \
+                    .filter(func.lower(WUSubject.title) == func.lower(row[0])) \
+                    .first()
+                if career is None:
+                    logger.log(row[1])
+                    career = WUCareer(title=row[1])
+                    wudb.add(career)
+                    wudb.flush()
+                wu_subject_career = query \
+                    .filter(WUSubjectCareer.career_id == career.id & WUSubjectCareer.subject_id = subject.id) \
+                    .first()
+                if wu_subject_career is None:
+                    wu_subject_career = WUSubjectCareer(career_id=career.id, subject_id=subject.id)
+                    wudb.add(wu_subject_career)
+                    wudb.flush()
     
     print("Fixing subjects")
     process_db(subjects, fix_subject, wudb, logger=logger) 
