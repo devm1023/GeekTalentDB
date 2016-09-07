@@ -87,6 +87,7 @@ class WUCareer(SQLBase):
     title         = Column(Unicode(STR_MAX),
                            nullable=False,
                            index=True)
+    subject       = relationship('WUSubjectCareer')
 
 # database session class
 class WhichUniDB(Session):
