@@ -76,6 +76,11 @@ def career(career_name):
         .filter(func.lower(career_name) == func.lower(WUCareer.title))
         .first())
     if q is None:
+        for career in q:
+            qq = dict_from_row(wudb.query(WUSubjectCareer) \
+                .filter(WUSubjectCareer.career_id == career.id))
+            return jsonify(qq)
+            
         return jsonify(q)
     else:
         return not_found()
