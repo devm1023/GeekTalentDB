@@ -35,12 +35,12 @@ def make_date(datestr):
     datestr = ' '.join(datestr.split())
     date = None
     try:
-        date = datetime.strptime('%B %Y')
+        date = datetime.strptime(datestr, '%B %Y')
     except:
         pass
     if not date:
         try:
-            date = datetime.strptime('%Y')
+            date = datetime.strptime(datestr, '%Y')
         except:
             pass
 
@@ -129,7 +129,6 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
             if not any(bool(groupdict[k]) for k in ['name', 'url']):
                 continue
             profiledict['groups'].append(groupdict)
-
         cndb.add_liprofile(profiledict)
 
     process_db(q, add_liprofile, cndb, logger=logger)
