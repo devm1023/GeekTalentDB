@@ -49,7 +49,7 @@ def subjects():
             .all())
         
     return jsonify({
-        "subjects": [collapse(row)for row in q]
+        "subjects": [collapse(row) for row in q]
     })
 
 @app.route('/api/subjects/<string:subject_title>')
@@ -62,7 +62,14 @@ def subject(subject_title):
         return not_found()
     else:
         return jsonify(collapse(q))
-    return 
+
+@app.route('/api/careers')
+@requires_auth
+def careers():
+    q = dict_from_row(wudb.query(WUCareers).all())
+
+    return jsonify(q)
+    
 
 def collapse(row):
     row['alevels'] = [a['alevel'] for a in row['alevels']]
