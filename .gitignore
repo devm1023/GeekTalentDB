@@ -1,0 +1,8 @@
+src/conf.py
+runs/tordata
+runs/crawljobs
+src/__pycache__
+runs/*.out
+runs/*.log
+runs/*.txt
+runs/jobs
