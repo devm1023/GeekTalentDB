@@ -77,7 +77,8 @@ def career(career_name):
         .first())
     if q is None:
         return jsonify(q)
-    else return not_found()
+    else:
+        return not_found()
     
 
 def collapse(row):
