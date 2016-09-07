@@ -66,9 +66,18 @@ def subject(subject_title):
 @app.route('/api/careers')
 @requires_auth
 def careers():
-    q = dict_from_row(wudb.query(WUCareers).all())
-
+    q = dict_from_row(wudb.query(WUCareer).all())
     return jsonify(q)
+
+@app.route('/api/careers/<string:career_name>')
+@requires_auth
+def career(career_name):
+    q = dict_from_row(wudb.query(WUCareer) \
+        .filter(func.lower(career_name) == func.lower(WUCareer.title))
+        .first())
+    if q is None:
+        return jsonify(q)
+    else return not_found()
     
 
 def collapse(row):
