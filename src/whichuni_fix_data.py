@@ -59,7 +59,7 @@ def main():
                     wu_subject_career = WUSubjectCareer(career_id=career.id, subject_id=subject.id)
                     wudb.add(wu_subject_career)
                     wudb.flush()
-                logger.log("Added career {0} to {1}".format(career.title, subject.title))
+                    logger.log("Added career {0} to {1}/n".format(career.title, subject.title))
     
     print("Fixing subjects")
     process_db(subjects, fix_subject, wudb, logger=logger) 
