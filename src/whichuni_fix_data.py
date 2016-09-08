@@ -24,7 +24,7 @@ def main():
             for row in reader:
                 if(subject.title.lower() == row[0].lower()):
                     subject.title = row[1]
-                    print("Changed subject {0} to {1}".format(row[0], row[1]))
+                    logger.log("Changed subject {0} to {1}".format(row[0], row[1]))
 
     def fix_career(career):
         with open('whichuni/career_mappings.csv') as cmf:
@@ -32,7 +32,7 @@ def main():
             for row in reader:
                 if(career.title.lower() == row[0].lower()):
                     career.title = row[1]
-                    print("Changed career {0} to {1}".format(row[0], row[1]))
+                    logger.log("Changed career {0} to {1}".format(row[0], row[1]))
     
     def add_careers_to_subject(subject):
         with open('whichuni/added_careers.csv') as acf:
@@ -48,11 +48,9 @@ def main():
                     .filter(func.lower(WUSubject.title) == func.lower(row[0])) \
                     .first()
                 if career is None:
-                    logger.log(row[1])
                     career = WUCareer(title=row[1])
                     wudb.add(career)
                     wudb.flush()
-                print(career.id)
                 wu_subject_career = wudb.query(WUSubjectCareer) \
                     .filter(WUSubjectCareer.career_id == career.id) \
                     .filter(WUSubjectCareer.subject_id == subject.id) \
@@ -61,6 +59,7 @@ def main():
                     wu_subject_career = WUSubjectCareer(career_id=career.id, subject_id=subject.id)
                     wudb.add(wu_subject_career)
                     wudb.flush()
+                logger.log("Added career {0} to {1}".format(career.title, subject.title))
     
     print("Fixing subjects")
     process_db(subjects, fix_subject, wudb, logger=logger) 
