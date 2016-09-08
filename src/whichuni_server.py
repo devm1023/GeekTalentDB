@@ -75,7 +75,8 @@ def career(career_name):
     q = wudb.query(WUCareer) \
         .filter(func.lower(career_name) == func.lower(WUCareer.title)) \
         .first()
-
+    if q is None:
+        return not_found()
     subjects_query = wudb.query(WUSubject) \
                          .join(WUSubjectCareer) \
                          .join(WUCareer) \
