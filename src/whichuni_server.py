@@ -63,6 +63,16 @@ def subject(subject_title):
     else:
         return jsonify(collapse(q))
 
+@app.route('/api/typeahead/careers/<string:partial_career_name>')
+@requires_auth
+def typeahead_careers(partial_career_name):
+    q = wudb.query(WUCareer.title) \
+            .filter(func.lower(WUCareer.title).contains(func.lower(partial_career_name))) \
+            .all()
+    if q is not None:
+        q = [item for sublist in q for item in sublist]
+    return jsonify(q)
+
 @app.route('/api/careers')
 @requires_auth
 def careers():
