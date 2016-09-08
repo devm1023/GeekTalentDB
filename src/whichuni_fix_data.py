@@ -52,8 +52,10 @@ def main():
                     career = WUCareer(title=row[1])
                     wudb.add(career)
                     wudb.flush()
+                print(career.id)
                 wu_subject_career = wudb.query(WUSubjectCareer) \
-                    .filter(WUSubjectCareer.career_id == career.id & WUSubjectCareer.subject_id == subject.id) \
+                    .filter(WUSubjectCareer.career_id == career.id) \
+                    .filter(WUSubjectCareer.subject_id == subject.id) \
                     .first()
                 if wu_subject_career is None:
                     wu_subject_career = WUSubjectCareer(career_id=career.id, subject_id=subject.id)
