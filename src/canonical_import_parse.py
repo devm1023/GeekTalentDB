@@ -38,8 +38,7 @@ def get_first_name(name):
     try:
         name = ''.join([i for i in name if i.isalpha() or i == " "])
         first_name = HumanName(name).first
-    except Exception as e:
-        print(e)
+    except:
         pass
     return first_name
 
@@ -160,7 +159,7 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
             if not any(bool(groupdict[k]) for k in ['name', 'url']):
                 continue
             profiledict['groups'].append(groupdict)
-        print('{0:s} {1:s}'.format(profiledict['first_name'], profiledict['last_name']))
+            
         cndb.add_liprofile(profiledict)
 
     process_db(q, add_liprofile, cndb, logger=logger)
