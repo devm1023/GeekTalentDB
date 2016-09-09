@@ -27,7 +27,8 @@ suffix,CA
 suffix,RIBA
 suffix,MCIAT
 suffix,CAB
-suffix,CBiol,MIBiol
+suffix,CBiol
+suffix,MIBiol
 suffix,MCIOB
 suffix,MAIB
 suffix,FCIBSE
@@ -47,7 +48,7 @@ suffix,CEng
 suffix,Ch.EHOMREHIS
 suffix,CEnvH
 suffix,CEnv
-suffix,CFACFAInstitute
+suffix,CFACFA
 suffix,FCILT
 suffix,MICFor
 suffix,MIGEM
@@ -76,7 +77,8 @@ suffix,MRICS
 suffix,FRICS
 suffix,MIMinE
 suffix,CPA
-suffix,CPhys,MInstP
+suffix,CPhys
+suffix,MInstP
 suffix,CPsychol
 suffix,CPFA
 suffix,CMIOSH
