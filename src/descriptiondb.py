@@ -150,9 +150,11 @@ class DescriptionDB(Session):
 
         if not queries:
             return []
-        
+        else:
+            queries = [x.lower() for x in queries]
+            
         q = self.query(table) \
-                .filter(table.name.in_(queries))
+                .filter(func.lower(table.name).in_(queries))
         if sector is not None and tpe != 'sector':
             q = q.filter(table.sector == sector)
             
