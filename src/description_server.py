@@ -1,5 +1,6 @@
 from flask import Flask, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from flask_admin import Admin
 from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla.filters import BaseSQLAFilter
@@ -15,6 +16,7 @@ from datetime import datetime
 
 # Create application
 app = Flask(__name__)
+CORS(app)
 
 # Create database session
 dscdb = DescriptionDB()
