@@ -26,29 +26,32 @@ def get_new_url(old_url):
         return None
 
 def get_old_url(new_url):
-    if has_numbers(new_url):
-        segments = new_url.split('-')[-1];
-        name = '-'.join(new_url.split('/')[-1].split('-')[:-1])
-        url = '/'.join(new_url.split('/')[:-2])
-        if has_numbers(segments[0:3]) and not has_letters(segments[0:3]):
-            last_url_segment = str(int(segments[0:3]))
+    try:
+        if has_numbers(new_url):
+            segments = new_url.split('-')[-1];
+            name = '-'.join(new_url.split('/')[-1].split('-')[:-1])
+            url = '/'.join(new_url.split('/')[:-2])
+            if has_numbers(segments[0:3]) and not has_letters(segments[0:3]):
+                last_url_segment = str(int(segments[0:3]))
+            else:
+                last_url_segment = segments[0:3]
+            if has_numbers(segments[3:6]) and not has_letters(segments[3:6]):
+                second_url_segment = str(int(segments[3:6]))
+            else:
+                second_url_segment = segments[3:6]
+            if has_numbers(segments[6:8]) and not has_letters(segments[6:8]):
+                first_url_segment = str(int(segments[6:8]))
+            else:
+                first_url_segment = segments[6:8]
+            new_url = '{0}/pub/{1}/{2}/{3}/{4}'.format(url, name, first_url_segment, second_url_segment, last_url_segment)
+            possible_urls = [
+                new_url,
+                new_url.replace('https', 'http')
+            ]
+            return possible_urls
         else:
-            last_url_segment = segments[0:3]
-        if has_numbers(segments[3:6]) and not has_letters(segments[3:6]):
-            second_url_segment = str(int(segments[3:6]))
-        else:
-            second_url_segment = segments[3:6]
-        if has_numbers(segments[6:8]) and not has_letters(segments[6:8]):
-            first_url_segment = str(int(segments[6:8]))
-        else:
-            first_url_segment = segments[6:8]
-        new_url = '{0}/pub/{1}/{2}/{3}/{4}'.format(url, name, first_url_segment, second_url_segment, last_url_segment)
-        possible_urls = [
-            new_url,
-            new_url.replace('https', 'http')
-        ]
-        return possible_urls
-    else:
+            return []
+    except:
         return []
 
 if __name__ == "__main__":
