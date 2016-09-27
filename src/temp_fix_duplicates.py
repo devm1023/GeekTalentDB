@@ -10,6 +10,7 @@ with cn.CanonicalDB() as cndb, ps.ParseDB() as psdb, open('urls.csv', 'r') as in
             continue
         old_urls = get_old_url(line)
         if len(old_urls):
+            old_urls.append(line)
             profile_id = cndb.query(cn.LIProfile.id) \
                 .filter(cn.LIProfile.url.in_(old_urls)) \
                 .first()
