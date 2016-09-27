@@ -14,7 +14,6 @@ import hashlib
 import argparse
 from nameparser import HumanName
 from nameparser.config import CONSTANTS
-from linkedin_possible_urls import get_old_url
 
 with open('name_constants.csv', 'r') as inputfile:
     for line in inputfile:
@@ -159,13 +158,6 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
             if not any(bool(groupdict[k]) for k in ['name', 'url']):
                 continue
             profiledict['groups'].append(groupdict)
-        if len(get_old_url(liprofile.url)):
-            existing_profile = cndb.query(cn.LIProfile) \
-                        .filter(cn.LIProfile.url.in_(get_old_url(liprofile.url))) \
-                        .first()
-            if existing_profile:
-                logger.log('deleting profile {0}\n'.format(existing_profile.datoin_id))
-                cndb.delete(existing_profile)
         cndb.add_liprofile(profiledict)
 
     process_db(q, add_liprofile, cndb, logger=logger)
