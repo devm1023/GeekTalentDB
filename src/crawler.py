@@ -678,7 +678,7 @@ class Crawler(ConfigurableObject):
                     if not urls:
                         break
                     if limit is not None and len(urls) > limit - total_count:
-                        urls = urls[limit - total_count]
+                        urls = urls[:limit - total_count]
                     urls = urls[:batch_size*jobs]
                         
                     tcrawlstart = datetime.utcnow()
