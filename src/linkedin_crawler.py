@@ -64,8 +64,7 @@ class LinkedInCrawler(Crawler):
                                    .format(result.status_code))
             success = True
         except Exception as e:
-            if request_args is not None:
-                logger.log(repr(request_args)) # using custom proxies
+            if 'proxies' in request_args: # using custom proxies
                 logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
                         .format(url, request_args['proxies']['http'], str(e)))
             else: # using tor
