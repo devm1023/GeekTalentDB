@@ -4,7 +4,7 @@
 # so additional profiles can be added into a current database
 # this does not include geo/word processing
 from parsedb import *
-from canonicaldb import CanonicalDB
+import canonicaldb as cn
 from windowquery import split_process, process_db
 from datetime import datetime
 from logger import Logger
@@ -12,6 +12,19 @@ from parse_datetime import parse_datetime
 import re
 import hashlib
 import argparse
+from nameparser import HumanName
+from nameparser.config import CONSTANTS
+
+with open('name_constants.csv', 'r') as inputfile:
+    for line in inputfile:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        row = line.split(',')
+        if row[0] == "title":
+            CONSTANTS.titles.add(row[1].strip())
+        if row[0] == "suffix":
+            CONSTANTS.suffix_acronyms.add(row[1].strip())
 
 connectionspatt = re.compile(r'[^0-9]*([0-9]+)[^0-9]*')
 country_languages = {
@@ -20,6 +33,23 @@ country_languages = {
     'Nederland'      : 'nl',
 }
 
+def get_first_name(name):
+    first_name = None
+    try:
+        name = ''.join([i for i in name if i.isalpha() or i == " "])
+        first_name = HumanName(name).first
+    except:
+        pass
+    return first_name
+
+def get_last_name(name):
+    last_name = None
+    try:
+        name = ''.join([i for i in name if i.isalpha() or i == " "])
+        last_name = HumanName(name).last
+    except:
+        pass
+    return last_name
 
 def make_connections(connections):
     if connections is not None:
@@ -35,12 +65,12 @@ def make_date(datestr):
     datestr = ' '.join(datestr.split())
     date = None
     try:
-        date = datetime.strptime('%B %Y')
+        date = datetime.strptime(datestr, '%B %Y')
     except:
         pass
     if not date:
         try:
-            date = datetime.strptime('%Y')
+            date = datetime.strptime(datestr, '%Y')
         except:
             pass
 
@@ -57,7 +87,7 @@ def make_hash(url):
 def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
     logger = Logger()
     psdb = ParseDB()
-    cndb = CanonicalDB()
+    cndb = cn.CanonicalDB()
 
     q = psdb.query(LIProfile).filter(LIProfile.id >= fromid)
     if toid is not None:
@@ -77,14 +107,13 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
             url           = liprofile.url,
             picture_url   = liprofile.picture_url,
             name          = liprofile.name,
-            last_name     = None,
-            first_name    = None,
+            last_name     = get_last_name(liprofile.name),
+            first_name    = get_first_name(liprofile.name),
             location      = liprofile.location,
             sector        = liprofile.sector,
             title         = liprofile.title,
             description   = liprofile.description,
             connections   = make_connections(liprofile.connections),
-
             skills        = [s.name for s in liprofile.skills if s.name],
             experiences   = [],
             educations    = [],
@@ -129,7 +158,6 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
             if not any(bool(groupdict[k]) for k in ['name', 'url']):
                 continue
             profiledict['groups'].append(groupdict)
-
         cndb.add_liprofile(profiledict)
 
     process_db(q, add_liprofile, cndb, logger=logger)

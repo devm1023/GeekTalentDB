@@ -1,0 +1,1146 @@
+# sector mappings
+sector,en,,Electrical/electronic manufacturing,Electrical Engineering
+sector,en,,Consumer Electronics,Electrical Engineering
+sector,en,,Semiconductors,Electrical Engineering
+sector,en,,Information Technology and Services,Digital Tech
+sector,en,,Computer Software,Digital Tech
+sector,en,,Internet,Digital Tech
+sector,en,,Computer Networking,Digital Tech
+sector,en,,Computer Hardware,Digital Tech
+sector,en,,Online Media,Digital Tech
+sector,en,,Computer & Network Security,Digital Tech
+sector,en,,Computer Games,Digital Tech
+sector,en,,E-Learning,Digital Tech
+sector,en,,Animation,Digital Tech
+sector,en,,Program Development,Digital Tech
+sector,en,,Software,Digital Tech
+sector,en,,Hospital & Health Care,Healthcare
+sector,en,,Medical Practice,Healthcare
+sector,en,,Financial Services,Financial Services
+sector,en,,Accounting,Financial Services
+sector,en,,Banking,Financial Services
+# sector,en,,Insurance,Financial Services
+sector,en,,Investment Banking,Financial Services
+sector,en,,Investment Management,Financial Services
+sector,en,,Venture Capital & Private Equity,Financial Services
+#
+# skill mappings
+#
+skill,en,,Sql,SQL
+skill,en,,Javascript,JavaScript
+skill,en,,Itil,ITIL
+skill,en,,It Service Management,IT Service Management
+skill,en,,Microsoft Sql Server,Microsoft SQL Server
+skill,en,,Html,HTML
+skill,en,,It Strategy,IT Strategy
+skill,en,,Css,CSS
+skill,en,,Xml,XML
+skill,en,,Crm,CRM
+skill,en,,Saas,SAAS
+skill,en,,Mysql,MySQL
+skill,en,,Vmware,VMware
+skill,en,,Php,PHP
+skill,en,,It Management,IT Management
+skill,en,,Pmo,PMO
+skill,en,,Ms Project,Microsoft Project
+skill,en,,Sdlc,SDLC
+skill,en,,Dns,DNS
+skill,en,,Windows Xp,Windows XP
+skill,en,,Dhcp,DHCP
+skill,en,,Vpn,VPN
+skill,en,,Ip,IP
+skill,en,,Oop,OOP
+skill,en,,Asp.Net,ASP.NET
+skill,en,,Asp.Net Mvc,ASP.NET MVC
+skill,en,,Uml,UML
+skill,en,,Html 5,HTML 5
+skill,en,,Html5,HTML 5
+skill,en,,Vb.Net,VB.NET
+skill,en,,Wcf,WCF
+skill,en,,Linq,LINQ
+skill,en,,T Sql,T-SQL
+skill,en,,Erp,ERP
+skill,en,,Sap,SAP
+skill,en,,Soa,SOA
+skill,en,,Sla,SLA
+skill,en,,It Operations,IT Operations
+skill,en,,Spss,SPSS
+skill,en,,Sas,SAS
+skill,en,,Hp Quality Center,HP Quality Center
+skill,en,,Iseb,ISEB
+skill,en,,Jira,JIRA
+skill,en,,Qtp,QTP
+skill,en,,V Model,V-Model
+skill,en,,Istqb,ISTQB
+skill,en,,Hp Qtp,HP QTP
+skill,en,,Jquery,jQuery
+skill,en,,Xhtml,XHTML
+skill,en,,Seo,SEO
+skill,en,,Ajax,AJAX
+skill,en,,Css3,CSS 3
+skill,en,,Cms,CMS
+skill,en,,E Commerce,e-Commerce
+skill,en,,Mvc,MVC
+skill,en,,Json,JSON
+skill,en,,.Net,.NET
+skill,en,,Sass,SASS
+skill,en,,Ccna,CCNA
+skill,en,,Wan,WAN
+skill,en,,Ospf,OSPF
+skill,en,,Voip,VoIP
+skill,en,,Cisco Ios,Cisco IOS
+skill,en,,Bgp,BGP
+skill,en,,Mpls,MPLS
+skill,en,,Ccnp,CCNP
+skill,en,,Eigrp,EIGRP
+skill,en,,Lan Wan,LAN WAN
+skill,en,,Tcp/Ip,TCP/IP
+skill,en,,Qos,QOS
+skill,en,,Ppc,PPC
+skill,en,,Sem,SEM
+skill,en,,Etl,ETL
+skill,en,,Ssis,SSIS
+skill,en,,Ssrs,SSRS
+skill,en,,Oracle Rac,Oracle RAC
+skill,en,,Sql Tuning,SQL Tuning
+skill,en,,Rman,RMAN
+skill,en,,Pl/Sql,PL/SQL
+skill,en,,Oracle E Business Suite,Oracle E-Business Suite
+skill,en,,Olap,OLAP
+skill,en,,Iso 27001,ISO 27001
+skill,en,,Pci Dss,PCI DSS
+skill,en,,Cissp,CISSP
+skill,en,,Cctv,CCTV
+skill,en,,Zbrush,ZBrush
+skill,en,,Uv Mapping,UV Mapping
+skill,en,,Vray,VRay
+skill,en,,Ps3,PS3
+skill,en,,Opengl,OpenGL
+skill,en,,E Learning,e-Learning
+skill,en,,Prince2,PRINCE2
+skill,en,,Vba,VBA
+skill,en,,Xna,XNA
+skill,en,,Lua,LUA
+skill,en,,Ios Development,iOS Development
+skill,en,,Pmp,PMP
+skill,en,,Fmea,FMEA
+skill,en,,Apqp,APQP
+skill,en,,Ppap,PPAP
+skill,en,,Fmcg,FMCG
+skill,en,,Catia,CATIA
+skill,en,,Catia V5,CATIA V5
+skill,en,,Dfmea,DFMEA
+skill,en,,Cad,CAD
+skill,en,,Gd&t,GD&T
+skill,en,,Design For Manufacturing,Design for Manufacturing
+skill,en,,Cae,CAE
+skill,en,,Autocad,AutoCAD
+skill,en,,Ts 16949,TS 16949
+skill,en,,Ts16949,TS 16949
+skill,en,,Spc,SPC
+skill,en,,Ansys,ANSYS
+skill,en,,Instructor Led Training,Instructor-led Training
+skill,en,,Ptc Creo,PTC Creo
+skill,en,,Nx Unigraphics,NX Unigraphics
+skill,en,,Cfd,CFD
+skill,en,,Jit,JIT
+skill,en,,Dmaic,DMAIC
+skill,en,,Smed,SMED
+skill,en,,Pdca,PDCA
+skill,en,,Iso,ISO
+skill,en,,Pfmea,PFMEA
+skill,en,,Tqm,TQM
+skill,en,,Tpm,TPM
+skill,en,,Iso 9000,ISO 9000
+skill,en,,Iso 14001,ISO 14001
+skill,en,,Qs9000,QS 9000
+skill,en,,Qs 9000,QS 9000
+skill,en,,Mrp,MRP
+skill,en,,Plc,PLC
+skill,en,,Bls,BLS
+skill,en,,Cpr Certified,CPR Certified
+skill,en,,Icu,ICU
+skill,en,,Acls,ACLS
+skill,en,,Iv,IV
+skill,en,,Emr,EMR
+skill,en,,Gcp,GCP
+skill,en,,Cro,CRO
+skill,en,,Ich Gcp,ICH GCP
+skill,en,,Ctms,CTMS
+skill,en,,Pcr,PCR
+skill,en,,Icd 10,ICD 10
+skill,en,,Hipaa,HIPAA
+skill,en,,Ehr,EHR
+skill,en,,Cbt,CBT
+skill,en,,Tmj Dysfunction,TMJ Dysfunction
+skill,en,,Iosh,IOSH
+skill,en,,Ehs,EHS
+skill,en,,Mri,MRI
+skill,en,,Pacs,PACS
+skill,en,,X Ray,X-ray
+skill,en,,Ris,RIS
+skill,en,,Dicom,DICOM
+skill,en,,Pre-Hospital Care,Pre Hospital Care
+skill,en,,Pals,PALS
+skill,en,,Phtls,PHTLS
+skill,en,,Aed,AED
+skill,en,,Atls,ATLS
+skill,en,,Ekg,EKG
+skill,en,,Emt,EMT
+skill,en,,Cbrn,CBRN
+skill,en,,Gmp,GMP
+skill,en,Healthcare,Elisa,ELISA
+skill,en,,Aac,AAC
+skill,en,,Vat,VAT
+skill,en,,Ifrs,IFRS
+skill,en,,Powerpoint,PowerPoint
+skill,en,,Sipp,SIPP
+skill,en,,Uk Gaap,UK GAAP
+skill,en,,Gaap,GAAP
+skill,en,,Us Gaap,US GAAP
+skill,en,,Lbo,LBO
+skill,en,,Aml,AML
+skill,en,,Kyc,KYC
+skill,en,,Fsa,FSA
+skill,en,,Fx Options,FX Options
+skill,en,,Fx Trading,FX Trading
+skill,en,,Etfs,ETFs
+skill,en,,Alm,ALM
+skill,en,,Adp Payroll,ADP Payroll
+skill,en,,Hris,HRMS
+skill,en,,Hr Policies,HR Policies
+# deleted skills
+skill,en,Digital Tech,Construction,
+#
+# company mappings
+#
+company,en,,HP,Hewlett-Packard
+company,en,,Hewlett Packard Enterprise,Hewlett-Packard
+company,en,,HP Enterprise Services,Hewlett-Packard
+company,en,,Fujitsu Services,Fujitsu
+company,en,,Fujitsu UK and Ireland,Fujitsu
+company,en,,IBM United Kingdom Ltd,IBM
+company,en,,IBM Global Business Services,IBM
+company,en,,Capgemini Consulting,Capgemini
+company,en,,Mace Group,Mace
+company,en,,"Rackspace, the #1 managed cloud company",Rackspace
+company,en,,BT Global Services,BT
+company,en,,Capita IT Services,Capita
+company,en,,Capita IT Professional Services,Capita
+company,en,,Barclays Capital,Barclays
+company,en,,Barclays Bank,Barclays
+company,en,,Barclays Wealth and Investment Management,Barclays
+company,en,,Barclays Wealth,Barclays
+company,en,,Barclays Corporate Banking,Barclays
+company,en,,Barclays Corporate,Barclays
+company,en,,Barclays Investment Bank,Barclays
+company,en,,Barclays UK Retail and Business Bank,Barclays
+company,en,,HSBC Global Banking and Markets,HSBC
+company,en,,HSBC Bank plc,HSBC
+company,en,,HSBC Commercial Banking,HSBC
+company,en,,HSBC Retail Banking and Wealth Management,HSBC
+company,en,,HSBC Private Bank,HSBC
+company,en,,RBS,Royal Bank of Scotland
+company,en,,RBS Invoice Finance,Royal Bank of Scotland
+company,en,,RBS Markets and International Banking,RBS
+company,en,,Bank of Scotland,Royal Bank of Scotland
+company,en,,Lloyds Bank,Lloyds
+company,en,,Lloyds Banking Group,Lloyds
+company,en,,Lloyds Bank Commercial Banking,Lloyds
+company,en,,Lloyds Private Banking,Lloyds
+company,en,,Lloyds TSB Bank plc,Lloyds TSB
+company,en,,LTSB,Lloyds TSB
+company,en,,Lloyds TSB Commercial Finance,Lloyds TSB
+company,en,,NatWest Bank,NatWest
+company,en,,BSkyB,Sky
+company,en,,Huawei Technologies,Huawei
+company,en,,British Telecom Professional Services,BT
+company,en,,sdk,SDK
+company,en,,NHS,National Health Service (NHS)
+company,en,,NHS Trust,National Health Service (NHS)
+company,en,,NHS England,National Health Service (NHS)
+company,en,,National Health Service,National Health Service (NHS)
+company,en,,NHS Wales,National Health Service (NHS)
+company,en,,NHS Greater Glasgow and Clyde,National Health Service (NHS)
+company,en,,NHS National Services Scotland,National Health Service (NHS)
+company,en,,Imperial College Healthcare NHS Trust,National Health Service (NHS)
+company,en,,Leeds Teaching Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Barts Health NHS Trust,National Health Service (NHS)
+company,en,,Maidstone and Tunbridge Wells NHS Trust,National Health Service (NHS)
+company,en,,St Georges Healthcare NHS Trust,National Health Service (NHS)
+company,en,,Heart of England NHS Foundation Trust,National Health Service (NHS)
+company,en,,Cambridge University Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,North Bristol NHS Trust,National Health Service (NHS)
+company,en,,NHS Grampian,National Health Service (NHS)
+company,en,,NHS Lanarkshire,National Health Service (NHS)
+company,en,,East London NHS Foundation Trust,National Health Service (NHS)
+company,en,,Pennine Acute Hospitals NHS Trust,National Health Service (NHS)
+company,en,,The Royal Marsden NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Tayside,National Health Service (NHS)
+company,en,,King's College Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,East Kent Hospitals University NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Berkshire NHS Foundation Trust,National Health Service (NHS)
+company,en,,University Hospital Southampton NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Free London NHS Foundation Trust,National Health Service (NHS)
+company,en,,Guy's and St Thomas' NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Lothian,National Health Service (NHS)
+company,en,,Great Ormond Street Hospital for Children NHS Foundation Trust,National Health Service (NHS)
+company,en,,Homerton University Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,Barts and The London NHS Trust,National Health Service (NHS)
+company,en,,"Barking, Redbrige and Havering NHS Trust",National Health Service (NHS)
+company,en,,Great Western Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Southern Health NHS Foundation Trust,National Health Service (NHS)
+company,en,,Oxleas NHS Foundation Trust,National Health Service (NHS)
+company,en,,Frimley Park Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,NHS Gloucestershire (Gloucestershire Primary Care Trust),National Health Service (NHS)
+company,en,,Oxford Radcliffe Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Lewisham Healthcare NHS Trust,National Health Service (NHS)
+company,en,,The Mid Yorkshire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Lancashire Teaching Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Birmingham Children's Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,UCLH NHS Foundation Trust,National Health Service (NHS)
+company,en,,Plymouth Hospitals NHS Trust,National Health Service (NHS)
+company,en,,University Hospitals of Leicester NHS Trust,National Health Service (NHS)
+company,en,,United Lincolnshire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,East Lancashire Hospitals NHS Trust,National Health Service (NHS)
+company,en,,NHS Highland,National Health Service (NHS)
+company,en,,Portsmouth Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Fife NHS Board,National Health Service (NHS)
+company,en,,Royal Brompton & Harefield NHS Foundation Trust,National Health Service (NHS)
+company,en,,University College London Hospitals NHS Foundation Trust,National Health Service (NHS)
+company,en,,Bedford Hospital NHS Trust,National Health Service (NHS)
+company,en,,South Tees Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Newcastle Upon Tyne NHS Foundation Trust,National Health Service (NHS)
+company,en,,Oxford University Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Chelsea and Westminster Hospital NHS Foundation Trust,National Health Service (NHS)
+company,en,,Ashford and St. Peter's Hospitals NHS Trust,National Health Service (NHS)
+company,en,,Royal Liverpool and Broadgreen University Hospital NHS Trust,National Health Service (NHS)
+company,en,,The Christie NHS Foundation Trust,National Health Service (NHS)
+company,en,,Royal Wolverhampton Hospitals NHS Trust,National Health Service (NHS)
+company,en,,University Hospitals of North Staffordshire NHS Trust,National Health Service (NHS)
+company,en,,Kent and Medway NHS & Social Care Partnership Trust,National Health Service (NHS)
+company,en,,Belfast Health & Social Care Trust,National Health Service (NHS)
+company,en,,care home,Care Home
+company,en,,nursing home,Nursing Home
+company,en,,Banco Santander,Santander
+company,en,,Santander UK Corporate & Commercial,Santander
+company,en,,Santander UK Corporate Banking,Santander
+company,en,,"Santander Bank, N.A.",Santander
+company,en,,Merrill Lynch,Bank of America Merrill Lynch
+company,en,,Wesleyan Assurance Society,Wesleyan
+company,en,,Associate Partner Practice of St. James's Place Wealth Management,St. James's Place Wealth Management
+company,en,,St James's Place,St. James's Place Wealth Management
+company,en,,Partner Practice of St. James's Place Wealth Management,St. James's Place Wealth Management
+company,en,,True Potential Wealth Management,True Potential Wealth Management LLP
+company,en,,UBS Investment Bank,UBS
+company,en,,Nomura International,Nomura
+company,en,,Nat West,NatWest
+company,en,,EBRD,European Bank for Reconstruction and Development (EBRD)
+# deleted companies
+company,en,,None,
+company,en,,Retired and enjoying time to pursue personal interests and family,
+company,en,,Not Applicable,
+company,en,,Self Employed Independent Peoplesoft Consultant,
+company,en,Digital Tech,Primary School,
+company,en,,No-Company,
+company,en,,NA,
+company,en,,Self,
+company,en,,Unemployed,
+company,en,,Self-employed,
+company,en,,Freelance Consultant,
+company,en,,N/A,
+company,en,,Currently Retired,
+company,en,,None of your Business,
+company,en,,Consultant,
+company,en,,Consultancy,
+company,en,,Independent Consultant,
+company,en,,Freelance,
+company,en,,Freelancer,
+company,en,,Test,
+company,en,,Testing,
+company,en,,Freelance Web Developer,
+company,en,,Freelance Web Designer (Self-employed),
+company,en,,Hospital,
+company,en,,Home,
+company,en,,Dental Practice,
+company,en,,Dentist,
+company,en,,Dental Surgery,
+company,en,,Dentistry,
+company,en,,dental,
+company,en,,Dental Clinic,
+company,en,,Self Employed Bookkeeper,
+company,en,,Self Employed Accountant,
+company,en,,Accountant,
+company,en,,Bank,
+company,en,,Banking,
+#
+# subject mappings
+#
+subject,en,,Maths,Mathematics
+subject,en,,IT,Information Technology
+subject,en,, English Language and Literature,English Language and Literature
+# deleted subjects
+subject,en,,2:1,
+subject,en,,2.1,
+subject,en,,GCSE,
+subject,en,,MBA,
+subject,en,,BSc,
+subject,en,, Electrical,
+subject,en,,Informatique,
+subject,en,,Informatica,
+subject,en,,A Levels,
+#
+# title mappings
+#
+# deleted titles
+title,en,,IT,
+title,en,,Freelancer,
+title,en,,Self-employed,
+#
+#
+###### Digital Tech careers ######
+#
+# Project Manager
+title,en,Digital Tech,Program Manager,Project Manager
+title,en,Digital Tech,IT Project Manager,Project Manager
+title,en,Digital Tech,Infrastructure Project Manager,Project Manager
+title,en,Digital Tech,Technical Project Manager,Project Manager
+title,en,Digital Tech,Project Manager,Project Manager
+title,en,Digital Tech,Programme Manager,Project Manager
+title,en,Digital Tech,Delivery Manager,Project Manager
+title,en,Digital Tech,PMO,Project Manager
+title,en,Digital Tech,PMO Analyst,Project Manager
+# Management Consultant
+title,en,Digital Tech,Principal Consultant,Management Consultant
+title,en,Digital Tech,Consultant,Management Consultant
+title,en,Digital Tech,Management Consultant,Management Consultant
+title,en,Digital Tech,Business Consultant,Management Consultant
+title,en,Digital Tech,Development Manager,Management Consultant
+# IT Manager
+title,en,,IT Manager,IT Manager
+title,en,,Technical Engineer,IT Manager
+title,en,,Computer Technician,IT Manager
+title,en,,IT Specialist,IT Manager
+title,en,,ICT Technician,IT Manager
+title,en,,Technical Support Manager,IT Manager
+title,en,,Support Analyst,IT Manager
+title,en,,IT Technician,IT Manager
+title,en,,Support Engineer,IT Manager
+title,en,,Computer Engineer,IT Manager
+title,en,,IT Engineer,IT Manager
+title,en,,Technical Support,IT Manager
+title,en,,System Administrator,IT Manager
+title,en,,Technical Support Engineer,IT Manager
+title,en,,IT Support Analyst,IT Manager
+title,en,,IT Support,IT Manager
+title,en,,IT Administrator,IT Manager
+title,en,,IT Analyst,IT Manager
+title,en,,Technical Support Analyst,IT Manager
+title,en,,Technical Support Specialist,IT Manager
+title,en,,Infrastructure Engineer,IT Manager
+title,en,,IT Apprentice,IT Manager
+title,en,,Systems Engineer,IT Manager
+title,en,,IT Support Technician,IT Manager
+title,en,,IT Support Engineer,IT Manager
+title,en,,Support Technician,IT Manager
+title,en,,Technical Analyst,IT Manager
+title,en,,Infrastructure Analyst,IT Manager
+title,en,,Support Manager,IT Manager
+# IT Consultant
+title,en,,Technical Consultant,IT Consultant
+title,en,,Enterprise Architect,IT Consultant
+title,en,,System Architect,IT Consultant
+title,en,,Solutions Consultant,IT Consultant
+title,en,,IT Director,IT Consultant
+title,en,,Implementation Consultant,IT Consultant
+title,en,,Technical Account Manager,IT Consultant
+title,en,,Team Lead,IT Consultant
+title,en,,Solution Architect,IT Consultant
+title,en,,Application Support Analyst,IT Consultant
+title,en,,IT Consultant,IT Consultant
+title,en,,Support Consultant,IT Consultant
+title,en,,Technology Consultant,IT Consultant
+title,en,,CTO,IT Consultant
+title,en,,Systems Analyst,IT Consultant
+title,en,,Application Consultant,IT Consultant
+title,en,,Technical Architect,IT Consultant
+title,en,,Technical Specialist,IT Consultant
+title,en,,Chief Technology Officer,IT Consultant
+title,en,,Professional Services Consultant,IT Consultant
+title,en,,Computer Consultant,IT Consultant
+title,en,,SAP Consultant,IT Consultant
+# Business Analyst
+title,en,Digital Tech,IT Business Analyst,Business Analyst
+title,en,Digital Tech,Business Analyst,Business Analyst
+title,en,Digital Tech,Business Systems Analyst,Business Analyst
+# Service Manager
+title,en,Digital Tech,Problem Manager,IT Service Manager
+title,en,,IT Service Manager,IT Service Manager
+title,en,Digital Tech,Service Manager,IT Service Manager
+title,en,Digital Tech,Service Delivery Manager,IT Service Manager
+title,en,,Service Desk Analyst,IT Service Manager
+title,en,,IT Service Desk Analyst,IT Service Manager
+# Network Engineer
+title,en,,Network Engineer,Network Engineer
+title,en,,Network Support Engineer,Network Engineer
+title,en,,Network Consultant,Network Engineer
+title,en,,Network Analyst,Network Engineer
+title,en,,Network Manager,Network Engineer
+title,en,,Network Administrator,Network Engineer
+# Software Developer
+title,en,,Software Engineer,Software Developer
+title,en,,Sr Software Engineer,Software Developer
+title,en,Digital Tech,Developer,Software Developer
+title,en,,Analyst Programmer,Software Developer
+title,en,,Principal Software Engineer,Software Developer
+title,en,,Assistant Consultant,Software Developer
+title,en,,Analyst Developer,Software Developer
+title,en,,Technical Lead,Software Developer
+title,en,,Application Developer,Software Developer
+title,en,,IT Developer,Software Developer
+title,en,,NET Developer,Software Developer
+title,en,,Java Developer,Software Developer
+title,en,,Computer Programmer,Software Developer
+title,en,,Software Development Engineer,Software Developer
+title,en,,Software Architect,Software Developer
+title,en,,Tech Lead,Software Developer
+title,en,,Graduate Software Engineer,Software Developer
+title,en,,Programmer,Software Developer
+title,en,,Android Developer,Software Developer
+title,en,,Technology Analyst,Software Developer
+title,en,,Scrum Master,Software Developer
+title,en,,Systems Developer,Software Developer
+title,en,,Software Consultant,Software Developer
+title,en,,Software Developer,Software Developer
+title,en,,Software Development Manager,Software Developer
+title,en,,iOS Developer,Software Developer
+# Data Analyst
+title,en,,Analyst,Data Analyst
+title,en,,Data Analyst,Data Analyst
+# Test Analyst
+title,en,,Test Consultant,Test Analyst
+title,en,,QA Analyst,Test Analyst
+title,en,,QA Tester,Test Analyst
+title,en,,Software Test Engineer,Test Analyst
+title,en,,Software Test Analyst,Test Analyst
+title,en,,QA Engineer,Test Analyst
+title,en,,Software Tester,Test Analyst
+title,en,,Test Analyst,Test Analyst
+title,en,,Test Manager,Test Analyst
+title,en,,Test Engineer,Test Analyst
+title,en,,Tester,Test Analyst
+title,en,,QA,Test Analyst
+title,en,,Test Lead,Test Analyst
+# Web Developer
+title,en,,Webmaster,Web Developer
+title,en,,Web Developer,Web Developer
+title,en,,Web Application Developer,Web Developer
+title,en,,Front End Web Developer,Web Developer
+title,en,,Front End Developer,Web Developer
+title,en,,PHP Developer,Web Developer
+# Web Designer
+title,en,,Web Designer,Web Designer
+title,en,,Web Designer/Developer,Web Designer
+# Database Administrator
+title,en,,Oracle DBA,Database Administrator
+title,en,,BI Consultant,Database Administrator
+title,en,,Oracle Developer,Database Administrator
+title,en,,BI Developer,Database Administrator
+title,en,,Database Administrator,Database Administrator
+title,en,,DBA,Database Administrator
+# Digital Marketer
+title,en,,Internet Marketer,Digital Marketer
+title,en,,SEO,Digital Marketer
+title,en,,Digital Project Manager,Digital Marketer
+# Animator
+title,en,,3D Artist,Animator
+title,en,,Animator,Animator
+# Cyber Security Analyst
+title,en,,Network Security,Cyber Security Analyst
+title,en,,Cyber Security,Cyber Security Analyst
+# IT Trainer
+title,en,,IT Trainer,IT Trainer
+# Data Scientist
+title,en,,Data Scientist,Data Scientist
+title,en,,Data Science,Data Scientist
+# Game Developer
+title,en,,Game Developer,Game Developer
+title,en,,Game Programmer,Game Developer
+title,en,,Game Tester,Game Developer
+# Game Designer
+title,en,,Game Designer,Game Designer
+title,en,,Game Artist,Game Designer
+#
+#
+###### Automotive careers ######
+#
+# Service Advisor
+title,en,,Service Advisor,Service Advisor
+title,en,Automotive,Management Trainee,Service Advisor
+title,en,Automotive,Management Assistant,Service Advisor
+title,en,,Warranty Administrator,Service Advisor
+title,en,Automotive,Customer Service Advisor,Service Advisor
+title,en,Automotive,Service Administrator,Service Advisor
+# Director
+title,en,Automotive,Director,Director
+title,en,Automotive,Managing Director,Director
+title,en,Automotive,Manager,Director
+title,en,Automotive,Product Manager,Director
+title,en,Automotive,Company Director,Director
+title,en,Automotive,MD,Director
+title,en,,garage proprietor,Director
+title,en,Automotive,Operations,Director
+# Sales Executive
+title,en,Automotive,Sales Executive,Sales Executive
+title,en,,car sales,Sales Executive
+title,en,,Car Sales Executive,Sales Executive
+title,en,Automotive,Sales Administrator,Sales Executive
+title,en,Automotive,Branch Manager,Sales Executive
+title,en,Automotive,Sales Consultant,Sales Executive
+title,en,Automotive,Sales Specialist,Sales Executive
+title,en,Automotive,Sales Exec,Sales Executive
+title,en,Automotive,Salesman,Sales Executive
+# Vehicle Technician
+title,en,,Vehicle Technician,Vehicle Technician
+title,en,Automotive,Mechanic,Vehicle Technician
+title,en,,Mot tester,Vehicle Technician
+title,en,Automotive,Technician,Vehicle Technician
+title,en,,Panel Beater,Vehicle Technician
+title,en,,Auto Electrician,Vehicle Technician
+title,en,,Motor Vehicle Technician,Vehicle Technician
+title,en,Automotive,Workshop Manager,Vehicle Technician
+title,en,Automotive,Fitter,Vehicle Technician
+title,en,Automotive,HGV Technician,Vehicle Technician
+# Owner
+title,en,Automotive,Owner,Business Owner
+title,en,Automotive,Proprietor,Business Owner
+title,en,,garage owner,Business Owner
+title,en,Automotive,Business Owner,Business Owner
+title,en,Automotive,Company Secretary,Business Owner
+# Sales Manager
+title,en,Automotive,Sales Manager,Sales Manager
+title,en,,General Sales Manager,Sales Manager
+title,en,Automotive,Sales,Sales Manager
+title,en,Automotive,Brand Manager,Sales Manager
+title,en,Automotive,Area Sales Manager,Sales Manager
+title,en,,Sales Controller,Sales Manager
+# Business Manager
+title,en,Automotive,Business Manager,Business Manager
+title,en,Automotive,Business Development Manager,Business Manager
+title,en,,Local Business Development Manager,Business Manager
+# Parts Manager
+title,en,,Parts Manager,Parts Manager
+title,en,,Aftersales Manager,Parts Manager
+title,en,,Bodyshop Manager,Parts Manager
+# Project Engineer
+title,en,Automotive,Engineer,Project Engineer
+title,en,,Automotive Engineer,Project Engineer
+title,en,Automotive,Project Engineer,Project Engineer
+title,en,Automotive,Production Engineer,Project Engineer
+title,en,Automotive,Principal Engineer,Project Engineer
+title,en,Automotive,Application Engineer,Project Engineer
+# Quality Engineer
+title,en,Automotive,Quality Engineer,Quality Engineer
+title,en,Automotive,Quality Manager,Quality Engineer
+title,en,Automotive,Quality Inspector,Quality Engineer
+# Manufacturing Engineer
+title,en,Automotive,Manufacturing Engineer,Manufacturing Engineer
+title,en,Automotive,Group Leader,Manufacturing Engineer
+title,en,Automotive,Process Engineer,Manufacturing Engineer
+title,en,Automotive,Production Supervisor,Manufacturing Engineer
+title,en,Automotive,Production Operator,Manufacturing Engineer
+# General Manager
+title,en,Automotive,General Manager,General Manager
+title,en,,Dealer Principal,General Manager
+title,en,Automotive,Business,General Manager
+# Parts Advisor
+title,en,,Parts Advisor,Parts Advisor
+title,en,,Parts Supervisor,Parts Advisor
+# Driving Instructor
+title,en,Automotive,Driving Instructor,Driving Instructor
+title,en,Automotive,Approved Driving Instructor,Driving Instructor
+# Sales Director
+title,en,Automotive,Sales Director,Sales Director
+title,en,,car dealer,Sales Director
+title,en,Automotive,Key Account Manager,Sales Director
+title,en,Automotive,Regional Sales Manager,Sales Director
+title,en,Automotive,M D,Sales Director
+# Mechanical/Design Engineer
+title,en,Automotive,Design Engineer,Mechanical/Design Engineer
+title,en,Automotive,Mechanical Engineer,Mechanical/Design Engineer
+# Workshop Controller
+title,en,,Workshop Controller,Workshop Controller
+title,en,,Master Technician,Workshop Controller
+# Fleet Manager
+title,en,Automotive,Fleet Manager,Fleet Manager
+title,en,,Fleet Sales Manager,Fleet Manager
+title,en,Automotive,Corporate Sales Manager,Fleet Manager
+# Buyer
+title,en,Automotive,Buyer,Buyer
+title,en,Automotive,Purchasing Manager,Buyer
+title,en,Automotive,Logistics Manager,Buyer
+# Maintenance Engineer
+title,en,Automotive,Maintenance Engineer,Maintenance Engineer
+title,en,Automotive,Maintenance Technician,Maintenance Engineer
+#
+#
+###### Healthcare careers ######
+#
+# Nurse
+title,en,,Nurse,Nurse
+title,en,,Registered Nurse,Nurse
+title,en,,RGN,Nurse
+title,en,,Sister,Nurse
+title,en,,Charge Nurse,Nurse
+title,en,,Theatre Practitioner,Nurse
+title,en,,RN,Nurse
+title,en,,Theatre Nurse,Nurse
+title,en,,Registered General Nurse,Nurse
+title,en,,Deputy Sister,Nurse
+title,en,,Specialist Nurse,Nurse
+title,en,,Nurse Specialist,Nurse
+title,en,,Community Nurse,Nurse
+title,en,,Nurse Manager,Nurse
+title,en,,Clinical Nurse Specialist,Nurse
+title,en,,Research Nurse,Nurse
+title,en,,Ward Manager,Nurse
+title,en,,Matron,Nurse
+title,en,,Nurse Consultant,Nurse
+title,en,,Nursing Sister,Nurse
+title,en,,Operating Department Practitioner,Nurse
+title,en,,Nurse Advisor,Nurse
+title,en,,Ward Sister,Nurse
+title,en,,Community Matron,Nurse
+title,en,,Clinical Physiologist,Nurse
+title,en,,Clinical Nurse Manager,Nurse
+title,en,,Theatre Sister,Nurse
+title,en,Healthcare,Nursery Nurse,Nurse
+title,en,,Deputy Ward Manager,Nurse
+title,en,Healthcare,Mrs,Nurse
+title,en,Healthcare,Unit Manager,Nurse
+title,en,,CNS,Nurse
+title,en,,Student Nurse,Nurse
+title,en,,Nurse Practitioner,Nurse
+title,en,,Practice Nurse,Nurse
+title,en,,District Nurse,Nurse
+title,en,,Advanced Nurse Practitioner,Nurse
+title,en,,Paediatric Nurse,Nurse
+title,en,,Community Staff Nurse,Nurse
+title,en,,Diabetes Specialist Nurse,Nurse
+title,en,,Emergency Nurse Practitioner,Nurse
+title,en,,Health Visitor,Nurse
+title,en,,Dietitian,Nurse
+title,en,,School Nurse,Nurse
+title,en,,Specialist Dietitian,Nurse
+title,en,,Community Nursery Nurse,Nurse
+# Healthcare Assistant
+title,en,,Care Assistant,Healthcare Assistant
+title,en,,Health Care Assistant,Healthcare Assistant
+title,en,,Healthcare Assistant,Healthcare Assistant
+title,en,,Clinical Support Worker,Healthcare Assistant
+title,en,,Medical Laboratory Assistant,Healthcare Assistant
+title,en,,Healthcare Support Worker,Healthcare Assistant
+title,en,,MLA,Healthcare Assistant
+title,en,,ODP,Healthcare Assistant
+title,en,,HCA,Healthcare Assistant
+title,en,Healthcare,Carer,Healthcare Assistant
+title,en,,Nursing Assistant,Healthcare Assistant
+title,en,,health care worker,Healthcare Assistant
+title,en,,Phlebotomist,Healthcare Assistant
+title,en,,Assistant Practitioner,Healthcare Assistant
+title,en,,Auxiliary Nurse,Healthcare Assistant
+title,en,,Health Care Support Worker,Healthcare Assistant
+# Care Worker
+title,en,,Care Worker,Care Worker
+title,en,Healthcare,Support Worker,Care Worker
+title,en,,health worker,Care Worker
+title,en,,Care Coordinator,Care Worker
+title,en,,Care Support Worker,Care Worker
+title,en,Healthcare,Social Worker,Care Worker
+title,en,,Home Carer,Care Worker
+title,en,,CSW,Care Worker
+title,en,,Community Carer,Care Worker
+title,en,,HCSW,Care Worker
+title,en,,Community Care Worker,Care Worker
+title,en,Healthcare,Social Care Worker,Care Worker
+title,en,Healthcare,Community Support Worker,Care Worker
+title,en,Healthcare,Caregiver,Care Worker
+title,en,,careworker,Care Worker
+# Doctor
+title,en,,Doctor,Doctor
+title,en,,Medical Doctor,Doctor
+title,en,Healthcare,Dr,Doctor
+title,en,,Medical Officer,Doctor
+title,en,,Medical Practitioner,Doctor
+title,en,,Physician,Doctor
+title,en,,FY2 Doctor,Doctor
+title,en,,Clinic Manager,Doctor
+title,en,,Clinical Lead,Doctor
+title,en,,Clinical Director,Doctor
+title,en,,Clinical Scientist,Doctor
+title,en,,Clinical Coordinator,Doctor
+title,en,,Audiologist,Doctor
+title,en,,Clinical Team Leader,Doctor
+title,en,,Clinical Advisor,Doctor
+title,en,,Clinical Services Manager,Doctor
+title,en,Healthcare,Senior Practitioner,Doctor
+title,en,,Consultant Physician,Doctor
+title,en,,Medical Director,Doctor
+title,en,,Specialist Registrar,Doctor
+title,en,,Consultant Gynaecologist,Doctor
+title,en,,Specialty Registrar,Doctor
+title,en,,Consultant Obstetrician and Gynaecologist,Doctor
+title,en,,Consultant Gastroenterologist,Doctor
+title,en,,Consultant Haematologist,Doctor
+title,en,,Consultant Histopathologist,Doctor
+title,en,,Hospital Doctor,Doctor
+title,en,,Speciality Registrar,Doctor
+title,en,,Consultant Microbiologist,Doctor
+title,en,Healthcare,Specialist,Doctor
+title,en,,Consultant Clinical Oncologist,Doctor
+title,en,Healthcare,Registrar,Doctor
+title,en,,Consultant Urologist,Doctor
+title,en,,Clinical Fellow,Doctor
+title,en,,Clinical Research Fellow,Doctor
+title,en,,Consultant Cardiologist,Doctor
+title,en,,Consultant Neurologist,Doctor
+title,en,,Consultant Rheumatologist,Doctor
+title,en,,Cardiac Physiologist,Doctor
+title,en,,Specialty Doctor,Doctor
+title,en,,Speciality Doctor,Doctor
+title,en,,SpR,Doctor
+title,en,,SHO,Doctor
+title,en,,Consultant Dermatologist,Doctor
+title,en,,Foundation Doctor,Doctor
+title,en,,Foundation Year 1 Doctor,Doctor
+title,en,,FY1 Doctor,Doctor
+title,en,,Consultant Ophthalmologist,Doctor
+title,en,,Ophthalmologist,Doctor
+title,en,,Consultant Ophthalmic Surgeon,Doctor
+title,en,,Orthoptist,Doctor
+title,en,,Consultant Anaesthetist,Doctor
+title,en,,Consultant Paediatrician,Doctor
+title,en,,Anaesthetist,Doctor
+title,en,,Consultant in Emergency Medicine,Doctor
+title,en,,Paediatrician,Doctor
+title,en,,Paediatric Registrar,Doctor
+title,en,,Consultant Neonatologist,Doctor
+# General Practitioner (GP)
+title,en,,GP,General Practitioner (GP)
+title,en,,General Practitioner,General Practitioner (GP)
+title,en,,GP Partner,General Practitioner (GP)
+title,en,,General Medical Practitioner,General Practitioner (GP)
+title,en,,Salaried GP,General Practitioner (GP)
+title,en,,GP Principal,General Practitioner (GP)
+title,en,,General Practioner,General Practitioner (GP)
+title,en,,GP Registrar,General Practitioner (GP)
+title,en,,GP Trainee,General Practitioner (GP)
+# Surgeon
+title,en,,Consultant Surgeon,Surgeon
+title,en,,Orthopaedic Surgeon,Surgeon
+title,en,,Consultant Orthopaedic Surgeon,Surgeon
+title,en,,Surgeon,Surgeon
+title,en,,Consultant Plastic Surgeon,Surgeon
+title,en,,Consultant Urological Surgeon,Surgeon
+title,en,,Consultant Neurosurgeon,Surgeon
+# Dentist
+title,en,,Dentist,Dentist
+title,en,,Dental Nurse,Dentist
+title,en,,Dental Surgeon,Dentist
+title,en,,Dental Hygienist,Dentist
+title,en,,Principal Dentist,Dentist
+title,en,Healthcare,Dental Technician,Dentist
+title,en,,Orthodontic Therapist,Dentist
+# Physiotherapist
+title,en,,Physiotherapist,Physiotherapist
+title,en,,Podiatrist,Physiotherapist
+title,en,,Specialist Physiotherapist,Physiotherapist
+title,en,,Chartered Physiotherapist,Physiotherapist
+title,en,,Physio,Physiotherapist
+title,en,,Paediatric Physiotherapist,Physiotherapist
+title,en,,Physiotherapy Assistant,Physiotherapist
+title,en,Healthcare,Osteopath,Physiotherapist
+title,en,Healthcare,Chiropodist,Physiotherapist
+# Occupational Therapist
+title,en,,Occupational Therapist,Occupational Therapist
+title,en,,Specialist Occupational Therapist,Occupational Therapist
+title,en,,OT,Occupational Therapist
+title,en,,Paediatric Occupational Therapist,Occupational Therapist
+# Health Advisor
+title,en,,Health Advisor,Health Advisor
+title,en,Healthcare,Occupational Health Advisor,Health Advisor
+# Speech and Language Therapist
+title,en,,Speech and Language Therapist,Speech and Language Therapist
+title,en,,Specialist Speech and Language Therapist,Speech and Language Therapist
+# Care Manager
+title,en,,Care Manager,Care Manager
+title,en,,Home Manager,Care Manager
+title,en,Healthcare,full time carer,Care Manager
+title,en,,Registered Manager,Care Manager
+title,en,,Care Home Manager,Care Manager
+title,en,Healthcare,social care,Care Manager
+title,en,,Registered Care Manager,Care Manager
+# Paramedic
+title,en,,Ambulance Driver,Paramedic
+title,en,,Paramedic,Paramedic
+title,en,,Medical Intern,Paramedic
+title,en,,Student Paramedic,Paramedic
+title,en,,Ambulance Technician,Paramedic
+title,en,,Emergency Medical Technician,Paramedic
+title,en,,Emergency Care Assistant,Paramedic
+title,en,,Ambulance Care Assistant,Paramedic
+title,en,,EMT,Paramedic
+# Healthcare Administrator
+title,en,Healthcare,Administrator,Healthcare Administrator
+title,en,,Medical Receptionist,Healthcare Administrator
+title,en,Healthcare,Secretary,Healthcare Administrator
+title,en,,Medical Administrator,Healthcare Administrator
+title,en,Healthcare,Personal Assistant,Healthcare Administrator
+title,en,,Ward Clerk,Healthcare Administrator
+title,en,,Domestic Assistant,Healthcare Administrator
+title,en,Healthcare,PA,Healthcare Administrator
+title,en,,Dental Receptionist,Healthcare Administrator
+title,en,Healthcare,Clerical Officer,Healthcare Administrator
+title,en,,Assistant Practice Manager,Healthcare Administrator
+title,en,Healthcare,Admin Assistant,Healthcare Administrator
+title,en,Healthcare,Administration Manager,Healthcare Administrator
+title,en,,Ward Administrator,Healthcare Administrator
+title,en,Healthcare,Team Administrator,Healthcare Administrator
+title,en,Healthcare,Receptionist/Administrator,Healthcare Administrator
+title,en,,Medical Secretary,Healthcare Administrator
+title,en,,Medical PA,Healthcare Administrator
+title,en,,Clinical Coder,Healthcare Administrator
+title,en,,PA/Medical Secretary,Healthcare Administrator
+# Health Service Manager
+title,en,Healthcare,Service Manager,Health Service Manager
+title,en,Healthcare,Practice Manager,Health Service Manager
+title,en,Healthcare,Deputy Manager,Health Service Manager
+title,en,,NHS Manager,Health Service Manager
+title,en,,Hospital Manager,Health Service Manager
+title,en,Healthcare,Information Analyst,Health Service Manager
+title,en,Healthcare,Commissioning Manager,Health Service Manager
+title,en,Healthcare,Locality Manager,Health Service Manager
+# Biomedical Scientist
+title,en,,Biomedical Scientist,Biomedical Scientist
+title,en,,Specialist Biomedical Scientist,Biomedical Scientist
+title,en,,BMS,Biomedical Scientist
+# Radiographer
+title,en,,Radiographer,Radiographer
+title,en,,Consultant Radiologist,Radiographer
+title,en,,Sonographer,Radiographer
+title,en,,Diagnostic Radiographer,Radiographer
+title,en,,MRI Radiographer,Radiographer
+title,en,,Radiologist,Radiographer
+title,en,,Superintendent Radiographer,Radiographer
+title,en,,Therapy Radiographer,Radiographer
+# Optician
+title,en,,Optometrist,Optician
+title,en,Healthcare,Dispensing Optician,Optician
+title,en,Healthcare,Optician,Optician
+# Pharmacist
+title,en,,Clinical Pharmacist,Pharmacist
+title,en,Healthcare,Pharmacist,Pharmacist
+title,en,Healthcare,Pharmacy Technician,Pharmacist
+title,en,Healthcare,Pharmacy Manager,Pharmacist
+title,en,Healthcare,Locum Pharmacist,Pharmacist
+title,en,Healthcare,Pre-registration Pharmacist,Pharmacist
+title,en,Healthcare,Pharmacy Assistant,Pharmacist
+title,en,Healthcare,Dispenser,Pharmacist
+# Midwife
+title,en,,Midwife,Midwife
+title,en,,Community Midwife,Midwife
+title,en,,Student Midwife,Midwife
+#
+# Finanical Services
+#
+# Accountant
+title,en,,Accountant,Accountant
+title,en,,Chartered Accountant,Accountant
+title,en,,Accounts Senior,Accountant
+title,en,,Semi Senior Accountant,Accountant
+title,en,Financial Services,Company Accountant,Accountant
+title,en,,Accounting Trainee,Accountant
+title,en,Financial Services,Assistant Accountant,Accountant
+title,en,Financial Services,Accounts Assistant,Accountant
+title,en,,Bookkeeper,Accountant
+title,en,,Book Keeper,Accountant
+title,en,,Accounting Technician,Accountant
+title,en,Financial Services,Finance Assistant,Accountant
+title,en,Financial Services,Credit Controller,Accountant
+title,en,Financial Services,Finance Officer,Accountant
+title,en,Financial Services,Accounts Payable,Accountant
+title,en,Financial Services,Accounts Administrator,Accountant
+title,en,Financial Services,Accounts Clerk,Accountant
+title,en,Financial Services,Finance Administrator,Accountant
+title,en,Financial Services,Assistant Management Accountant,Accountant
+title,en,Financial Services,Accounts Officer,Accountant
+title,en,Financial Services,Purchase Ledger Clerk,Accountant
+title,en,Financial Services,Group Accountant,Audit Manager
+title,en,Financial Services,Financial Accountant,Audit Manager
+# Relationship Manager
+title,en,,Relationship Manager,Relationship Manager
+title,en,,Corporate Manager,Relationship Manager
+#title,en,Financial Services,Business Manager,Relationship Manager
+title,en,,Business Specialist,Relationship Manager
+#title,en,Financial Services,Business Development Manager,Relationship Manager
+title,en,Financial Services,Team Manager,Relationship Manager
+title,en,,Area Director,Relationship Manager
+title,en,,Relationship Director,Relationship Manager
+title,en,,Relationship Support Manager,Relationship Manager
+title,en,Financial Services,Business Relationship Manager,Relationship Manager
+title,en,,Premier Relationship Manager,Relationship Manager
+# Financial Analyst
+title,en,,Financial Analyst,Financial Analyst
+title,en,Financial Services,Management Accountant,Financial Analyst
+title,en,Financial Services,Finance Manager,Financial Analyst
+title,en,Financial Services,Financial Controller,Financial Analyst
+title,en,Financial Services,Finance Director,Financial Analyst
+title,en,,Fund Accountant,Financial Analyst
+title,en,Financial Services,Finance,Financial Analyst
+title,en,Financial Services,Finance Analyst,Financial Analyst
+title,en,Financial Services,Finance Business Partner,Financial Analyst
+title,en,Financial Services,Project Accountant,Financial Analyst
+title,en,,Operations Analyst,Financial Analyst
+# Portfolio Manager
+title,en,,Portfolio Manager,Portfolio Manager
+title,en,,Investment Manager,Portfolio Manager
+title,en,,Fund Manager,Portfolio Manager
+title,en,,Investment Director,Portfolio Manager
+title,en,,Investment Consultant,Portfolio Manager
+title,en,,Chief Investment Officer,Portfolio Manager
+title,en,,Investment,Portfolio Manager
+# Financial Advisor
+title,en,,Financial Advisor,Financial Advisor
+title,en,,Financial Consultant,Financial Advisor
+title,en,,Wealth Manager,Financial Advisor
+title,en,,Paraplanner,Financial Advisor
+title,en,,Financial Planning Manager,Financial Advisor
+title,en,,Financial Planning Consultant,Financial Advisor
+title,en,,Independent Financial Adviser,Financial Advisor
+title,en,,Financial Planner,Financial Advisor
+title,en,,Chartered Financial Planner,Financial Advisor
+title,en,,IFA,Financial Advisor
+# Risk Manager
+title,en,,Risk Manager,Risk Manager
+title,en,,Compliance Consultant,Risk Manager
+title,en,,Compliance,Risk Manager
+title,en,Financial Services,Compliance Manager,Risk Manager
+title,en,Financial Services,Compliance Officer,Risk Manager
+title,en,,Operational Risk Manager,Risk Manager
+# Customer Advisor
+#title,en,,Pensions Administrator,Customer Advisor
+title,en,Financial Services,Customer Advisor,Customer Advisor
+#title,en,,Compliance Analyst,Customer Advisor
+title,en,,Complaint Handler,Customer Advisor
+#title,en,,Adjudicator,Customer Advisor
+title,en,Financial Services,Cashier,Customer Advisor
+title,en,Financial Services,Customer Service Advisor,Customer Advisor
+title,en,Financial Services,Customer Service Officer,Customer Advisor
+title,en,Financial Services,Customer Service Representative,Customer Advisor
+title,en,Financial Services,Case Handler,Customer Advisor
+# Tax Manager
+title,en,,Tax Manager,Tax Manager
+title,en,,Tax Advisor,Tax Manager
+title,en,,Tax Consultant,Tax Manager
+title,en,,Tax Senior,Tax Manager
+title,en,,Tax Partner,Tax Manager
+title,en,,Tax Intern,Tax Manager
+# Data Analyst
+title,en,Financial Services,Data Analyst,Data Analyst
+title,en,,Investment Analyst,Data Analyst
+title,en,Financial Services,Research Analyst,Data Analyst
+title,en,Financial Services,Economist,Data Analyst
+# Risk Analyst
+title,en,,Risk Analyst,Risk Analyst
+title,en,,Credit Analyst,Risk Analyst
+title,en,,Credit Risk Analyst,Risk Analyst
+# Mortgage Advisor
+title,en,,Mortgage Advisor,Mortgage Advisor
+title,en,,Mortgage Consultant,Mortgage Advisor
+title,en,,Mortgage Broker,Mortgage Advisor
+title,en,,Mortgage and Protection Adviser,Mortgage Advisor
+# Investment Banker
+title,en,,Investment Banking,Investment Banker
+title,en,,Equity Analyst,Investment Banker
+title,en,,Investment Banking Analyst,Investment Banker
+title,en,,Investment Associate,Investment Banker
+title,en,,Equity Research Analyst,Investment Banker
+title,en,,Investment Banker,Investment Banker
+# Audit Manager
+title,en,,Audit Manager,Audit Manager
+title,en,,Internal Auditor,Audit Manager
+title,en,,Audit Intern,Audit Manager
+title,en,,Audit Senior,Audit Manager
+title,en,,Audit Assistant,Audit Manager
+title,en,Financial Services,Auditor,Audit Manager
+title,en,,Audit Executive,Audit Manager
+#title,en,Financial Services,Group Financial Controller,Audit Manager
+title,en,,Audit Associate,Audit Manager
+title,en,,Audit Trainee,Audit Manager
+# Bank Manager
+title,en,,Bank Manager,Bank Manager
+title,en,Financial Services,Branch Manager,Bank Manager
+title,en,,Mortgage and Protection Manager,Bank Manager
+title,en,Financial Services,Underwriter,Bank Manager
+title,en,,Mortgage Underwriter,Bank Manager
+# Business Analyst
+title,en,Financial Services,Business Analyst,Business Analyst
+#title,en,Financial Services,IT Consultant,Business Analyst
+title,en,Financial Services,Project Analyst,Business Analyst
+# Tax Assistant
+title,en,,Tax Assistant,Tax Assistant
+title,en,,Assurance Associate,Tax Assistant
+title,en,,Tax Associate,Tax Assistant
+title,en,,Insolvency Administrator,Tax Assistant
+title,en,Financial Services,Treasurer,Tax Assistant
+# Quantitative Analyst
+title,en,,Quantitative Analyst,Quantitative Analyst
+# Banker
+title,en,,Banker,Banker
+title,en,,Banking,Banker
+title,en,,Banking Consultant,Banker
+title,en,,Banking Officer,Banker
+title,en,Financial Services,Officer,Banker
+title,en,,Private Banking Manager,Banker
+title,en,,Private Banker,Banker
+# Trader
+title,en,,Trader,Trader
+title,en,,Equity Sales,Trader
+title,en,Financial Services,Broker,Trader
+title,en,Financial Services,Dealer,Trader
+# Personal Banker
+title,en,,Personal Banker,Personal Banker
+title,en,,Banking Advisor,Personal Banker
+title,en,,Personal Banking Manager,Personal Banker
+title,en,,Personal Banking Advisor,Personal Banker
+title,en,,Bank Clerk,Personal Banker
+# Personal Assistant
+title,en,Financial Services,PA,Personal Assistant
+title,en,Financial Services,Executive Assistant,Personal Assistant
+title,en,Financial Services,Personal Assistant,Personal Assistant
+# Client Manager
+title,en,Financial Services,Client Manager,Client Manager
+title,en,Financial Services,Client Services,Client Manager
+title,en,Financial Services,Client Services Manager,Client Manager
+title,en,Financial Services,Client Relationship Manager,Client Manager
+title,en,Financial Services,Client Services Executive,Client Manager
+# Change Analyst
+title,en,,Change Analyst,Change Analyst
+title,en,Financial Services,Programme Manager,Change Analyst
+title,en,Financial Services,Change Manager,Change Analyst
+title,en,Financial Services,Implementation Manager,Change Analyst
+title,en,Financial Services,PMO Analyst,Change Analyst
+title,en,Financial Services,PMO,Change Analyst
+# Actuary
+title,en,,Actuary,Actuary
+title,en,,Actuarial Consultant,Actuary
+title,en,Financial Services,Actuarial Analyst,Actuary
+# Financial Administrator
+title,en,Financial Services,Admin,Financial Administrator
+title,en,Financial Services,Assistant,Financial Administrator
+title,en,Financial Services,Financial Administrator,Financial Administrator
+title,en,Financial Services,Clerk,Financial Administrator
+# Payroll Manager
+title,en,Financial Services,Payroll Manager,Payroll Manager
+title,en,Financial Services,Payroll Administrator,Payroll Manager
+title,en,Financial Services,Payroll,Payroll Manager
