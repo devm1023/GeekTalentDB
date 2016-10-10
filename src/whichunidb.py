@@ -134,11 +134,13 @@ class WUUniversity(SQLBase):
     lg_table_1_ttl  = Column(BigInteger)
     lg_table_2      = Column(BigInteger)
     lg_table_2_ttl  = Column(BigInteger)
+    url             = Column(Unicode(STR_MAX))
     university_characteristics \
                     = relationship('WUUniversityCharacteristic',
                             cascade='all, delete-orphan')
     university_tags = relationship('WUUniversityTag',
                             cascade='all, delete-orphan')
+    __table_args__ = (UniqueConstraint('url'),)
 
 class WUUniversityCharacteristic(SQLBase):
     __tablename__     = 'wuuniversitycharacteristic'
