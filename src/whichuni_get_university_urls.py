@@ -4,6 +4,9 @@ from pprint import pprint
 urls = []
 xp_url = '//div[@class="institution-result--header"]/h3/a/@href'
 
+ # save all search pages for universities at 
+ # university.which.com and then change num here
+ # save from page_1.htm to page_
 num_pages = 16;
 for i in range(num_pages):
     with open('page_{0}.htm'.format((i + 1))) as inputfile:
