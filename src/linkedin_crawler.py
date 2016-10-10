@@ -1,7 +1,9 @@
-from crawler import Crawler
 import re
-import requests
+from pprint import pprint
+
 import lxml
+import requests
+from crawler import Crawler
 
 
 class LinkedInCrawler(Crawler):
@@ -62,6 +64,7 @@ class LinkedInCrawler(Crawler):
                                    .format(result.status_code))
             success = True
         except Exception as e:
+            pprint(request_args)
             logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
                        .format(url, request_args['proxies']['http'], str(e)))
         if not success:
