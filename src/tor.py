@@ -36,7 +36,7 @@ class TorProxyList:
         try:
             # start Tor processes
             for i in range(nproxies):
-                cmd = ['stdbuf', '-o0', 'tor',
+                cmd = ['tor',
                        '--CookieAuthentication', '0',
                        '--HashedControlPassword', hashed_password,
                        '--ControlPort', str(self.control_ports[i]),
