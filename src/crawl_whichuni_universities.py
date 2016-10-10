@@ -21,7 +21,6 @@ class WhichUniUniversityTorCrawler(TorCrawler, WhichUniUniversityCrawler):
         WhichUniUniversityCrawler.__init__(self, site=site, **kwargs)
         self.share_proxies = False
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--proxies-from', default=None,
@@ -106,6 +105,7 @@ if __name__ == "__main__":
                 proxies.append(proxy)
 
     if proxies:
+        logger.log('Using proxies')
         crawler = WhichUniUniversityCrawler(
             proxies=proxies,
             crawl_rate=args.crawl_rate,
@@ -122,6 +122,7 @@ if __name__ == "__main__":
             batch_time=args.batch_time,
             logger=logger)
     else:
+        logger.log('Using tor')
         crawler = WhichUniUniversityTorCrawler(
             nproxies=args.tor_proxies,
             crawl_rate=args.crawl_rate,
