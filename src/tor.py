@@ -69,7 +69,7 @@ class TorProxyList:
                     elif restart:
                         logger.log('RESTARTING PROCESS {0:d}.\n'.format(i))
                         self._procs[i].kill()
-                        cmd = ['stdbuf', '-o0', 'tor',
+                        cmd = ['tor',
                                '--CookieAuthentication', '0',
                                '--HashedControlPassword', '',
                                '--ControlPort', str(self.control_ports[i]),
