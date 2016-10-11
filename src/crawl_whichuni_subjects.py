@@ -21,7 +21,6 @@ class WhichUniSubjectTorCrawler(TorCrawler, WhichUniSubjectCrawler):
         WhichUniSubjectCrawler.__init__(self, site=site, **kwargs)
         self.share_proxies = False
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--proxies-from', default=None,
@@ -45,9 +44,9 @@ if __name__ == "__main__":
                         help='Text file holding the URLs to crawl.')
     parser.add_argument('--jobs', type=int, default=1,
                         help='Number of parallel jobs. Default: 1')
-    parser.add_argument('--batch-size', type=int, default=500,
+    parser.add_argument('--batch-size', type=int, default=None,
                         help='Max. number of URLs to crawl in one batch. '
-                        'Default: 500')
+                        'Computed from crawl rate if omitted.')
     parser.add_argument('--batch-time', type=int, default=600,
                         help='Max. time (in secs) to crawl one batch. '
                         'Default: 600')
@@ -55,7 +54,7 @@ if __name__ == "__main__":
                         help='Desired number of requests per second.')
     parser.add_argument('--request-timeout', type=int, default=30,
                         help='Timeout for requests in secs. Default: 30')
-    parser.add_argument('--tor-proxies', type=int, default=1,
+    parser.add_argument('--tor-proxies', type=int, default=None,
                         help='Number of Tor proxies to start. Default: 1')
     parser.add_argument('--tor-base-port', type=int, default=13000,
                         help='Smallest port for Tor proxies. Default: 13000')
@@ -67,6 +66,10 @@ if __name__ == "__main__":
                         'Default: 3')
     args = parser.parse_args()
 
+    if args.crawl_rate is None and args.batch_size is None:
+        print('You must specify --crawl-rate or --batch-size.')
+        raise SystemExit()
+    
     recrawl = None
     if args.recrawl is not None:
         recrawl = parse_datetime(args.recrawl)
@@ -78,6 +81,10 @@ if __name__ == "__main__":
     exclude_types = None
     if args.exclude_types:
         exclude_types = args.exclude_types.split(',')
+
+    batch_size = args.batch_size
+    if batch_size is None:
+        batch_size = int(args.crawl_rate*args.batch_time/args.jobs*1.5)
 
     logger = Logger()
 
@@ -91,9 +98,8 @@ if __name__ == "__main__":
     }
     request_args = {'headers' : headers}
 
-    proxies = None
+    proxies = []
     if args.proxies_from is not None:
-        proxies = []
         with open(args.proxies_from, 'r') as inputfile:
             for line in inputfile:
                 line = line.strip()
@@ -105,7 +111,7 @@ if __name__ == "__main__":
                                      .format(repr(line)))
                 proxies.append(proxy)
 
-    if proxies:
+    if not args.tor_proxies:
         crawler = WhichUniSubjectCrawler(
             proxies=proxies,
             crawl_rate=args.crawl_rate,
@@ -118,7 +124,7 @@ if __name__ == "__main__":
             limit=args.limit,
             max_fail_count=args.max_fail_count,
             jobs=args.jobs,
-            batch_size=args.batch_size,
+            batch_size=batch_size,
             batch_time=args.batch_time,
             logger=logger)
     else:
@@ -134,7 +140,7 @@ if __name__ == "__main__":
             limit=args.limit,
             max_fail_count=args.max_fail_count,
             jobs=args.jobs,
-            batch_size=args.batch_size,
+            batch_size=batch_size,
             batch_time=args.batch_time,
             tor_base_port=args.tor_base_port,
             tor_timeout=args.tor_timeout,
@@ -142,4 +148,3 @@ if __name__ == "__main__":
             logger=logger)
 
     crawler.crawl()
-    
