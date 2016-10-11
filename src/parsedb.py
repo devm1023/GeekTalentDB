@@ -150,6 +150,82 @@ class WUCareer(SQLBase):
                            index=True)
     title         = Column(Unicode(STR_MAX))
 
+class WUUniversity(SQLBase):
+    __tablename__   = 'wuuniversity'
+    id              = Column(BigInteger, primary_key=True)
+    name            = Column(Unicode(STR_MAX),
+                            nullable=False,
+                            index=True)
+    city_id         = Column(BigInteger,
+                            ForeignKey('wucity.id'),
+                            nullable=True,
+                            index=True)
+    ucas_code       = Column(Unicode(STR_MAX))
+    courses_url     = Column(Unicode(STR_MAX))
+    description     = Column(Unicode(STR_MAX))
+    website         = Column(Unicode(STR_MAX))
+    further_study   = Column(BigInteger)
+    further_study_r = Column(Unicode(STR_MAX))
+    average_salary  = Column(BigInteger)
+    average_salary_r= Column(Unicode(STR_MAX))
+    student_score   = Column(BigInteger)
+    student_score_r = Column(Unicode(STR_MAX))
+    satisfaction    = Column(BigInteger)
+    no_of_students  = Column(BigInteger)
+    undergraduate   = Column(BigInteger)
+    postgraduate    = Column(BigInteger)
+    full_time       = Column(BigInteger)
+    part_time       = Column(BigInteger)
+    male            = Column(BigInteger)
+    female          = Column(BigInteger)
+    young           = Column(BigInteger)
+    mature          = Column(BigInteger)
+    uk              = Column(BigInteger)
+    non_uk          = Column(BigInteger)
+    lg_table_0      = Column(BigInteger)
+    lg_table_0_ttl  = Column(BigInteger)
+    lg_table_1      = Column(BigInteger)
+    lg_table_1_ttl  = Column(BigInteger)
+    lg_table_2      = Column(BigInteger)
+    lg_table_2_ttl  = Column(BigInteger)
+    url             = Column(Unicode(STR_MAX))
+    characteristics \
+         = relationship('WUCharacteristic',
+                            cascade='all, delete-orphan')
+    tags = relationship('WUTag',
+                            cascade='all, delete-orphan')
+    city = relationship('WUCity')
+
+    __table_args__ = (UniqueConstraint('url'),)
+
+class WUTag(SQLBase):
+    __tablename__ = 'wutag'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX),
+                            nullable=False,
+                            index=True)
+    university_id = Column(BigInteger, 
+                            ForeignKey('wuuniversity.id'),
+                            nullable=False,
+                            index=True)
+
+class WUCharacteristic(SQLBase):
+    __tablename__ = 'wucharacteristic'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX),
+                            nullable=False,
+                            index=True)
+    university_id = Column(BigInteger, 
+                            ForeignKey('wuuniversity.id'),
+                            nullable=False,
+                            index=True)
+
+class WUCity(SQLBase):
+    __tablename__ = 'wucity'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX), 
+                            index=True, 
+                            nullable=False)
 
 # database session class
 class ParseDB(Session):

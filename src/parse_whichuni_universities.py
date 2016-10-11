@@ -3,18 +3,17 @@ import re
 from datetime import datetime
 from pprint import pprint
 
+import lxml
 from crawldb import *
 from dbtools import dict_from_row
 from htmlextract import (extract, extract_many, format_content, get_attr,
                          get_stripped_text, parse_html)
 from logger import Logger
 from parse_datetime import parse_datetime
-from parsedb import ParseDB
+from parsedb import ParseDB, WUUniversity
 from sqlalchemy import func
 from sqlalchemy.orm import aliased
 from windowquery import process_db, split_process
-
-
 
 xp_uni_name = '//h1'
 xp_city = '//div[@class="grid--row"]/h4'
@@ -31,6 +30,58 @@ xp_student_score_r = '//div[@id="significant-student_score"]/../span[contains(@c
 xp_satisfaction = '//h3[contains(.,"Overall student satisfaction")]/../span'
 xp_no_of_students = '//h3[contains(.,"Number of students")]/../span'
 
+xp_grad_undergrad = '//h3[contains(.,"Undergraduate / Postgraduate")]/..'
+xp_grad_undergrad_text = 'p'
+xp_grad_undergrad_value = 'span'
+
+xp_work_time = '//h3[contains(.,"Full-time / Part-time")]/..'
+xp_work_time_value = 'span'
+xp_work_time_text = 'p'
+
+xp_male_female = '//h3[contains(.,"Male / Female")]/..'
+xp_male_female_value = 'span'
+xp_male_female_text = 'p'
+
+xp_young_mature = '//h3[contains(.,"Young / Mature")]/..'
+xp_young_mature_value = 'span'
+xp_young_mature_text = 'p'
+
+xp_uk_nonuk = '//h3[contains(.,"UK / Non-UK")]/..'
+xp_uk_nonuk_value = 'span'
+xp_uk_nonuk_text = 'p'
+
+xp_lg_tables = '//div[@class="ranks"]'
+xp_lg_table_value = 'div/div/div/div'
+xp_lg_table_ttl = 'div/div/div/span/span'
+
+xp_tags = '//div[@class="character-tags"]/span'
+
+xp_characteristics = '//div[@class="rating-cards"]'
+xp_characteristic_name = 'div/div/h3'
+xp_characteristic_value = 'div/div/h4'
+xp_characteristic_r = 'div/div/span'
+
+def get_characteristic(element):
+    name = extract(element, xp_characteristic_name)
+    value = extract(element, xp_characteristic_value)
+    if value is None:
+        return value
+    if len(value) == 3 or len(value) == 4:
+        value = extract(element, xp_characteristic_value, get_int_from_percentage)
+    else:
+        return None
+    rating = extract(element, xp_characteristic_r)
+    return {
+        'name': name,
+        'value': value,
+        'rating': rating
+    }
+
+def get_ranks(element):
+    value = extract(element, xp_lg_table_value)
+    total = extract(element, xp_lg_table_ttl)
+    return [value, total]
+
 def get_int_from_percentage(element):
     return int(re.sub(r'\D', '', element.text))
 
@@ -40,6 +91,61 @@ def get_salary(element):
 
 def get_num_from_string(element):
     return int(re.sub(r'\,', '', element.text))
+
+def get_grad_percent(element):
+    text = extract(element, xp_grad_undergrad_text)
+    value = extract(element, xp_grad_undergrad_value, get_int_from_percentage)
+    if text is None or value is None:
+        return [None, None]
+    else:
+        if text == "of students are undergrads":
+            return [value, 100-value]
+        else:
+            return [100-value, value]
+
+def get_work_time(element):
+    text = extract(element, xp_work_time_text)
+    value = extract(element, xp_work_time_value, get_int_from_percentage)
+    if text is None or value is None:
+        return [None, None]
+    else:
+        if text == "of students are part-time":
+            return [value, 100-value]
+        else:
+            return [100-value, value]
+
+def get_male_female(element):
+    text = extract(element, xp_male_female_text)
+    value = extract(element, xp_male_female_value, get_int_from_percentage)
+    if text is None or value is None:
+        return [None, None]
+    else:
+        if text == "of students are female":
+            return [100-value, value]
+        else:
+            return [value, 100-value]
+
+def get_young_mature(element):
+    text = extract(element, xp_young_mature_text)
+    value = extract(element, xp_young_mature_value, get_int_from_percentage)
+    if text is None or value is None:
+        return [None, None]
+    else:
+        if text == "of students aged over 21":
+            return [100-value, value]
+        else:
+            return [value, 100-value]
+
+def get_uk_nonuk(element):
+    text = extract(element, xp_uk_nonuk_text)
+    value = extract(element, xp_uk_nonuk_value, get_int_from_percentage)
+    if text is None or value is None:
+        return [None, None]
+    else:
+        if text == "of students here are from outside the UK":
+            return [100-value, value]
+        else:
+            return [value, 100-value]
 
 def parse_page(doc, url):
     logger = Logger()
@@ -65,8 +171,39 @@ def parse_page(doc, url):
         d['student_score_r'] = extract(doc, xp_student_score_r)
         d['satisfaction'] = extract(doc, xp_satisfaction, get_int_from_percentage)
         d['no_of_students'] = no_of_students_elems
-        
-        pprint(d)
+        grad_undergrad_percent = extract(doc, xp_grad_undergrad, get_grad_percent)
+        if grad_undergrad_percent is not None:
+            d['postgraduate'] = grad_undergrad_percent[1]
+            d['undergraduate'] = grad_undergrad_percent[0]
+        part_time_full_time = extract(doc, xp_work_time, get_work_time)
+        if part_time_full_time is not None:
+            d['part_time'] = part_time_full_time[0]
+            d['full_time'] = part_time_full_time[1]
+        male_female = extract(doc, xp_male_female, get_male_female)
+        if male_female is not None:
+            d['male'] = male_female[0]
+            d['female'] = male_female[1]
+        young_mature = extract(doc, xp_young_mature, get_young_mature)
+        if young_mature is not None:
+            d['young'] = young_mature[0]
+            d['mature'] = young_mature[1]
+        uk_nonuk = extract(doc, xp_uk_nonuk, get_uk_nonuk)
+        if uk_nonuk is not None:
+            d['uk'] = uk_nonuk[0]
+            d['non_uk'] = uk_nonuk[1]
+        ranks = extract_many(doc, xp_lg_tables, get_ranks)
+        if ranks is not None and len(ranks) > 0:
+            d['lg_table_0'] = ranks[0][0]
+            d['lg_table_0_ttl'] = ranks[0][1]
+            if len(ranks) >= 2:
+                d['lg_table_1'] = ranks[1][0]
+                d['lg_table_1_ttl'] = ranks[1][1]
+                if len(ranks) >= 3:
+                    d['lg_table_2'] = ranks[2][0]
+                    d['lg_table_2_ttl'] = ranks[2][1]
+        d['tags'] = [{ "name": tag } for tag in extract_many(doc, xp_tags)]
+        d['characteristics'] = extract_many(doc, xp_characteristics, get_characteristic)
+        return d
     except Exception as e:
         raise RuntimeError('URL {0} failed\n{1}\n'.format(url, str(e)))
 
@@ -94,8 +231,9 @@ def parse_pages(jobid, from_url, to_url):
                 logger.log('Error parsing HTML from URL {0:s}\n' \
                            .format(webpage.url))
                 raise
-            #if parsed_page is not None:
-                # psdb.add_from_dict(parsed_page, WUUniversity)
+            if parsed_page is not None:
+                pprint(parsed_page)
+                psdb.add_from_dict(parsed_page, WUUniversity)
         process_db(q, process_row, psdb, logger=logger)
 
 def main(args):
