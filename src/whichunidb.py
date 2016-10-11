@@ -4,6 +4,12 @@ __all__ = [
     'WUCareer',
     'WUSubjectALevel',
     'WUSubjectCareer',
+    'WUUniversity',
+    'WUUniversityTag',
+    'WUTag',
+    'WUUniversityCharacteristic',
+    'WUCharacteristic',
+    'WUCity',
     'WhichUniDB'
 ]
 
@@ -106,6 +112,7 @@ class WUUniversity(SQLBase):
                             ForeignKey('wucity.id'),
                             nullable=True,
                             index=True)
+    city            = relationship('WUCity')
     ucas_code       = Column(Unicode(STR_MAX))
     courses_url     = Column(Unicode(STR_MAX))
     description     = Column(Unicode(STR_MAX))
@@ -155,6 +162,7 @@ class WUUniversityCharacteristic(SQLBase):
                                 index=True)
     score             = Column(BigInteger)
     score_r           = Column(Unicode(STR_MAX))
+    characteristic    = relationship('WUCharacteristic')
 
 class WUCharacteristic(SQLBase):
     __tablename__ = 'wucharacteristic'
@@ -162,9 +170,6 @@ class WUCharacteristic(SQLBase):
     name          = Column(Unicode(STR_MAX),
                             nullable=False,
                             index=True)
-    university_characteristic \
-                  = relationship('WUUniversityCharacteristic',
-                            cascade='all, delete-orphan')
 
 class WUTag(SQLBase):
     __tablename__ = 'wutag'
@@ -172,8 +177,6 @@ class WUTag(SQLBase):
     name          = Column(Unicode(STR_MAX),
                             nullable=False,
                             index=True)
-    university_tags = relationship('WUTag',
-                           cascade='all, delete-orphan')
     
 
 class WUUniversityTag(SQLBase):
@@ -187,6 +190,7 @@ class WUUniversityTag(SQLBase):
                             ForeignKey('wutag.id'),
                             nullable=False,
                             index=True)
+    tag         = relationship('WUTag')
     
 # database session class
 class WhichUniDB(Session):

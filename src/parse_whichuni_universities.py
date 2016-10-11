@@ -73,7 +73,7 @@ def get_characteristic(element):
     rating = extract(element, xp_characteristic_r)
     return {
         'name': name,
-        'value': value,
+        'score': value,
         'rating': rating
     }
 
@@ -157,9 +157,9 @@ def parse_page(doc, url):
         else:
             no_of_students_elems = no_of_students_elems[0]
         d['name'] = extract(doc, xp_uni_name, required=True)
-        d['city'] = { "name": extract(doc, xp_city).split('|').pop().strip() }
+        d['city'] = { "name": extract(doc, xp_city).split('|')[0].strip() }
         d['url'] = url
-        d['ucas_code'] = extract(doc, xp_ucas_code).split(':').pop().strip()
+        d['ucas_code'] = extract(doc, xp_ucas_code).split(':')[1].strip()
         d['courses_url'] = 'http://university.which.co.uk' + extract(doc, xp_courses_url, get_attr('href'))
         d['description'] = extract(doc, xp_description)
         d['website'] = extract_many(doc, xp_website_url, get_attr('href'))[0]

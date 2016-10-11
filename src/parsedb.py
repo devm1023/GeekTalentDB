@@ -215,6 +215,8 @@ class WUCharacteristic(SQLBase):
     name          = Column(Unicode(STR_MAX),
                             nullable=False,
                             index=True)
+    score         = Column(BigInteger)
+    rating        = Column(Unicode(STR_MAX))
     university_id = Column(BigInteger, 
                             ForeignKey('wuuniversity.id'),
                             nullable=False,

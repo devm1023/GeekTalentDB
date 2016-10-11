@@ -42,6 +42,26 @@ def not_found(error=None):
 
     return resp
 
+@app.route('/api/universities')
+@requires_auth
+def universities():
+    q = dict_from_row(wudb.query(WUUniversity) \
+                          .all())
+    return jsonify({
+        "universities": [collapse(row) for row in q]
+    })
+
+@app.route('/api/universities/<string:university_name>')
+@requires_auth
+def university(university_name):
+    q = wudb.query(WUUniversity) \
+            .filter(func.lower(university_name) == func.lower(WUUniversity.name)) \
+            .first()
+    if q is None:
+        return not_found()
+    else:
+        return jsonify(collapse(dict_from_row(q)))
+    
 @app.route('/api/subjects')
 @requires_auth
 def subjects():
@@ -103,8 +123,19 @@ def career(career_name):
     
 
 def collapse(row):
-    row['alevels'] = [a['alevel'] for a in row['alevels']]
-    row['careers'] = [c['career'] for c in row['careers']]
+    if 'alevels' in row:
+        row['alevels'] = [a['alevel'] for a in row['alevels']]
+    if 'careers' in row:
+        row['careers'] = [c['career'] for c in row['careers']]
+    if 'university_tags' in row:
+        row['tags'] = [c['tag']['name'] for c in row['university_tags']]
+        del row['university_tags']
+    if 'university_characteristics' in row:
+        row['characteristics'] = [c['characteristic']['name'] for c in row['university_characteristics']]
+        del row['university_characteristics']
+    if 'city' in row:
+        del row['city_id']
+        row['city'] = row['city']['name']
     return row
 
 
