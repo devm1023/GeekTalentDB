@@ -62,10 +62,11 @@ def main():
                     logger.log("Added career {0} to {1}\n".format(career.title, subject.title))
     
     print("Fixing subjects")
-    process_db(subjects, fix_subject, wudb, logger=logger) 
-    process_db(subjects, add_careers_to_subject, wudb, logger=logger)
+    process_db(subjects, fix_subject, wudb, logger=logger)
     print("Fixing careers")
     process_db(careers, fix_career, wudb, logger=logger)
+    print("Adding new careers to subjects")
+    process_db(subjects, add_careers_to_subject, wudb, logger=logger)
 
 if __name__ == "__main__":
     main()
