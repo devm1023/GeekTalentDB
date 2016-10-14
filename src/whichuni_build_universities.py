@@ -15,9 +15,6 @@ def main():
                 .all()
         def add_university(row):
             university = dict_from_row(row)
-            del university['id']
-            university['tags'] = []
-            university['characteristics'] = []
             existing_city = psdb.query(parse.WUCity) \
                                  .filter(parse.WUCity.id == university['city_id']) \
                                  .first()
@@ -25,10 +22,34 @@ def main():
                        .filter(WUCity.name == existing_city.name) \
                        .first()
             if city is None:
-                city = wudb.add_from_dict({ 'name': existing_city.name}, WUCity)
+                city = wudb.add_from_dict({ 'name': existing_city.name}, WUCity)              
                 wudb.flush()
-            university['city_id'] = city.id
-            new_university = wudb.add_from_dict(university, WUUniversity)
+            new_university = WUUniversity(name=university['name'],
+                                            city_id=city.id,
+                                            ucas_code=university['ucas_code'],
+                                            courses_url=university['courses_url'],
+                                            description=university['description'],
+                                            website=university['website'],
+                                            further_study=university['further_study'],
+                                            further_study_r=university['further_study_r'],
+                                            average_salary=university['average_salary'],
+                                            average_salary_r=university['average_salary_r'],
+                                            student_score=university['student_score'],
+                                            student_score_r=university['student_score_r'],
+                                            satisfaction=university['satisfaction'],
+                                            no_of_students=university['no_of_students'],
+                                            undergraduate=university['undergraduate'],
+                                            postgraduate=university['postgraduate'],
+                                            full_time=university['full_time'],
+                                            part_time=university['part_time'],
+                                            male=university['male'],
+                                            female=university['female'],
+                                            young=university['young'],
+                                            mature=university['mature'],
+                                            uk=university['uk'],
+                                            non_uk=university['non_uk'],
+                                            url=university['url'])
+            wudb.add(new_university)         
             wudb.flush()
             for tag in row.tags:
                 new_tag = wudb.query(WUTag) \

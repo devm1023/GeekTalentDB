@@ -137,12 +137,6 @@ class WUUniversity(SQLBase):
     mature          = Column(BigInteger)
     uk              = Column(BigInteger)
     non_uk          = Column(BigInteger)
-    lg_table_0      = Column(BigInteger)
-    lg_table_0_ttl  = Column(BigInteger)
-    lg_table_1      = Column(BigInteger)
-    lg_table_1_ttl  = Column(BigInteger)
-    lg_table_2      = Column(BigInteger)
-    lg_table_2_ttl  = Column(BigInteger)
     url             = Column(Unicode(STR_MAX))
     university_characteristics \
                     = relationship('WUUniversityCharacteristic',

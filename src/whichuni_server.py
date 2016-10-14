@@ -136,6 +136,15 @@ def collapse(row):
     if 'city' in row:
         del row['city_id']
         row['city'] = row['city']['name']
+    if 'university_league_tables' in row:
+        row['league_tables'] = [
+            { 
+                'name': c['league_table']['name'],
+                'total': c['league_table']['total'],
+                'rating': c['rating']
+            } for c in row['university_league_tables']
+        ]
+        del row['university_league_tables']
     return row
 
 
