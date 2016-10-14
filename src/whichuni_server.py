@@ -131,7 +131,12 @@ def collapse(row):
         row['tags'] = [c['tag']['name'] for c in row['university_tags']]
         del row['university_tags']
     if 'university_characteristics' in row:
-        row['characteristics'] = [c['characteristic']['name'] for c in row['university_characteristics']]
+        row['characteristics'] = [
+            { 
+                'name': c['characteristic']['name'], 
+                'score': c['score'],
+                'score_r': c['score_r']
+            } for c in row['university_characteristics']]
         del row['university_characteristics']
     if 'city' in row:
         del row['city_id']
