@@ -3,7 +3,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('database',
                     choices=['crawl', 'parse', 'datoin', 'canonical',
-                             'careerdefinition', 'description', 'watson'],
+                             'careerdefinition', 'description', 'watson', 'whichuni'],
                     help='The database to initialize.')
 parser.add_argument('--no-create', action='store_true',
                     help='Do not create new tables.')
@@ -35,6 +35,9 @@ elif args.database == 'description':
 elif args.database == 'watson':
     from watsondb import WatsonDB
     db = WatsonDB()
+elif args.database == 'whichuni':
+    from whichunidb import WhichUniDB
+    db = WhichUniDB()
 
 if not nodelete:
     db.drop_all()
