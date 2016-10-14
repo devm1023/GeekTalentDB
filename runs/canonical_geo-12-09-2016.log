@@ -1,0 +1,51 @@
+nohup: ignoring input
+Starting batch at 2016-09-12 16:13:12.
+First record: '.'
+Completed batch 2016-09-12 16:16:42 at 38.206030 records/sec.
+8000 of 72886 records processed (11%).
+Estimated finish: 2016-09-13 01:06:35.
+Starting batch at 2016-09-12 16:16:42.
+First record: 'bologna area, italy'
+Completed batch 2016-09-12 16:20:14 at 37.675663 records/sec.
+16000 of 72886 records processed (22%).
+Estimated finish: 2016-09-12 20:25:06.
+Starting batch at 2016-09-12 16:20:14.
+First record: 'coxtie green, essex, united kingdom'
+Completed batch 2016-09-12 16:23:43 at 38.401541 records/sec.
+24000 of 72886 records processed (33%).
+Estimated finish: 2016-09-12 18:51:04.
+Starting batch at 2016-09-12 16:23:43.
+First record: 'galhampton, somerset, united kingdom'
+Completed batch 2016-09-12 16:26:53 at 42.038252 records/sec.
+32000 of 72886 records processed (44%).
+Estimated finish: 2016-09-12 18:03:22.
+Starting batch at 2016-09-12 16:26:53.
+First record: 'itumbiara e região, brasil'
+Completed batch 2016-09-12 16:32:32 at 23.561930 records/sec.
+40000 of 72886 records processed (55%).
+Estimated finish: 2016-09-12 17:39:17.
+Starting batch at 2016-09-12 16:32:32.
+First record: 'maisons-laffitte île-de-france, france'
+Completed batch 2016-09-12 16:35:29 at 45.377646 records/sec.
+48000 of 72886 records processed (66%).
+Estimated finish: 2016-09-12 17:19:05.
+Starting batch at 2016-09-12 16:35:29.
+First record: 'orlando'
+Completed batch 2016-09-12 16:38:27 at 44.863732 records/sec.
+56000 of 72886 records processed (77%).
+Estimated finish: 2016-09-12 17:04:43.
+Starting batch at 2016-09-12 16:38:27.
+First record: 'sandy ridge, pennsylvania'
+Completed batch 2016-09-13 07:41:54 at 0.147584 records/sec.
+64000 of 72886 records processed (88%).
+Estimated finish: 2016-09-13 09:59:25.
+Starting batch at 2016-09-13 07:41:54.
+First record: 'thorpe, surrey, united kingdom'
+Completed batch 2016-09-13 07:44:51 at 45.129238 records/sec.
+72000 of 72886 records processed (99%).
+Estimated finish: 2016-09-13 07:57:04.
+Starting batch at 2016-09-13 07:44:51.
+First record: 'yangon myanmar &amp;amp; assam, india'
+Completed batch 2016-09-13 07:46:29 at 9.029468 records/sec.
+72886 of 72886 records processed (100%).
+Estimated finish: 2016-09-13 07:46:29.

@@ -1,0 +1,1003 @@
+nohup: ignoring input
+python3 '../src/crawl_check.py' '--jobs' '8' '--batch-size' '5000' '--repair' 'linkedin'
+Starting batch at 2016-08-16 19:14:45.
+First record: 'http://au.linkedin.com/pub/alexander-augustine/19/1a9/84b'
+Completed batch 2016-08-16 19:21:09 at 104.320818 records/sec.
+40000 of 7984420 records processed (1%).
+Estimated finish: 2016-08-18 22:29:38.
+Starting batch at 2016-08-16 19:21:09.
+First record: 'https://uk.linkedin.com/in/bronagh-hill-a81a2042'
+Completed batch 2016-08-16 19:27:25 at 106.262155 records/sec.
+80000 of 7984420 records processed (1%).
+Estimated finish: 2016-08-18 07:13:50.
+Starting batch at 2016-08-16 19:27:25.
+First record: 'https://uk.linkedin.com/in/djrichiedon'
+Completed batch 2016-08-16 19:33:39 at 107.117528 records/sec.
+120000 of 7984420 records processed (2%).
+Estimated finish: 2016-08-18 02:05:13.
+Starting batch at 2016-08-16 19:33:39.
+First record: 'https://uk.linkedin.com/in/funternahrer'
+Completed batch 2016-08-16 19:40:31 at 96.972081 records/sec.
+160000 of 7984420 records processed (2%).
+Estimated finish: 2016-08-18 00:03:25.
+Starting batch at 2016-08-16 19:40:31.
+First record: 'https://uk.linkedin.com/in/gpwalton'
+Completed batch 2016-08-16 19:47:22 at 97.216364 records/sec.
+200000 of 7984420 records processed (3%).
+Estimated finish: 2016-08-17 22:49:38.
+Starting batch at 2016-08-16 19:47:22.
+First record: 'https://uk.linkedin.com/in/jake-saw-11003384'
+Completed batch 2016-08-16 19:54:12 at 97.693049 records/sec.
+240000 of 7984420 records processed (3%).
+Estimated finish: 2016-08-17 21:59:20.
+Starting batch at 2016-08-16 19:54:12.
+First record: 'https://uk.linkedin.com/in/lana-dixie-1a5a8653'
+Completed batch 2016-08-16 20:00:54 at 99.391803 records/sec.
+280000 of 7984420 records processed (4%).
+Estimated finish: 2016-08-17 21:20:05.
+Starting batch at 2016-08-16 20:00:54.
+First record: 'https://uk.linkedin.com/in/martin-bogg-466bb32b'
+Completed batch 2016-08-16 20:07:40 at 98.654463 records/sec.
+320000 of 7984420 records processed (4%).
+Estimated finish: 2016-08-17 20:51:54.
+Starting batch at 2016-08-16 20:07:40.
+First record: 'https://uk.linkedin.com/in/nickbecci'
+Completed batch 2016-08-16 20:14:24 at 98.896670 records/sec.
+360000 of 7984420 records processed (5%).
+Estimated finish: 2016-08-17 20:29:37.
+Starting batch at 2016-08-16 20:14:24.
+First record: 'https://uk.linkedin.com/in/prashantmaharshi'
+Completed batch 2016-08-16 20:21:07 at 99.391984 records/sec.
+400000 of 7984420 records processed (5%).
+Estimated finish: 2016-08-17 20:11:06.
+Starting batch at 2016-08-16 20:21:07.
+First record: 'https://uk.linkedin.com/in/shak-groundshaker-40b06a2b'
+Completed batch 2016-08-16 20:27:50 at 99.144416 records/sec.
+440000 of 7984420 records processed (6%).
+Estimated finish: 2016-08-17 19:56:16.
+Starting batch at 2016-08-16 20:27:50.
+First record: 'https://uk.linkedin.com/in/tomglanfield'
+Completed batch 2016-08-16 20:34:30 at 100.135212 records/sec.
+480000 of 7984420 records processed (6%).
+Estimated finish: 2016-08-17 19:42:48.
+Starting batch at 2016-08-16 20:34:30.
+First record: 'https://uk.linkedin.com/in/zoe-grumbridge-00001982'
+Completed batch 2016-08-16 20:40:54 at 104.049568 records/sec.
+520000 of 7984420 records processed (7%).
+Estimated finish: 2016-08-17 19:27:33.
+Starting batch at 2016-08-16 20:40:54.
+First record: 'https://uk.linkedin.com/pub/acc-mcdonald/ab/b50/328'
+Completed batch 2016-08-16 20:47:24 at 102.705266 records/sec.
+560000 of 7984420 records processed (7%).
+Estimated finish: 2016-08-17 19:15:41.
+Starting batch at 2016-08-16 20:47:24.
+First record: 'https://uk.linkedin.com/pub/adrian-rainford/8/41b/476'
+Completed batch 2016-08-16 20:53:54 at 102.449705 records/sec.
+600000 of 7984420 records processed (8%).
+Estimated finish: 2016-08-17 19:05:37.
+Starting batch at 2016-08-16 20:53:54.
+First record: 'https://uk.linkedin.com/pub/aj-hickman/77/b40/527'
+Completed batch 2016-08-16 21:00:21 at 103.240439 records/sec.
+640000 of 7984420 records processed (8%).
+Estimated finish: 2016-08-17 18:56:11.
+Starting batch at 2016-08-16 21:00:21.
+First record: 'https://uk.linkedin.com/pub/alesha-mattocks/42/4ab/885'
+Completed batch 2016-08-16 21:06:53 at 102.185774 records/sec.
+680000 of 7984420 records processed (9%).
+Estimated finish: 2016-08-17 18:48:38.
+Starting batch at 2016-08-16 21:06:53.
+First record: 'https://uk.linkedin.com/pub/ali-neyadi/85/b/877'
+Completed batch 2016-08-16 21:13:11 at 105.703946 records/sec.
+720000 of 7984420 records processed (9%).
+Estimated finish: 2016-08-17 18:39:32.
+Starting batch at 2016-08-16 21:13:11.
+First record: 'https://uk.linkedin.com/pub/al-zamil-hussain/97/431/173'
+Completed batch 2016-08-16 21:19:33 at 104.871768 records/sec.
+760000 of 7984420 records processed (10%).
+Estimated finish: 2016-08-17 18:31:54.
+Starting batch at 2016-08-16 21:19:33.
+First record: 'https://uk.linkedin.com/pub/amy-eld/28/166/2a7'
+Completed batch 2016-08-16 21:26:03 at 102.449773 records/sec.
+800000 of 7984420 records processed (10%).
+Estimated finish: 2016-08-17 18:26:32.
+Starting batch at 2016-08-16 21:26:03.
+First record: 'https://uk.linkedin.com/pub/andrew-heanes/7b/258/817'
+Completed batch 2016-08-16 21:32:33 at 102.711730 records/sec.
+840000 of 7984420 records processed (11%).
+Estimated finish: 2016-08-17 18:21:31.
+Starting batch at 2016-08-16 21:32:33.
+First record: 'https://uk.linkedin.com/pub/ange-west/a6/444/a2'
+Completed batch 2016-08-16 21:39:05 at 101.927243 records/sec.
+880000 of 7984420 records processed (11%).
+Estimated finish: 2016-08-17 18:17:25.
+Starting batch at 2016-08-16 21:39:05.
+First record: 'https://uk.linkedin.com/pub/ann-basil/a8/884/567'
+Completed batch 2016-08-16 21:45:27 at 104.595116 records/sec.
+920000 of 7984420 records processed (12%).
+Estimated finish: 2016-08-17 18:12:14.
+Starting batch at 2016-08-16 21:45:27.
+First record: 'https://uk.linkedin.com/pub/anthia-stewart/48/a9/776'
+Completed batch 2016-08-16 21:51:30 at 110.373259 records/sec.
+960000 of 7984420 records processed (12%).
+Estimated finish: 2016-08-17 18:04:42.
+Starting batch at 2016-08-16 21:51:30.
+First record: 'https://uk.linkedin.com/pub/arif-sumra/bb/5a1/485'
+Completed batch 2016-08-16 21:57:40 at 107.986779 records/sec.
+1000000 of 7984420 records processed (13%).
+Estimated finish: 2016-08-17 17:58:50.
+Starting batch at 2016-08-16 21:57:40.
+First record: 'https://uk.linkedin.com/pub/assel-kilybayeva/25/b18/a21'
+Completed batch 2016-08-16 22:03:57 at 106.261687 records/sec.
+1040000 of 7984420 records processed (13%).
+Estimated finish: 2016-08-17 17:54:11.
+Starting batch at 2016-08-16 22:03:57.
+First record: 'https://uk.linkedin.com/pub/baden-ronie/4b/775/aa4'
+Completed batch 2016-08-16 22:10:15 at 105.700093 records/sec.
+1080000 of 7984420 records processed (14%).
+Estimated finish: 2016-08-17 17:50:07.
+Starting batch at 2016-08-16 22:10:15.
+First record: 'https://uk.linkedin.com/pub/becca-richards/59/807/aab'
+Completed batch 2016-08-16 22:16:27 at 107.695033 records/sec.
+1120000 of 7984420 records processed (14%).
+Estimated finish: 2016-08-17 17:45:31.
+Starting batch at 2016-08-16 22:16:27.
+First record: 'https://uk.linkedin.com/pub/bertie-linton/a7/427/b30'
+Completed batch 2016-08-16 22:22:31 at 109.767041 records/sec.
+1160000 of 7984420 records processed (15%).
+Estimated finish: 2016-08-17 17:40:26.
+Starting batch at 2016-08-16 22:22:31.
+First record: 'https://uk.linkedin.com/pub/birthlondon-birthlondon/31/668/990'
+Completed batch 2016-08-16 22:28:51 at 105.147018 records/sec.
+1200000 of 7984420 records processed (15%).
+Estimated finish: 2016-08-17 17:37:28.
+Starting batch at 2016-08-16 22:28:51.
+First record: 'https://uk.linkedin.com/pub/brenda-sibona/55/887/34a'
+Completed batch 2016-08-16 22:35:11 at 105.422481 records/sec.
+1240000 of 7984420 records processed (16%).
+Estimated finish: 2016-08-17 17:34:35.
+Starting batch at 2016-08-16 22:35:11.
+First record: 'https://uk.linkedin.com/pub/butterley-s-buzzers/82/71/1a1'
+Completed batch 2016-08-16 22:41:23 at 107.400334 records/sec.
+1280000 of 7984420 records processed (16%).
+Estimated finish: 2016-08-17 17:31:09.
+Starting batch at 2016-08-16 22:41:23.
+First record: 'https://uk.linkedin.com/pub/carmen-greenfield/25/84/38b'
+Completed batch 2016-08-16 22:47:25 at 110.679828 records/sec.
+1320000 of 7984420 records processed (17%).
+Estimated finish: 2016-08-17 17:26:49.
+Starting batch at 2016-08-16 22:47:25.
+First record: 'https://uk.linkedin.com/pub/cengiz-cakir/73/129/895'
+Completed batch 2016-08-16 22:53:29 at 109.765305 records/sec.
+1360000 of 7984420 records processed (17%).
+Estimated finish: 2016-08-17 17:23:01.
+Starting batch at 2016-08-16 22:53:29.
+First record: 'https://uk.linkedin.com/pub/chris-ganster/18/3b3/696'
+Completed batch 2016-08-16 22:59:33 at 109.765226 records/sec.
+1400000 of 7984420 records processed (18%).
+Estimated finish: 2016-08-17 17:19:27.
+Starting batch at 2016-08-16 22:59:33.
+First record: 'https://uk.linkedin.com/pub/chr-toll/21/44a/537'
+Completed batch 2016-08-16 23:05:58 at 104.051495 records/sec.
+1440000 of 7984420 records processed (18%).
+Estimated finish: 2016-08-17 17:17:56.
+Starting batch at 2016-08-16 23:05:58.
+First record: 'https://uk.linkedin.com/pub/cliff-lloydbaker/28/92b/45b'
+Completed batch 2016-08-16 23:12:03 at 109.462658 records/sec.
+1480000 of 7984420 records processed (19%).
+Estimated finish: 2016-08-17 17:14:47.
+Starting batch at 2016-08-16 23:12:03.
+First record: 'https://uk.linkedin.com/pub/%D0%B0%D0%BD%D0%B0%D1%81%D1%82%D0%B0%D1%81%D0%B8%D1%8F-%D0%B0%D0%BA%D0%B8%D0%BD%D1%84%D0%B8%D0%B5%D0%B2%D0%B0/69/508/9a2'
+Completed batch 2016-08-16 23:18:06 at 110.375455 records/sec.
+1520000 of 7984420 records processed (19%).
+Estimated finish: 2016-08-17 17:11:32.
+Starting batch at 2016-08-16 23:18:06.
+First record: 'https://uk.linkedin.com/pub/dale-halford-pearce/69/7b3/a5'
+Completed batch 2016-08-16 23:24:19 at 107.116732 records/sec.
+1560000 of 7984420 records processed (20%).
+Estimated finish: 2016-08-17 17:09:23.
+Starting batch at 2016-08-16 23:24:19.
+First record: 'https://uk.linkedin.com/pub/danile-snook/66/46b/24b'
+Completed batch 2016-08-16 23:30:29 at 108.278909 records/sec.
+1600000 of 7984420 records processed (20%).
+Estimated finish: 2016-08-17 17:07:01.
+Starting batch at 2016-08-16 23:30:29.
+First record: 'https://uk.linkedin.com/pub/dave-nutland/28/229/10b'
+Completed batch 2016-08-16 23:36:34 at 109.462628 records/sec.
+1640000 of 7984420 records processed (21%).
+Estimated finish: 2016-08-17 17:04:27.
+Starting batch at 2016-08-16 23:36:34.
+First record: 'https://uk.linkedin.com/pub/dawn-weaver-joseph-clarke/45/574/a1'
+Completed batch 2016-08-16 23:42:40 at 109.164308 records/sec.
+1680000 of 7984420 records processed (21%).
+Estimated finish: 2016-08-17 17:02:04.
+Starting batch at 2016-08-16 23:42:40.
+First record: 'https://uk.linkedin.com/pub/delshad-sabri/62/509/2b2'
+Completed batch 2016-08-16 23:48:49 at 108.573572 records/sec.
+1720000 of 7984420 records processed (22%).
+Estimated finish: 2016-08-17 16:59:58.
+Starting batch at 2016-08-16 23:48:49.
+First record: 'https://uk.linkedin.com/pub/diana-r/79/427/8b3'
+Completed batch 2016-08-16 23:55:02 at 107.117332 records/sec.
+1760000 of 7984420 records processed (22%).
+Estimated finish: 2016-08-17 16:58:20.
+Starting batch at 2016-08-16 23:55:02.
+First record: 'https://uk.linkedin.com/pub/domingo-beato-castro/9b/344/b1a'
+Completed batch 2016-08-17 00:01:28 at 103.777863 records/sec.
+1800000 of 7984420 records processed (23%).
+Estimated finish: 2016-08-17 16:57:39.
+Starting batch at 2016-08-17 00:01:28.
+First record: 'https://uk.linkedin.com/pub/dorota-ludynia/ab/0/58'
+Completed batch 2016-08-17 00:07:39 at 107.698397 records/sec.
+1840000 of 7984420 records processed (23%).
+Estimated finish: 2016-08-17 16:56:00.
+Starting batch at 2016-08-17 00:07:39.
+First record: 'https://uk.linkedin.com/pub/%E5%BF%97%E5%BD%AC-%E5%BC%A0/96/80b/363'
+Completed batch 2016-08-17 00:14:03 at 104.322268 records/sec.
+1880000 of 7984420 records processed (24%).
+Estimated finish: 2016-08-17 16:55:15.
+Starting batch at 2016-08-17 00:14:03.
+First record: 'https://uk.linkedin.com/pub/ed-helen-baker/56/141/266'
+Completed batch 2016-08-17 00:20:06 at 110.069511 records/sec.
+1920000 of 7984420 records processed (24%).
+Estimated finish: 2016-08-17 16:53:10.
+Starting batch at 2016-08-17 00:20:06.
+First record: 'https://uk.linkedin.com/pub/elaine-ogle/23/16b/35a'
+Completed batch 2016-08-17 00:26:15 at 108.281790 records/sec.
+1960000 of 7984420 records processed (25%).
+Estimated finish: 2016-08-17 16:51:33.
+Starting batch at 2016-08-17 00:26:15.
+First record: 'https://uk.linkedin.com/pub/ellen-kearns/57/baa/72a'
+Completed batch 2016-08-17 00:32:25 at 108.276759 records/sec.
+2000000 of 7984420 records processed (25%).
+Estimated finish: 2016-08-17 16:50:01.
+Starting batch at 2016-08-17 00:32:25.
+First record: 'https://uk.linkedin.com/pub/em-woodroffetssf/89/403/a98'
+Completed batch 2016-08-17 00:38:30 at 109.464940 records/sec.
+2040000 of 7984420 records processed (26%).
+Estimated finish: 2016-08-17 16:48:17.
+Starting batch at 2016-08-17 00:38:30.
+First record: 'https://uk.linkedin.com/pub/errju-chuang/b2/51a/623'
+Completed batch 2016-08-17 00:44:38 at 108.869170 records/sec.
+2080000 of 7984420 records processed (26%).
+Estimated finish: 2016-08-17 16:46:44.
+Starting batch at 2016-08-17 00:44:38.
+First record: 'https://uk.linkedin.com/pub/ezoh-lawson/76/392/904'
+Completed batch 2016-08-17 00:50:43 at 109.467572 records/sec.
+2120000 of 7984420 records processed (27%).
+Estimated finish: 2016-08-17 16:45:08.
+Starting batch at 2016-08-17 00:50:43.
+First record: 'https://uk.linkedin.com/pub/fe-mcclory/71/521/49'
+Completed batch 2016-08-17 00:56:46 at 110.069296 records/sec.
+2160000 of 7984420 records processed (27%).
+Estimated finish: 2016-08-17 16:43:27.
+Starting batch at 2016-08-17 00:56:46.
+First record: 'https://uk.linkedin.com/pub/folayera-fade-akinpelumi/a7/829/76b'
+Completed batch 2016-08-17 01:02:49 at 110.371704 records/sec.
+2200000 of 7984420 records processed (28%).
+Estimated finish: 2016-08-17 16:41:47.
+Starting batch at 2016-08-17 01:02:49.
+First record: 'https://uk.linkedin.com/pub/frederick-oneill/a2/3b2/198'
+Completed batch 2016-08-17 01:09:09 at 105.145131 records/sec.
+2240000 of 7984420 records processed (28%).
+Estimated finish: 2016-08-17 16:41:14.
+Starting batch at 2016-08-17 01:09:09.
+First record: 'https://uk.linkedin.com/pub/gareth-haldenby/5a/a06/692'
+Completed batch 2016-08-17 01:15:15 at 109.467127 records/sec.
+2280000 of 7984420 records processed (29%).
+Estimated finish: 2016-08-17 16:39:50.
+Starting batch at 2016-08-17 01:15:15.
+First record: 'https://uk.linkedin.com/pub/gary-wharton/73/363/b41'
+Completed batch 2016-08-17 01:21:23 at 108.575310 records/sec.
+2320000 of 7984420 records processed (29%).
+Estimated finish: 2016-08-17 16:38:39.
+Starting batch at 2016-08-17 01:21:23.
+First record: 'https://uk.linkedin.com/pub/gemma-rigley/62/1b5/b0'
+Completed batch 2016-08-17 01:27:28 at 109.465820 records/sec.
+2360000 of 7984420 records processed (30%).
+Estimated finish: 2016-08-17 16:37:21.
+Starting batch at 2016-08-17 01:27:28.
+First record: 'https://uk.linkedin.com/pub/george-woofenden/90/a95/644'
+Completed batch 2016-08-17 01:33:43 at 106.830971 records/sec.
+2400000 of 7984420 records processed (30%).
+Estimated finish: 2016-08-17 16:36:35.
+Starting batch at 2016-08-17 01:33:43.
+First record: 'https://uk.linkedin.com/pub/ghiby-thomas/25/aa6/280'
+Completed batch 2016-08-17 01:39:47 at 109.768036 records/sec.
+2440000 of 7984420 records processed (31%).
+Estimated finish: 2016-08-17 16:35:17.
+Starting batch at 2016-08-17 01:39:47.
+First record: 'https://uk.linkedin.com/pub/gisele-rabet/36/483/687'
+Completed batch 2016-08-17 01:46:06 at 105.702373 records/sec.
+2480000 of 7984420 records processed (31%).
+Estimated finish: 2016-08-17 16:34:48.
+Starting batch at 2016-08-17 01:46:06.
+First record: 'https://uk.linkedin.com/pub/grace-brodie/77/61/b34'
+Completed batch 2016-08-17 01:52:10 at 109.769282 records/sec.
+2520000 of 7984420 records processed (32%).
+Estimated finish: 2016-08-17 16:33:34.
+Starting batch at 2016-08-17 01:52:10.
+First record: 'https://uk.linkedin.com/pub/gr%C3%A9gory-torrentelle/28/271/b68'
+Completed batch 2016-08-17 01:58:27 at 106.266026 records/sec.
+2560000 of 7984420 records processed (32%).
+Estimated finish: 2016-08-17 16:33:01.
+Starting batch at 2016-08-17 01:58:27.
+First record: 'https://uk.linkedin.com/pub/guy-coulter/1a/b67/59b'
+Completed batch 2016-08-17 02:04:32 at 109.463425 records/sec.
+2600000 of 7984420 records processed (33%).
+Estimated finish: 2016-08-17 16:31:55.
+Starting batch at 2016-08-17 02:04:32.
+First record: 'https://uk.linkedin.com/pub/hans-promberger-tips-gmunden/82/906/7b3'
+Completed batch 2016-08-17 02:10:46 at 106.833240 records/sec.
+2640000 of 7984420 records processed (33%).
+Estimated finish: 2016-08-17 16:31:18.
+Starting batch at 2016-08-17 02:10:46.
+First record: 'https://uk.linkedin.com/pub/heather-heddle/a/142/168'
+Completed batch 2016-08-17 02:17:01 at 106.833769 records/sec.
+2680000 of 7984420 records processed (34%).
+Estimated finish: 2016-08-17 16:30:42.
+Starting batch at 2016-08-17 02:17:01.
+First record: 'https://uk.linkedin.com/pub/h-o-g-nwonye-currency-jnr/27/435/7b9'
+Completed batch 2016-08-17 02:23:14 at 107.119221 records/sec.
+2720000 of 7984420 records processed (34%).
+Estimated finish: 2016-08-17 16:30:05.
+Starting batch at 2016-08-17 02:23:14.
+First record: 'https://uk.linkedin.com/pub/humphrey-squier/60/b87/315'
+Completed batch 2016-08-17 02:29:33 at 105.702332 records/sec.
+2760000 of 7984420 records processed (35%).
+Estimated finish: 2016-08-17 16:29:42.
+Starting batch at 2016-08-17 02:29:33.
+First record: 'https://uk.linkedin.com/pub/ilse-indrana/1a/976/32b'
+Completed batch 2016-08-17 02:35:51 at 105.701262 records/sec.
+2800000 of 7984420 records processed (35%).
+Estimated finish: 2016-08-17 16:29:21.
+Starting batch at 2016-08-17 02:35:51.
+First record: 'https://uk.linkedin.com/pub/ishaan-bharal/87/53/55a'
+Completed batch 2016-08-17 02:42:07 at 106.262651 records/sec.
+2840000 of 7984420 records processed (36%).
+Estimated finish: 2016-08-17 16:28:54.
+Starting batch at 2016-08-17 02:42:07.
+First record: 'https://uk.linkedin.com/pub/jacky-kerly/80/965/4ab'
+Completed batch 2016-08-17 02:48:25 at 105.982613 records/sec.
+2880000 of 7984420 records processed (36%).
+Estimated finish: 2016-08-17 16:28:31.
+Starting batch at 2016-08-17 02:48:25.
+First record: 'https://uk.linkedin.com/pub/james-katon/14/578/87b'
+Completed batch 2016-08-17 02:54:33 at 108.573612 records/sec.
+2920000 of 7984420 records processed (37%).
+Estimated finish: 2016-08-17 16:27:44.
+Starting batch at 2016-08-17 02:54:33.
+First record: 'https://uk.linkedin.com/pub/jan-janulewicz/84/b91/107'
+Completed batch 2016-08-17 03:00:47 at 107.119562 records/sec.
+2960000 of 7984420 records processed (37%).
+Estimated finish: 2016-08-17 16:27:12.
+Starting batch at 2016-08-17 03:00:47.
+First record: 'https://uk.linkedin.com/pub/jaswant-birdi/a9/803/53'
+Completed batch 2016-08-17 03:07:02 at 106.544392 records/sec.
+3000000 of 7984420 records processed (38%).
+Estimated finish: 2016-08-17 16:26:46.
+Starting batch at 2016-08-17 03:07:02.
+First record: 'https://uk.linkedin.com/pub/jemma-rowlandson/87/255/95'
+Completed batch 2016-08-17 03:13:23 at 105.144869 records/sec.
+3040000 of 7984420 records processed (38%).
+Estimated finish: 2016-08-17 16:26:34.
+Starting batch at 2016-08-17 03:13:23.
+First record: 'https://uk.linkedin.com/pub/j-jacobs/60/655/717'
+Completed batch 2016-08-17 03:19:31 at 108.573460 records/sec.
+3080000 of 7984420 records processed (39%).
+Estimated finish: 2016-08-17 16:25:51.
+Starting batch at 2016-08-17 03:19:31.
+First record: 'https://uk.linkedin.com/pub/jo-bowers/3/756/31b'
+Completed batch 2016-08-17 03:25:45 at 106.832503 records/sec.
+3120000 of 7984420 records processed (39%).
+Estimated finish: 2016-08-17 16:25:24.
+Starting batch at 2016-08-17 03:25:45.
+First record: 'https://uk.linkedin.com/pub/jo-marvelley/40/410/641'
+Completed batch 2016-08-17 03:31:57 at 107.692923 records/sec.
+3160000 of 7984420 records processed (40%).
+Estimated finish: 2016-08-17 16:24:51.
+Starting batch at 2016-08-17 03:31:57.
+First record: 'https://uk.linkedin.com/pub/jos%C3%A9-cruz/1a/625/517'
+Completed batch 2016-08-17 03:38:02 at 109.468369 records/sec.
+3200000 of 7984420 records processed (40%).
+Estimated finish: 2016-08-17 16:24:03.
+Starting batch at 2016-08-17 03:38:02.
+First record: 'https://uk.linkedin.com/pub/juanito-perez/46/953/9a1'
+Completed batch 2016-08-17 03:44:14 at 107.694607 records/sec.
+3240000 of 7984420 records processed (41%).
+Estimated finish: 2016-08-17 16:23:32.
+Starting batch at 2016-08-17 03:44:14.
+First record: 'https://uk.linkedin.com/pub/juliette-mcnicholas/76/3a4/394'
+Completed batch 2016-08-17 03:50:16 at 110.366838 records/sec.
+3280000 of 7984420 records processed (41%).
+Estimated finish: 2016-08-17 16:22:39.
+Starting batch at 2016-08-17 03:50:16.
+First record: 'https://uk.linkedin.com/pub/kani-jaf/90/385/9a5'
+Completed batch 2016-08-17 03:56:16 at 111.293641 records/sec.
+3320000 of 7984420 records processed (42%).
+Estimated finish: 2016-08-17 16:21:40.
+Starting batch at 2016-08-17 03:56:16.
+First record: 'https://uk.linkedin.com/pub/katalin-kraszko/59/22a/b90'
+Completed batch 2016-08-17 04:02:24 at 108.573291 records/sec.
+3360000 of 7984420 records processed (42%).
+Estimated finish: 2016-08-17 16:21:04.
+Starting batch at 2016-08-17 04:02:24.
+First record: 'https://uk.linkedin.com/pub/katie-pattinson/86/381/75'
+Completed batch 2016-08-17 04:08:27 at 110.069218 records/sec.
+3400000 of 7984420 records processed (43%).
+Estimated finish: 2016-08-17 16:20:17.
+Starting batch at 2016-08-17 04:08:27.
+First record: 'https://uk.linkedin.com/pub/kelcey-secker/a0/354/4a7'
+Completed batch 2016-08-17 04:14:30 at 110.372817 records/sec.
+3440000 of 7984420 records processed (43%).
+Estimated finish: 2016-08-17 16:19:29.
+Starting batch at 2016-08-17 04:14:30.
+First record: 'https://uk.linkedin.com/pub/kevin-felgate/69/417/646'
+Completed batch 2016-08-17 04:20:40 at 107.986276 records/sec.
+3480000 of 7984420 records processed (44%).
+Estimated finish: 2016-08-17 16:19:01.
+Starting batch at 2016-08-17 04:20:40.
+First record: 'https://uk.linkedin.com/pub/k-mfl/50/366/7a1'
+Completed batch 2016-08-17 04:26:49 at 108.575220 records/sec.
+3520000 of 7984420 records processed (44%).
+Estimated finish: 2016-08-17 16:18:28.
+Starting batch at 2016-08-17 04:26:49.
+First record: 'https://uk.linkedin.com/pub/lai-chan-rasti/17/2b6/1b5'
+Completed batch 2016-08-17 04:32:54 at 109.464445 records/sec.
+3560000 of 7984420 records processed (45%).
+Estimated finish: 2016-08-17 16:17:50.
+Starting batch at 2016-08-17 04:32:54.
+First record: 'https://uk.linkedin.com/pub/lauren-kilmartin/57/107/226'
+Completed batch 2016-08-17 04:38:47 at 113.187048 records/sec.
+3600000 of 7984420 records processed (45%).
+Estimated finish: 2016-08-17 16:16:45.
+Starting batch at 2016-08-17 04:38:47.
+First record: 'https://uk.linkedin.com/pub/leigh-towle/92/a11/a23'
+Completed batch 2016-08-17 04:44:52 at 109.767974 records/sec.
+3640000 of 7984420 records processed (46%).
+Estimated finish: 2016-08-17 16:16:07.
+Starting batch at 2016-08-17 04:44:52.
+First record: 'https://uk.linkedin.com/pub/lia-de-faveri/1a/97/6b5'
+Completed batch 2016-08-17 04:50:52 at 110.985786 records/sec.
+3680000 of 7984420 records processed (46%).
+Estimated finish: 2016-08-17 16:15:20.
+Starting batch at 2016-08-17 04:50:52.
+First record: 'https://uk.linkedin.com/pub/link-marketing-communications/8a/705/a02'
+Completed batch 2016-08-17 04:56:57 at 109.763600 records/sec.
+3720000 of 7984420 records processed (47%).
+Estimated finish: 2016-08-17 16:14:43.
+Starting batch at 2016-08-17 04:56:57.
+First record: 'https://uk.linkedin.com/pub/lois-pickstone/a1/839/413'
+Completed batch 2016-08-17 05:02:54 at 111.916467 records/sec.
+3760000 of 7984420 records processed (47%).
+Estimated finish: 2016-08-17 16:13:52.
+Starting batch at 2016-08-17 05:02:54.
+First record: 'https://uk.linkedin.com/pub/lovelock-reading/98/212/b85'
+Completed batch 2016-08-17 05:08:56 at 110.372336 records/sec.
+3800000 of 7984420 records processed (48%).
+Estimated finish: 2016-08-17 16:13:13.
+Starting batch at 2016-08-17 05:08:56.
+First record: 'https://uk.linkedin.com/pub/lutz-mattern/9a/ab6/7b'
+Completed batch 2016-08-17 05:14:54 at 111.918659 records/sec.
+3840000 of 7984420 records processed (48%).
+Estimated finish: 2016-08-17 16:12:24.
+Starting batch at 2016-08-17 05:14:54.
+First record: 'https://uk.linkedin.com/pub/magane-ike/64/838/118'
+Completed batch 2016-08-17 05:21:01 at 108.867895 records/sec.
+3880000 of 7984420 records processed (49%).
+Estimated finish: 2016-08-17 16:11:56.
+Starting batch at 2016-08-17 05:21:01.
+First record: 'https://uk.linkedin.com/pub/mandi-toulson/a0/696/372'
+Completed batch 2016-08-17 05:27:03 at 110.671394 records/sec.
+3920000 of 7984420 records processed (49%).
+Estimated finish: 2016-08-17 16:11:17.
+Starting batch at 2016-08-17 05:27:03.
+First record: 'https://uk.linkedin.com/pub/marentia-de-villiers/35/17a/b07'
+Completed batch 2016-08-17 05:33:15 at 107.407938 records/sec.
+3960000 of 7984420 records processed (50%).
+Estimated finish: 2016-08-17 16:11:01.
+Starting batch at 2016-08-17 05:33:15.
+First record: 'https://uk.linkedin.com/pub/marie-jos%C3%A9-goedkoop/20/779/55'
+Completed batch 2016-08-17 05:39:23 at 108.868084 records/sec.
+4000000 of 7984420 records processed (50%).
+Estimated finish: 2016-08-17 16:10:35.
+Starting batch at 2016-08-17 05:39:23.
+First record: 'https://uk.linkedin.com/pub/mark-marc/a5/487/b52'
+Completed batch 2016-08-17 05:45:31 at 108.573809 records/sec.
+4040000 of 7984420 records processed (51%).
+Estimated finish: 2016-08-17 16:10:12.
+Starting batch at 2016-08-17 05:45:31.
+First record: 'https://uk.linkedin.com/pub/marty-masliukas/b2/77b/738'
+Completed batch 2016-08-17 05:51:44 at 107.118399 records/sec.
+4080000 of 7984420 records processed (51%).
+Estimated finish: 2016-08-17 16:09:59.
+Starting batch at 2016-08-17 05:51:44.
+First record: 'https://uk.linkedin.com/pub/matt-hillier-brown/6/958/bb7'
+Completed batch 2016-08-17 05:57:58 at 107.117537 records/sec.
+4120000 of 7984420 records processed (52%).
+Estimated finish: 2016-08-17 16:09:46.
+Starting batch at 2016-08-17 05:57:58.
+First record: 'https://uk.linkedin.com/pub/mayur-munshi/33/58/47a'
+Completed batch 2016-08-17 06:04:09 at 107.688959 records/sec.
+4160000 of 7984420 records processed (52%).
+Estimated finish: 2016-08-17 16:09:30.
+Starting batch at 2016-08-17 06:04:09.
+First record: 'https://uk.linkedin.com/pub/melvyn-abraham/ab/b72/308'
+Completed batch 2016-08-17 06:10:20 at 107.986755 records/sec.
+4200000 of 7984420 records processed (53%).
+Estimated finish: 2016-08-17 16:09:12.
+Starting batch at 2016-08-17 06:10:20.
+First record: 'https://uk.linkedin.com/pub/michael-topple/83/847/27'
+Completed batch 2016-08-17 06:16:29 at 108.280749 records/sec.
+4240000 of 7984420 records processed (53%).
+Estimated finish: 2016-08-17 16:08:52.
+Starting batch at 2016-08-17 06:16:29.
+First record: 'https://uk.linkedin.com/pub/mike-lean-lean/13/3ab/58b'
+Completed batch 2016-08-17 06:22:42 at 107.119103 records/sec.
+4280000 of 7984420 records processed (54%).
+Estimated finish: 2016-08-17 16:08:40.
+Starting batch at 2016-08-17 06:22:42.
+First record: 'https://uk.linkedin.com/pub/mnev-crumpton/88/b89/870'
+Completed batch 2016-08-17 06:28:58 at 106.545832 records/sec.
+4320000 of 7984420 records processed (54%).
+Estimated finish: 2016-08-17 16:08:33.
+Starting batch at 2016-08-17 06:28:58.
+First record: 'https://uk.linkedin.com/pub/morag-elizabeth-davidson/11/152/98a'
+Completed batch 2016-08-17 06:35:00 at 110.372568 records/sec.
+4360000 of 7984420 records processed (55%).
+Estimated finish: 2016-08-17 16:08:01.
+Starting batch at 2016-08-17 06:35:00.
+First record: 'https://uk.linkedin.com/pub/musaddique-ahmed/98/9a7/293'
+Completed batch 2016-08-17 06:41:04 at 110.069149 records/sec.
+4400000 of 7984420 records processed (55%).
+Estimated finish: 2016-08-17 16:07:32.
+Starting batch at 2016-08-17 06:41:04.
+First record: 'https://uk.linkedin.com/pub/naoufel-hdia/bb/175/a56'
+Completed batch 2016-08-17 06:47:08 at 109.769085 records/sec.
+4440000 of 7984420 records processed (56%).
+Estimated finish: 2016-08-17 16:07:05.
+Starting batch at 2016-08-17 06:47:08.
+First record: 'https://uk.linkedin.com/pub/n-bradbury/51/423/372'
+Completed batch 2016-08-17 06:53:20 at 107.695294 records/sec.
+4480000 of 7984420 records processed (56%).
+Estimated finish: 2016-08-17 16:06:52.
+Starting batch at 2016-08-17 06:53:20.
+First record: 'https://uk.linkedin.com/pub/niamh-aine-begley/a0/511/55a'
+Completed batch 2016-08-17 06:59:20 at 110.988832 records/sec.
+4520000 of 7984420 records processed (57%).
+Estimated finish: 2016-08-17 16:06:19.
+Starting batch at 2016-08-17 06:59:20.
+First record: 'https://uk.linkedin.com/pub/nicola-sparling/a0/a34/a80'
+Completed batch 2016-08-17 07:05:35 at 106.545141 records/sec.
+4560000 of 7984420 records processed (57%).
+Estimated finish: 2016-08-17 16:06:12.
+Starting batch at 2016-08-17 07:05:35.
+First record: 'https://uk.linkedin.com/pub/ninya-demonteverde/83/80b/341'
+Completed batch 2016-08-17 07:11:42 at 109.162068 records/sec.
+4600000 of 7984420 records processed (58%).
+Estimated finish: 2016-08-17 16:05:51.
+Starting batch at 2016-08-17 07:11:42.
+First record: 'https://uk.linkedin.com/pub/nvt-nvt/30/b8b/693'
+Completed batch 2016-08-17 07:17:54 at 107.407936 records/sec.
+4640000 of 7984420 records processed (58%).
+Estimated finish: 2016-08-17 16:05:40.
+Starting batch at 2016-08-17 07:17:54.
+First record: 'https://uk.linkedin.com/pub/oloye-samsung/99/13b/42'
+Completed batch 2016-08-17 07:23:58 at 110.068976 records/sec.
+4680000 of 7984420 records processed (59%).
+Estimated finish: 2016-08-17 16:05:14.
+Starting batch at 2016-08-17 07:23:58.
+First record: 'https://uk.linkedin.com/pub/paige-cartledge/100/175/405'
+Completed batch 2016-08-17 07:29:53 at 112.548316 records/sec.
+4720000 of 7984420 records processed (59%).
+Estimated finish: 2016-08-17 16:04:34.
+Starting batch at 2016-08-17 07:29:53.
+First record: 'https://uk.linkedin.com/pub/patricia-teague/9a/b7a/97a'
+Completed batch 2016-08-17 07:35:58 at 109.466843 records/sec.
+4760000 of 7984420 records processed (60%).
+Estimated finish: 2016-08-17 16:04:13.
+Starting batch at 2016-08-17 07:35:58.
+First record: 'https://uk.linkedin.com/pub/p-bettridge/89/424/275'
+Completed batch 2016-08-17 07:42:04 at 109.466853 records/sec.
+4800000 of 7984420 records processed (60%).
+Estimated finish: 2016-08-17 16:03:51.
+Starting batch at 2016-08-17 07:42:04.
+First record: 'https://uk.linkedin.com/pub/pete-donell/2b/827/50'
+Completed batch 2016-08-17 07:48:12 at 108.575622 records/sec.
+4840000 of 7984420 records processed (61%).
+Estimated finish: 2016-08-17 16:03:35.
+Starting batch at 2016-08-17 07:48:12.
+First record: 'https://uk.linkedin.com/pub/phil-um/3a/1a0/5aa'
+Completed batch 2016-08-17 07:54:12 at 111.295063 records/sec.
+4880000 of 7984420 records processed (61%).
+Estimated finish: 2016-08-17 16:03:05.
+Starting batch at 2016-08-17 07:54:12.
+First record: 'https://uk.linkedin.com/pub/p-r-o-bates/55/a19/911'
+Completed batch 2016-08-17 08:00:21 at 108.279747 records/sec.
+4920000 of 7984420 records processed (62%).
+Estimated finish: 2016-08-17 16:02:51.
+Starting batch at 2016-08-17 08:00:21.
+First record: 'https://uk.linkedin.com/pub/q-scaffolding/28/912/965'
+Completed batch 2016-08-17 08:06:33 at 107.405285 records/sec.
+4960000 of 7984420 records processed (62%).
+Estimated finish: 2016-08-17 16:02:42.
+Starting batch at 2016-08-17 08:06:33.
+First record: 'https://uk.linkedin.com/pub/raj-pai/3/626/629'
+Completed batch 2016-08-17 08:12:30 at 112.231351 records/sec.
+5000000 of 7984420 records processed (63%).
+Estimated finish: 2016-08-17 16:02:08.
+Starting batch at 2016-08-17 08:12:30.
+First record: 'https://uk.linkedin.com/pub/ray-shulman/48/490/b67'
+Completed batch 2016-08-17 08:18:31 at 110.679104 records/sec.
+5040000 of 7984420 records processed (63%).
+Estimated finish: 2016-08-17 16:01:42.
+Starting batch at 2016-08-17 08:18:31.
+First record: 'https://uk.linkedin.com/pub/ren-dle/93/362/719'
+Completed batch 2016-08-17 08:24:35 at 110.067122 records/sec.
+5080000 of 7984420 records processed (64%).
+Estimated finish: 2016-08-17 16:01:20.
+Starting batch at 2016-08-17 08:24:35.
+First record: 'https://uk.linkedin.com/pub/richard-stogdon/55/146/95'
+Completed batch 2016-08-17 08:30:46 at 107.694598 records/sec.
+5120000 of 7984420 records processed (64%).
+Estimated finish: 2016-08-17 16:01:10.
+Starting batch at 2016-08-17 08:30:46.
+First record: 'https://uk.linkedin.com/pub/rob-munro-cfa-cpa/29/461/168'
+Completed batch 2016-08-17 08:36:47 at 110.680693 records/sec.
+5160000 of 7984420 records processed (65%).
+Estimated finish: 2016-08-17 16:00:46.
+Starting batch at 2016-08-17 08:36:48.
+First record: 'https://uk.linkedin.com/pub/roger-stilwell/29/b06/7a2'
+Completed batch 2016-08-17 08:42:53 at 109.466891 records/sec.
+5200000 of 7984420 records processed (65%).
+Estimated finish: 2016-08-17 16:00:27.
+Starting batch at 2016-08-17 08:42:53.
+First record: 'https://uk.linkedin.com/pub/r-salter/76/505/875'
+Completed batch 2016-08-17 08:48:52 at 111.293747 records/sec.
+5240000 of 7984420 records processed (66%).
+Estimated finish: 2016-08-17 16:00:00.
+Starting batch at 2016-08-17 08:48:52.
+First record: 'https://uk.linkedin.com/pub/rumen-mirchovski/56/91b/85'
+Completed batch 2016-08-17 08:54:54 at 110.678139 records/sec.
+5280000 of 7984420 records processed (66%).
+Estimated finish: 2016-08-17 15:59:37.
+Starting batch at 2016-08-17 08:54:54.
+First record: 'https://uk.linkedin.com/pub/sadiqa-mohammed/9a/95a/805'
+Completed batch 2016-08-17 09:01:06 at 107.402192 records/sec.
+5320000 of 7984420 records processed (67%).
+Estimated finish: 2016-08-17 15:59:30.
+Starting batch at 2016-08-17 09:01:06.
+First record: 'https://uk.linkedin.com/pub/sam-mulcahy/98/150/b61'
+Completed batch 2016-08-17 09:07:07 at 110.987442 records/sec.
+5360000 of 7984420 records processed (67%).
+Estimated finish: 2016-08-17 15:59:05.
+Starting batch at 2016-08-17 09:07:07.
+First record: 'https://uk.linkedin.com/pub/sandra-maria-tsoti/80/4b6/17'
+Completed batch 2016-08-17 09:13:08 at 110.678855 records/sec.
+5400000 of 7984420 records processed (68%).
+Estimated finish: 2016-08-17 15:58:43.
+Starting batch at 2016-08-17 09:13:08.
+First record: 'https://uk.linkedin.com/pub/sara-shadloo/5a/830/816'
+Completed batch 2016-08-17 09:19:17 at 108.268807 records/sec.
+5440000 of 7984420 records processed (68%).
+Estimated finish: 2016-08-17 15:58:32.
+Starting batch at 2016-08-17 09:19:17.
+First record: 'https://uk.linkedin.com/pub/scurr-andrew/4/b36/49b'
+Completed batch 2016-08-17 09:25:18 at 110.986679 records/sec.
+5480000 of 7984420 records processed (69%).
+Estimated finish: 2016-08-17 15:58:09.
+Starting batch at 2016-08-17 09:25:18.
+First record: 'https://uk.linkedin.com/pub/shade-nathaniel-ayodele/a6/3a0/123'
+Completed batch 2016-08-17 09:31:19 at 110.678852 records/sec.
+5520000 of 7984420 records processed (69%).
+Estimated finish: 2016-08-17 15:57:47.
+Starting batch at 2016-08-17 09:31:19.
+First record: 'https://uk.linkedin.com/pub/sharron-hicking/57/548/2a4'
+Completed batch 2016-08-17 09:37:15 at 112.550443 records/sec.
+5560000 of 7984420 records processed (70%).
+Estimated finish: 2016-08-17 15:57:17.
+Starting batch at 2016-08-17 09:37:15.
+First record: 'https://uk.linkedin.com/pub/ship-vessele/18/724/689'
+Completed batch 2016-08-17 09:43:26 at 107.695323 records/sec.
+5600000 of 7984420 records processed (70%).
+Estimated finish: 2016-08-17 15:57:10.
+Starting batch at 2016-08-17 09:43:26.
+First record: 'https://uk.linkedin.com/pub/si-walton/42/b64/9b7'
+Completed batch 2016-08-17 09:49:32 at 109.166581 records/sec.
+5640000 of 7984420 records processed (71%).
+Estimated finish: 2016-08-17 15:56:56.
+Starting batch at 2016-08-17 09:49:32.
+First record: 'https://uk.linkedin.com/pub/soaad-albgaar/19/50/892'
+Completed batch 2016-08-17 09:55:42 at 108.277658 records/sec.
+5680000 of 7984420 records processed (71%).
+Estimated finish: 2016-08-17 15:56:47.
+Starting batch at 2016-08-17 09:55:42.
+First record: 'https://uk.linkedin.com/pub/spiros-argyros/b2/557/752'
+Completed batch 2016-08-17 10:01:43 at 110.680434 records/sec.
+5720000 of 7984420 records processed (72%).
+Estimated finish: 2016-08-17 15:56:26.
+Starting batch at 2016-08-17 10:01:43.
+First record: 'https://uk.linkedin.com/pub/steph-pigram/41/533/b0b'
+Completed batch 2016-08-17 10:07:52 at 108.574675 records/sec.
+5760000 of 7984420 records processed (72%).
+Estimated finish: 2016-08-17 15:56:16.
+Starting batch at 2016-08-17 10:07:52.
+First record: 'https://uk.linkedin.com/pub/steve-tulloch/86/a12/b10'
+Completed batch 2016-08-17 10:13:56 at 109.767523 records/sec.
+5800000 of 7984420 records processed (73%).
+Estimated finish: 2016-08-17 15:56:00.
+Starting batch at 2016-08-17 10:13:56.
+First record: 'https://uk.linkedin.com/pub/sukhpal-grewal/20/a20/b60'
+Completed batch 2016-08-17 10:20:09 at 107.406256 records/sec.
+5840000 of 7984420 records processed (73%).
+Estimated finish: 2016-08-17 15:55:55.
+Starting batch at 2016-08-17 10:20:09.
+First record: 'https://uk.linkedin.com/pub/suzanne-burston/92/235/454'
+Completed batch 2016-08-17 10:26:19 at 107.989378 records/sec.
+5880000 of 7984420 records processed (74%).
+Estimated finish: 2016-08-17 15:55:48.
+Starting batch at 2016-08-17 10:26:19.
+First record: 'https://uk.linkedin.com/pub/teko-malepa/87/104/987'
+Completed batch 2016-08-17 10:32:29 at 107.986136 records/sec.
+5920000 of 7984420 records processed (74%).
+Estimated finish: 2016-08-17 15:55:41.
+Starting batch at 2016-08-17 10:32:29.
+First record: 'https://uk.linkedin.com/pub/thomas-chirwa/47/905/a4a'
+Completed batch 2016-08-17 10:38:35 at 109.465761 records/sec.
+5960000 of 7984420 records processed (75%).
+Estimated finish: 2016-08-17 15:55:27.
+Starting batch at 2016-08-17 10:38:35.
+First record: 'https://uk.linkedin.com/pub/tobi-amao/91/619/848'
+Completed batch 2016-08-17 10:44:43 at 108.573519 records/sec.
+6000000 of 7984420 records processed (75%).
+Estimated finish: 2016-08-17 15:55:17.
+Starting batch at 2016-08-17 10:44:43.
+First record: 'https://uk.linkedin.com/pub/tony-treakle/28/92b/ab0'
+Completed batch 2016-08-17 10:50:55 at 107.684488 records/sec.
+6040000 of 7984420 records processed (76%).
+Estimated finish: 2016-08-17 15:55:12.
+Starting batch at 2016-08-17 10:50:55.
+First record: 'https://uk.linkedin.com/pub/tudor-turtudau/3/73b/4a'
+Completed batch 2016-08-17 10:57:04 at 108.278733 records/sec.
+6080000 of 7984420 records processed (76%).
+Estimated finish: 2016-08-17 15:55:04.
+Starting batch at 2016-08-17 10:57:04.
+First record: 'https://uk.linkedin.com/pub/vanessa-markendale/18/183/848'
+Completed batch 2016-08-17 11:02:52 at 114.808641 records/sec.
+6120000 of 7984420 records processed (77%).
+Estimated finish: 2016-08-17 15:54:28.
+Starting batch at 2016-08-17 11:02:52.
+First record: 'https://uk.linkedin.com/pub/victor-pinkrah/31/a59/ba'
+Completed batch 2016-08-17 11:09:03 at 107.987659 records/sec.
+6160000 of 7984420 records processed (77%).
+Estimated finish: 2016-08-17 15:54:22.
+Starting batch at 2016-08-17 11:09:03.
+First record: 'https://uk.linkedin.com/pub/wagida-ally/74/165/618'
+Completed batch 2016-08-17 11:15:13 at 107.987911 records/sec.
+6200000 of 7984420 records processed (78%).
+Estimated finish: 2016-08-17 15:54:16.
+Starting batch at 2016-08-17 11:15:13.
+First record: 'https://uk.linkedin.com/pub/will-pairpoint/42/5ab/222'
+Completed batch 2016-08-17 11:21:14 at 110.986344 records/sec.
+6240000 of 7984420 records processed (78%).
+Estimated finish: 2016-08-17 15:53:57.
+Starting batch at 2016-08-17 11:21:14.
+First record: 'https://uk.linkedin.com/pub/yasin-osman-abdi/b4/2a0/4a7'
+Completed batch 2016-08-17 11:27:20 at 109.168747 records/sec.
+6280000 of 7984420 records processed (79%).
+Estimated finish: 2016-08-17 15:53:45.
+Starting batch at 2016-08-17 11:27:20.
+First record: 'https://uk.linkedin.com/pub/zaheer-bawany/39/70/999'
+Completed batch 2016-08-17 11:33:29 at 108.279046 records/sec.
+6320000 of 7984420 records processed (79%).
+Estimated finish: 2016-08-17 15:53:38.
+Starting batch at 2016-08-17 11:33:29.
+First record: 'http://uk.linkedin.com/in/blueapplegroup'
+Completed batch 2016-08-17 11:39:57 at 103.241014 records/sec.
+6360000 of 7984420 records processed (80%).
+Estimated finish: 2016-08-17 15:53:54.
+Starting batch at 2016-08-17 11:39:57.
+First record: 'http://uk.linkedin.com/in/mszul'
+Completed batch 2016-08-17 11:46:19 at 104.595987 records/sec.
+6400000 of 7984420 records processed (80%).
+Estimated finish: 2016-08-17 15:54:03.
+Starting batch at 2016-08-17 11:46:19.
+First record: 'http://uk.linkedin.com/pub/bill-douglas/0/9a5/612'
+Completed batch 2016-08-17 11:52:27 at 108.869726 records/sec.
+6440000 of 7984420 records processed (81%).
+Estimated finish: 2016-08-17 15:53:53.
+Starting batch at 2016-08-17 11:52:27.
+First record: 'http://uk.linkedin.com/pub/colin-cheesewright/2b/a97/685'
+Completed batch 2016-08-17 11:58:44 at 105.981274 records/sec.
+6480000 of 7984420 records processed (81%).
+Estimated finish: 2016-08-17 15:53:56.
+Starting batch at 2016-08-17 11:58:44.
+First record: 'http://uk.linkedin.com/pub/gillian-mlilo/70/1a2/b73'
+Completed batch 2016-08-17 12:05:05 at 105.142470 records/sec.
+6520000 of 7984420 records processed (82%).
+Estimated finish: 2016-08-17 15:54:02.
+Starting batch at 2016-08-17 12:05:05.
+First record: 'http://uk.linkedin.com/pub/john-sands/1a/921/aa3'
+Completed batch 2016-08-17 12:11:13 at 108.574701 records/sec.
+6560000 of 7984420 records processed (82%).
+Estimated finish: 2016-08-17 15:53:54.
+Starting batch at 2016-08-17 12:11:13.
+First record: 'http://uk.linkedin.com/pub/karen-mcnally/74/66b/997'
+Completed batch 2016-08-17 12:17:21 at 108.573376 records/sec.
+6600000 of 7984420 records processed (83%).
+Estimated finish: 2016-08-17 15:53:46.
+Starting batch at 2016-08-17 12:17:21.
+First record: 'http://uk.linkedin.com/pub/kate-trevor/52/a04/572'
+Completed batch 2016-08-17 12:23:27 at 109.465971 records/sec.
+6640000 of 7984420 records processed (83%).
+Estimated finish: 2016-08-17 15:53:34.
+Starting batch at 2016-08-17 12:23:27.
+First record: 'http://uk.linkedin.com/pub/katy-page/7a/844/492'
+Completed batch 2016-08-17 12:29:37 at 107.985124 records/sec.
+6680000 of 7984420 records processed (84%).
+Estimated finish: 2016-08-17 15:53:28.
+Starting batch at 2016-08-17 12:29:37.
+First record: 'http://uk.linkedin.com/pub/kelly-mawman/49/669/a05'
+Completed batch 2016-08-17 12:35:46 at 108.576145 records/sec.
+6720000 of 7984420 records processed (84%).
+Estimated finish: 2016-08-17 15:53:20.
+Starting batch at 2016-08-17 12:35:46.
+First record: 'http://uk.linkedin.com/pub/kevin-burton/69/713/219'
+Completed batch 2016-08-17 12:41:57 at 107.695451 records/sec.
+6760000 of 7984420 records processed (85%).
+Estimated finish: 2016-08-17 15:53:16.
+Starting batch at 2016-08-17 12:41:57.
+First record: 'http://uk.linkedin.com/pub/kim-drury/37/b81/a8b'
+Completed batch 2016-08-17 12:47:53 at 112.551195 records/sec.
+6800000 of 7984420 records processed (85%).
+Estimated finish: 2016-08-17 15:52:53.
+Starting batch at 2016-08-17 12:47:53.
+First record: 'http://uk.linkedin.com/pub/kishan-panchal/43/35/43a'
+Completed batch 2016-08-17 12:54:03 at 107.989388 records/sec.
+6840000 of 7984420 records processed (86%).
+Estimated finish: 2016-08-17 15:52:48.
+Starting batch at 2016-08-17 12:54:03.
+First record: 'http://uk.linkedin.com/pub/lara-herbert/37/578/955'
+Completed batch 2016-08-17 13:00:09 at 109.168419 records/sec.
+6880000 of 7984420 records processed (86%).
+Estimated finish: 2016-08-17 15:52:38.
+Starting batch at 2016-08-17 13:00:09.
+First record: 'http://uk.linkedin.com/pub/lauren-chan/48/77b/36'
+Completed batch 2016-08-17 13:06:05 at 112.551166 records/sec.
+6920000 of 7984420 records processed (87%).
+Estimated finish: 2016-08-17 15:52:16.
+Starting batch at 2016-08-17 13:06:05.
+First record: 'http://uk.linkedin.com/pub/lee-kirk/87/258/1'
+Completed batch 2016-08-17 13:11:57 at 113.509323 records/sec.
+6960000 of 7984420 records processed (87%).
+Estimated finish: 2016-08-17 15:51:50.
+Starting batch at 2016-08-17 13:11:57.
+First record: 'http://uk.linkedin.com/pub/lesley-neal/72/73a/861'
+Completed batch 2016-08-17 13:18:00 at 110.373933 records/sec.
+7000000 of 7984420 records processed (88%).
+Estimated finish: 2016-08-17 15:51:36.
+Starting batch at 2016-08-17 13:18:00.
+First record: 'http://uk.linkedin.com/pub/lin-thomas/99/521/ab6'
+Completed batch 2016-08-17 13:23:59 at 111.293939 records/sec.
+7040000 of 7984420 records processed (88%).
+Estimated finish: 2016-08-17 15:51:19.
+Starting batch at 2016-08-17 13:23:59.
+First record: 'http://uk.linkedin.com/pub/lisa-hylton/7/1b/264'
+Completed batch 2016-08-17 13:30:08 at 108.276248 records/sec.
+7080000 of 7984420 records processed (89%).
+Estimated finish: 2016-08-17 15:51:13.
+Starting batch at 2016-08-17 13:30:08.
+First record: 'http://uk.linkedin.com/pub/lorely-burkill/44/74b/2b6'
+Completed batch 2016-08-17 13:36:42 at 101.667362 records/sec.
+7120000 of 7984420 records processed (89%).
+Estimated finish: 2016-08-17 15:51:35.
+Starting batch at 2016-08-17 13:36:42.
+First record: 'http://uk.linkedin.com/pub/lou-martin/33/327/255'
+Completed batch 2016-08-17 13:43:06 at 104.039927 records/sec.
+7160000 of 7984420 records processed (90%).
+Estimated finish: 2016-08-17 15:51:46.
+Starting batch at 2016-08-17 13:43:06.
+First record: 'http://uk.linkedin.com/pub/luke-cottrell/36/835/547'
+Completed batch 2016-08-17 13:49:22 at 106.547384 records/sec.
+7200000 of 7984420 records processed (90%).
+Estimated finish: 2016-08-17 15:51:47.
+Starting batch at 2016-08-17 13:49:22.
+First record: 'http://uk.linkedin.com/pub/lyn-thomson/91/80b/829'
+Completed batch 2016-08-17 13:55:36 at 106.832071 records/sec.
+7240000 of 7984420 records processed (91%).
+Estimated finish: 2016-08-17 15:51:47.
+Starting batch at 2016-08-17 13:55:36.
+First record: 'http://uk.linkedin.com/pub/marie-fitzpatrick/52/139/831'
+Completed batch 2016-08-17 14:01:57 at 105.137571 records/sec.
+7280000 of 7984420 records processed (91%).
+Estimated finish: 2016-08-17 15:51:53.
+Starting batch at 2016-08-17 14:01:57.
+First record: 'http://uk.linkedin.com/pub/mark-diggory/30/858/960'
+Completed batch 2016-08-17 14:08:23 at 103.506428 records/sec.
+7320000 of 7984420 records processed (92%).
+Estimated finish: 2016-08-17 15:52:06.
+Starting batch at 2016-08-17 14:08:23.
+First record: 'http://uk.linkedin.com/pub/mark-rae/9b/440/a64'
+Completed batch 2016-08-17 14:14:50 at 103.244059 records/sec.
+7360000 of 7984420 records processed (92%).
+Estimated finish: 2016-08-17 15:52:20.
+Starting batch at 2016-08-17 14:14:50.
+First record: 'http://uk.linkedin.com/pub/martin-fallon/2b/1a/472'
+Completed batch 2016-08-17 14:21:16 at 103.777347 records/sec.
+7400000 of 7984420 records processed (93%).
+Estimated finish: 2016-08-17 15:52:32.
+Starting batch at 2016-08-17 14:21:16.
+First record: 'http://uk.linkedin.com/pub/mary-brandon/98/7b3/98'
+Completed batch 2016-08-17 14:27:28 at 107.398628 records/sec.
+7440000 of 7984420 records processed (93%).
+Estimated finish: 2016-08-17 15:52:29.
+Starting batch at 2016-08-17 14:27:28.
+First record: 'http://uk.linkedin.com/pub/matt-nixon/63/532/ab7'
+Completed batch 2016-08-17 14:33:56 at 103.239397 records/sec.
+7480000 of 7984420 records processed (94%).
+Estimated finish: 2016-08-17 15:52:43.
+Starting batch at 2016-08-17 14:33:56.
+First record: 'http://uk.linkedin.com/pub/maurice-fitzgerald/26/640/14b'
+Completed batch 2016-08-17 14:40:06 at 107.987573 records/sec.
+7520000 of 7984420 records processed (94%).
+Estimated finish: 2016-08-17 15:52:38.
+Starting batch at 2016-08-17 14:40:06.
+First record: 'http://uk.linkedin.com/pub/melissa-vickers/37/886/69'
+Completed batch 2016-08-17 14:46:34 at 103.243489 records/sec.
+7560000 of 7984420 records processed (95%).
+Estimated finish: 2016-08-17 15:52:51.
+Starting batch at 2016-08-17 14:46:34.
+First record: 'http://uk.linkedin.com/pub/michael-lally/19/93a/7a9'
+Completed batch 2016-08-17 14:52:47 at 107.120802 records/sec.
+7600000 of 7984420 records processed (95%).
+Estimated finish: 2016-08-17 15:52:50.
+Starting batch at 2016-08-17 14:52:47.
+First record: 'http://uk.linkedin.com/pub/michelle-hockly/95/627/9b1'
+Completed batch 2016-08-17 14:58:59 at 107.405427 records/sec.
+7640000 of 7984420 records processed (96%).
+Estimated finish: 2016-08-17 15:52:47.
+Starting batch at 2016-08-17 14:58:59.
+First record: 'http://uk.linkedin.com/pub/mike-greenslade/3b/410/b16'
+Completed batch 2016-08-17 15:05:11 at 107.692364 records/sec.
+7680000 of 7984420 records processed (96%).
+Estimated finish: 2016-08-17 15:52:44.
+Starting batch at 2016-08-17 15:05:11.
+First record: 'http://uk.linkedin.com/pub/mohamed-saleem/89/5a7/8bb'
+Completed batch 2016-08-17 15:11:31 at 105.142742 records/sec.
+7720000 of 7984420 records processed (97%).
+Estimated finish: 2016-08-17 15:52:49.
+Starting batch at 2016-08-17 15:11:31.
+First record: 'http://uk.linkedin.com/pub/munish-batra/14/996/bb9'
+Completed batch 2016-08-17 15:17:46 at 106.826845 records/sec.
+7760000 of 7984420 records processed (97%).
+Estimated finish: 2016-08-17 15:52:49.
+Starting batch at 2016-08-17 15:17:46.
+First record: 'http://uk.linkedin.com/pub/phillip-pringle/25/91b/3ab'
+Completed batch 2016-08-17 15:24:00 at 106.829068 records/sec.
+7800000 of 7984420 records processed (98%).
+Estimated finish: 2016-08-17 15:52:48.
+Starting batch at 2016-08-17 15:24:00.
+First record: 'http://uk.linkedin.com/pub/shoshana-kandel/79/285/10b'
+Completed batch 2016-08-17 15:30:17 at 106.262656 records/sec.
+7840000 of 7984420 records processed (98%).
+Estimated finish: 2016-08-17 15:52:50.
+Starting batch at 2016-08-17 15:30:17.
+First record: 'http://uk.linkedin.com/pub/t-mexson/a4/a74/bb9'
+Completed batch 2016-08-17 15:36:30 at 107.115537 records/sec.
+7880000 of 7984420 records processed (99%).
+Estimated finish: 2016-08-17 15:52:49.
+Starting batch at 2016-08-17 15:36:30.
+First record: 'http://uk.linkedin.com/pub/vandana-venayak/55/773/a6'
+Completed batch 2016-08-17 15:42:37 at 108.870705 records/sec.
+7920000 of 7984420 records processed (99%).
+Estimated finish: 2016-08-17 15:52:41.
+Starting batch at 2016-08-17 15:42:37.
+First record: 'http://uk.linkedin.com/pub/victoria-goldsmith/99/6b3/8a3'
+Completed batch 2016-08-17 15:48:47 at 108.279156 records/sec.
+7960000 of 7984420 records processed (100%).
+Estimated finish: 2016-08-17 15:52:36.
+Starting batch at 2016-08-17 15:48:47.
+First record: 'http://uk.linkedin.com/pub/will-medd/25/0/b53'
+Completed batch 2016-08-17 15:53:12 at 92.039839 records/sec.
+7984420 of 7984420 records processed (100%).
+Estimated finish: 2016-08-17 15:53:12.
+Users logged in, not shutting down.

@@ -1,0 +1,1871 @@
+nohup: ignoring input
+Starting batch at 2016-09-12 09:22:14.
+First record: 1
+Completed batch 2016-09-12 09:23:20 at 120.865806 records/sec.
+8000 of 2984079 records processed (0%).
+Estimated finish: 2016-09-12 16:50:42.
+Starting batch at 2016-09-12 09:23:20.
+First record: 8001
+Completed batch 2016-09-12 09:24:06 at 173.546321 records/sec.
+16000 of 2984079 records processed (1%).
+Estimated finish: 2016-09-12 15:29:42.
+Starting batch at 2016-09-12 09:24:06.
+First record: 16001
+Completed batch 2016-09-12 09:25:03 at 140.061802 records/sec.
+24000 of 2984079 records processed (1%).
+Estimated finish: 2016-09-12 15:25:33.
+Starting batch at 2016-09-12 09:25:03.
+First record: 24001
+Completed batch 2016-09-12 09:25:52 at 162.926170 records/sec.
+32000 of 2984079 records processed (1%).
+Estimated finish: 2016-09-12 15:11:00.
+Starting batch at 2016-09-12 09:25:52.
+First record: 32001
+Completed batch 2016-09-12 09:26:51 at 135.274918 records/sec.
+40000 of 2984079 records processed (1%).
+Estimated finish: 2016-09-12 15:14:46.
+Starting batch at 2016-09-12 09:26:51.
+First record: 40001
+Completed batch 2016-09-12 09:27:41 at 159.679144 records/sec.
+48000 of 2984079 records processed (2%).
+Estimated finish: 2016-09-12 15:07:54.
+Starting batch at 2016-09-12 09:27:41.
+First record: 48001
+Completed batch 2016-09-12 09:28:14 at 241.682365 records/sec.
+56000 of 2984079 records processed (2%).
+Estimated finish: 2016-09-12 14:47:54.
+Starting batch at 2016-09-12 09:28:14.
+First record: 56001
+Completed batch 2016-09-12 09:29:04 at 162.952026 records/sec.
+64000 of 2984079 records processed (2%).
+Estimated finish: 2016-09-12 14:45:20.
+Starting batch at 2016-09-12 09:29:04.
+First record: 64001
+Completed batch 2016-09-12 09:29:45 at 194.669354 records/sec.
+72000 of 2984079 records processed (2%).
+Estimated finish: 2016-09-12 14:37:48.
+Starting batch at 2016-09-12 09:29:45.
+First record: 72001
+Completed batch 2016-09-12 09:30:25 at 199.514959 records/sec.
+80000 of 2984079 records processed (3%).
+Estimated finish: 2016-09-12 14:31:10.
+Starting batch at 2016-09-12 09:30:25.
+First record: 80001
+Completed batch 2016-09-12 09:31:11 at 173.511974 records/sec.
+88000 of 2984079 records processed (3%).
+Estimated finish: 2016-09-12 14:29:08.
+Starting batch at 2016-09-12 09:31:11.
+First record: 88001
+Completed batch 2016-09-12 09:31:50 at 204.576049 records/sec.
+96000 of 2984079 records processed (3%).
+Estimated finish: 2016-09-12 14:23:48.
+Starting batch at 2016-09-12 09:31:50.
+First record: 96001
+Completed batch 2016-09-12 09:32:28 at 209.997917 records/sec.
+104000 of 2984079 records processed (3%).
+Estimated finish: 2016-09-12 14:18:49.
+Starting batch at 2016-09-12 09:32:28.
+First record: 104001
+Completed batch 2016-09-12 09:33:13 at 177.372875 records/sec.
+112000 of 2984079 records processed (4%).
+Estimated finish: 2016-09-12 14:17:39.
+Starting batch at 2016-09-12 09:33:13.
+First record: 112001
+Completed batch 2016-09-12 09:33:55 at 190.029815 records/sec.
+120000 of 2984079 records processed (4%).
+Estimated finish: 2016-09-12 14:15:24.
+Starting batch at 2016-09-12 09:33:55.
+First record: 120001
+Completed batch 2016-09-12 09:34:45 at 159.651936 records/sec.
+128000 of 2984079 records processed (4%).
+Estimated finish: 2016-09-12 14:16:32.
+Starting batch at 2016-09-12 09:34:45.
+First record: 128001
+Completed batch 2016-09-12 09:35:34 at 162.870127 records/sec.
+136000 of 2984079 records processed (5%).
+Estimated finish: 2016-09-12 14:17:11.
+Starting batch at 2016-09-12 09:35:34.
+First record: 136001
+Completed batch 2016-09-12 09:36:19 at 181.412408 records/sec.
+144000 of 2984079 records processed (5%).
+Estimated finish: 2016-09-12 14:16:01.
+Starting batch at 2016-09-12 09:36:19.
+First record: 144001
+Completed batch 2016-09-12 09:36:58 at 204.674939 records/sec.
+152000 of 2984079 records processed (5%).
+Estimated finish: 2016-09-12 14:13:21.
+Starting batch at 2016-09-12 09:36:58.
+First record: 152001
+Completed batch 2016-09-12 09:37:38 at 199.521896 records/sec.
+160000 of 2984079 records processed (5%).
+Estimated finish: 2016-09-12 14:11:15.
+Starting batch at 2016-09-12 09:37:38.
+First record: 160001
+Completed batch 2016-09-12 09:38:15 at 215.675605 records/sec.
+168000 of 2984079 records processed (6%).
+Estimated finish: 2016-09-12 14:08:28.
+Starting batch at 2016-09-12 09:38:15.
+First record: 168001
+Completed batch 2016-09-12 09:38:54 at 204.647389 records/sec.
+176000 of 2984079 records processed (6%).
+Estimated finish: 2016-09-12 14:06:30.
+Starting batch at 2016-09-12 09:38:54.
+First record: 176001
+Completed batch 2016-09-12 09:39:30 at 221.641988 records/sec.
+184000 of 2984079 records processed (6%).
+Estimated finish: 2016-09-12 14:03:53.
+Starting batch at 2016-09-12 09:39:30.
+First record: 184001
+Completed batch 2016-09-12 09:40:08 at 210.014775 records/sec.
+192000 of 2984079 records processed (6%).
+Estimated finish: 2016-09-12 14:02:01.
+Starting batch at 2016-09-12 09:40:08.
+First record: 192001
+Completed batch 2016-09-12 09:40:48 at 199.567204 records/sec.
+200000 of 2984079 records processed (7%).
+Estimated finish: 2016-09-12 14:00:47.
+Starting batch at 2016-09-12 09:40:48.
+First record: 200001
+Completed batch 2016-09-12 09:41:26 at 210.009631 records/sec.
+208000 of 2984079 records processed (7%).
+Estimated finish: 2016-09-12 13:59:11.
+Starting batch at 2016-09-12 09:41:26.
+First record: 208001
+Completed batch 2016-09-12 09:42:04 at 210.034206 records/sec.
+216000 of 2984079 records processed (7%).
+Estimated finish: 2016-09-12 13:57:41.
+Starting batch at 2016-09-12 09:42:04.
+First record: 216001
+Completed batch 2016-09-12 09:42:42 at 209.957756 records/sec.
+224000 of 2984079 records processed (8%).
+Estimated finish: 2016-09-12 13:56:18.
+Starting batch at 2016-09-12 09:42:42.
+First record: 224001
+Completed batch 2016-09-12 09:43:23 at 199.542882 records/sec.
+232000 of 2984079 records processed (8%).
+Estimated finish: 2016-09-12 13:55:27.
+Starting batch at 2016-09-12 09:43:23.
+First record: 232001
+Completed batch 2016-09-12 09:44:18 at 145.183928 records/sec.
+240000 of 2984079 records processed (8%).
+Estimated finish: 2016-09-12 13:57:45.
+Starting batch at 2016-09-12 09:44:18.
+First record: 240001
+Completed batch 2016-09-12 09:45:18 at 133.024953 records/sec.
+248000 of 2984079 records processed (8%).
+Estimated finish: 2016-09-12 14:00:55.
+Starting batch at 2016-09-12 09:45:18.
+First record: 248001
+Completed batch 2016-09-12 09:46:07 at 162.912229 records/sec.
+256000 of 2984079 records processed (9%).
+Estimated finish: 2016-09-12 14:01:45.
+Starting batch at 2016-09-12 09:46:07.
+First record: 256001
+Completed batch 2016-09-12 09:46:52 at 177.414173 records/sec.
+264000 of 2984079 records processed (9%).
+Estimated finish: 2016-09-12 14:01:46.
+Starting batch at 2016-09-12 09:46:52.
+First record: 264001
+Completed batch 2016-09-12 09:47:27 at 227.937736 records/sec.
+272000 of 2984079 records processed (9%).
+Estimated finish: 2016-09-12 13:59:58.
+Starting batch at 2016-09-12 09:47:27.
+First record: 272001
+Completed batch 2016-09-12 09:48:05 at 210.083774 records/sec.
+280000 of 2984079 records processed (9%).
+Estimated finish: 2016-09-12 13:58:47.
+Starting batch at 2016-09-12 09:48:05.
+First record: 280001
+Completed batch 2016-09-12 09:48:44 at 204.642347 records/sec.
+288000 of 2984079 records processed (10%).
+Estimated finish: 2016-09-12 13:57:51.
+Starting batch at 2016-09-12 09:48:44.
+First record: 288001
+Completed batch 2016-09-12 09:49:26 at 190.053855 records/sec.
+296000 of 2984079 records processed (10%).
+Estimated finish: 2016-09-12 13:57:29.
+Starting batch at 2016-09-12 09:49:26.
+First record: 296001
+Completed batch 2016-09-12 09:50:04 at 210.008077 records/sec.
+304000 of 2984079 records processed (10%).
+Estimated finish: 2016-09-12 13:56:28.
+Starting batch at 2016-09-12 09:50:04.
+First record: 304001
+Completed batch 2016-09-12 09:50:41 at 221.654387 records/sec.
+312000 of 2984079 records processed (10%).
+Estimated finish: 2016-09-12 13:55:11.
+Starting batch at 2016-09-12 09:50:41.
+First record: 312001
+Completed batch 2016-09-12 09:51:16 at 228.079669 records/sec.
+320000 of 2984079 records processed (11%).
+Estimated finish: 2016-09-12 13:53:48.
+Starting batch at 2016-09-12 09:51:16.
+First record: 320001
+Completed batch 2016-09-12 09:51:52 at 221.691198 records/sec.
+328000 of 2984079 records processed (11%).
+Estimated finish: 2016-09-12 13:52:39.
+Starting batch at 2016-09-12 09:51:52.
+First record: 328001
+Completed batch 2016-09-12 09:52:31 at 204.615418 records/sec.
+336000 of 2984079 records processed (11%).
+Estimated finish: 2016-09-12 13:52:00.
+Starting batch at 2016-09-12 09:52:31.
+First record: 336001
+Completed batch 2016-09-12 09:53:12 at 194.665972 records/sec.
+344000 of 2984079 records processed (12%).
+Estimated finish: 2016-09-12 13:51:40.
+Starting batch at 2016-09-12 09:53:12.
+First record: 344001
+Completed batch 2016-09-12 09:53:49 at 215.689479 records/sec.
+352000 of 2984079 records processed (12%).
+Estimated finish: 2016-09-12 13:50:47.
+Starting batch at 2016-09-12 09:53:49.
+First record: 352001
+Completed batch 2016-09-12 09:54:25 at 221.675423 records/sec.
+360000 of 2984079 records processed (12%).
+Estimated finish: 2016-09-12 13:49:48.
+Starting batch at 2016-09-12 09:54:25.
+First record: 360001
+Completed batch 2016-09-12 09:55:02 at 215.673250 records/sec.
+368000 of 2984079 records processed (12%).
+Estimated finish: 2016-09-12 13:48:59.
+Starting batch at 2016-09-12 09:55:02.
+First record: 368001
+Completed batch 2016-09-12 09:55:41 at 204.577064 records/sec.
+376000 of 2984079 records processed (13%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 09:55:41.
+First record: 376001
+Completed batch 2016-09-12 09:56:21 at 199.549368 records/sec.
+384000 of 2984079 records processed (13%).
+Estimated finish: 2016-09-12 13:48:08.
+Starting batch at 2016-09-12 09:56:21.
+First record: 384001
+Completed batch 2016-09-12 09:56:54 at 241.881475 records/sec.
+392000 of 2984079 records processed (13%).
+Estimated finish: 2016-09-12 13:46:54.
+Starting batch at 2016-09-12 09:56:54.
+First record: 392001
+Completed batch 2016-09-12 09:57:28 at 241.831762 records/sec.
+400000 of 2984079 records processed (13%).
+Estimated finish: 2016-09-12 13:45:43.
+Starting batch at 2016-09-12 09:57:28.
+First record: 400001
+Completed batch 2016-09-12 09:58:01 at 241.821652 records/sec.
+408000 of 2984079 records processed (14%).
+Estimated finish: 2016-09-12 13:44:35.
+Starting batch at 2016-09-12 09:58:01.
+First record: 408001
+Completed batch 2016-09-12 09:58:38 at 215.618464 records/sec.
+416000 of 2984079 records processed (14%).
+Estimated finish: 2016-09-12 13:43:58.
+Starting batch at 2016-09-12 09:58:38.
+First record: 416001
+Completed batch 2016-09-12 09:59:18 at 199.526389 records/sec.
+424000 of 2984079 records processed (14%).
+Estimated finish: 2016-09-12 13:43:44.
+Starting batch at 2016-09-12 09:59:18.
+First record: 424001
+Completed batch 2016-09-12 09:59:54 at 221.658262 records/sec.
+432000 of 2984079 records processed (14%).
+Estimated finish: 2016-09-12 13:43:02.
+Starting batch at 2016-09-12 09:59:54.
+First record: 432001
+Completed batch 2016-09-12 10:00:37 at 185.609535 records/sec.
+440000 of 2984079 records processed (15%).
+Estimated finish: 2016-09-12 13:43:10.
+Starting batch at 2016-09-12 10:00:37.
+First record: 440001
+Completed batch 2016-09-12 10:01:25 at 166.280297 records/sec.
+448000 of 2984079 records processed (15%).
+Estimated finish: 2016-09-12 13:43:51.
+Starting batch at 2016-09-12 10:01:25.
+First record: 448001
+Completed batch 2016-09-12 10:02:03 at 209.928247 records/sec.
+456000 of 2984079 records processed (15%).
+Estimated finish: 2016-09-12 13:43:25.
+Starting batch at 2016-09-12 10:02:03.
+First record: 456001
+Completed batch 2016-09-12 10:02:41 at 210.044181 records/sec.
+464000 of 2984079 records processed (16%).
+Estimated finish: 2016-09-12 13:42:59.
+Starting batch at 2016-09-12 10:02:41.
+First record: 464001
+Completed batch 2016-09-12 10:03:20 at 204.623708 records/sec.
+472000 of 2984079 records processed (16%).
+Estimated finish: 2016-09-12 13:42:41.
+Starting batch at 2016-09-12 10:03:20.
+First record: 472001
+Completed batch 2016-09-12 10:04:01 at 199.564938 records/sec.
+480000 of 2984079 records processed (16%).
+Estimated finish: 2016-09-12 13:42:30.
+Starting batch at 2016-09-12 10:04:01.
+First record: 480001
+Completed batch 2016-09-12 10:04:37 at 221.714576 records/sec.
+488000 of 2984079 records processed (16%).
+Estimated finish: 2016-09-12 13:41:54.
+Starting batch at 2016-09-12 10:04:37.
+First record: 488001
+Completed batch 2016-09-12 10:05:11 at 234.689082 records/sec.
+496000 of 2984079 records processed (17%).
+Estimated finish: 2016-09-12 13:41:08.
+Starting batch at 2016-09-12 10:05:11.
+First record: 496001
+Completed batch 2016-09-12 10:05:52 at 194.657124 records/sec.
+504000 of 2984079 records processed (17%).
+Estimated finish: 2016-09-12 13:41:05.
+Starting batch at 2016-09-12 10:05:52.
+First record: 504001
+Completed batch 2016-09-12 10:06:36 at 181.437546 records/sec.
+512000 of 2984079 records processed (17%).
+Estimated finish: 2016-09-12 13:41:19.
+Starting batch at 2016-09-12 10:06:36.
+First record: 512001
+Completed batch 2016-09-12 10:07:19 at 185.667551 records/sec.
+520000 of 2984079 records processed (17%).
+Estimated finish: 2016-09-12 13:41:27.
+Starting batch at 2016-09-12 10:07:19.
+First record: 520001
+Completed batch 2016-09-12 10:08:01 at 190.039575 records/sec.
+528000 of 2984079 records processed (18%).
+Estimated finish: 2016-09-12 13:41:29.
+Starting batch at 2016-09-12 10:08:01.
+First record: 528001
+Completed batch 2016-09-12 10:08:41 at 199.514352 records/sec.
+536000 of 2984079 records processed (18%).
+Estimated finish: 2016-09-12 13:41:20.
+Starting batch at 2016-09-12 10:08:41.
+First record: 536001
+Completed batch 2016-09-12 10:09:15 at 234.732823 records/sec.
+544000 of 2984079 records processed (18%).
+Estimated finish: 2016-09-12 13:40:38.
+Starting batch at 2016-09-12 10:09:15.
+First record: 544001
+Completed batch 2016-09-12 10:09:46 at 257.362547 records/sec.
+552000 of 2984079 records processed (18%).
+Estimated finish: 2016-09-12 13:39:42.
+Starting batch at 2016-09-12 10:09:46.
+First record: 552001
+Completed batch 2016-09-12 10:10:22 at 221.711553 records/sec.
+560000 of 2984079 records processed (19%).
+Estimated finish: 2016-09-12 13:39:13.
+Starting batch at 2016-09-12 10:10:22.
+First record: 560001
+Completed batch 2016-09-12 10:11:05 at 190.010515 records/sec.
+568000 of 2984079 records processed (19%).
+Estimated finish: 2016-09-12 13:39:17.
+Starting batch at 2016-09-12 10:11:05.
+First record: 568001
+Completed batch 2016-09-12 10:11:50 at 177.327374 records/sec.
+576000 of 2984079 records processed (19%).
+Estimated finish: 2016-09-12 13:39:37.
+Starting batch at 2016-09-12 10:11:50.
+First record: 576001
+Completed batch 2016-09-12 10:12:38 at 166.259065 records/sec.
+584000 of 2984079 records processed (20%).
+Estimated finish: 2016-09-12 13:40:11.
+Starting batch at 2016-09-12 10:12:38.
+First record: 584001
+Completed batch 2016-09-12 10:13:32 at 147.798121 records/sec.
+592000 of 2984079 records processed (20%).
+Estimated finish: 2016-09-12 13:41:14.
+Starting batch at 2016-09-12 10:13:32.
+First record: 592001
+Completed batch 2016-09-12 10:14:20 at 166.301839 records/sec.
+600000 of 2984079 records processed (20%).
+Estimated finish: 2016-09-12 13:41:46.
+Starting batch at 2016-09-12 10:14:20.
+First record: 600001
+Completed batch 2016-09-12 10:15:10 at 159.631134 records/sec.
+608000 of 2984079 records processed (20%).
+Estimated finish: 2016-09-12 13:42:27.
+Starting batch at 2016-09-12 10:15:10.
+First record: 608001
+Completed batch 2016-09-12 10:15:54 at 181.336256 records/sec.
+616000 of 2984079 records processed (21%).
+Estimated finish: 2016-09-12 13:42:38.
+Starting batch at 2016-09-12 10:15:54.
+First record: 616001
+Completed batch 2016-09-12 10:16:34 at 199.524344 records/sec.
+624000 of 2984079 records processed (21%).
+Estimated finish: 2016-09-12 13:42:30.
+Starting batch at 2016-09-12 10:16:34.
+First record: 624001
+Completed batch 2016-09-12 10:17:10 at 221.678660 records/sec.
+632000 of 2984079 records processed (21%).
+Estimated finish: 2016-09-12 13:42:02.
+Starting batch at 2016-09-12 10:17:10.
+First record: 632001
+Completed batch 2016-09-12 10:17:46 at 221.677413 records/sec.
+640000 of 2984079 records processed (21%).
+Estimated finish: 2016-09-12 13:41:36.
+Starting batch at 2016-09-12 10:17:46.
+First record: 640001
+Completed batch 2016-09-12 10:18:23 at 221.654897 records/sec.
+648000 of 2984079 records processed (22%).
+Estimated finish: 2016-09-12 13:41:10.
+Starting batch at 2016-09-12 10:18:23.
+First record: 648001
+Completed batch 2016-09-12 10:19:11 at 166.277055 records/sec.
+656000 of 2984079 records processed (22%).
+Estimated finish: 2016-09-12 13:41:39.
+Starting batch at 2016-09-12 10:19:11.
+First record: 656001
+Completed batch 2016-09-12 10:20:07 at 142.565279 records/sec.
+664000 of 2984079 records processed (22%).
+Estimated finish: 2016-09-12 13:42:43.
+Starting batch at 2016-09-12 10:20:07.
+First record: 664001
+Completed batch 2016-09-12 10:21:05 at 137.632607 records/sec.
+672000 of 2984079 records processed (23%).
+Estimated finish: 2016-09-12 13:43:55.
+Starting batch at 2016-09-12 10:21:05.
+First record: 672001
+Completed batch 2016-09-12 10:21:54 at 162.916150 records/sec.
+680000 of 2984079 records processed (23%).
+Estimated finish: 2016-09-12 13:44:26.
+Starting batch at 2016-09-12 10:21:54.
+First record: 680001
+Completed batch 2016-09-12 10:22:42 at 166.291669 records/sec.
+688000 of 2984079 records processed (23%).
+Estimated finish: 2016-09-12 13:44:52.
+Starting batch at 2016-09-12 10:22:42.
+First record: 688001
+Completed batch 2016-09-12 10:23:34 at 153.556617 records/sec.
+696000 of 2984079 records processed (23%).
+Estimated finish: 2016-09-12 13:45:34.
+Starting batch at 2016-09-12 10:23:34.
+First record: 696001
+Completed batch 2016-09-12 10:24:22 at 166.252352 records/sec.
+704000 of 2984079 records processed (24%).
+Estimated finish: 2016-09-12 13:45:58.
+Starting batch at 2016-09-12 10:24:22.
+First record: 704001
+Completed batch 2016-09-12 10:25:05 at 189.843861 records/sec.
+712000 of 2984079 records processed (24%).
+Estimated finish: 2016-09-12 13:45:57.
+Starting batch at 2016-09-12 10:25:05.
+First record: 712001
+Completed batch 2016-09-12 10:25:42 at 215.687397 records/sec.
+720000 of 2984079 records processed (24%).
+Estimated finish: 2016-09-12 13:45:35.
+Starting batch at 2016-09-12 10:25:42.
+First record: 720001
+Completed batch 2016-09-12 10:26:21 at 204.684203 records/sec.
+728000 of 2984079 records processed (24%).
+Estimated finish: 2016-09-12 13:45:21.
+Starting batch at 2016-09-12 10:26:21.
+First record: 728001
+Completed batch 2016-09-12 10:27:00 at 204.674452 records/sec.
+736000 of 2984079 records processed (25%).
+Estimated finish: 2016-09-12 13:45:08.
+Starting batch at 2016-09-12 10:27:00.
+First record: 736001
+Completed batch 2016-09-12 10:27:39 at 204.648478 records/sec.
+744000 of 2984079 records processed (25%).
+Estimated finish: 2016-09-12 13:44:55.
+Starting batch at 2016-09-12 10:27:39.
+First record: 744001
+Completed batch 2016-09-12 10:28:22 at 185.633292 records/sec.
+752000 of 2984079 records processed (25%).
+Estimated finish: 2016-09-12 13:44:59.
+Starting batch at 2016-09-12 10:28:22.
+First record: 752001
+Completed batch 2016-09-12 10:29:06 at 181.398483 records/sec.
+760000 of 2984079 records processed (25%).
+Estimated finish: 2016-09-12 13:45:06.
+Starting batch at 2016-09-12 10:29:06.
+First record: 760001
+Completed batch 2016-09-12 10:29:47 at 194.703690 records/sec.
+768000 of 2984079 records processed (26%).
+Estimated finish: 2016-09-12 13:45:01.
+Starting batch at 2016-09-12 10:29:47.
+First record: 768001
+Completed batch 2016-09-12 10:30:25 at 210.071059 records/sec.
+776000 of 2984079 records processed (26%).
+Estimated finish: 2016-09-12 13:44:45.
+Starting batch at 2016-09-12 10:30:25.
+First record: 776001
+Completed batch 2016-09-12 10:31:15 at 159.643255 records/sec.
+784000 of 2984079 records processed (26%).
+Estimated finish: 2016-09-12 13:45:15.
+Starting batch at 2016-09-12 10:31:15.
+First record: 784001
+Completed batch 2016-09-12 10:32:11 at 142.585273 records/sec.
+792000 of 2984079 records processed (27%).
+Estimated finish: 2016-09-12 13:46:07.
+Starting batch at 2016-09-12 10:32:11.
+First record: 792001
+Completed batch 2016-09-12 10:33:04 at 153.522145 records/sec.
+800000 of 2984079 records processed (27%).
+Estimated finish: 2016-09-12 13:46:43.
+Starting batch at 2016-09-12 10:33:04.
+First record: 800001
+Completed batch 2016-09-12 10:33:45 at 194.652753 records/sec.
+808000 of 2984079 records processed (27%).
+Estimated finish: 2016-09-12 13:46:37.
+Starting batch at 2016-09-12 10:33:45.
+First record: 808001
+Completed batch 2016-09-12 10:34:28 at 185.513725 records/sec.
+816000 of 2984079 records processed (27%).
+Estimated finish: 2016-09-12 13:46:39.
+Starting batch at 2016-09-12 10:34:28.
+First record: 816001
+Completed batch 2016-09-12 10:35:10 at 190.021997 records/sec.
+824000 of 2984079 records processed (28%).
+Estimated finish: 2016-09-12 13:46:38.
+Starting batch at 2016-09-12 10:35:10.
+First record: 824001
+Completed batch 2016-09-12 10:35:52 at 190.038920 records/sec.
+832000 of 2984079 records processed (28%).
+Estimated finish: 2016-09-12 13:46:36.
+Starting batch at 2016-09-12 10:35:52.
+First record: 832001
+Completed batch 2016-09-12 10:36:35 at 185.648727 records/sec.
+840000 of 2984079 records processed (28%).
+Estimated finish: 2016-09-12 13:46:38.
+Starting batch at 2016-09-12 10:36:35.
+First record: 840001
+Completed batch 2016-09-12 10:37:18 at 185.638672 records/sec.
+848000 of 2984079 records processed (28%).
+Estimated finish: 2016-09-12 13:46:40.
+Starting batch at 2016-09-12 10:37:18.
+First record: 848001
+Completed batch 2016-09-12 10:37:59 at 194.654955 records/sec.
+856000 of 2984079 records processed (29%).
+Estimated finish: 2016-09-12 13:46:35.
+Starting batch at 2016-09-12 10:37:59.
+First record: 856001
+Completed batch 2016-09-12 10:38:47 at 166.291924 records/sec.
+864000 of 2984079 records processed (29%).
+Estimated finish: 2016-09-12 13:46:54.
+Starting batch at 2016-09-12 10:38:47.
+First record: 864001
+Completed batch 2016-09-12 10:39:34 at 169.853014 records/sec.
+872000 of 2984079 records processed (29%).
+Estimated finish: 2016-09-12 13:47:10.
+Starting batch at 2016-09-12 10:39:34.
+First record: 872001
+Completed batch 2016-09-12 10:40:18 at 185.534140 records/sec.
+880000 of 2984079 records processed (29%).
+Estimated finish: 2016-09-12 13:47:11.
+Starting batch at 2016-09-12 10:40:18.
+First record: 880001
+Completed batch 2016-09-12 10:41:01 at 185.645056 records/sec.
+888000 of 2984079 records processed (30%).
+Estimated finish: 2016-09-12 13:47:13.
+Starting batch at 2016-09-12 10:41:01.
+First record: 888001
+Completed batch 2016-09-12 10:41:42 at 194.715087 records/sec.
+896000 of 2984079 records processed (30%).
+Estimated finish: 2016-09-12 13:47:08.
+Starting batch at 2016-09-12 10:41:42.
+First record: 896001
+Completed batch 2016-09-12 10:42:23 at 194.507147 records/sec.
+904000 of 2984079 records processed (30%).
+Estimated finish: 2016-09-12 13:47:03.
+Starting batch at 2016-09-12 10:42:23.
+First record: 904001
+Completed batch 2016-09-12 10:43:04 at 194.621925 records/sec.
+912000 of 2984079 records processed (31%).
+Estimated finish: 2016-09-12 13:46:58.
+Starting batch at 2016-09-12 10:43:04.
+First record: 912001
+Completed batch 2016-09-12 10:43:46 at 190.017592 records/sec.
+920000 of 2984079 records processed (31%).
+Estimated finish: 2016-09-12 13:46:56.
+Starting batch at 2016-09-12 10:43:46.
+First record: 920001
+Completed batch 2016-09-12 10:44:26 at 199.534163 records/sec.
+928000 of 2984079 records processed (31%).
+Estimated finish: 2016-09-12 13:46:48.
+Starting batch at 2016-09-12 10:44:26.
+First record: 928001
+Completed batch 2016-09-12 10:45:06 at 199.545082 records/sec.
+936000 of 2984079 records processed (31%).
+Estimated finish: 2016-09-12 13:46:40.
+Starting batch at 2016-09-12 10:45:06.
+First record: 936001
+Completed batch 2016-09-12 10:45:47 at 194.655836 records/sec.
+944000 of 2984079 records processed (32%).
+Estimated finish: 2016-09-12 13:46:36.
+Starting batch at 2016-09-12 10:45:47.
+First record: 944001
+Completed batch 2016-09-12 10:46:26 at 204.691388 records/sec.
+952000 of 2984079 records processed (32%).
+Estimated finish: 2016-09-12 13:46:25.
+Starting batch at 2016-09-12 10:46:26.
+First record: 952001
+Completed batch 2016-09-12 10:47:05 at 209.901990 records/sec.
+960000 of 2984079 records processed (32%).
+Estimated finish: 2016-09-12 13:46:11.
+Starting batch at 2016-09-12 10:47:05.
+First record: 960001
+Completed batch 2016-09-12 10:48:03 at 137.638498 records/sec.
+968000 of 2984079 records processed (32%).
+Estimated finish: 2016-09-12 13:46:59.
+Starting batch at 2016-09-12 10:48:03.
+First record: 968001
+Completed batch 2016-09-12 10:49:04 at 130.858267 records/sec.
+976000 of 2984079 records processed (33%).
+Estimated finish: 2016-09-12 13:47:56.
+Starting batch at 2016-09-12 10:49:04.
+First record: 976001
+Completed batch 2016-09-12 10:50:06 at 128.784896 records/sec.
+984000 of 2984079 records processed (33%).
+Estimated finish: 2016-09-12 13:48:55.
+Starting batch at 2016-09-12 10:50:06.
+First record: 984001
+Completed batch 2016-09-12 10:51:03 at 140.039317 records/sec.
+992000 of 2984079 records processed (33%).
+Estimated finish: 2016-09-12 13:49:38.
+Starting batch at 2016-09-12 10:51:03.
+First record: 992001
+Completed batch 2016-09-12 10:51:59 at 142.545929 records/sec.
+1000000 of 2984079 records processed (34%).
+Estimated finish: 2016-09-12 13:50:17.
+Starting batch at 2016-09-12 10:51:59.
+First record: 1000001
+Completed batch 2016-09-12 10:52:54 at 145.154543 records/sec.
+1008000 of 2984079 records processed (34%).
+Estimated finish: 2016-09-12 13:50:52.
+Starting batch at 2016-09-12 10:52:54.
+First record: 1008001
+Completed batch 2016-09-12 10:53:49 at 145.158651 records/sec.
+1016000 of 2984079 records processed (34%).
+Estimated finish: 2016-09-12 13:51:27.
+Starting batch at 2016-09-12 10:53:49.
+First record: 1016001
+Completed batch 2016-09-12 10:54:44 at 147.833785 records/sec.
+1024000 of 2984079 records processed (34%).
+Estimated finish: 2016-09-12 13:51:58.
+Starting batch at 2016-09-12 10:54:44.
+First record: 1024001
+Completed batch 2016-09-12 10:55:35 at 156.540704 records/sec.
+1032000 of 2984079 records processed (35%).
+Estimated finish: 2016-09-12 13:52:21.
+Starting batch at 2016-09-12 10:55:35.
+First record: 1032001
+Completed batch 2016-09-12 10:56:21 at 173.562263 records/sec.
+1040000 of 2984079 records processed (35%).
+Estimated finish: 2016-09-12 13:52:28.
+Starting batch at 2016-09-12 10:56:21.
+First record: 1040001
+Completed batch 2016-09-12 10:57:07 at 173.537516 records/sec.
+1048000 of 2984079 records processed (35%).
+Estimated finish: 2016-09-12 13:52:36.
+Starting batch at 2016-09-12 10:57:07.
+First record: 1048001
+Completed batch 2016-09-12 10:58:02 at 145.127573 records/sec.
+1056000 of 2984079 records processed (35%).
+Estimated finish: 2016-09-12 13:53:08.
+Starting batch at 2016-09-12 10:58:02.
+First record: 1056001
+Completed batch 2016-09-12 10:58:51 at 162.951176 records/sec.
+1064000 of 2984079 records processed (36%).
+Estimated finish: 2016-09-12 13:53:24.
+Starting batch at 2016-09-12 10:58:51.
+First record: 1064001
+Completed batch 2016-09-12 10:59:44 at 150.609489 records/sec.
+1072000 of 2984079 records processed (36%).
+Estimated finish: 2016-09-12 13:53:50.
+Starting batch at 2016-09-12 10:59:44.
+First record: 1072001
+Completed batch 2016-09-12 11:00:41 at 140.069240 records/sec.
+1080000 of 2984079 records processed (36%).
+Estimated finish: 2016-09-12 13:54:27.
+Starting batch at 2016-09-12 11:00:41.
+First record: 1080001
+Completed batch 2016-09-12 11:01:41 at 133.041042 records/sec.
+1088000 of 2984079 records processed (36%).
+Estimated finish: 2016-09-12 13:55:12.
+Starting batch at 2016-09-12 11:01:41.
+First record: 1088001
+Completed batch 2016-09-12 11:02:41 at 135.297092 records/sec.
+1096000 of 2984079 records processed (37%).
+Estimated finish: 2016-09-12 13:55:54.
+Starting batch at 2016-09-12 11:02:41.
+First record: 1096001
+Completed batch 2016-09-12 11:03:19 at 209.933084 records/sec.
+1104000 of 2984079 records processed (37%).
+Estimated finish: 2016-09-12 13:55:38.
+Starting batch at 2016-09-12 11:03:19.
+First record: 1104001
+Completed batch 2016-09-12 11:04:05 at 173.541928 records/sec.
+1112000 of 2984079 records processed (37%).
+Estimated finish: 2016-09-12 13:55:43.
+Starting batch at 2016-09-12 11:04:05.
+First record: 1112001
+Completed batch 2016-09-12 11:04:51 at 173.473845 records/sec.
+1120000 of 2984079 records processed (38%).
+Estimated finish: 2016-09-12 13:55:49.
+Starting batch at 2016-09-12 11:04:51.
+First record: 1120001
+Completed batch 2016-09-12 11:05:33 at 189.984073 records/sec.
+1128000 of 2984079 records processed (38%).
+Estimated finish: 2016-09-12 13:55:44.
+Starting batch at 2016-09-12 11:05:33.
+First record: 1128001
+Completed batch 2016-09-12 11:06:10 at 215.651059 records/sec.
+1136000 of 2984079 records processed (38%).
+Estimated finish: 2016-09-12 13:55:26.
+Starting batch at 2016-09-12 11:06:10.
+First record: 1136001
+Completed batch 2016-09-12 11:06:55 at 177.283460 records/sec.
+1144000 of 2984079 records processed (38%).
+Estimated finish: 2016-09-12 13:55:29.
+Starting batch at 2016-09-12 11:06:55.
+First record: 1144001
+Completed batch 2016-09-12 11:07:33 at 209.943072 records/sec.
+1152000 of 2984079 records processed (39%).
+Estimated finish: 2016-09-12 13:55:13.
+Starting batch at 2016-09-12 11:07:33.
+First record: 1152001
+Completed batch 2016-09-12 11:08:04 at 257.335584 records/sec.
+1160000 of 2984079 records processed (39%).
+Estimated finish: 2016-09-12 13:54:40.
+Starting batch at 2016-09-12 11:08:04.
+First record: 1160001
+Completed batch 2016-09-12 11:08:35 at 265.949622 records/sec.
+1168000 of 2984079 records processed (39%).
+Estimated finish: 2016-09-12 13:54:05.
+Starting batch at 2016-09-12 11:08:35.
+First record: 1168001
+Completed batch 2016-09-12 11:09:25 at 159.685327 records/sec.
+1176000 of 2984079 records processed (39%).
+Estimated finish: 2016-09-12 13:54:21.
+Starting batch at 2016-09-12 11:09:25.
+First record: 1176001
+Completed batch 2016-09-12 11:10:09 at 181.374355 records/sec.
+1184000 of 2984079 records processed (40%).
+Estimated finish: 2016-09-12 13:54:22.
+Starting batch at 2016-09-12 11:10:09.
+First record: 1184001
+Completed batch 2016-09-12 11:10:54 at 177.228912 records/sec.
+1192000 of 2984079 records processed (40%).
+Estimated finish: 2016-09-12 13:54:26.
+Starting batch at 2016-09-12 11:10:54.
+First record: 1192001
+Completed batch 2016-09-12 11:11:35 at 194.640060 records/sec.
+1200000 of 2984079 records processed (40%).
+Estimated finish: 2016-09-12 13:54:19.
+Starting batch at 2016-09-12 11:11:35.
+First record: 1200001
+Completed batch 2016-09-12 11:12:19 at 181.413247 records/sec.
+1208000 of 2984079 records processed (40%).
+Estimated finish: 2016-09-12 13:54:20.
+Starting batch at 2016-09-12 11:12:19.
+First record: 1208001
+Completed batch 2016-09-12 11:13:03 at 181.367340 records/sec.
+1216000 of 2984079 records processed (41%).
+Estimated finish: 2016-09-12 13:54:20.
+Starting batch at 2016-09-12 11:13:03.
+First record: 1216001
+Completed batch 2016-09-12 11:13:46 at 185.566090 records/sec.
+1224000 of 2984079 records processed (41%).
+Estimated finish: 2016-09-12 13:54:19.
+Starting batch at 2016-09-12 11:13:46.
+First record: 1224001
+Completed batch 2016-09-12 11:14:37 at 156.514819 records/sec.
+1232000 of 2984079 records processed (41%).
+Estimated finish: 2016-09-12 13:54:37.
+Starting batch at 2016-09-12 11:14:37.
+First record: 1232001
+Completed batch 2016-09-12 11:15:30 at 153.514654 records/sec.
+1240000 of 2984079 records processed (42%).
+Estimated finish: 2016-09-12 13:54:56.
+Starting batch at 2016-09-12 11:15:30.
+First record: 1240001
+Completed batch 2016-09-12 11:16:09 at 204.633171 records/sec.
+1248000 of 2984079 records processed (42%).
+Estimated finish: 2016-09-12 13:54:45.
+Starting batch at 2016-09-12 11:16:09.
+First record: 1248001
+Completed batch 2016-09-12 11:16:48 at 204.617988 records/sec.
+1256000 of 2984079 records processed (42%).
+Estimated finish: 2016-09-12 13:54:34.
+Starting batch at 2016-09-12 11:16:48.
+First record: 1256001
+Completed batch 2016-09-12 11:17:33 at 177.389928 records/sec.
+1264000 of 2984079 records processed (42%).
+Estimated finish: 2016-09-12 13:54:37.
+Starting batch at 2016-09-12 11:17:33.
+First record: 1264001
+Completed batch 2016-09-12 11:18:10 at 215.744802 records/sec.
+1272000 of 2984079 records processed (43%).
+Estimated finish: 2016-09-12 13:54:21.
+Starting batch at 2016-09-12 11:18:10.
+First record: 1272001
+Completed batch 2016-09-12 11:18:53 at 185.609513 records/sec.
+1280000 of 2984079 records processed (43%).
+Estimated finish: 2016-09-12 13:54:19.
+Starting batch at 2016-09-12 11:18:53.
+First record: 1280001
+Completed batch 2016-09-12 11:19:35 at 190.009843 records/sec.
+1288000 of 2984079 records processed (43%).
+Estimated finish: 2016-09-12 13:54:15.
+Starting batch at 2016-09-12 11:19:35.
+First record: 1288001
+Completed batch 2016-09-12 11:20:26 at 156.505327 records/sec.
+1296000 of 2984079 records processed (43%).
+Estimated finish: 2016-09-12 13:54:32.
+Starting batch at 2016-09-12 11:20:26.
+First record: 1296001
+Completed batch 2016-09-12 11:21:12 at 173.543001 records/sec.
+1304000 of 2984079 records processed (44%).
+Estimated finish: 2016-09-12 13:54:38.
+Starting batch at 2016-09-12 11:21:12.
+First record: 1304001
+Completed batch 2016-09-12 11:21:56 at 181.405604 records/sec.
+1312000 of 2984079 records processed (44%).
+Estimated finish: 2016-09-12 13:54:38.
+Starting batch at 2016-09-12 11:21:56.
+First record: 1312001
+Completed batch 2016-09-12 11:22:43 at 169.838157 records/sec.
+1320000 of 2984079 records processed (44%).
+Estimated finish: 2016-09-12 13:54:46.
+Starting batch at 2016-09-12 11:22:43.
+First record: 1320001
+Completed batch 2016-09-12 11:23:27 at 185.580618 records/sec.
+1328000 of 2984079 records processed (45%).
+Estimated finish: 2016-09-12 13:54:44.
+Starting batch at 2016-09-12 11:23:27.
+First record: 1328001
+Completed batch 2016-09-12 11:24:11 at 181.393108 records/sec.
+1336000 of 2984079 records processed (45%).
+Estimated finish: 2016-09-12 13:54:44.
+Starting batch at 2016-09-12 11:24:11.
+First record: 1336001
+Completed batch 2016-09-12 11:24:59 at 166.239165 records/sec.
+1344000 of 2984079 records processed (45%).
+Estimated finish: 2016-09-12 13:54:54.
+Starting batch at 2016-09-12 11:24:59.
+First record: 1344001
+Completed batch 2016-09-12 11:25:37 at 209.798074 records/sec.
+1352000 of 2984079 records processed (45%).
+Estimated finish: 2016-09-12 13:54:41.
+Starting batch at 2016-09-12 11:25:37.
+First record: 1352001
+Completed batch 2016-09-12 11:26:18 at 194.502328 records/sec.
+1360000 of 2984079 records processed (46%).
+Estimated finish: 2016-09-12 13:54:35.
+Starting batch at 2016-09-12 11:26:18.
+First record: 1360001
+Completed batch 2016-09-12 11:26:52 at 234.403982 records/sec.
+1368000 of 2984079 records processed (46%).
+Estimated finish: 2016-09-12 13:54:14.
+Starting batch at 2016-09-12 11:26:52.
+First record: 1368001
+Completed batch 2016-09-12 11:27:26 at 234.482010 records/sec.
+1376000 of 2984079 records processed (46%).
+Estimated finish: 2016-09-12 13:53:53.
+Starting batch at 2016-09-12 11:27:26.
+First record: 1376001
+Completed batch 2016-09-12 11:28:01 at 227.763091 records/sec.
+1384000 of 2984079 records processed (46%).
+Estimated finish: 2016-09-12 13:53:35.
+Starting batch at 2016-09-12 11:28:01.
+First record: 1384001
+Completed batch 2016-09-12 11:28:39 at 215.711079 records/sec.
+1392000 of 2984079 records processed (47%).
+Estimated finish: 2016-09-12 13:53:21.
+Starting batch at 2016-09-12 11:28:39.
+First record: 1392001
+Completed batch 2016-09-12 11:29:18 at 204.536204 records/sec.
+1400000 of 2984079 records processed (47%).
+Estimated finish: 2016-09-12 13:53:11.
+Starting batch at 2016-09-12 11:29:18.
+First record: 1400001
+Completed batch 2016-09-12 11:29:57 at 204.614806 records/sec.
+1408000 of 2984079 records processed (47%).
+Estimated finish: 2016-09-12 13:53:01.
+Starting batch at 2016-09-12 11:29:57.
+First record: 1408001
+Completed batch 2016-09-12 11:30:37 at 199.516303 records/sec.
+1416000 of 2984079 records processed (47%).
+Estimated finish: 2016-09-12 13:52:54.
+Starting batch at 2016-09-12 11:30:37.
+First record: 1416001
+Completed batch 2016-09-12 11:31:20 at 185.598572 records/sec.
+1424000 of 2984079 records processed (48%).
+Estimated finish: 2016-09-12 13:52:53.
+Starting batch at 2016-09-12 11:31:20.
+First record: 1424001
+Completed batch 2016-09-12 11:32:03 at 185.648218 records/sec.
+1432000 of 2984079 records processed (48%).
+Estimated finish: 2016-09-12 13:52:52.
+Starting batch at 2016-09-12 11:32:03.
+First record: 1432001
+Completed batch 2016-09-12 11:32:46 at 185.574927 records/sec.
+1440000 of 2984079 records processed (48%).
+Estimated finish: 2016-09-12 13:52:51.
+Starting batch at 2016-09-12 11:32:46.
+First record: 1440001
+Completed batch 2016-09-12 11:33:29 at 185.597469 records/sec.
+1448000 of 2984079 records processed (49%).
+Estimated finish: 2016-09-12 13:52:50.
+Starting batch at 2016-09-12 11:33:29.
+First record: 1448001
+Completed batch 2016-09-12 11:34:11 at 189.885822 records/sec.
+1456000 of 2984079 records processed (49%).
+Estimated finish: 2016-09-12 13:52:47.
+Starting batch at 2016-09-12 11:34:11.
+First record: 1456001
+Completed batch 2016-09-12 11:34:54 at 189.920808 records/sec.
+1464000 of 2984079 records processed (49%).
+Estimated finish: 2016-09-12 13:52:45.
+Starting batch at 2016-09-12 11:34:54.
+First record: 1464001
+Completed batch 2016-09-12 11:35:35 at 194.559414 records/sec.
+1472000 of 2984079 records processed (49%).
+Estimated finish: 2016-09-12 13:52:40.
+Starting batch at 2016-09-12 11:35:35.
+First record: 1472001
+Completed batch 2016-09-12 11:36:15 at 199.453264 records/sec.
+1480000 of 2984079 records processed (50%).
+Estimated finish: 2016-09-12 13:52:33.
+Starting batch at 2016-09-12 11:36:15.
+First record: 1480001
+Completed batch 2016-09-12 11:36:54 at 204.279335 records/sec.
+1488000 of 2984079 records processed (50%).
+Estimated finish: 2016-09-12 13:52:24.
+Starting batch at 2016-09-12 11:36:54.
+First record: 1488001
+Completed batch 2016-09-12 11:37:37 at 185.556509 records/sec.
+1496000 of 2984079 records processed (50%).
+Estimated finish: 2016-09-12 13:52:23.
+Starting batch at 2016-09-12 11:37:37.
+First record: 1496001
+Completed batch 2016-09-12 11:38:25 at 166.277861 records/sec.
+1504000 of 2984079 records processed (50%).
+Estimated finish: 2016-09-12 13:52:33.
+Starting batch at 2016-09-12 11:38:25.
+First record: 1504001
+Completed batch 2016-09-12 11:39:09 at 181.327641 records/sec.
+1512000 of 2984079 records processed (51%).
+Estimated finish: 2016-09-12 13:52:34.
+Starting batch at 2016-09-12 11:39:09.
+First record: 1512001
+Completed batch 2016-09-12 11:39:49 at 199.495963 records/sec.
+1520000 of 2984079 records processed (51%).
+Estimated finish: 2016-09-12 13:52:27.
+Starting batch at 2016-09-12 11:39:49.
+First record: 1520001
+Completed batch 2016-09-12 11:40:30 at 194.552061 records/sec.
+1528000 of 2984079 records processed (51%).
+Estimated finish: 2016-09-12 13:52:23.
+Starting batch at 2016-09-12 11:40:30.
+First record: 1528001
+Completed batch 2016-09-12 11:41:12 at 194.570297 records/sec.
+1536000 of 2984079 records processed (51%).
+Estimated finish: 2016-09-12 13:52:18.
+Starting batch at 2016-09-12 11:41:12.
+First record: 1536001
+Completed batch 2016-09-12 11:41:50 at 210.069878 records/sec.
+1544000 of 2984079 records processed (52%).
+Estimated finish: 2016-09-12 13:52:08.
+Starting batch at 2016-09-12 11:41:50.
+First record: 1544001
+Completed batch 2016-09-12 11:42:29 at 204.458948 records/sec.
+1552000 of 2984079 records processed (52%).
+Estimated finish: 2016-09-12 13:51:59.
+Starting batch at 2016-09-12 11:42:29.
+First record: 1552001
+Completed batch 2016-09-12 11:43:08 at 204.611216 records/sec.
+1560000 of 2984079 records processed (52%).
+Estimated finish: 2016-09-12 13:51:51.
+Starting batch at 2016-09-12 11:43:08.
+First record: 1560001
+Completed batch 2016-09-12 11:43:53 at 177.317139 records/sec.
+1568000 of 2984079 records processed (53%).
+Estimated finish: 2016-09-12 13:51:54.
+Starting batch at 2016-09-12 11:43:53.
+First record: 1568001
+Completed batch 2016-09-12 11:44:40 at 169.813354 records/sec.
+1576000 of 2984079 records processed (53%).
+Estimated finish: 2016-09-12 13:52:01.
+Starting batch at 2016-09-12 11:44:40.
+First record: 1576001
+Completed batch 2016-09-12 11:45:26 at 173.531241 records/sec.
+1584000 of 2984079 records processed (53%).
+Estimated finish: 2016-09-12 13:52:06.
+Starting batch at 2016-09-12 11:45:26.
+First record: 1584001
+Completed batch 2016-09-12 11:46:11 at 177.378518 records/sec.
+1592000 of 2984079 records processed (53%).
+Estimated finish: 2016-09-12 13:52:10.
+Starting batch at 2016-09-12 11:46:11.
+First record: 1592001
+Completed batch 2016-09-12 11:46:54 at 185.562823 records/sec.
+1600000 of 2984079 records processed (54%).
+Estimated finish: 2016-09-12 13:52:09.
+Starting batch at 2016-09-12 11:46:54.
+First record: 1600001
+Completed batch 2016-09-12 11:47:41 at 173.443427 records/sec.
+1608000 of 2984079 records processed (54%).
+Estimated finish: 2016-09-12 13:52:14.
+Starting batch at 2016-09-12 11:47:41.
+First record: 1608001
+Completed batch 2016-09-12 11:48:25 at 181.376546 records/sec.
+1616000 of 2984079 records processed (54%).
+Estimated finish: 2016-09-12 13:52:15.
+Starting batch at 2016-09-12 11:48:25.
+First record: 1616001
+Completed batch 2016-09-12 11:49:05 at 199.476583 records/sec.
+1624000 of 2984079 records processed (54%).
+Estimated finish: 2016-09-12 13:52:09.
+Starting batch at 2016-09-12 11:49:05.
+First record: 1624001
+Completed batch 2016-09-12 11:49:41 at 221.330488 records/sec.
+1632000 of 2984079 records processed (55%).
+Estimated finish: 2016-09-12 13:51:56.
+Starting batch at 2016-09-12 11:49:41.
+First record: 1632001
+Completed batch 2016-09-12 11:50:25 at 181.343675 records/sec.
+1640000 of 2984079 records processed (55%).
+Estimated finish: 2016-09-12 13:51:57.
+Starting batch at 2016-09-12 11:50:25.
+First record: 1640001
+Completed batch 2016-09-12 11:51:07 at 189.798772 records/sec.
+1648000 of 2984079 records processed (55%).
+Estimated finish: 2016-09-12 13:51:55.
+Starting batch at 2016-09-12 11:51:07.
+First record: 1648001
+Completed batch 2016-09-12 11:51:41 at 234.680621 records/sec.
+1656000 of 2984079 records processed (55%).
+Estimated finish: 2016-09-12 13:51:38.
+Starting batch at 2016-09-12 11:51:41.
+First record: 1656001
+Completed batch 2016-09-12 11:52:17 at 221.508056 records/sec.
+1664000 of 2984079 records processed (56%).
+Estimated finish: 2016-09-12 13:51:25.
+Starting batch at 2016-09-12 11:52:17.
+First record: 1664001
+Completed batch 2016-09-12 11:52:57 at 204.508659 records/sec.
+1672000 of 2984079 records processed (56%).
+Estimated finish: 2016-09-12 13:51:18.
+Starting batch at 2016-09-12 11:52:57.
+First record: 1672001
+Completed batch 2016-09-12 11:53:37 at 199.463642 records/sec.
+1680000 of 2984079 records processed (56%).
+Estimated finish: 2016-09-12 13:51:12.
+Starting batch at 2016-09-12 11:53:37.
+First record: 1680001
+Completed batch 2016-09-12 11:54:15 at 209.986242 records/sec.
+1688000 of 2984079 records processed (57%).
+Estimated finish: 2016-09-12 13:51:03.
+Starting batch at 2016-09-12 11:54:15.
+First record: 1688001
+Completed batch 2016-09-12 11:54:52 at 215.542454 records/sec.
+1696000 of 2984079 records processed (57%).
+Estimated finish: 2016-09-12 13:50:52.
+Starting batch at 2016-09-12 11:54:52.
+First record: 1696001
+Completed batch 2016-09-12 11:55:29 at 215.713022 records/sec.
+1704000 of 2984079 records processed (57%).
+Estimated finish: 2016-09-12 13:50:41.
+Starting batch at 2016-09-12 11:55:29.
+First record: 1704001
+Completed batch 2016-09-12 11:56:04 at 227.931982 records/sec.
+1712000 of 2984079 records processed (57%).
+Estimated finish: 2016-09-12 13:50:27.
+Starting batch at 2016-09-12 11:56:04.
+First record: 1712001
+Completed batch 2016-09-12 11:56:45 at 194.525214 records/sec.
+1720000 of 2984079 records processed (58%).
+Estimated finish: 2016-09-12 13:50:24.
+Starting batch at 2016-09-12 11:56:45.
+First record: 1720001
+Completed batch 2016-09-12 11:57:25 at 199.494993 records/sec.
+1728000 of 2984079 records processed (58%).
+Estimated finish: 2016-09-12 13:50:18.
+Starting batch at 2016-09-12 11:57:25.
+First record: 1728001
+Completed batch 2016-09-12 11:58:06 at 194.656257 records/sec.
+1736000 of 2984079 records processed (58%).
+Estimated finish: 2016-09-12 13:50:15.
+Starting batch at 2016-09-12 11:58:06.
+First record: 1736001
+Completed batch 2016-09-12 11:58:49 at 185.501224 records/sec.
+1744000 of 2984079 records processed (58%).
+Estimated finish: 2016-09-12 13:50:15.
+Starting batch at 2016-09-12 11:58:49.
+First record: 1744001
+Completed batch 2016-09-12 11:59:24 at 234.545008 records/sec.
+1752000 of 2984079 records processed (59%).
+Estimated finish: 2016-09-12 13:49:59.
+Starting batch at 2016-09-12 11:59:24.
+First record: 1752001
+Completed batch 2016-09-12 11:59:59 at 228.025412 records/sec.
+1760000 of 2984079 records processed (59%).
+Estimated finish: 2016-09-12 13:49:46.
+Starting batch at 2016-09-12 11:59:59.
+First record: 1760001
+Completed batch 2016-09-12 12:00:36 at 215.673302 records/sec.
+1768000 of 2984079 records processed (59%).
+Estimated finish: 2016-09-12 13:49:36.
+Starting batch at 2016-09-12 12:00:36.
+First record: 1768001
+Completed batch 2016-09-12 12:01:10 at 234.696945 records/sec.
+1776000 of 2984079 records processed (60%).
+Estimated finish: 2016-09-12 13:49:21.
+Starting batch at 2016-09-12 12:01:10.
+First record: 1776001
+Completed batch 2016-09-12 12:01:48 at 209.869358 records/sec.
+1784000 of 2984079 records processed (60%).
+Estimated finish: 2016-09-12 13:49:13.
+Starting batch at 2016-09-12 12:01:48.
+First record: 1784001
+Completed batch 2016-09-12 12:02:26 at 209.909899 records/sec.
+1792000 of 2984079 records processed (60%).
+Estimated finish: 2016-09-12 13:49:05.
+Starting batch at 2016-09-12 12:02:26.
+First record: 1792001
+Completed batch 2016-09-12 12:03:01 at 227.959579 records/sec.
+1800000 of 2984079 records processed (60%).
+Estimated finish: 2016-09-12 13:48:52.
+Starting batch at 2016-09-12 12:03:01.
+First record: 1800001
+Completed batch 2016-09-12 12:03:40 at 204.600237 records/sec.
+1808000 of 2984079 records processed (61%).
+Estimated finish: 2016-09-12 13:48:45.
+Starting batch at 2016-09-12 12:03:40.
+First record: 1808001
+Completed batch 2016-09-12 12:04:20 at 199.465308 records/sec.
+1816000 of 2984079 records processed (61%).
+Estimated finish: 2016-09-12 13:48:41.
+Starting batch at 2016-09-12 12:04:20.
+First record: 1816001
+Completed batch 2016-09-12 12:05:02 at 194.592640 records/sec.
+1824000 of 2984079 records processed (61%).
+Estimated finish: 2016-09-12 13:48:38.
+Starting batch at 2016-09-12 12:05:02.
+First record: 1824001
+Completed batch 2016-09-12 12:05:32 at 265.966616 records/sec.
+1832000 of 2984079 records processed (61%).
+Estimated finish: 2016-09-12 13:48:17.
+Starting batch at 2016-09-12 12:05:32.
+First record: 1832001
+Completed batch 2016-09-12 12:06:06 at 234.722114 records/sec.
+1840000 of 2984079 records processed (62%).
+Estimated finish: 2016-09-12 13:48:03.
+Starting batch at 2016-09-12 12:06:06.
+First record: 1840001
+Completed batch 2016-09-12 12:06:41 at 227.787313 records/sec.
+1848000 of 2984079 records processed (62%).
+Estimated finish: 2016-09-12 13:47:50.
+Starting batch at 2016-09-12 12:06:41.
+First record: 1848001
+Completed batch 2016-09-12 12:07:24 at 185.479841 records/sec.
+1856000 of 2984079 records processed (62%).
+Estimated finish: 2016-09-12 13:47:51.
+Starting batch at 2016-09-12 12:07:24.
+First record: 1856001
+Completed batch 2016-09-12 12:08:12 at 166.289508 records/sec.
+1864000 of 2984079 records processed (62%).
+Estimated finish: 2016-09-12 13:48:00.
+Starting batch at 2016-09-12 12:08:12.
+First record: 1864001
+Completed batch 2016-09-12 12:09:02 at 159.648856 records/sec.
+1872000 of 2984079 records processed (63%).
+Estimated finish: 2016-09-12 13:48:11.
+Starting batch at 2016-09-12 12:09:02.
+First record: 1872001
+Completed batch 2016-09-12 12:09:51 at 162.847357 records/sec.
+1880000 of 2984079 records processed (63%).
+Estimated finish: 2016-09-12 13:48:21.
+Starting batch at 2016-09-12 12:09:51.
+First record: 1880001
+Completed batch 2016-09-12 12:10:39 at 166.264559 records/sec.
+1888000 of 2984079 records processed (63%).
+Estimated finish: 2016-09-12 13:48:30.
+Starting batch at 2016-09-12 12:10:39.
+First record: 1888001
+Completed batch 2016-09-12 12:11:21 at 194.500938 records/sec.
+1896000 of 2984079 records processed (64%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 12:11:21.
+First record: 1896001
+Completed batch 2016-09-12 12:12:07 at 173.454283 records/sec.
+1904000 of 2984079 records processed (64%).
+Estimated finish: 2016-09-12 13:48:32.
+Starting batch at 2016-09-12 12:12:07.
+First record: 1904001
+Completed batch 2016-09-12 12:12:52 at 177.313422 records/sec.
+1912000 of 2984079 records processed (64%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 12:12:52.
+First record: 1912001
+Completed batch 2016-09-12 12:13:34 at 189.959496 records/sec.
+1920000 of 2984079 records processed (64%).
+Estimated finish: 2016-09-12 13:48:35.
+Starting batch at 2016-09-12 12:13:34.
+First record: 1920001
+Completed batch 2016-09-12 12:14:04 at 265.885416 records/sec.
+1928000 of 2984079 records processed (65%).
+Estimated finish: 2016-09-12 13:48:15.
+Starting batch at 2016-09-12 12:14:04.
+First record: 1928001
+Completed batch 2016-09-12 12:14:46 at 189.831496 records/sec.
+1936000 of 2984079 records processed (65%).
+Estimated finish: 2016-09-12 13:48:14.
+Starting batch at 2016-09-12 12:14:46.
+First record: 1936001
+Completed batch 2016-09-12 12:15:36 at 159.626933 records/sec.
+1944000 of 2984079 records processed (65%).
+Estimated finish: 2016-09-12 13:48:25.
+Starting batch at 2016-09-12 12:15:36.
+First record: 1944001
+Completed batch 2016-09-12 12:16:31 at 145.184971 records/sec.
+1952000 of 2984079 records processed (65%).
+Estimated finish: 2016-09-12 13:48:44.
+Starting batch at 2016-09-12 12:16:31.
+First record: 1952001
+Completed batch 2016-09-12 12:17:24 at 150.568761 records/sec.
+1960000 of 2984079 records processed (66%).
+Estimated finish: 2016-09-12 13:48:59.
+Starting batch at 2016-09-12 12:17:24.
+First record: 1960001
+Completed batch 2016-09-12 12:18:01 at 221.519826 records/sec.
+1968000 of 2984079 records processed (66%).
+Estimated finish: 2016-09-12 13:48:49.
+Starting batch at 2016-09-12 12:18:01.
+First record: 1968001
+Completed batch 2016-09-12 12:18:44 at 185.566886 records/sec.
+1976000 of 2984079 records processed (66%).
+Estimated finish: 2016-09-12 13:48:49.
+Starting batch at 2016-09-12 12:18:44.
+First record: 1976001
+Completed batch 2016-09-12 12:19:24 at 199.319449 records/sec.
+1984000 of 2984079 records processed (66%).
+Estimated finish: 2016-09-12 13:48:45.
+Starting batch at 2016-09-12 12:19:24.
+First record: 1984001
+Completed batch 2016-09-12 12:20:07 at 185.600117 records/sec.
+1992000 of 2984079 records processed (67%).
+Estimated finish: 2016-09-12 13:48:46.
+Starting batch at 2016-09-12 12:20:07.
+First record: 1992001
+Completed batch 2016-09-12 12:20:49 at 189.950038 records/sec.
+2000000 of 2984079 records processed (67%).
+Estimated finish: 2016-09-12 13:48:44.
+Starting batch at 2016-09-12 12:20:49.
+First record: 2000001
+Completed batch 2016-09-12 12:21:30 at 194.625320 records/sec.
+2008000 of 2984079 records processed (67%).
+Estimated finish: 2016-09-12 13:48:42.
+Starting batch at 2016-09-12 12:21:30.
+First record: 2008001
+Completed batch 2016-09-12 12:22:17 at 169.773547 records/sec.
+2016000 of 2984079 records processed (68%).
+Estimated finish: 2016-09-12 13:48:48.
+Starting batch at 2016-09-12 12:22:17.
+First record: 2016001
+Completed batch 2016-09-12 12:23:04 at 169.625842 records/sec.
+2024000 of 2984079 records processed (68%).
+Estimated finish: 2016-09-12 13:48:54.
+Starting batch at 2016-09-12 12:23:04.
+First record: 2024001
+Completed batch 2016-09-12 12:23:51 at 173.221239 records/sec.
+2032000 of 2984079 records processed (68%).
+Estimated finish: 2016-09-12 13:48:59.
+Starting batch at 2016-09-12 12:23:51.
+First record: 2032001
+Completed batch 2016-09-12 12:24:35 at 181.280274 records/sec.
+2040000 of 2984079 records processed (68%).
+Estimated finish: 2016-09-12 13:49:01.
+Starting batch at 2016-09-12 12:24:35.
+First record: 2040001
+Completed batch 2016-09-12 12:25:17 at 189.961345 records/sec.
+2048000 of 2984079 records processed (69%).
+Estimated finish: 2016-09-12 13:49:00.
+Starting batch at 2016-09-12 12:25:17.
+First record: 2048001
+Completed batch 2016-09-12 12:26:00 at 185.560141 records/sec.
+2056000 of 2984079 records processed (69%).
+Estimated finish: 2016-09-12 13:49:00.
+Starting batch at 2016-09-12 12:26:00.
+First record: 2056001
+Completed batch 2016-09-12 12:26:46 at 173.518395 records/sec.
+2064000 of 2984079 records processed (69%).
+Estimated finish: 2016-09-12 13:49:05.
+Starting batch at 2016-09-12 12:26:46.
+First record: 2064001
+Completed batch 2016-09-12 12:27:29 at 185.639271 records/sec.
+2072000 of 2984079 records processed (69%).
+Estimated finish: 2016-09-12 13:49:05.
+Starting batch at 2016-09-12 12:27:29.
+First record: 2072001
+Completed batch 2016-09-12 12:28:07 at 209.901709 records/sec.
+2080000 of 2984079 records processed (70%).
+Estimated finish: 2016-09-12 13:48:58.
+Starting batch at 2016-09-12 12:28:07.
+First record: 2080001
+Completed batch 2016-09-12 12:28:46 at 204.576180 records/sec.
+2088000 of 2984079 records processed (70%).
+Estimated finish: 2016-09-12 13:48:52.
+Starting batch at 2016-09-12 12:28:46.
+First record: 2088001
+Completed batch 2016-09-12 12:29:22 at 221.574486 records/sec.
+2096000 of 2984079 records processed (70%).
+Estimated finish: 2016-09-12 13:48:43.
+Starting batch at 2016-09-12 12:29:22.
+First record: 2096001
+Completed batch 2016-09-12 12:29:57 at 234.480752 records/sec.
+2104000 of 2984079 records processed (71%).
+Estimated finish: 2016-09-12 13:48:30.
+Starting batch at 2016-09-12 12:29:57.
+First record: 2104001
+Completed batch 2016-09-12 12:30:34 at 215.624205 records/sec.
+2112000 of 2984079 records processed (71%).
+Estimated finish: 2016-09-12 13:48:22.
+Starting batch at 2016-09-12 12:30:34.
+First record: 2112001
+Completed batch 2016-09-12 12:31:10 at 221.537732 records/sec.
+2120000 of 2984079 records processed (71%).
+Estimated finish: 2016-09-12 13:48:13.
+Starting batch at 2016-09-12 12:31:10.
+First record: 2120001
+Completed batch 2016-09-12 12:31:45 at 227.951953 records/sec.
+2128000 of 2984079 records processed (71%).
+Estimated finish: 2016-09-12 13:48:02.
+Starting batch at 2016-09-12 12:31:45.
+First record: 2128001
+Completed batch 2016-09-12 12:32:23 at 210.058648 records/sec.
+2136000 of 2984079 records processed (72%).
+Estimated finish: 2016-09-12 13:47:55.
+Starting batch at 2016-09-12 12:32:23.
+First record: 2136001
+Completed batch 2016-09-12 12:33:03 at 199.371611 records/sec.
+2144000 of 2984079 records processed (72%).
+Estimated finish: 2016-09-12 13:47:52.
+Starting batch at 2016-09-12 12:33:03.
+First record: 2144001
+Completed batch 2016-09-12 12:33:46 at 185.570536 records/sec.
+2152000 of 2984079 records processed (72%).
+Estimated finish: 2016-09-12 13:47:52.
+Starting batch at 2016-09-12 12:33:46.
+First record: 2152001
+Completed batch 2016-09-12 12:34:31 at 177.383203 records/sec.
+2160000 of 2984079 records processed (72%).
+Estimated finish: 2016-09-12 13:47:55.
+Starting batch at 2016-09-12 12:34:31.
+First record: 2160001
+Completed batch 2016-09-12 12:35:16 at 177.397434 records/sec.
+2168000 of 2984079 records processed (73%).
+Estimated finish: 2016-09-12 13:47:59.
+Starting batch at 2016-09-12 12:35:16.
+First record: 2168001
+Completed batch 2016-09-12 12:36:03 at 173.551438 records/sec.
+2176000 of 2984079 records processed (73%).
+Estimated finish: 2016-09-12 13:48:03.
+Starting batch at 2016-09-12 12:36:03.
+First record: 2176001
+Completed batch 2016-09-12 12:36:54 at 156.515067 records/sec.
+2184000 of 2984079 records processed (73%).
+Estimated finish: 2016-09-12 13:48:15.
+Starting batch at 2016-09-12 12:36:54.
+First record: 2184001
+Completed batch 2016-09-12 12:37:46 at 153.477127 records/sec.
+2192000 of 2984079 records processed (73%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 12:37:46.
+First record: 2192001
+Completed batch 2016-09-12 12:38:35 at 162.907923 records/sec.
+2200000 of 2984079 records processed (74%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 12:38:35.
+First record: 2200001
+Completed batch 2016-09-12 12:39:19 at 181.428708 records/sec.
+2208000 of 2984079 records processed (74%).
+Estimated finish: 2016-09-12 13:48:38.
+Starting batch at 2016-09-12 12:39:19.
+First record: 2208001
+Completed batch 2016-09-12 12:39:58 at 204.508884 records/sec.
+2216000 of 2984079 records processed (74%).
+Estimated finish: 2016-09-12 13:48:32.
+Starting batch at 2016-09-12 12:39:58.
+First record: 2216001
+Completed batch 2016-09-12 12:40:33 at 227.823685 records/sec.
+2224000 of 2984079 records processed (75%).
+Estimated finish: 2016-09-12 13:48:22.
+Starting batch at 2016-09-12 12:40:33.
+First record: 2224001
+Completed batch 2016-09-12 12:41:16 at 185.651618 records/sec.
+2232000 of 2984079 records processed (75%).
+Estimated finish: 2016-09-12 13:48:22.
+Starting batch at 2016-09-12 12:41:16.
+First record: 2232001
+Completed batch 2016-09-12 12:42:04 at 166.296000 records/sec.
+2240000 of 2984079 records processed (75%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 12:42:04.
+First record: 2240001
+Completed batch 2016-09-12 12:42:47 at 189.895918 records/sec.
+2248000 of 2984079 records processed (75%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 12:42:47.
+First record: 2248001
+Completed batch 2016-09-12 12:43:27 at 199.475131 records/sec.
+2256000 of 2984079 records processed (76%).
+Estimated finish: 2016-09-12 13:48:25.
+Starting batch at 2016-09-12 12:43:27.
+First record: 2256001
+Completed batch 2016-09-12 12:44:06 at 204.550408 records/sec.
+2264000 of 2984079 records processed (76%).
+Estimated finish: 2016-09-12 13:48:20.
+Starting batch at 2016-09-12 12:44:06.
+First record: 2264001
+Completed batch 2016-09-12 12:44:41 at 227.879989 records/sec.
+2272000 of 2984079 records processed (76%).
+Estimated finish: 2016-09-12 13:48:10.
+Starting batch at 2016-09-12 12:44:41.
+First record: 2272001
+Completed batch 2016-09-12 12:45:24 at 185.564346 records/sec.
+2280000 of 2984079 records processed (76%).
+Estimated finish: 2016-09-12 13:48:10.
+Starting batch at 2016-09-12 12:45:24.
+First record: 2280001
+Completed batch 2016-09-12 12:46:12 at 166.301396 records/sec.
+2288000 of 2984079 records processed (77%).
+Estimated finish: 2016-09-12 13:48:17.
+Starting batch at 2016-09-12 12:46:12.
+First record: 2288001
+Completed batch 2016-09-12 12:47:00 at 166.212128 records/sec.
+2296000 of 2984079 records processed (77%).
+Estimated finish: 2016-09-12 13:48:24.
+Starting batch at 2016-09-12 12:47:00.
+First record: 2296001
+Completed batch 2016-09-12 12:47:46 at 173.453332 records/sec.
+2304000 of 2984079 records processed (77%).
+Estimated finish: 2016-09-12 13:48:28.
+Starting batch at 2016-09-12 12:47:46.
+First record: 2304001
+Completed batch 2016-09-12 12:48:30 at 181.445970 records/sec.
+2312000 of 2984079 records processed (77%).
+Estimated finish: 2016-09-12 13:48:30.
+Starting batch at 2016-09-12 12:48:30.
+First record: 2312001
+Completed batch 2016-09-12 12:49:17 at 173.541224 records/sec.
+2320000 of 2984079 records processed (78%).
+Estimated finish: 2016-09-12 13:48:34.
+Starting batch at 2016-09-12 12:49:17.
+First record: 2320001
+Completed batch 2016-09-12 12:50:04 at 169.849299 records/sec.
+2328000 of 2984079 records processed (78%).
+Estimated finish: 2016-09-12 13:48:40.
+Starting batch at 2016-09-12 12:50:04.
+First record: 2328001
+Completed batch 2016-09-12 12:50:49 at 177.353159 records/sec.
+2336000 of 2984079 records processed (78%).
+Estimated finish: 2016-09-12 13:48:42.
+Starting batch at 2016-09-12 12:50:49.
+First record: 2336001
+Completed batch 2016-09-12 12:51:31 at 189.820785 records/sec.
+2344000 of 2984079 records processed (79%).
+Estimated finish: 2016-09-12 13:48:42.
+Starting batch at 2016-09-12 12:51:31.
+First record: 2344001
+Completed batch 2016-09-12 12:52:12 at 194.547855 records/sec.
+2352000 of 2984079 records processed (79%).
+Estimated finish: 2016-09-12 13:48:39.
+Starting batch at 2016-09-12 12:52:12.
+First record: 2352001
+Completed batch 2016-09-12 12:52:52 at 199.433017 records/sec.
+2360000 of 2984079 records processed (79%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 12:52:52.
+First record: 2360001
+Completed batch 2016-09-12 12:53:34 at 189.795786 records/sec.
+2368000 of 2984079 records processed (79%).
+Estimated finish: 2016-09-12 13:48:35.
+Starting batch at 2016-09-12 12:53:34.
+First record: 2368001
+Completed batch 2016-09-12 12:54:15 at 194.662330 records/sec.
+2376000 of 2984079 records processed (80%).
+Estimated finish: 2016-09-12 13:48:33.
+Starting batch at 2016-09-12 12:54:15.
+First record: 2376001
+Completed batch 2016-09-12 12:54:55 at 199.363934 records/sec.
+2384000 of 2984079 records processed (80%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 12:54:55.
+First record: 2384001
+Completed batch 2016-09-12 12:55:36 at 199.482139 records/sec.
+2392000 of 2984079 records processed (80%).
+Estimated finish: 2016-09-12 13:48:26.
+Starting batch at 2016-09-12 12:55:36.
+First record: 2392001
+Completed batch 2016-09-12 12:56:20 at 181.342163 records/sec.
+2400000 of 2984079 records processed (80%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 12:56:20.
+First record: 2400001
+Completed batch 2016-09-12 12:57:00 at 199.407207 records/sec.
+2408000 of 2984079 records processed (81%).
+Estimated finish: 2016-09-12 13:48:24.
+Starting batch at 2016-09-12 12:57:00.
+First record: 2408001
+Completed batch 2016-09-12 12:57:47 at 169.831321 records/sec.
+2416000 of 2984079 records processed (81%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 12:57:47.
+First record: 2416001
+Completed batch 2016-09-12 12:58:35 at 166.230447 records/sec.
+2424000 of 2984079 records processed (81%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 12:58:35.
+First record: 2424001
+Completed batch 2016-09-12 12:59:18 at 185.595463 records/sec.
+2432000 of 2984079 records processed (81%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 12:59:18.
+First record: 2432001
+Completed batch 2016-09-12 13:00:00 at 189.985634 records/sec.
+2440000 of 2984079 records processed (82%).
+Estimated finish: 2016-09-12 13:48:35.
+Starting batch at 2016-09-12 13:00:00.
+First record: 2440001
+Completed batch 2016-09-12 13:00:44 at 181.396378 records/sec.
+2448000 of 2984079 records processed (82%).
+Estimated finish: 2016-09-12 13:48:37.
+Starting batch at 2016-09-12 13:00:44.
+First record: 2448001
+Completed batch 2016-09-12 13:01:27 at 185.619664 records/sec.
+2456000 of 2984079 records processed (82%).
+Estimated finish: 2016-09-12 13:48:37.
+Starting batch at 2016-09-12 13:01:27.
+First record: 2456001
+Completed batch 2016-09-12 13:02:08 at 199.491511 records/sec.
+2464000 of 2984079 records processed (83%).
+Estimated finish: 2016-09-12 13:48:34.
+Starting batch at 2016-09-12 13:02:08.
+First record: 2464001
+Completed batch 2016-09-12 13:02:47 at 204.638238 records/sec.
+2472000 of 2984079 records processed (83%).
+Estimated finish: 2016-09-12 13:48:29.
+Starting batch at 2016-09-12 13:02:47.
+First record: 2472001
+Completed batch 2016-09-12 13:03:32 at 177.248207 records/sec.
+2480000 of 2984079 records processed (83%).
+Estimated finish: 2016-09-12 13:48:32.
+Starting batch at 2016-09-12 13:03:32.
+First record: 2480001
+Completed batch 2016-09-12 13:04:15 at 185.581518 records/sec.
+2488000 of 2984079 records processed (83%).
+Estimated finish: 2016-09-12 13:48:32.
+Starting batch at 2016-09-12 13:04:15.
+First record: 2488001
+Completed batch 2016-09-12 13:05:00 at 177.386058 records/sec.
+2496000 of 2984079 records processed (84%).
+Estimated finish: 2016-09-12 13:48:35.
+Starting batch at 2016-09-12 13:05:00.
+First record: 2496001
+Completed batch 2016-09-12 13:05:42 at 189.991694 records/sec.
+2504000 of 2984079 records processed (84%).
+Estimated finish: 2016-09-12 13:48:34.
+Starting batch at 2016-09-12 13:05:42.
+First record: 2504001
+Completed batch 2016-09-12 13:06:23 at 194.676640 records/sec.
+2512000 of 2984079 records processed (84%).
+Estimated finish: 2016-09-12 13:48:32.
+Starting batch at 2016-09-12 13:06:23.
+First record: 2512001
+Completed batch 2016-09-12 13:07:09 at 173.449594 records/sec.
+2520000 of 2984079 records processed (84%).
+Estimated finish: 2016-09-12 13:48:36.
+Starting batch at 2016-09-12 13:07:09.
+First record: 2520001
+Completed batch 2016-09-12 13:07:53 at 181.357147 records/sec.
+2528000 of 2984079 records processed (85%).
+Estimated finish: 2016-09-12 13:48:37.
+Starting batch at 2016-09-12 13:07:53.
+First record: 2528001
+Completed batch 2016-09-12 13:08:35 at 194.692479 records/sec.
+2536000 of 2984079 records processed (85%).
+Estimated finish: 2016-09-12 13:48:35.
+Starting batch at 2016-09-12 13:08:35.
+First record: 2536001
+Completed batch 2016-09-12 13:09:19 at 181.290696 records/sec.
+2544000 of 2984079 records processed (85%).
+Estimated finish: 2016-09-12 13:48:37.
+Starting batch at 2016-09-12 13:09:19.
+First record: 2544001
+Completed batch 2016-09-12 13:10:06 at 169.767250 records/sec.
+2552000 of 2984079 records processed (86%).
+Estimated finish: 2016-09-12 13:48:42.
+Starting batch at 2016-09-12 13:10:06.
+First record: 2552001
+Completed batch 2016-09-12 13:10:50 at 181.399174 records/sec.
+2560000 of 2984079 records processed (86%).
+Estimated finish: 2016-09-12 13:48:43.
+Starting batch at 2016-09-12 13:10:50.
+First record: 2560001
+Completed batch 2016-09-12 13:11:36 at 173.461249 records/sec.
+2568000 of 2984079 records processed (86%).
+Estimated finish: 2016-09-12 13:48:47.
+Starting batch at 2016-09-12 13:11:36.
+First record: 2568001
+Completed batch 2016-09-12 13:12:20 at 181.366978 records/sec.
+2576000 of 2984079 records processed (86%).
+Estimated finish: 2016-09-12 13:48:48.
+Starting batch at 2016-09-12 13:12:20.
+First record: 2576001
+Completed batch 2016-09-12 13:13:00 at 199.396174 records/sec.
+2584000 of 2984079 records processed (87%).
+Estimated finish: 2016-09-12 13:48:45.
+Starting batch at 2016-09-12 13:13:00.
+First record: 2584001
+Completed batch 2016-09-12 13:13:39 at 204.584305 records/sec.
+2592000 of 2984079 records processed (87%).
+Estimated finish: 2016-09-12 13:48:41.
+Starting batch at 2016-09-12 13:13:39.
+First record: 2592001
+Completed batch 2016-09-12 13:14:20 at 194.607485 records/sec.
+2600000 of 2984079 records processed (87%).
+Estimated finish: 2016-09-12 13:48:39.
+Starting batch at 2016-09-12 13:14:20.
+First record: 2600001
+Completed batch 2016-09-12 13:15:00 at 204.088682 records/sec.
+2608000 of 2984079 records processed (87%).
+Estimated finish: 2016-09-12 13:48:34.
+Starting batch at 2016-09-12 13:15:00.
+First record: 2608001
+Completed batch 2016-09-12 13:15:36 at 221.426967 records/sec.
+2616000 of 2984079 records processed (88%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 13:15:36.
+First record: 2616001
+Completed batch 2016-09-12 13:16:12 at 221.524371 records/sec.
+2624000 of 2984079 records processed (88%).
+Estimated finish: 2016-09-12 13:48:19.
+Starting batch at 2016-09-12 13:16:12.
+First record: 2624001
+Completed batch 2016-09-12 13:17:00 at 166.329748 records/sec.
+2632000 of 2984079 records processed (88%).
+Estimated finish: 2016-09-12 13:48:25.
+Starting batch at 2016-09-12 13:17:00.
+First record: 2632001
+Completed batch 2016-09-12 13:17:47 at 169.678661 records/sec.
+2640000 of 2984079 records processed (88%).
+Estimated finish: 2016-09-12 13:48:30.
+Starting batch at 2016-09-12 13:17:47.
+First record: 2640001
+Completed batch 2016-09-12 13:18:26 at 204.605941 records/sec.
+2648000 of 2984079 records processed (89%).
+Estimated finish: 2016-09-12 13:48:26.
+Starting batch at 2016-09-12 13:18:26.
+First record: 2648001
+Completed batch 2016-09-12 13:19:08 at 189.987845 records/sec.
+2656000 of 2984079 records processed (89%).
+Estimated finish: 2016-09-12 13:48:25.
+Starting batch at 2016-09-12 13:19:08.
+First record: 2656001
+Completed batch 2016-09-12 13:19:47 at 204.667263 records/sec.
+2664000 of 2984079 records processed (89%).
+Estimated finish: 2016-09-12 13:48:21.
+Starting batch at 2016-09-12 13:19:47.
+First record: 2664001
+Completed batch 2016-09-12 13:20:27 at 204.493405 records/sec.
+2672000 of 2984079 records processed (90%).
+Estimated finish: 2016-09-12 13:48:17.
+Starting batch at 2016-09-12 13:20:27.
+First record: 2672001
+Completed batch 2016-09-12 13:21:12 at 177.294709 records/sec.
+2680000 of 2984079 records processed (90%).
+Estimated finish: 2016-09-12 13:48:19.
+Starting batch at 2016-09-12 13:21:12.
+First record: 2680001
+Completed batch 2016-09-12 13:22:02 at 159.632019 records/sec.
+2688000 of 2984079 records processed (90%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 13:22:02.
+First record: 2688001
+Completed batch 2016-09-12 13:22:48 at 173.477750 records/sec.
+2696000 of 2984079 records processed (90%).
+Estimated finish: 2016-09-12 13:48:31.
+Starting batch at 2016-09-12 13:22:48.
+First record: 2696001
+Completed batch 2016-09-12 13:23:31 at 185.495598 records/sec.
+2704000 of 2984079 records processed (91%).
+Estimated finish: 2016-09-12 13:48:31.
+Starting batch at 2016-09-12 13:23:31.
+First record: 2704001
+Completed batch 2016-09-12 13:24:10 at 204.484802 records/sec.
+2712000 of 2984079 records processed (91%).
+Estimated finish: 2016-09-12 13:48:27.
+Starting batch at 2016-09-12 13:24:10.
+First record: 2712001
+Completed batch 2016-09-12 13:24:48 at 209.833055 records/sec.
+2720000 of 2984079 records processed (91%).
+Estimated finish: 2016-09-12 13:48:22.
+Starting batch at 2016-09-12 13:24:48.
+First record: 2720001
+Completed batch 2016-09-12 13:25:26 at 209.991837 records/sec.
+2728000 of 2984079 records processed (91%).
+Estimated finish: 2016-09-12 13:48:17.
+Starting batch at 2016-09-12 13:25:26.
+First record: 2728001
+Completed batch 2016-09-12 13:26:01 at 227.983875 records/sec.
+2736000 of 2984079 records processed (92%).
+Estimated finish: 2016-09-12 13:48:08.
+Starting batch at 2016-09-12 13:26:01.
+First record: 2736001
+Completed batch 2016-09-12 13:26:40 at 209.867635 records/sec.
+2744000 of 2984079 records processed (92%).
+Estimated finish: 2016-09-12 13:48:03.
+Starting batch at 2016-09-12 13:26:40.
+First record: 2744001
+Completed batch 2016-09-12 13:27:20 at 199.394931 records/sec.
+2752000 of 2984079 records processed (92%).
+Estimated finish: 2016-09-12 13:48:00.
+Starting batch at 2016-09-12 13:27:20.
+First record: 2752001
+Completed batch 2016-09-12 13:27:58 at 210.012686 records/sec.
+2760000 of 2984079 records processed (92%).
+Estimated finish: 2016-09-12 13:47:55.
+Starting batch at 2016-09-12 13:27:58.
+First record: 2760001
+Completed batch 2016-09-12 13:28:41 at 185.540220 records/sec.
+2768000 of 2984079 records processed (93%).
+Estimated finish: 2016-09-12 13:47:56.
+Starting batch at 2016-09-12 13:28:41.
+First record: 2768001
+Completed batch 2016-09-12 13:29:27 at 173.397769 records/sec.
+2776000 of 2984079 records processed (93%).
+Estimated finish: 2016-09-12 13:47:59.
+Starting batch at 2016-09-12 13:29:27.
+First record: 2776001
+Completed batch 2016-09-12 13:30:17 at 159.638139 records/sec.
+2784000 of 2984079 records processed (93%).
+Estimated finish: 2016-09-12 13:48:07.
+Starting batch at 2016-09-12 13:30:17.
+First record: 2784001
+Completed batch 2016-09-12 13:31:02 at 177.220918 records/sec.
+2792000 of 2984079 records processed (94%).
+Estimated finish: 2016-09-12 13:48:10.
+Starting batch at 2016-09-12 13:31:02.
+First record: 2792001
+Completed batch 2016-09-12 13:31:50 at 166.180557 records/sec.
+2800000 of 2984079 records processed (94%).
+Estimated finish: 2016-09-12 13:48:15.
+Starting batch at 2016-09-12 13:31:50.
+First record: 2800001
+Completed batch 2016-09-12 13:32:32 at 194.689115 records/sec.
+2808000 of 2984079 records processed (94%).
+Estimated finish: 2016-09-12 13:48:14.
+Starting batch at 2016-09-12 13:32:32.
+First record: 2808001
+Completed batch 2016-09-12 13:33:13 at 194.677720 records/sec.
+2816000 of 2984079 records processed (94%).
+Estimated finish: 2016-09-12 13:48:12.
+Starting batch at 2016-09-12 13:33:13.
+First record: 2816001
+Completed batch 2016-09-12 13:33:55 at 189.953515 records/sec.
+2824000 of 2984079 records processed (95%).
+Estimated finish: 2016-09-12 13:48:11.
+Starting batch at 2016-09-12 13:33:55.
+First record: 2824001
+Completed batch 2016-09-12 13:34:37 at 189.999103 records/sec.
+2832000 of 2984079 records processed (95%).
+Estimated finish: 2016-09-12 13:48:10.
+Starting batch at 2016-09-12 13:34:37.
+First record: 2832001
+Completed batch 2016-09-12 13:35:17 at 199.469481 records/sec.
+2840000 of 2984079 records processed (95%).
+Estimated finish: 2016-09-12 13:48:08.
+Starting batch at 2016-09-12 13:35:17.
+First record: 2840001
+Completed batch 2016-09-12 13:35:53 at 221.485966 records/sec.
+2848000 of 2984079 records processed (95%).
+Estimated finish: 2016-09-12 13:48:01.
+Starting batch at 2016-09-12 13:35:53.
+First record: 2848001
+Completed batch 2016-09-12 13:36:33 at 199.483910 records/sec.
+2856000 of 2984079 records processed (96%).
+Estimated finish: 2016-09-12 13:47:58.
+Starting batch at 2016-09-12 13:36:33.
+First record: 2856001
+Completed batch 2016-09-12 13:37:13 at 199.475245 records/sec.
+2864000 of 2984079 records processed (96%).
+Estimated finish: 2016-09-12 13:47:55.
+Starting batch at 2016-09-12 13:37:13.
+First record: 2864001
+Completed batch 2016-09-12 13:37:55 at 190.039701 records/sec.
+2872000 of 2984079 records processed (96%).
+Estimated finish: 2016-09-12 13:47:54.
+Starting batch at 2016-09-12 13:37:55.
+First record: 2872001
+Completed batch 2016-09-12 13:38:39 at 185.641110 records/sec.
+2880000 of 2984079 records processed (97%).
+Estimated finish: 2016-09-12 13:47:55.
+Starting batch at 2016-09-12 13:38:39.
+First record: 2880001
+Completed batch 2016-09-12 13:39:23 at 181.393556 records/sec.
+2888000 of 2984079 records processed (97%).
+Estimated finish: 2016-09-12 13:47:56.
+Starting batch at 2016-09-12 13:39:23.
+First record: 2888001
+Completed batch 2016-09-12 13:40:04 at 194.476049 records/sec.
+2896000 of 2984079 records processed (97%).
+Estimated finish: 2016-09-12 13:47:54.
+Starting batch at 2016-09-12 13:40:04.
+First record: 2896001
+Completed batch 2016-09-12 13:40:41 at 215.355736 records/sec.
+2904000 of 2984079 records processed (97%).
+Estimated finish: 2016-09-12 13:47:49.
+Starting batch at 2016-09-12 13:40:41.
+First record: 2904001
+Completed batch 2016-09-12 13:41:20 at 204.527958 records/sec.
+2912000 of 2984079 records processed (98%).
+Estimated finish: 2016-09-12 13:47:45.
+Starting batch at 2016-09-12 13:41:20.
+First record: 2912001
+Completed batch 2016-09-12 13:42:02 at 189.876452 records/sec.
+2920000 of 2984079 records processed (98%).
+Estimated finish: 2016-09-12 13:47:44.
+Starting batch at 2016-09-12 13:42:02.
+First record: 2920001
+Completed batch 2016-09-12 13:42:45 at 185.514374 records/sec.
+2928000 of 2984079 records processed (98%).
+Estimated finish: 2016-09-12 13:47:45.
+Starting batch at 2016-09-12 13:42:45.
+First record: 2928001
+Completed batch 2016-09-12 13:43:24 at 204.444830 records/sec.
+2936000 of 2984079 records processed (98%).
+Estimated finish: 2016-09-12 13:47:41.
+Starting batch at 2016-09-12 13:43:24.
+First record: 2936001
+Completed batch 2016-09-12 13:44:03 at 209.908604 records/sec.
+2944000 of 2984079 records processed (99%).
+Estimated finish: 2016-09-12 13:47:36.
+Starting batch at 2016-09-12 13:44:03.
+First record: 2944001
+Completed batch 2016-09-12 13:44:37 at 234.604869 records/sec.
+2952000 of 2984079 records processed (99%).
+Estimated finish: 2016-09-12 13:47:28.
+Starting batch at 2016-09-12 13:44:37.
+First record: 2952001
+Completed batch 2016-09-12 13:45:13 at 221.618294 records/sec.
+2960000 of 2984079 records processed (99%).
+Estimated finish: 2016-09-12 13:47:21.
+Starting batch at 2016-09-12 13:45:13.
+First record: 2960001
+Completed batch 2016-09-12 13:45:50 at 215.675407 records/sec.
+2968000 of 2984079 records processed (99%).
+Estimated finish: 2016-09-12 13:47:16.
+Starting batch at 2016-09-12 13:45:50.
+First record: 2968001
+Completed batch 2016-09-12 13:46:55 at 122.788255 records/sec.
+2976000 of 2984079 records processed (100%).
+Estimated finish: 2016-09-12 13:47:38.
+Starting batch at 2016-09-12 13:46:55.
+First record: 2976001
+Completed batch 2016-09-12 13:48:04 at 115.727305 records/sec.
+2984000 of 2984079 records processed (100%).
+Estimated finish: 2016-09-12 13:48:05.
+Starting batch at 2016-09-12 13:48:04.
+First record: 2984001
+Completed batch 2016-09-12 13:48:09 at 15.755877 records/sec.
+2984079 of 2984079 records processed (100%).
+Estimated finish: 2016-09-12 13:48:09.

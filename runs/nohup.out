@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "../src/canonical_import_parse.py", line 7, in <module>
+    from canonicaldb import CanonicalDB
+  File "/home/geektalent/GeekTalentDB/src/canonicaldb.py", line 35, in <module>
+    from textnormalization import *
+  File "/home/geektalent/GeekTalentDB/src/textnormalization.py", line 1, in <module>
+    import nltk.stem.snowball
+  File "/usr/local/lib/python3.4/dist-packages/nltk/__init__.py", line 116, in <module>
+    from nltk.featstruct import *
+  File "/usr/local/lib/python3.4/dist-packages/nltk/featstruct.py", line 97, in <module>
+    from nltk.sem.logic import (Variable, Expression, SubstituteBindingsI,
+  File "/usr/local/lib/python3.4/dist-packages/nltk/sem/__init__.py", line 54, in <module>
+    from nltk.sem.boxer import Boxer
+  File "/usr/local/lib/python3.4/dist-packages/nltk/sem/boxer.py", line 42, in <module>
+    from nltk.sem.drt import (DRS, DrtApplicationExpression, DrtEqualityExpression,
+  File "/usr/local/lib/python3.4/dist-packages/nltk/sem/drt.py", line 26, in <module>
+    from tkinter import Canvas
+  File "/usr/lib/python3.4/tkinter/__init__.py", line 39, in <module>
+KeyboardInterrupt
+usage: crawl_update_urls.py [-h] [--jobs JOBS] [--batch-size BATCH_SIZE]
+                            [--types TYPES] [--exclude-types EXCLUDE_TYPES]
+                            [--from-timestamp FROM_TIMESTAMP]
+                            [--to-timestamp TO_TIMESTAMP]
+                            site
+
+positional arguments:
+  site                  ID string of the site to update.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --jobs JOBS           Number of parallel jobs. Default: 1
+  --batch-size BATCH_SIZE
+                        Number of urls to add in one batch. Default: 1000
+  --types TYPES         Comma-separated list of page types to update. If not
+                        specified all pages are harvested.
+  --exclude-types EXCLUDE_TYPES
+                        Comma-separated list of page types to exclude from
+                        update.
+  --from-timestamp FROM_TIMESTAMP
+                        Only update pages with timstamp greater or equal to
+                        FROM_TIMESTAMP
+  --to-timestamp TO_TIMESTAMP
+                        Only update pages with timstamp less than TO_TIMESTAMP
