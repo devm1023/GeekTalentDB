@@ -10,6 +10,8 @@ __all__ = [
     'WUUniversityCharacteristic',
     'WUCharacteristic',
     'WUCity',
+    'WULeagueTable',
+    'WUUniversityLeagueTable',
     'WhichUniDB'
 ]
 
@@ -147,6 +149,9 @@ class WUUniversity(SQLBase):
                             cascade='all, delete-orphan')
     university_tags = relationship('WUUniversityTag',
                             cascade='all, delete-orphan')
+    university_league_tables \
+                    = relationship('WUUniversityLeagueTable',
+                            cascade='all, delete-orphan')
     __table_args__ = (UniqueConstraint('url'),)
 
 class WUUniversityCharacteristic(SQLBase):
@@ -191,6 +196,32 @@ class WUUniversityTag(SQLBase):
                             nullable=False,
                             index=True)
     tag         = relationship('WUTag')
+
+class WULeagueTable(SQLBase):
+    __tablename__ = 'wuleaguetable'
+    id            = Column(BigInteger, 
+                            primary_key=True)
+    total         = Column(BigInteger, 
+                            nullable=False)
+    name          = Column(Unicode(STR_MAX),
+                            nullable=False,
+                            index=True)
+
+class WUUniversityLeagueTable(SQLBase):
+    __tablename__ = 'wuuniversityleaguetable'
+    id            = Column(BigInteger, 
+                            primary_key=True)
+    university_id = Column(BigInteger, 
+                            ForeignKey('wuuniversity.id'),
+                            nullable=False,
+                            index=True)
+    league_table_id \
+                  = Column(BigInteger, 
+                            ForeignKey('wuleaguetable.id'),
+                            nullable=False,
+                            index=True)
+    rating         = Column(BigInteger)
+    league_table = relationship('WULeagueTable')
     
 # database session class
 class WhichUniDB(Session):

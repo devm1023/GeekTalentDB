@@ -58,6 +58,21 @@ def main():
                     'score_r': characteristic.rating
                 }, WUUniversityCharacteristic)
                 wudb.commit()
+            for league_table in row.league_tables:
+                new_league_table = wudb.query(WULeagueTable) \
+                                       .filter(WULeagueTable.name == league_table.name) \
+                                       .first()
+                if new_league_table is None:
+                    new_league_table = WULeagueTable(name=league_table.name,
+                                                    total=league_table.total)
+                    wudb.add(new_league_table)
+                    wudb.flush()
+                university_league_table = wudb.add_from_dict({
+                    'university_id': new_university.id,
+                    'league_table_id': new_league_table.id,
+                    'rating': league_table.rating
+                }, WUUniversityLeagueTable)
+                wudb.commit()
 
         process_db(q, add_university, wudb, logger=logger)
 if __name__ == "__main__":

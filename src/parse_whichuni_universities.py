@@ -53,6 +53,7 @@ xp_uk_nonuk_text = 'p'
 xp_lg_tables = '//div[@class="ranks"]'
 xp_lg_table_value = 'div/div/div/div'
 xp_lg_table_ttl = 'div/div/div/span/span'
+xp_lg_table_name = 'div/div/div/a'
 
 xp_tags = '//div[@class="character-tags"]/span'
 
@@ -80,7 +81,18 @@ def get_characteristic(element):
 def get_ranks(element):
     value = extract(element, xp_lg_table_value)
     total = extract(element, xp_lg_table_ttl)
-    return [value, total]
+    name = extract(element, xp_lg_table_name)
+    if name is not None:
+        name = name.replace('rankings', '') \
+                   .replace('ranking', '') \
+                   .replace('ranks', '') \
+                   .replace('rank', '') \
+                   .strip()
+    return {
+        'name': name,
+        'total': total,
+        'rating': value
+    }
 
 def get_int_from_percentage(element):
     return int(re.sub(r'\D', '', element.text))
@@ -191,16 +203,7 @@ def parse_page(doc, url):
         if uk_nonuk is not None:
             d['uk'] = uk_nonuk[0]
             d['non_uk'] = uk_nonuk[1]
-        ranks = extract_many(doc, xp_lg_tables, get_ranks)
-        if ranks is not None and len(ranks) > 0:
-            d['lg_table_0'] = ranks[0][0]
-            d['lg_table_0_ttl'] = ranks[0][1]
-            if len(ranks) >= 2:
-                d['lg_table_1'] = ranks[1][0]
-                d['lg_table_1_ttl'] = ranks[1][1]
-                if len(ranks) >= 3:
-                    d['lg_table_2'] = ranks[2][0]
-                    d['lg_table_2_ttl'] = ranks[2][1]
+        d['league_tables'] = extract_many(doc, xp_lg_tables, get_ranks)
         d['tags'] = [{ "name": tag } for tag in extract_many(doc, xp_tags)]
         d['characteristics'] = extract_many(doc, xp_characteristics, get_characteristic)
         return d

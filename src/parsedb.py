@@ -7,6 +7,8 @@ __all__ = [
     'WUSubject',
     'WUALevel',
     'WUCareer',
+    'WULeagueTable',
+    'WUCity',
     'ParseDB',
     ]
 
@@ -182,13 +184,10 @@ class WUUniversity(SQLBase):
     mature          = Column(BigInteger)
     uk              = Column(BigInteger)
     non_uk          = Column(BigInteger)
-    lg_table_0      = Column(BigInteger)
-    lg_table_0_ttl  = Column(BigInteger)
-    lg_table_1      = Column(BigInteger)
-    lg_table_1_ttl  = Column(BigInteger)
-    lg_table_2      = Column(BigInteger)
-    lg_table_2_ttl  = Column(BigInteger)
     url             = Column(Unicode(STR_MAX))
+    league_tables  \
+         = relationship('WULeagueTable',
+                            cascade='all, delete-orphan')
     characteristics \
          = relationship('WUCharacteristic',
                             cascade='all, delete-orphan')
@@ -205,6 +204,19 @@ class WUTag(SQLBase):
                             nullable=False,
                             index=True)
     university_id = Column(BigInteger, 
+                            ForeignKey('wuuniversity.id'),
+                            nullable=False,
+                            index=True)
+
+class WULeagueTable(SQLBase):
+    __tablename__ = 'wuleaguetable'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX),
+                            nullable=False,
+                            index=True)
+    total         = Column(BigInteger, nullable=False)
+    rating        = Column(BigInteger, nullable=False)
+    university_id = Column(BigInteger,
                             ForeignKey('wuuniversity.id'),
                             nullable=False,
                             index=True)
