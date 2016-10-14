@@ -1,13 +1,18 @@
+#Current file to be used for mappings
 # sector mappings
+#Biosciences
 sector,en,,Biotechnology,Biosciences
 sector,en,,Nanotechnology,BioSciences
+#Mechanical Engineering
 sector,en,,Machinery,Mechanical Engineering
 sector,en,,Industrial Automation,Mechanical Engineering
 sector,en,,Machines,Mechanical Engineering
 sector,en,,Mechanical or Industrial Engineering,Mechanical Engineering
+#Electrical Engineering
 sector,en,,Electrical/electronic manufacturing,Electrical Engineering
 sector,en,,Consumer Electronics,Electrical Engineering
 sector,en,,Semiconductors,Electrical Engineering
+#Digital Tech
 sector,en,,Information Technology and Services,Digital Tech
 sector,en,,Computer Software,Digital Tech
 sector,en,,Internet,Digital Tech
@@ -20,8 +25,10 @@ sector,en,,E-Learning,Digital Tech
 sector,en,,Animation,Digital Tech
 sector,en,,Program Development,Digital Tech
 sector,en,,Software,Digital Tech
+#Health Care
 sector,en,,Hospital & Health Care,Healthcare
 sector,en,,Medical Practice,Healthcare
+#Financial Services
 sector,en,,Financial Services,Financial Services
 sector,en,,Accounting,Financial Services
 sector,en,,Banking,Financial Services
