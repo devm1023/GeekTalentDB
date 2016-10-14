@@ -1157,3 +1157,47 @@ title,en,Financial Services,Clerk,Financial Administrator
 title,en,Financial Services,Payroll Manager,Payroll Manager
 title,en,Financial Services,Payroll Administrator,Payroll Manager
 title,en,Financial Services,Payroll,Payroll Manager
+##### Biosciences #########
+# Biotechnology Professional
+title,en,Biosciences,Biotechnology Professional,Biotechnology Professional
+title,en,Biosciences,Independent Biotechnology Professional,Biotechnology Professional
+# Application Specialist
+title,en,Biosciences,Application Specialist,Application Specialist
+# Microbiologist
+title,en,Biosciences,Microbiologist,Microbiologist
+# Scientist
+title,en,Biosciences,Scientist,Scientist
+title,en,Biosciences,Principal Scientist,Scientist
+title,en,Biosciences,Scientist II,Scientist
+title,en,Biosciences,Scientific Officer,Scientist
+# Research Sceintist
+title,en,Biosciences,Research Scientist,Research Scientist
+title,en,Biosciences,Researcher,Research Scientist
+title,en,Biosciences,Research Assistant,Research Scientist
+title,en,Biosciences,Research Fellow,Research Scientist
+title,en,Biosciences,Postdoctoral Research Fellow,Research Scientist
+title,en,Biosciences,Research Associate,Research Scientist
+title,en,Biosciences,Postdoctoral Researcher,Research Scientist
+title,en,Biosciences,Postdoctoral Research Associate,Research Scientist
+title,en,Biosciences,Post-doc,Research Scientist
+# Nanotechnology Professional
+title,en,Biosciences,Nanotechnology Professional,Nanotechnology Professional
+title,en,Biosciences,Independent Nanotechnology Professional,Nanotechnology Professional
+# Biomedical Scientist
+title,en,Biosciences,Biomedical Scientist,Biomedical Scientist
+# Laboratory Technicican
+title,en,Biosciences,Laboratory Technicican,Laboratory Technicican
+title,en,Biosciences,Laboratory Technicican,Research Technicican
+############### Mechanical Engineering ########################
+# Mechanical Engineer
+title,en,Mechanical Engineering,Mechanical Engineer,Mechanical Engineer
+title,en,Mechanical Engineering,Building Services Engineer,Mechanical Engineer
+# Service Engineer
+title,en,Mechanical Engineering,Service Engineer,Service Engineer
+title,en,Mechanical Engineering,Mechanical Fitter,Service Engineer
+title,en,Mechanical Engineering,Maintanence Engineer,Service Engineer
+title,en,Mechanical Engineering,Technician,Service Engineer
+title,en,Mechanical Engineering,Field Service Engineer,Service Engineer
+title,en,Mechanical Engineering,Refrigeration Engineer,Service Engineer
+title,en,Mechanical Engineering,Lift Engineer,Service Engineer
+
