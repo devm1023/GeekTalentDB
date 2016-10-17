@@ -548,8 +548,12 @@ class Crawler(ConfigurableObject):
                                    .format(result.status_code))
             success = True
         except Exception as e:
-            logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
-                       .format(url, request_args['proxies']['http'], str(e)))
+            if 'proxies' in request_args:
+                logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
+                        .format(url, request_args['proxies']['http'], str(e)))
+            else:
+                logger.log('Failed getting URL {0:s}\n{1:s}\n' \
+                        .format(url, str(e)))
         if not success:
             return None
         return result
