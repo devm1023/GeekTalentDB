@@ -274,6 +274,8 @@ class WUCourse(SQLBase):
     employed_further_study_rating   = Column(Unicode(STR_MAX))
     average_salary                  = Column(BigInteger)
     average_salary_rating           = Column(Unicode(STR_MAX))
+    employment_prospects            = Column(Unicode(STR_MAX))
+    
 
 
 class WUUniversitySubject(SQLBase):
