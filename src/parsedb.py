@@ -235,11 +235,101 @@ class WUCharacteristic(SQLBase):
                             index=True)
 
 class WUCity(SQLBase):
-    __tablename__ = 'wucity'
-    id            = Column(BigInteger, primary_key=True)
-    name          = Column(Unicode(STR_MAX), 
+    __tablename__  = 'wucity'
+    id             = Column(BigInteger, primary_key=True)
+    name           = Column(Unicode(STR_MAX), 
                             index=True, 
                             nullable=False)
+
+    __table_args__ = (UniqueConstraint('name'),)
+
+class WUCourse(SQLBase):
+    __tablename__                       = 'wucourse'
+    id                               = Column(BigInteger, primary_key=True)
+    title                            = Column(Unicode(STR_MAX),
+                                                nullable=False,
+                                                index=True)
+    ucas_code                       = Column(Unicode(STR_MAX))
+    url                             = Column(Unicode(STR_MAX))
+    university_id                   = Column(BigInteger,
+                                                ForeignKey('wuuniversity.id'),
+                                                nullable=False,
+                                                index=True)
+    qualification                   = Column(Unicode(STR_MAX))
+    duration_years                  = Column(BigInteger)
+    study_mode                      = Column(Unicode(STR_MAX))
+    academic_year                   = Column(Unicode(STR_MAX))
+    ucas_points_l                   = Column(BigInteger)
+    ucas_points_h                   = Column(BigInteger)
+    offers                          = Column(BigInteger)
+    alevel_entry_req                = Column(Unicode(STR_MAX))
+    scottish_highers_req            = Column(Unicode(STR_MAX))
+    btec_req                        = Column(Unicode(STR_MAX))
+    btec_ext_req                    = Column(Unicode(STR_MAX))
+    ucas_points_exact               = Column(Unicode(STR_MAX))
+    tuition_fee                     = Column(BigInteger)
+    description                     = Column(Unicode(STR_MAX))
+    modules                         = Column(Unicode(STR_MAX))
+    employed_further_study          = Column(BigInteger)
+    employed_further_study_rating   = Column(Unicode(STR_MAX))
+    average_salary                  = Column(BigInteger)
+    average_salary_rating           = Column(Unicode(STR_MAX))
+
+
+class WUUniversitySubject(SQLBase):
+    __tablename__                = 'wuuniversitysubject'
+    id                           = Column(BigInteger, primary_key=True)
+    student_score                = Column(BigInteger)
+    student_score_rating         = Column(Unicode(STR_MAX))
+    employed_furtherstudy        = Column(BigInteger)
+    employed_furtherstudy_rating = Column(Unicode(STR_MAX))
+    average_salary_rating        = Column(Unicode(STR_MAX))
+    average_salary               = Column(BigInteger)
+    access_to_it                 = Column(BigInteger)
+    interesting                  = Column(BigInteger)
+    library_resources            = Column(BigInteger)
+    work_feedback_helpful        = Column(BigInteger)
+    work_feedback_prompt         = Column(BigInteger)
+    staff_explaining             = Column(BigInteger)
+    advice_support               = Column(BigInteger)
+    uk                           = Column(BigInteger)
+    non_uk                       = Column(BigInteger)
+    male                         = Column(BigInteger)
+    female                       = Column(BigInteger)
+    full_time                    = Column(BigInteger)
+    part_time                    = Column(BigInteger)
+    typical_ucas_points          = Column(BigInteger)
+    2to1_or_above                = Column(BigInteger)
+    dropout_rate                 = Column(BigInteger)
+    university_id                = Column(BigInteger,
+                                            ForeignKey('wuuniversity.id'),
+                                            nullable=False,
+                                            index=True)
+    subject_id                   = Column(BigInteger,
+                                            ForeignKey('wusubject.id'),
+                                            nullable=False,
+                                            index=True)
+
+class WUStudiedBefore(SQLBase):
+    __tablename__  = 'wustudiedbefore'
+    name           = Column(Unicode(STR_MAX))
+    percent        = Column(BigInteger)
+    common_grade   = Column(Unicode(STR_MAX))
+    common_grade_percent = Column(BigInteger)
+    university_subject_id = /
+                     Column(BigInteger,
+                            ForeignKey('wuuniversitysubject.id'),
+                            nullable=False,
+                            index=True)
+    
+class WUSectorAfter(SQLBase):
+    __tablename__ = 'wusectorafter'
+    name          = Column(Unicode(STR_MAX))
+    percent       = Column(BigInteger)
+    course_id     = Column(BigInteger,
+                            ForeignKey('wucourse.id'),
+                            nullable=False,
+                            index=True)
 
 # database session class
 class ParseDB(Session):
