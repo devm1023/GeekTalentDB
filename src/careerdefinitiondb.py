@@ -135,6 +135,7 @@ class Career(SQLBase):
     sector_id     = Column(BigInteger, ForeignKey('sector.id'),
                            index=True, nullable=False)
     title         = Column(Unicode(STR_MAX), index=True, nullable=False)
+    adzuna_title  = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
     education_subjects_total = Column(BigInteger)
     education_institutes_total = Column(BigInteger)
@@ -380,6 +381,9 @@ class CareerDefinitionDB(Session):
         for career in q:
             careerdict = dict_from_row(career, pkeys=False, fkeys=False)
             careerdict = _remove_invisibles(careerdict)
+
+            # Added to resolve the 'Adzuna Title issue'
+            careerdict['adzuna_title'] = career.adzuna_title
 
             careerdict['average_salary'] = None
             if careerdict['salary_bins']:

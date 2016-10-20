@@ -21,7 +21,7 @@ app = Flask(__name__)
 cddb = CareerDefinitionDB()
 dscdb = DescriptionDB()
 
-# Create dummy secrey key so we can use sessions
+# Create dummy secret key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'
 
 # Configure app and create database view
