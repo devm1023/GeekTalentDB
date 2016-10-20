@@ -9,6 +9,7 @@ __all__ = [
     'WUCareer',
     'WULeagueTable',
     'WUCity',
+    'WUCourse',
     'ParseDB',
     ]
 
@@ -241,8 +242,6 @@ class WUCity(SQLBase):
                             index=True, 
                             nullable=False)
 
-    __table_args__ = (UniqueConstraint('name'),)
-
 class WUCourse(SQLBase):
     __tablename__                       = 'wucourse'
     id                               = Column(BigInteger, primary_key=True)
@@ -251,10 +250,7 @@ class WUCourse(SQLBase):
                                                 index=True)
     ucas_code                       = Column(Unicode(STR_MAX))
     url                             = Column(Unicode(STR_MAX))
-    university_id                   = Column(BigInteger,
-                                                ForeignKey('wuuniversity.id'),
-                                                nullable=False,
-                                                index=True)
+    university_name                 = Column(Unicode(STR_MAX))
     qualification                   = Column(Unicode(STR_MAX))
     duration_years                  = Column(BigInteger)
     study_mode                      = Column(Unicode(STR_MAX))
@@ -275,6 +271,8 @@ class WUCourse(SQLBase):
     average_salary                  = Column(BigInteger)
     average_salary_rating           = Column(Unicode(STR_MAX))
     employment_prospects            = Column(Unicode(STR_MAX))
+    sectors_after                = relationship('WUSectorAfter',
+                                                    cascade='all, delete-orphan')
     
 
 
@@ -301,24 +299,21 @@ class WUUniversitySubject(SQLBase):
     full_time                    = Column(BigInteger)
     part_time                    = Column(BigInteger)
     typical_ucas_points          = Column(BigInteger)
-    2to1_or_above                = Column(BigInteger)
+    twotoone_or_above            = Column(BigInteger)
     dropout_rate                 = Column(BigInteger)
-    university_id                = Column(BigInteger,
-                                            ForeignKey('wuuniversity.id'),
-                                            nullable=False,
-                                            index=True)
-    subject_id                   = Column(BigInteger,
-                                            ForeignKey('wusubject.id'),
-                                            nullable=False,
-                                            index=True)
+    university_name              = Column(Unicode(STR_MAX))
+    subject_name                 = Column(Unicode(STR_MAX))
+    studies_before               = relationship('WUStudiedBefore',
+                                                    cascade='all, delete-orphan')
 
 class WUStudiedBefore(SQLBase):
     __tablename__  = 'wustudiedbefore'
+    id             = Column(BigInteger, primary_key=True)
     name           = Column(Unicode(STR_MAX))
     percent        = Column(BigInteger)
     common_grade   = Column(Unicode(STR_MAX))
     common_grade_percent = Column(BigInteger)
-    university_subject_id = /
+    university_subject_id = \
                      Column(BigInteger,
                             ForeignKey('wuuniversitysubject.id'),
                             nullable=False,
@@ -326,6 +321,7 @@ class WUStudiedBefore(SQLBase):
     
 class WUSectorAfter(SQLBase):
     __tablename__ = 'wusectorafter'
+    id             = Column(BigInteger, primary_key=True)
     name          = Column(Unicode(STR_MAX))
     percent       = Column(BigInteger)
     course_id     = Column(BigInteger,
