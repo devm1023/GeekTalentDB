@@ -235,7 +235,6 @@ def parse_pages(jobid, from_url, to_url):
                            .format(webpage.url))
                 raise
             if parsed_page is not None:
-                pprint(parsed_page)
                 psdb.add_from_dict(parsed_page, WUUniversity)
         process_db(q, process_row, psdb, logger=logger)
 
