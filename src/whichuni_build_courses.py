@@ -29,10 +29,11 @@ def import_wucourses(jobid, fromid, toid):
                          .filter(WUUniversity.name == wucourse.university_name) \
                          .first()
         if university is not None:
-            # proceed 
-            wucourse.offers = wucourse.offers.replace('â??', "'")
-            wucourse.description = wucourse.description.replace('â??', "'")
-            wucourse.modules = wucourse.modules.replace('â??', "'")
+            # proceed
+            if wucourse.description:
+                wucourse.description = wucourse.description.replace('â??', "'")
+            if wucourse.modules:
+                wucourse.modules = wucourse.modules.replace('â??', "'")
             new_course = WUCourse(ucas_code=wucourse.ucas_code,
                                 url=wucourse.url,
                                 university_id=university.id,
