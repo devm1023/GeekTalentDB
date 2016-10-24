@@ -311,7 +311,7 @@ def main(args):
         q = crdb.query(Webpage.url).filter(*filters)
         split_process(q, parse_pages, args.batch_size, 
                         njobs=args.jobs, logger=logger,
-                        workdir='jobs', prefix='parse_whichuni_subjects')
+                        workdir='jobs', prefix='parse_whichuni_courses')
 
 
 if __name__ == '__main__':

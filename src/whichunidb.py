@@ -250,7 +250,7 @@ class WUCourse(SQLBase):
                                                     cascade='all, delete-orphan')
     study_types                     = relationship('WUStudyType',
                                                     cascade='all, delete-orphan')
-    university_subjects             = relationship('WUCourseUniversitySubject',
+    university_subjects             = relationship('WUUniversitySubject',
                                                     cascade='all, delete-orphan')
     university                      = relationship('WUUniversity')
 
@@ -302,6 +302,11 @@ class WUUniversitySubject(SQLBase):
                                     ForeignKey('wucourse.id'),
                                     nullable=False,
                                     index=True)
+    subject_id                   = Column(BigInteger,
+                                    ForeignKey('wusubject.id'),
+                                    nullable=True,
+                                    index=True)
+    subject                      = relationship('WUSubject')
     student_score                = Column(BigInteger)
     student_score_rating         = Column(Unicode(STR_MAX))
     employed_furtherstudy        = Column(BigInteger)
@@ -340,6 +345,7 @@ class WUUniversitySubjectSectorAfter(SQLBase):
                             ForeignKey('wusectorafter.id'),
                             nullable=False,
                             index=True)
+    sector_after = relationship('WUSectorAfter')
 
 class WUSectorAfter(SQLBase):
     __tablename__ = 'wusectorafter'
@@ -373,6 +379,7 @@ class WUUniversitySubjectStudiedBefore(SQLBase):
     percent             = Column(BigInteger)
     common_grade        = Column(Unicode(STR_MAX))
     common_grade_percent= Column(BigInteger)
+    studied_before      = relationship('WUStudiedBefore')
 
 
 class WUStudiedBefore(SQLBase):
@@ -380,21 +387,6 @@ class WUStudiedBefore(SQLBase):
     id              = Column(BigInteger, 
                             primary_key=True)
     name            = Column(Unicode(STR_MAX))
-
-class WUCourseUniversitySubject(SQLBase):
-    __tablename__       = 'wucourseuniversitysubject'
-    id                  = Column(BigInteger, 
-                            primary_key=True)
-    course_id           = Column(BigInteger,
-                            ForeignKey('wucourse.id'),
-                            nullable=True,
-                            index=True)
-    university_subject_id  \
-                        = Column(BigInteger,
-                            ForeignKey('wuuniversitysubject.id'),
-                            nullable=True,
-                            index=True)
-    university_subject  = relationship('WUUniversitySubject')
 
 # database session class
 class WhichUniDB(Session):

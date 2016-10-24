@@ -42,6 +42,16 @@ def not_found(error=None):
 
     return resp
 
+@app.route('/api/courses/<string:uni>/<string:course>/<string:code>')
+@requires_auth
+def course(uni, course, code):
+    query = wudb.query(WUCourse) \
+                .filter(func.lower(WUUniversity.name) == func.lower(uni)) \
+                .filter(func.lower(WUCourse.title) == func.lower(course)) \
+                .filter(func.lower(WUCourse.ucas_code) == func.lower(code)) \
+                .first()
+    return jsonify(dict_from_row(query))
+
 @app.route('/api/universities')
 @requires_auth
 def universities():
@@ -120,7 +130,6 @@ def career(career_name):
         return jsonify(careerdict)
     else:
         return not_found()
-    
 
 def collapse(row):
     if 'alevels' in row:

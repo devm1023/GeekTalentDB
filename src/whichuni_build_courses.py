@@ -1,14 +1,17 @@
-import parsedb as ps
-from whichunidb import *
-from windowquery import split_process, process_db
+import argparse
+import hashlib
+import re
 from datetime import datetime
+from pprint import pprint
+
+import parsedb as ps
+from dbtools import dict_from_row
 from logger import Logger
 from parse_datetime import parse_datetime
-from dbtools import dict_from_row
-import re
-import hashlib
-import argparse
-from pprint import pprint
+from sqlalchemy import func
+from whichunidb import *
+from windowquery import process_db, split_process
+
 
 def import_wucourses(jobid, fromid, toid):
     logger = Logger()
@@ -27,6 +30,9 @@ def import_wucourses(jobid, fromid, toid):
                          .first()
         if university is not None:
             # proceed 
+            wucourse.offers = wucourse.offers.replace('â??', "'")
+            wucourse.description = wucourse.description.replace('â??', "'")
+            wucourse.modules = wucourse.modules.replace('â??', "'")
             new_course = WUCourse(ucas_code=wucourse.ucas_code,
                                 url=wucourse.url,
                                 university_id=university.id,
@@ -57,14 +63,17 @@ def import_wucourses(jobid, fromid, toid):
                 wudb.add(course_entry_requirement)
                 wudb.flush()
             for study_type in wucourse.study_types:
+                new_duration = int(study_type.duration) if study_type.duration else 0
                 new_study_type = WUStudyType(course_id=new_course.id,
                                             qualification_name=study_type.qualification_name,
-                                            duration=study_type.duration,
+                                            duration=new_duration,
                                             mode=study_type.mode,
                                             years=study_type.years)
                 wudb.add(new_study_type)
                 wudb.flush()
             for university_subject in wucourse.subjects:
+                existing_subject = wudb.query(WUSubject) \
+                                       .filter(func.lower(WUSubject.title) == func.lower(university_subject.subject_name))
                 new_university_subject = WUUniversitySubject(
                     university_id=university.id,
                     course_id=new_course.id,
