@@ -13,7 +13,16 @@ __all__ = [
     'WULeagueTable',
     'WUUniversityLeagueTable',
     'WhichUniDB',
-    'WUCourse'
+    'WUEntryRequirement',
+    'WUCourseEntryRequirement',
+    'WUStudyType',
+    'WUCourse',
+    'WUUniversitySubject',
+    'WUStudiedBefore',
+    'WUUniversitySubjectStudiedBefore',
+    'WUSectorAfter',
+    'WUUniversitySubjectSectorAfter',
+    'WURating'
 ]
 
 import conf
@@ -288,6 +297,10 @@ class WUUniversitySubject(SQLBase):
     university_id                = Column(BigInteger,
                                     ForeignKey('wuuniversity.id'),
                                     nullable=True,
+                                    index=True)
+    course_id                    = Column(BigInteger,
+                                    ForeignKey('wucourse.id'),
+                                    nullable=False,
                                     index=True)
     student_score                = Column(BigInteger)
     student_score_rating         = Column(Unicode(STR_MAX))

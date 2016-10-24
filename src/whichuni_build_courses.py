@@ -64,7 +64,7 @@ def import_wucourses(jobid, fromid, toid):
                                             years=study_type.years)
                 wudb.add(new_study_type)
                 wudb.flush()
-            for university_subject in wucourse.university_subjects:
+            for university_subject in wucourse.subjects:
                 new_university_subject = WUUniversitySubject(
                     university_id=university.id,
                     course_id=new_course.id,
