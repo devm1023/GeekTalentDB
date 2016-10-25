@@ -74,30 +74,57 @@ def import_wucourses(jobid, fromid, toid):
                 wudb.flush()
             for university_subject in wucourse.subjects:
                 existing_subject = wudb.query(WUSubject) \
-                                       .filter(func.lower(WUSubject.title) == func.lower(university_subject.subject_name))
-                new_university_subject = WUUniversitySubject(
-                    university_id=university.id,
-                    course_id=new_course.id,
-                    student_score=university_subject.student_score,
-                    student_score_rating=university_subject.student_score_rating,
-                    employed_furtherstudy=university_subject.employed_furtherstudy,
-                    employed_furtherstudy_rating=university_subject.employed_furtherstudy_rating,
-                    average_salary=university_subject.average_salary,
-                    average_salary_rating=university_subject.average_salary_rating,
-                    uk=university_subject.uk,
-                    non_uk=university_subject.non_uk,
-                    male=university_subject.male,
-                    female=university_subject.female,
-                    full_time=university_subject.full_time,
-                    part_time=university_subject.part_time,
-                    typical_ucas_points=university_subject.typical_ucas_points,
-                    twotoone_or_above=university_subject.twotoone_or_above,
-                    satisfaction=university_subject.satisfaction,
-                    dropout_rate=university_subject.dropout_rate,
-                    subject_name=university_subject.subject_name
-                )
-                wudb.add(new_university_subject)
-                wudb.flush()
+                                       .filter(func.lower(WUSubject.title) == func.lower(university_subject.subject_name)) \
+                                       .first()
+                if existing_subject:
+                    new_university_subject = WUUniversitySubject(
+                        university_id=university.id,
+                        course_id=new_course.id,
+                        student_score=university_subject.student_score,
+                        student_score_rating=university_subject.student_score_rating,
+                        employed_furtherstudy=university_subject.employed_furtherstudy,
+                        employed_furtherstudy_rating=university_subject.employed_furtherstudy_rating,
+                        average_salary=university_subject.average_salary,
+                        average_salary_rating=university_subject.average_salary_rating,
+                        uk=university_subject.uk,
+                        non_uk=university_subject.non_uk,
+                        male=university_subject.male,
+                        female=university_subject.female,
+                        full_time=university_subject.full_time,
+                        part_time=university_subject.part_time,
+                        typical_ucas_points=university_subject.typical_ucas_points,
+                        twotoone_or_above=university_subject.twotoone_or_above,
+                        satisfaction=university_subject.satisfaction,
+                        dropout_rate=university_subject.dropout_rate,
+                        subject_name=university_subject.subject_name,
+                        subject_id=existing_subject.id
+                    )
+                    wudb.add(new_university_subject)
+                    wudb.flush()
+                else:
+                    new_university_subject = WUUniversitySubject(
+                        university_id=university.id,
+                        course_id=new_course.id,
+                        student_score=university_subject.student_score,
+                        student_score_rating=university_subject.student_score_rating,
+                        employed_furtherstudy=university_subject.employed_furtherstudy,
+                        employed_furtherstudy_rating=university_subject.employed_furtherstudy_rating,
+                        average_salary=university_subject.average_salary,
+                        average_salary_rating=university_subject.average_salary_rating,
+                        uk=university_subject.uk,
+                        non_uk=university_subject.non_uk,
+                        male=university_subject.male,
+                        female=university_subject.female,
+                        full_time=university_subject.full_time,
+                        part_time=university_subject.part_time,
+                        typical_ucas_points=university_subject.typical_ucas_points,
+                        twotoone_or_above=university_subject.twotoone_or_above,
+                        satisfaction=university_subject.satisfaction,
+                        dropout_rate=university_subject.dropout_rate,
+                        subject_name=university_subject.subject_name
+                    )
+                    wudb.add(new_university_subject)
+                    wudb.flush()
                 for studied_before in university_subject.studied_before:
                     new_studied_before = wudb.query(WUStudiedBefore) \
                                              .filter(WUStudiedBefore.name == studied_before.name) \
