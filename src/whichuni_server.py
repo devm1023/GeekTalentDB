@@ -227,10 +227,11 @@ def collapse_university_subject(row):
     return row
 
 def collapse_subject(row):
-    if 'alevels' in row:
-        row['alevels'] = [a['alevel'] for a in row['alevels']]
-    if 'careers' in row:
-        row['careers'] = [c['career'] for c in row['careers']]
+    if row:
+        if 'alevels' in row:
+            row['alevels'] = [a['alevel'] for a in row['alevels']]
+        if 'careers' in row:
+            row['careers'] = [c['career'] for c in row['careers']]
     return row
 
 
