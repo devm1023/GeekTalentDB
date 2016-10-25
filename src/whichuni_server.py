@@ -229,7 +229,6 @@ def collapse_university_subject(row):
     return row
 
 def collapse_subject(row):
-    print(pformat(row), file=sys.stderr)
     if row:
         if 'alevels' in row:
             row['alevels'] = [a['alevel'] for a in row['alevels']]
