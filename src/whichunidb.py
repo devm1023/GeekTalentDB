@@ -12,7 +12,17 @@ __all__ = [
     'WUCity',
     'WULeagueTable',
     'WUUniversityLeagueTable',
-    'WhichUniDB'
+    'WhichUniDB',
+    'WUEntryRequirement',
+    'WUCourseEntryRequirement',
+    'WUStudyType',
+    'WUCourse',
+    'WUUniversitySubject',
+    'WUStudiedBefore',
+    'WUUniversitySubjectStudiedBefore',
+    'WUSectorAfter',
+    'WUUniversitySubjectSectorAfter',
+    'WURating'
 ]
 
 import conf
@@ -216,7 +226,168 @@ class WUUniversityLeagueTable(SQLBase):
                             index=True)
     rating         = Column(BigInteger)
     league_table = relationship('WULeagueTable')
+
+class WUCourse(SQLBase):
+    __tablename__                   = 'wucourse'
+    id                              = Column(BigInteger, 
+                                                primary_key=True)
+    university_id                   = Column(BigInteger,
+                                                ForeignKey('wuuniversity.id'),
+                                                nullable=True,
+                                                index=True)
+    title                           = Column(Unicode(STR_MAX),
+                                                nullable=False,
+                                                index=True)
+    ucas_code                       = Column(Unicode(STR_MAX))
+    url                             = Column(Unicode(STR_MAX))
+    ucas_points_l                   = Column(BigInteger)
+    ucas_points_h                   = Column(BigInteger)
+    offers                          = Column(BigInteger)
+    tuition_fee                     = Column(BigInteger)
+    description                     = Column(Unicode(STR_MAX))
+    modules                         = Column(Unicode(STR_MAX))
+    entry_requirements              = relationship('WUCourseEntryRequirement',
+                                                    cascade='all, delete-orphan')
+    study_types                     = relationship('WUStudyType',
+                                                    cascade='all, delete-orphan')
+    university_subjects             = relationship('WUUniversitySubject',
+                                                    cascade='all, delete-orphan')
+    university                      = relationship('WUUniversity')
+
+class WUStudyType(SQLBase):
+    __tablename__       = 'wustudytype'
+    id                  = Column(BigInteger, 
+                            primary_key=True)
+    course_id           = Column(BigInteger,
+                            ForeignKey('wucourse.id'),
+                            nullable=True,
+                            index=True)
+    qualification_name      = Column(Unicode(STR_MAX))
+    duration                = Column(Unicode(STR_MAX))
+    mode                    = Column(Unicode(STR_MAX))
+    years                   = Column(Unicode(STR_MAX))
     
+
+class WUCourseEntryRequirement(SQLBase):
+    __tablename__       = 'wucourseentryrequirement'
+    id                  = Column(BigInteger, 
+                            primary_key=True)
+    course_id           = Column(BigInteger,
+                            ForeignKey('wucourse.id'),
+                            nullable=True,
+                            index=True)
+    entryrequirement_id = Column(BigInteger,
+                            ForeignKey('wuentryrequirement.id'),
+                            nullable=True,
+                            index=True)
+    entry_requirement   = relationship('WUEntryRequirement')
+    grades              = Column(Unicode(STR_MAX))
+    text                = Column(Unicode(STR_MAX))
+
+class WUEntryRequirement(SQLBase):
+    __tablename__       = 'wuentryrequirement'
+    id                  = Column(BigInteger, 
+                            primary_key=True)
+    name                = Column(Unicode(STR_MAX))
+
+class WUUniversitySubject(SQLBase):
+    __tablename__                = 'wuuniversitysubject'
+    id                           = Column(BigInteger, 
+                                    primary_key=True)
+    university_id                = Column(BigInteger,
+                                    ForeignKey('wuuniversity.id'),
+                                    nullable=True,
+                                    index=True)
+    course_id                    = Column(BigInteger,
+                                    ForeignKey('wucourse.id'),
+                                    nullable=False,
+                                    index=True)
+    subject_id                   = Column(BigInteger,
+                                    ForeignKey('wusubject.id'),
+                                    nullable=True,
+                                    index=True)
+    subject                      = relationship('WUSubject')
+    student_score                = Column(BigInteger)
+    student_score_rating         = Column(Unicode(STR_MAX))
+    employed_furtherstudy        = Column(BigInteger)
+    employed_furtherstudy_rating = Column(Unicode(STR_MAX))
+    average_salary_rating        = Column(Unicode(STR_MAX))
+    average_salary               = Column(BigInteger)
+    uk                           = Column(BigInteger)
+    non_uk                       = Column(BigInteger)
+    male                         = Column(BigInteger)
+    female                       = Column(BigInteger)
+    full_time                    = Column(BigInteger)
+    part_time                    = Column(BigInteger)
+    typical_ucas_points          = Column(BigInteger)
+    twotoone_or_above            = Column(BigInteger)
+    satisfaction                 = Column(BigInteger)
+    dropout_rate                 = Column(BigInteger)
+    subject_name                 = Column(Unicode(STR_MAX))
+    studied_before               = relationship('WUUniversitySubjectStudiedBefore',
+                                                    cascade='all, delete-orphan')
+    sectors_after                = relationship('WUUniversitySubjectSectorAfter',
+                                                    cascade='all, delete-orphan')
+    ratings                      = relationship('WURating',
+                                                    cascade='all, delete-orphan')
+
+class WUUniversitySubjectSectorAfter(SQLBase):
+    __tablename__ = 'wuuniversitysubjectsectorafter'
+    id             = Column(BigInteger, primary_key=True)
+    percent       = Column(BigInteger)
+    university_subject_id = \
+                     Column(BigInteger,
+                            ForeignKey('wuuniversitysubject.id'),
+                            nullable=False,
+                            index=True)
+    sector_after_id = \
+                     Column(BigInteger,
+                            ForeignKey('wusectorafter.id'),
+                            nullable=False,
+                            index=True)
+    sector_after = relationship('WUSectorAfter')
+
+class WUSectorAfter(SQLBase):
+    __tablename__ = 'wusectorafter'
+    id             = Column(BigInteger, primary_key=True)
+    name          = Column(Unicode(STR_MAX))
+
+class WURating(SQLBase):
+    __tablename__       = 'wurating'
+    id                  = Column(BigInteger, primary_key=True)
+    name                = Column(Unicode(STR_MAX))
+    rating              = Column(BigInteger)
+    university_subject_id \
+                        = Column(BigInteger,
+                            ForeignKey('wuuniversitysubject.id'),
+                            nullable=False,
+                            index=True)
+
+class WUUniversitySubjectStudiedBefore(SQLBase):
+    __tablename__       = 'wuuniversitysubjectstudiedbefore'
+    id                  = Column(BigInteger, 
+                            primary_key=True)
+    university_subject_id \
+                        = Column(BigInteger,
+                            ForeignKey('wuuniversitysubject.id'),
+                            nullable=True,
+                            index=True)
+    studied_before_id   = Column(BigInteger,
+                            ForeignKey('wustudiedbefore.id'),
+                            nullable=True,
+                            index=True)
+    percent             = Column(BigInteger)
+    common_grade        = Column(Unicode(STR_MAX))
+    common_grade_percent= Column(BigInteger)
+    studied_before      = relationship('WUStudiedBefore')
+
+
+class WUStudiedBefore(SQLBase):
+    __tablename__   = 'wustudiedbefore'
+    id              = Column(BigInteger, 
+                            primary_key=True)
+    name            = Column(Unicode(STR_MAX))
+
 # database session class
 class WhichUniDB(Session):
     def __init__(self, url=conf.WHICHUNI_DB,
