@@ -42,10 +42,30 @@ def not_found(error=None):
 
     return resp
 
+@app.route('/api/courses/<string:uni>')
+@requires_auth
+def courses_at_uni(uni):
+    query = wudb.query(WUCourse) \
+                .join(WUUniversity) \
+                .filter(func.lower(WUUniversity.name) == func.lower(uni)) \
+                .all()
+    return jsonify(dict_from_row(query))
+
+@app.route('/api/courses/<string:uni>/<string:course>')
+@requires_auth
+def courses(uni, course):
+    query = wudb.query(WUCourse) \
+                .join(WUUniversity) \
+                .filter(func.lower(WUUniversity.name) == func.lower(uni)) \
+                .filter(func.lower(WUCourse.title) == func.lower(course)) \
+                .all()
+    return jsonify(dict_from_row(query))
+
 @app.route('/api/courses/<string:uni>/<string:course>/<string:code>')
 @requires_auth
 def course(uni, course, code):
     query = wudb.query(WUCourse) \
+                .join(WUUniversity) \
                 .filter(func.lower(WUUniversity.name) == func.lower(uni)) \
                 .filter(func.lower(WUCourse.title) == func.lower(course)) \
                 .filter(func.lower(WUCourse.ucas_code) == func.lower(code)) \
