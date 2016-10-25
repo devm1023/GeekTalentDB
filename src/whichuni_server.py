@@ -4,6 +4,7 @@ from whichunidb import *
 from dbtools import dict_from_row
 from sqlalchemy import func
 from flask_cors import CORS
+from pprint import pformat
 
 app = Flask(__name__)
 CORS(app)
@@ -227,6 +228,7 @@ def collapse_university_subject(row):
     return row
 
 def collapse_subject(row):
+    print(pformat(row), file=sys.stderr)
     if row:
         if 'alevels' in row:
             row['alevels'] = [a['alevel'] for a in row['alevels']]
