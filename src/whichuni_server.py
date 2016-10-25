@@ -5,6 +5,7 @@ from dbtools import dict_from_row
 from sqlalchemy import func
 from flask_cors import CORS
 from pprint import pformat
+import sys
 
 app = Flask(__name__)
 CORS(app)
