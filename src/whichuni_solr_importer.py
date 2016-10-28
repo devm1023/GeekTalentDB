@@ -5,7 +5,7 @@ import re
 import requests
 from datetime import datetime
 from pprint import pprint
-
+import hashlib
 from dbtools import dict_from_row
 from logger import Logger
 from parse_datetime import parse_datetime
@@ -15,17 +15,34 @@ from windowquery import process_db, split_process
 
 SOLR_URL = "http://localhost:8983/solr/whichuni"
 
-def get_subject_documents(university_subject, university_name, course_name):
+def make_hash(url):
+    hasher = hashlib.md5()
+    hasher.update(url.encode('utf-8'))
+    digest = hasher.hexdigest()
+    return digest
+
+def make_rating(rating):
+    if not rating: return None
+    if rating.lower() == 'low': return 0
+    if rating.lower() == 'med': return 1
+    if rating.lower() == 'high': return 2
+
+def get_subject_documents(university_subject, university_name, course_name, parent_course_id, parent_university_id):
     return dict({
         'content_type': 'subject',
+        'subject_id': make_hash(university_subject.subject_name),
+        'parent_course_id': parent_course_id,
+        'parent_university_id': parent_university_id,
         'subject_name': university_subject.subject_name,
         'university_name': university_name,
         'course_name': course_name,
         'subject_average_salary': university_subject.average_salary,
         'subject_average_salary_rating': university_subject.average_salary_rating,
+        'subject_average_salary_rating_i': make_rating(university_subject.average_salary_rating),
         'subject_dropout_rate': university_subject.dropout_rate,
         'subject_further_study': university_subject.employed_furtherstudy,
         'subject_further_study_rating': university_subject.employed_furtherstudy_rating,
+        'subject_further_study_rating_i': make_rating(university_subject.employed_furtherstudy_rating),
         'subject_full_time': university_subject.full_time,
         'subject_part_time': university_subject.part_time,
         'subject_male': university_subject.male,
@@ -39,14 +56,18 @@ def get_subject_documents(university_subject, university_name, course_name):
         'subject_sectors_after_percent': [s.percent for s in university_subject.sectors_after],
         'subject_student_score': university_subject.student_score,
         'subject_student_score_rating': university_subject.student_score_rating,
+        'subject_student_score_rating_i': make_rating(university_subject.student_score_rating),
         'subject_twotoone_above': university_subject.twotoone_or_above,
         'subject_typical_ucas_points': university_subject.typical_ucas_points
     })
 
- def get_course_documents(course, university_name):    
+def get_course_documents(course, university_name, parent_university_id):
+    course_id = make_hash(course.url)
     return dict({
         'content_type': 'course',
         'university_name': university_name,
+        'parent_university_id': parent_university_id,
+        'course_id': make_hash(course.url),
         'course_name': course.title,
         'course_entryreq_grades': [e.grades for e in course.entry_requirements],
         'course_entryreq_names': [e.entry_requirement.name for e in course.entry_requirements],
@@ -63,7 +84,7 @@ def get_subject_documents(university_subject, university_name, course_name):
         'course_study_type_names': [s.qualification_name for s in course.study_types],
         'course_study_type_years': [s.years for s in course.study_types],
         'url': course.url,
-        '_childDocuments_': [get_subject_documents(subject, university_name, course.title) for subject in course.university_subjects]
+        '_childDocuments_': [get_subject_documents(subject, university_name, course.title, course_id, parent_university_id) for subject in course.university_subjects]
     })
 
 def solr_import(jobid, fromid, toid):
@@ -78,19 +99,25 @@ def solr_import(jobid, fromid, toid):
         courses = wudb.query(WUCourse) \
                        .filter(WUCourse.university_id == university.id) \
                        .all()
+        university_id = make_hash(university.url)
+        print(dict_from_row(university.university_characteristics))
         document = dict({
             'content_type': 'university',
+            'university_id': university_id,
             'university_name': university.name,
             'description': university.description,
-            'city': university.city.name if university.city else None,
+            'city': university.city.name if university.city and university.city.name else None,
             'ucas_code': university.ucas_code,
             'website': university.website,
             'further_study': university.further_study,
             'further_study_rating': university.further_study_r,
+            'further_study_rating_i': make_rating(university.further_study_r),
             'average_salary': university.average_salary,
             'average_salary_rating': university.average_salary_r,
+            'average_salary_rating_i': make_rating(university.average_salary_r),
             'student_score': university.student_score,
             'student_score_rating': university.student_score_r,
+            'student_score_rating_i': make_rating(university.student_score_r),
             'satisfaction': university.satisfaction,
             'no_of_students': university.no_of_students,
             'undergraduate': university.undergraduate,
@@ -106,11 +133,12 @@ def solr_import(jobid, fromid, toid):
             'characteristic_names': [c.characteristic.name for c in university.university_characteristics],
             'characteristic_scores': [c.score for c in university.university_characteristics],
             'characteristic_score_ratings': [c.score_r for c in university.university_characteristics],
+            'characteristic_score_ratings_i': [make_rating(c.score_r) for c in university.university_characteristics],
             'league_table_names': [l.league_table.name for l in university.university_league_tables],
-            'league_table_ratings': [l.rating for l in university.university_league_tables],
+            'league_table_rankings': [l.rating for l in university.university_league_tables],
             'league_table_totals': [l.league_table.total for l in university.university_league_tables],
             'url': university.url,
-            '_childDocuments_': [get_course_documents(course, university.name) for course in courses]
+            '_childDocuments_': [get_course_documents(course, university.name, university_id) for course in courses]
         })
         headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
         r = requests.post('{0}{1}'.format(SOLR_URL, '/update?commitWithin=3000'), data=json.dumps([document]), headers=headers)
