@@ -42,7 +42,7 @@ def get_subject_documents(university_subject, university_name, course_name):
         'subject_twotoone_above': university_subject.twotoone_or_above,
         'subject_typical_ucas_points': university_subject.typical_ucas_points
     })
-    
+
  def get_course_documents(course, university_name):    
     return dict({
         'content_type': 'course',
@@ -62,6 +62,7 @@ def get_subject_documents(university_subject, university_name, course_name):
         'course_study_type_modes': [s.mode for s in course.study_types],
         'course_study_type_names': [s.qualification_name for s in course.study_types],
         'course_study_type_years': [s.years for s in course.study_types],
+        'url': course.url,
         '_childDocuments_': [get_subject_documents(subject, university_name, course.title) for subject in course.university_subjects]
     })
 
