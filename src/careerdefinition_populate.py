@@ -589,6 +589,7 @@ if __name__ == '__main__':
         if ch_sector_name:
             ch_sector_id = ch_sectors[ch_sector_name]['id']        
         careerdict = {'title' : career,
+                      'adzuna_title': career,
                       'sector_id' : ch_sector_id,
                       'total_count' : profilec,
                       'sector_count' : None,

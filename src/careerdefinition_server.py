@@ -155,6 +155,7 @@ class Career(db.Model):
     sector_id     = db.Column(db.BigInteger, db.ForeignKey('sector.id'),
                               index=True, nullable=False)
     title         = db.Column(db.Unicode(STR_MAX), nullable=False)
+    adzuna_title  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
     count         = db.Column(db.BigInteger)
     education_subjects_total = db.Column(db.BigInteger)
     education_institutes_total = db.Column(db.BigInteger)
@@ -417,6 +418,7 @@ class CareerView(ModelView):
     form_excluded_columns = ('salary_bins', 'salary_history_points')
     form_widget_args = {
         'title' : {'readonly' : True},
+        'adzuna_title': {'readonly': False},
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},
