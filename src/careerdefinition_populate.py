@@ -310,11 +310,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
-                        'Columns: type | lang | sector | name | mapped name')
+                        'Columns: type | lang | sector | name | mapped name', required=True)
     parser.add_argument('--careers',
                         help='Name of the CSV file holding the careers. '
                         'If absent, only sector-level stats are generated. '
-                        'Columns: sector,use sector filter (0/1),title')
+                        'Columns: sector,use sector filter (0/1),title', required=True)
+
+    parser.add_argument('--adzuna-titles',
+                        help='Name of a csv file holding Adzuna titles. '
+                             'Columns: sector, title, adzuna_title', required=True)
+
     parser.add_argument('--max-entities', type=int, default=50,
                         help='Maximum number of entities in clouds. (Default: 50)')
     parser.add_argument('--min-count', type=int, default=1,
