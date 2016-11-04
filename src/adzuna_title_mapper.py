@@ -1,6 +1,9 @@
-# Created by: Aidanas Tamasauskas on 2016-11-03
+# Created by: Aidanas Tamasauskas
+# Created on: 2016-11-03
 # Module provides means of mapping career titles to 'adzuna' titles.
+
 __all__ = ['AdzunaMapper']
+
 
 import csv
 from textnormalization import normalized_entity
@@ -8,6 +11,12 @@ from textnormalization import normalized_entity
 
 class AdzunaMapper:
     def __init__(self, filename):
+        """
+        The class reads CSV file and populates a local nested dictionary with title mappings.
+        The top level key is the sector name. Internally, it uses normalised sector names for the mappings
+        but titles are mapped unchanged so make sure CSV is correct.
+        :param filename: CSV file containing mappings for Adzuna titles. Row format: sector, title, adzuna_title
+        """
         if not filename:
             return
 
@@ -32,6 +41,11 @@ class AdzunaMapper:
 
 
     def get_mappings_for_secotr(self, sector):
+        """
+        Get Adzuna title mappings for the sector.
+        :param: sector: Name of the sector the titles belong to.
+        :return  dict, {'Title1': 'Adzuna Title1'...}
+        """
         nrm_sector = normalized_entity('sector', 'linkedin', 'en', sector)
         if nrm_sector not in self._titles_map:
             raise ValueError('No such sector in adzuna mapping! ({})'.format(sector))
