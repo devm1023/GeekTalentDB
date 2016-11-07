@@ -37,7 +37,17 @@ class AdzunaMapper:
                 nrm_sector = normalized_entity('sector', 'linkedin', 'en', row[0])
                 if nrm_sector not in self._titles_map:
                     self._titles_map[nrm_sector] = {}
-                self._titles_map[nrm_sector].update({row[1]: row[2]})
+
+                title_map = self._titles_map[nrm_sector]
+                sector = row[0]
+                title = row[1]
+                adzuna_title = row[2]
+
+                # Check for duplicate title mapping within a sector.
+                if title in title_map:
+                    raise ValueError('Title {} already mapped under {} sector!'.format(title, sector))
+
+                self._titles_map[nrm_sector].update({title: sector})
 
 
     def get_mappings_for_secotr(self, sector):
