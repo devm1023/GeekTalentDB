@@ -31,7 +31,7 @@ def make_rating(rating):
 
 
 def get_geo(university_name):
-    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query={0}&key={1}'.format(university_name, GEO_KEY)
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query={0}&key={1}'.format('{0}, UK'.format(university_name), GEO_KEY)
     r = requests.get(url)
     country = None
     city = None
