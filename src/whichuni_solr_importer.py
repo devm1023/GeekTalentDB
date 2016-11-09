@@ -14,6 +14,7 @@ from whichunidb import *
 from windowquery import process_db, split_process
 
 SOLR_URL = "http://localhost:8983/solr/whichuni"
+GEO_KEY = "AIzaSyBipNiucZXVvVUmOrrV5voUhcsuoyiTPvI"
 
 def make_hash(url):
     hasher = hashlib.md5()
@@ -27,14 +28,46 @@ def make_rating(rating):
     if rating.lower() == 'med': return 1
     if rating.lower() == 'high': return 2
 
-def get_subject_documents(university_subject, university_name, course_name, parent_course_id, parent_university_id):
+
+
+def get_geo(university_name):
+    url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query={0}&key={1}'.format(university_name, GEO_KEY)
+    r = requests.get(url)
+    country = None
+    city = None
+    latlng = None
+    if r.status_code != 200:
+        raise RuntimeError('status code: {0} for url: {1}'.format(r.status_code, url))
+    else:
+        response1 = r.json()
+        place_id = None
+        if 'results' in response1 and len(response1['results']) > 0:
+            place_id = response1['results'][0]['place_id']
+            url = 'https://maps.googleapis.com/maps/api/geocode/json?place_id={0}&key={1}'.format(place_id, GEO_KEY)
+            r = requests.get(url)
+            response = r.json()
+            if 'results' in response and len(response['results']) > 0:
+                result = response['results'][0]
+                for component in result['address_components']:
+                    if 'administrative_area_level_1' in component['types']:
+                        country = component['long_name']
+                    if 'postal_town' in component['types']:
+                        city = component['long_name']
+                lat = result['geometry']['location']['lat']
+                lng = result['geometry']['location']['lng']
+                latlng = '{0}, {1}'.format(lat, lng)
+    return city, country, latlng
+        
+
+
+def get_subject_documents(university_subject, university, course_name, parent_course_id, parent_university_id):
     return dict({
         'content_type': 'subject',
         'subject_id': make_hash(university_subject.subject_name),
         'parent_course_id': parent_course_id,
         'parent_university_id': parent_university_id,
         'subject_name': university_subject.subject_name,
-        'university_name': university_name,
+        'university_name': university.name,
         'course_name': course_name,
         'subject_average_salary': university_subject.average_salary,
         'subject_average_salary_rating': university_subject.average_salary_rating,
@@ -61,11 +94,14 @@ def get_subject_documents(university_subject, university_name, course_name, pare
         'subject_typical_ucas_points': university_subject.typical_ucas_points
     })
 
-def get_course_documents(course, university_name, parent_university_id):
+def get_course_documents(course, university, parent_university_id, location):
     course_id = make_hash(course.url)
     return dict({
         'content_type': 'course',
-        'university_name': university_name,
+        'city': location[0],
+        'country': location[1],
+        'geo': location[2],
+        'university_name': university.name,
         'parent_university_id': parent_university_id,
         'course_id': make_hash(course.url),
         'course_name': course.title,
@@ -83,8 +119,9 @@ def get_course_documents(course, university_name, parent_university_id):
         'course_study_type_modes': [s.mode for s in course.study_types],
         'course_study_type_names': [s.qualification_name for s in course.study_types],
         'course_study_type_years': [s.years for s in course.study_types],
+        'course_subjects': [s.subject_name for s in course.university_subjects],
         'url': course.url,
-        '_childDocuments_': [get_subject_documents(subject, university_name, course.title, course_id, parent_university_id) for subject in course.university_subjects]
+        '_childDocuments_': [get_subject_documents(subject, university, course.title, course_id, parent_university_id) for subject in course.university_subjects]
     })
 
 def solr_import(jobid, fromid, toid):
@@ -100,13 +137,15 @@ def solr_import(jobid, fromid, toid):
                        .filter(WUCourse.university_id == university.id) \
                        .all()
         university_id = make_hash(university.url)
-        print(dict_from_row(university.university_characteristics))
+        location = get_geo(university.name)
         document = dict({
             'content_type': 'university',
             'university_id': university_id,
             'university_name': university.name,
             'description': university.description,
-            'city': university.city.name if university.city and university.city.name else None,
+            'city': location[0],
+            'country': location[1],
+            'geo': location[2],
             'ucas_code': university.ucas_code,
             'website': university.website,
             'further_study': university.further_study,
@@ -138,7 +177,7 @@ def solr_import(jobid, fromid, toid):
             'league_table_rankings': [l.rating for l in university.university_league_tables],
             'league_table_totals': [l.league_table.total for l in university.university_league_tables],
             'url': university.url,
-            '_childDocuments_': [get_course_documents(course, university.name, university_id) for course in courses]
+            '_childDocuments_': [get_course_documents(course, university, university_id, location) for course in courses]
         })
         headers = {'Content-Type': 'application/json', 'Accept':'application/json'}
         r = requests.post('{0}{1}'.format(SOLR_URL, '/update?commitWithin=3000'), data=json.dumps([document]), headers=headers)
