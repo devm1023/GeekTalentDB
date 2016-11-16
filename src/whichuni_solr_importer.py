@@ -58,7 +58,13 @@ def get_geo(university_name):
                 latlng = '{0}, {1}'.format(lat, lng)
     return city, country, latlng
         
-
+def get_careers(university_subject):
+    careers = []
+    if university_subject.subject is not None: # WUSubject
+        if university_subject.subject.careers is not None: 
+            for career in university_subject.subject.careers: # WUSubjectCareer[]
+                careers.append(career.career.title) # WUCareer
+    return careers
 
 def get_subject_documents(university_subject, university, course_name, parent_course_id, parent_university_id):
     return dict({
@@ -91,11 +97,19 @@ def get_subject_documents(university_subject, university, course_name, parent_co
         'subject_student_score_rating': university_subject.student_score_rating,
         'subject_student_score_rating_i': make_rating(university_subject.student_score_rating),
         'subject_twotoone_above': university_subject.twotoone_or_above,
-        'subject_typical_ucas_points': university_subject.typical_ucas_points
+        'subject_typical_ucas_points': university_subject.typical_ucas_points,
+        'subject_careers': get_careers(university_subject)
     })
 
 def get_course_documents(course, university, parent_university_id, location):
     course_id = make_hash(course.url)
+    _careers = [get_careers(university_subject) for university_subject in course.university_subjects],
+    course_careers = []
+    for careers in _careers:
+        for careerlist in careers:
+            for career in careerlist:
+                course_careers.append(career)
+    course_careers = list(set(course_careers))
     return dict({
         'content_type': 'course',
         'city': location[0],
@@ -121,7 +135,8 @@ def get_course_documents(course, university, parent_university_id, location):
         'course_study_type_years': [s.years for s in course.study_types],
         'course_subjects': [s.subject_name for s in course.university_subjects],
         'url': course.url,
-        '_childDocuments_': [get_subject_documents(subject, university, course.title, course_id, parent_university_id) for subject in course.university_subjects]
+        'course_careers': course_careers,
+        '_childDocuments_': [get_subject_documents(subject, university, course.title, course_id, parent_university_id) for subject in course.university_subjects],
     })
 
 def solr_import(jobid, fromid, toid):
