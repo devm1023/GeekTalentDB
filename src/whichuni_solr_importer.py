@@ -110,6 +110,15 @@ def get_course_documents(course, university, parent_university_id, location):
             for career in careerlist:
                 course_careers.append(career)
     course_careers = list(set(course_careers))
+    subjects = [get_subject_documents(subject, university, course.title, course_id, parent_university_id) for subject in course.university_subjects]
+    course_dropout_rates = []
+    course_further_study_values = []
+    course_average_salaries = []
+    course_league_table_rankings = [l.rating for l in university.university_league_tables]
+    for subject in subjects:
+        course_dropout_rates.append(subject['subject_dropout_rate'])
+        course_further_study_values.append(subject['subject_further_study_values'])
+        course_average_salaries.append(subject['subject_average_salary'])
     return dict({
         'content_type': 'course',
         'city': location[0],
@@ -136,7 +145,7 @@ def get_course_documents(course, university, parent_university_id, location):
         'course_subjects': [s.subject_name for s in course.university_subjects],
         'url': course.url,
         'course_careers': course_careers,
-        '_childDocuments_': [get_subject_documents(subject, university, course.title, course_id, parent_university_id) for subject in course.university_subjects],
+        '_childDocuments_': subjects
     })
 
 def solr_import(jobid, fromid, toid):
