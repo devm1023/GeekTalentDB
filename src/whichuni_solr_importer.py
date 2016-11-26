@@ -117,7 +117,7 @@ def get_course_documents(course, university, parent_university_id, location):
     course_league_table_rankings = [l.rating for l in university.university_league_tables]
     for subject in subjects:
         course_dropout_rates.append(subject['subject_dropout_rate'])
-        course_further_study_values.append(subject['subject_further_study_values'])
+        course_further_study_values.append(subject['subject_further_study'])
         course_average_salaries.append(subject['subject_average_salary'])
     return dict({
         'content_type': 'course',
@@ -143,6 +143,10 @@ def get_course_documents(course, university, parent_university_id, location):
         'course_study_type_names': [s.qualification_name for s in course.study_types],
         'course_study_type_years': [s.years for s in course.study_types],
         'course_subjects': [s.subject_name for s in course.university_subjects],
+        'course_league_table_rankings': course_league_table_rankings,
+        'course_dropout_rates': course_dropout_rates,
+        'course_average_salaries': course_average_salaries,
+        'course_further_study_values': course_further_study_values,
         'url': course.url,
         'course_careers': course_careers,
         '_childDocuments_': subjects
