@@ -115,14 +115,18 @@ def get_course_documents(course, university, parent_university_id, location):
     course_further_study_values = []
     course_average_salaries = []
     course_league_table_rankings = [l.rating for l in university.university_league_tables]
+    course_satisfactions = []
+    course_durations = [x.duration for x in course.study_types]
     for subject in subjects:
-        course_dropout_rates.append(subject['subject_dropout_rate'])
+        course_dropout_rates.append(subject['subject_dropout_rate']) 
         course_further_study_values.append(subject['subject_further_study'])
         course_average_salaries.append(subject['subject_average_salary'])
+        course_satisfactions.append(subject['subject_satisfaction'])
     course_dropout_rates = [x for x in course_dropout_rates if x is not None]
     course_average_salaries = [x for x in course_average_salaries if x is not None]
     course_further_study_values = [x for x in course_further_study_values if x is not None]
-    pprint(course_league_table_rankings)
+    course_satisfactions = [x for x in course_satisfactions if x is not None]
+    course_durations = [x for x in course_durations if x is not None]
     return dict({
         'content_type': 'course',
         'city': location[0],
@@ -151,6 +155,8 @@ def get_course_documents(course, university, parent_university_id, location):
         'course_dropout_rate': max(course_dropout_rates) if len(course_dropout_rates) > 0 else None,
         'course_average_salary': max(course_average_salaries) if len(course_average_salaries) > 0 else None,
         'course_further_study': max(course_further_study_values) if len(course_further_study_values) > 0 else None,
+        'course_satisfaction': max(course_satisfactions) if len(course_satisfactions) > 0 else None,
+        'course_duration': min(course_durations) if len(course_durations) > 0 else None,
         'url': course.url,
         'course_careers': course_careers,
         '_childDocuments_': subjects
