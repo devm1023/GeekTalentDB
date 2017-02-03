@@ -26,7 +26,7 @@ valid_alevels = ["Afrikaans", "Anthropology", "Arabic",
     "Turkish", "Urdu", "Welsh", "World Development"]
 
 if __name__ == "__main__":
-    with open('whichuni_category_urls.txt', 'w') as cat:
+    with open('subject_urls.txt', 'w') as cat:
         for alevel in valid_alevels:
             for alevel2 in valid_alevels:
                     if alevel != alevel2:
