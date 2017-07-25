@@ -5,7 +5,7 @@ import requests
 urls = []
 xp_url = '//div[@class="institution-result--header"]/h3/a/@href'
 
-num_pages = 16;
+num_pages = 16
 for i in range(num_pages):
     try:
         r = requests.get('http://university.which.co.uk/search/institution?i%5Bpage%5D={0}'.format(i + 1))
