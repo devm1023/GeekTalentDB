@@ -19,6 +19,7 @@ class WhichUniUniversityCrawler(Crawler):
     def parse(cls, site, url, redirect_url, doc):
         valid = False
         links = []
+        page_type = 'university-profile'
         if doc is None:
             return False, page_type, []
         is_uni_profile = doc.xpath('//div[@class="institution appContainer"]')
