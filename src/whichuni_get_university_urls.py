@@ -16,6 +16,7 @@ for i in range(num_pages):
         new_urls = ['http://university.which.co.uk{0:s}'.format(url) for url in new_urls]
         new_urls_2 = urls + new_urls
         urls = new_urls_2
+        print(new_urls)
     except Exception as e:
         print('URL failed: {0}\n{1}\n'.format('http://university.which.co.uk/search/institution?i%5Bpage%5D={0}'.format(i + 1), str(e)))
         raise
