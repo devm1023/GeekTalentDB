@@ -28,4 +28,5 @@ if __name__ == '__main__':
             logger.log('{0:d} URLs loaded.\n'.format(count))
         crdb.commit()
 
-    
+
+
