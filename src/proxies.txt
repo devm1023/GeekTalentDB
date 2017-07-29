@@ -997,4 +997,4 @@ http://geektalent:NEe2Yue6Jj@107.181.157.246:60000	https://geektalent:NEe2Yue6Jj
 http://geektalent:NEe2Yue6Jj@107.181.157.247:60000	https://geektalent:NEe2Yue6Jj@107.181.157.247:60000
 http://geektalent:NEe2Yue6Jj@107.181.157.248:60000	https://geektalent:NEe2Yue6Jj@107.181.157.248:60000
 http://geektalent:NEe2Yue6Jj@107.181.157.249:60000	https://geektalent:NEe2Yue6Jj@107.181.157.249:60000
-http://geektalent:NEe2Yue6Jj@107.181.157.250:60000	https://geektalent:NEe2Yue6Jj@107.181.157.250:60000
+http://geektalent:NEe2Yue6Jj@107.181.157.250:60000	https://geektalent:NEe2Yue6Jj@107.181.157.250:6000
