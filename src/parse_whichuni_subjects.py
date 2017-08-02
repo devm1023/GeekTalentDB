@@ -57,6 +57,7 @@ def parse_pages(jobid, from_url, to_url):
     logger = Logger()
     filters = [Webpage.valid,
                 Webpage.site == 'whichunisubjects',
+                Webpage.type == 'alevel-explorer',
                 Webpage.url >= from_url]
     if to_url is not None:
         filters.append(Webpage.url < to_url)
@@ -65,6 +66,7 @@ def parse_pages(jobid, from_url, to_url):
         q = crdb.query(Webpage).filter(*filters)
 
         def process_row(webpage):
+            logger.log('Parsing URL {0:s}\n'.format(webpage.url))
             try:
                 doc = parse_html(webpage.html)
             except:
@@ -78,6 +80,7 @@ def parse_pages(jobid, from_url, to_url):
             if parsed_page is not None:
                 for subject in parsed_page['subjects']:
                     psdb.add_from_dict(subject, WUSubject)
+
         process_db(q, process_row, psdb, logger=logger)
 
 def main(args):
