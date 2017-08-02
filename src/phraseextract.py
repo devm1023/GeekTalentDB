@@ -24,12 +24,9 @@ class _PartialMatch:
 class PhraseExtractor:
     def __init__(self, phrases, tokenize=lambda s: s.split(),
                  # margin=1.5, fraction=0.75):
-                  margin=1.5, fraction=1.0):
+                  margin=2.0, fraction=1.0):
         index = {}
         wordsets = {}
-
-        str = 'management sales'
-        print(tokenize(str))
 
         for phrase in phrases:
             print('Phrase: ' + phrase)
