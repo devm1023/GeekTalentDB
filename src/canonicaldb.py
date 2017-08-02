@@ -183,7 +183,8 @@ class LIGroup(SQLBase):
     url           = Column(Unicode(STR_MAX), index=True)
 
 class LIProfileSkill(SQLBase):
-    __tablename__ = 'liprofile_skill'
+    # __tablename__ = 'liprofile_skill'
+    __tablename__ = 'mini_skills'
     id            = Column(BigInteger, primary_key=True)
     liprofile_id  = Column(BigInteger,
                            ForeignKey('liprofile.id'),

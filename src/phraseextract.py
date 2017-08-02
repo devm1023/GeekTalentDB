@@ -23,13 +23,20 @@ class _PartialMatch:
 
 class PhraseExtractor:
     def __init__(self, phrases, tokenize=lambda s: s.split(),
-                 margin=1.5, fraction=0.75):
+                 # margin=1.5, fraction=0.75):
+                  margin=1.5, fraction=1.0):
         index = {}
         wordsets = {}
+
+        str = 'management sales'
+        print(tokenize(str))
+
         for phrase in phrases:
+            print('Phrase: ' + phrase)
             wordset = set(tokenize(phrase))
             wordsets[phrase] = wordset
             for word in wordset:
+                print('Word: ' + word)
                 if word in index:
                     index[word].add(phrase)
                 else:
@@ -48,9 +55,11 @@ class PhraseExtractor:
         activephrases = set()
         matchedphrases = []
         for word in tokenize(text):
+            print('WORD: ' + word)
             newpartialmatches = []
             for partialmatch in partialmatches:
                 partialmatch.add(word)
+                print("Partial: " + word)
                 if partialmatch.ismatch(self.fraction, self.margin):
                     matchedphrases.append(partialmatch.phrase)
                     activephrases.remove(partialmatch.phrase)
