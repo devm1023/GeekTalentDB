@@ -10,7 +10,7 @@ import argparse
 
 
 class WhichUniSubjectTorCrawler(TorCrawler, WhichUniSubjectCrawler):
-    def __init__(self, site='whichunisubjects', nproxies=1, tor_base_port=13000,
+    def __init__(self, site='whichuni', nproxies=1, tor_base_port=13000,
                  tor_timeout=60, tor_retries=3, **kwargs):
         TorCrawler.__init__(self, site,
                             nproxies=nproxies,

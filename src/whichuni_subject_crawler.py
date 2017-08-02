@@ -12,7 +12,7 @@ class WhichUniSubjectCrawler(Crawler):
 
     """
 
-    def __init__(self, site='whichunisubjects', **kwargs):
+    def __init__(self, site='whichuni', **kwargs):
         Crawler.__init__(self, site, **kwargs)
     
     @classmethod
