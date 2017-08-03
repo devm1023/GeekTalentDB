@@ -54,10 +54,11 @@ from textnormalization import tokenized_skill
 
 
 # text = 'As one of our Customer Advisors you will be responsible for making sure our customers receive the best service we can deliver by putting them at the heart of everything you do. You will be highly motivated, approachable and can demonstrate great skills in building rapport with our customers. You will be required to fulfil and understand our customer’s needs by providing an inspirational, creative consultation and making the customer experience one they will not forget. No day will be the same'
-text2 = 'sound Carpetright design As one of our Store Managers, as well as managing your own Carpetright Store, you will be responsible for making sure our customers enjoy a simple, hassle-free shopping experience with us and come back time after time – ensuring we put the customer at the heart of everything we do. You will be required to effectively lead and support the store team in achieving all targets by focusing on the effective management of sales, costs, operations, service, communications and developing colleagues with'
+text2 = 'sound Carpetright design As one of after our Store  Managers, as well effects as managing your own Carpetright Store, you will be responsible for making sure our customers enjoy a simple, hassle-free shopping experience with us and come back time after time – ensuring we put the customer at the heart of everything we do. You will be required to effectively lead and support the store team in achieving all targets by focusing on the effective management of sales, costs, operations, service, communications and developing colleagues with'
 
 
-skillfile = 'indeed_skills_trimed.csv'
+# skillfile = 'indeed_skills_trimed.csv'
+skillfile = 'solr_skills.txt'
 
 if skillfile is not None:
     skills = []
@@ -72,3 +73,4 @@ if skillfile is not None:
 
 resultlist = list(set(skillextractor(text2)))
 print(resultlist)
+

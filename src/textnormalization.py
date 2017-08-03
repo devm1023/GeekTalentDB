@@ -4,7 +4,7 @@ import unicodedata
 import re
 
 _stopwords_en = set(nltk.corpus.stopwords.words('english')) \
-                - set(['it', 's', 't', 'can', 'do', 'm', 'd'])
+                - set(['it', 's', 't', 'can', 'do', 'm', 'd', 'after'])
 _protect_en = set(['hospitality', 'animal', 'animals'])
 _stemmer_en = nltk.stem.snowball.SnowballStemmer('english')
 
