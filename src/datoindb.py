@@ -34,10 +34,12 @@ from sqlalchemy import \
     String, \
     Text, \
     Date, \
+    Boolean, \
     Float, \
     func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY as Array
+from copy import deepcopy
 
 
 STR_MAX = 100000
@@ -448,10 +450,110 @@ class GHRepository(SQLBase):
     tags          = Column(Array(Unicode(STR_MAX)))
 
 
+class ADZJob(SQLBase):
+    __tablename__ = 'adzjob'
+    id            = Column(BigInteger, primary_key=True)
+    adref         = Column(String(STR_MAX), index=True, nullable=False)
+    contract_time = Column(String(STR_MAX), nullable=False)
+    contract_type = Column(String(STR_MAX), nullable=False)
+    created       = Column(BigInteger)
+    description   = Column(Unicode(STR_MAX))
+    adz_id        = Column(BigInteger)
+    latitude      = Column(Float)
+    longitude     = Column(Float)
+    location0     = Column(String(STR_MAX), index=True, nullable=False)
+    location1     = Column(String(STR_MAX), index=True)
+    location2     = Column(String(STR_MAX), index=True)
+    location3     = Column(String(STR_MAX), index=True)
+    location4     = Column(String(STR_MAX), index=True)
+    location_name = Column(String(STR_MAX))
+    redirect_url  = Column(String(STR_MAX))
+    salary_is_predicted = Column(Boolean)
+    salary_max    = Column(BigInteger, index=True)
+    salary_min    = Column(BigInteger, index=True)
+    title         = Column(Unicode(STR_MAX), index=True, nullable=False)
+    crawled_date  = Column(BigInteger, index=True)
+
+    category      = relationship('ADZCategory',
+                                 cascade='all, delete-orphan')
+    company       = relationship('ADZCompany',
+                                 cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('adref'),)
+
+class ADZCategory(SQLBase):
+    __tablename__ = 'adzcategory'
+    tag           = Column(String(STR_MAX), primary_key=True)
+    label         = Column(String(STR_MAX), nullable=False)
+    job_id        = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
+
+class ADZCompany(SQLBase):
+    __tablename__  = 'adzcompany'
+    canonical_name = Column(String(STR_MAX), primary_key=True)
+    display_name   = Column(String(STR_MAX), nullable=False, index=True)
+    job_id         = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
+
+
 class DatoinDB(Session):
     def __init__(self, url=conf.DATOIN_DB,
                  engine_args=[], engine_kwargs={}, **kwargs):
         Session.__init__(self, url=url, metadata=SQLBase.metadata,
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
+
+    def add_adzuna_job(self, adzjobdict):
+        """Add a Adzuna job posting to the database.
+
+        Args:
+          adzjobdict (dict): Description of the job. Must contain the
+            following fields:
+             id
+             adref
+             contract_time
+             contract_type
+             created
+             description
+             adz_id
+             latitude
+             longitude
+             location0
+             location1
+             location2
+             location3
+             location4
+             location_name
+             redirect_url
+             salary_is_predicted
+             salary_max
+             salary_min
+             title
+             crawled_date
+             category
+             company
+
+
+        Returns:
+          The ADZJob object that was added to the database.
+
+        """
+
+        job_id = self.query(ADZJob.id) \
+                          .filter(ADZJob.adref \
+                                  == adzjobdict['adref']) \
+                          .first()
+
+        if job_id is not None:
+            adzjobdict['id'] = job_id[0]
+
+        del adzjobdict['__CLASS__']
+        del adzjobdict['location']['__CLASS__']
+        del adzjobdict['category']['__CLASS__']
+        del adzjobdict['company']['__CLASS__']
+
+
+        inprofile = self.add_from_dict(adzjobdict, ADZJob)
+        self.flush()
+
+        return inprofile
+
     
