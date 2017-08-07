@@ -199,6 +199,7 @@ class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
     liexperience_id = Column(BigInteger, ForeignKey('liexperience.id'),
                              primary_key=True,
+                             primary_key=True,
                              index=True)
     skill_id      = Column(BigInteger, ForeignKey('liprofile_skill.id'),
                            primary_key=True,

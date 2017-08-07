@@ -15,8 +15,12 @@ class _Api():
     Returns a formatted api request string.
     """
     def __init__(self, loc, cat):
-        self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&location0=UK&location1={4}&category={5}'
-        self.location = loc.replace(' ', '+')
+        if loc is not None:
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&location0=UK&location1={4}&category={5}'
+            self.location = loc.replace(' ', '+')
+        else:
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&location0=UK&category={4}'
+            self.location = None
         self.category = cat
         self.page  = 1
         self.total = 1
@@ -26,13 +30,21 @@ class _Api():
         return self
 
     def getpage(self, p):
-        return self.api.format(
-            conf.ADZUNA_SEARCH_API,
-            p,
-            conf.ADZUNA_APP_ID,
-            conf.ADZUNA_APP_KEY,
-            self.location,
-            self.category)
+        if self.location:
+            return self.api.format(
+                conf.ADZUNA_SEARCH_API,
+                p,
+                conf.ADZUNA_APP_ID,
+                conf.ADZUNA_APP_KEY,
+                self.location,
+                self.category)
+        else:
+            return self.api.format(
+                conf.ADZUNA_SEARCH_API,
+                p,
+                conf.ADZUNA_APP_ID,
+                conf.ADZUNA_APP_KEY,
+                self.category)
 
     def __next__(self):
         if self.page * self.step < self.total:
@@ -49,6 +61,9 @@ def main(args):
         for job in jobs:
             dtdb.add_adzuna_job(job)
 
+    dtdb.flush()
+    dtdb.commit()
+
     api = _Api(args.location1, args.category)
     init_api = api.getpage(1)
 
@@ -60,15 +75,18 @@ def main(args):
         total = json['count']
         api.total = total
         jobs = json['results']
-        for job in jobs:
-            print('Job: {0}'.format(job))
-
         extract_jobs(jobs)
 
-        for page in api:
-            print(page)
+        print('Total jobs to get: {0:d}\n'.format(total))
 
-        print('Total jobs: {0:d}\n'.format(total))
+        for page in api:
+            print('Requesting: {0}'.format(page))
+            r = requests.get(page)
+            json = r.json()
+            jobs = json['results']
+            extract_jobs(jobs)
+
+        print('Jobs found: {0:d}\n'.format(total))
 
     except Exception as e:
         print('URL failed: {0}\n'.format(init_api))
@@ -85,9 +103,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--location1', type=str, default='North East England',
-                        help='Location to get the jobs from.')
-    parser.add_argument('--category', type=str, default='it-jobs',
+    parser.add_argument('--location1', type=str,
+                        help='Location to get the jobs from.', default=None)
+    parser.add_argument('--category', type=str,
                         help='Adzuna category for jobs.')
     args = parser.parse_args()
     main(args)

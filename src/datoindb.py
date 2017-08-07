@@ -36,10 +36,11 @@ from sqlalchemy import \
     Date, \
     Boolean, \
     Float, \
+    DateTime, \
     func
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY as Array
-from copy import deepcopy
+from datetime import datetime, timedelta
 
 
 STR_MAX = 100000
@@ -65,7 +66,7 @@ class LIProfile(SQLBase):
     connections   = Column(String(STR_MAX))
     categories    = Column(Array(Unicode(STR_MAX)))
     indexed_on    = Column(BigInteger, index=True)
-    crawled_date  = Column(BigInteger, index=True)
+    crawled_date  = Column(DateTime, index=True)
     crawl_fail_count = Column(BigInteger, index=True)
 
     experiences   = relationship('LIExperience',
@@ -454,9 +455,9 @@ class ADZJob(SQLBase):
     __tablename__ = 'adzjob'
     id            = Column(BigInteger, primary_key=True)
     adref         = Column(String(STR_MAX), index=True, nullable=False)
-    contract_time = Column(String(STR_MAX), nullable=False)
-    contract_type = Column(String(STR_MAX), nullable=False)
-    created       = Column(BigInteger)
+    contract_time = Column(String(STR_MAX))
+    contract_type = Column(String(STR_MAX))
+    created       = Column(DateTime)
     description   = Column(Unicode(STR_MAX))
     adz_id        = Column(BigInteger)
     latitude      = Column(Float)
@@ -472,12 +473,17 @@ class ADZJob(SQLBase):
     salary_max    = Column(BigInteger, index=True)
     salary_min    = Column(BigInteger, index=True)
     title         = Column(Unicode(STR_MAX), index=True, nullable=False)
-    crawled_date  = Column(BigInteger, index=True)
+    crawled_date  = Column(DateTime, index=True)
 
-    category      = relationship('ADZCategory',
-                                 cascade='all, delete-orphan')
-    company       = relationship('ADZCompany',
-                                 cascade='all, delete-orphan')
+    category      = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
+
+    # category      = relationship('ADZCategory',
+    #                              cascade='all, delete-orphan')
+
+    company       = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
+
+    # company       = relationship('ADZCompany',
+    #                              cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('adref'),)
 
@@ -485,14 +491,13 @@ class ADZCategory(SQLBase):
     __tablename__ = 'adzcategory'
     tag           = Column(String(STR_MAX), primary_key=True)
     label         = Column(String(STR_MAX), nullable=False)
-    job_id        = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
+    job           = relationship('ADZJob')
 
 class ADZCompany(SQLBase):
     __tablename__  = 'adzcompany'
-    canonical_name = Column(String(STR_MAX), primary_key=True)
-    display_name   = Column(String(STR_MAX), nullable=False, index=True)
-    job_id         = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
-
+    display_name   = Column(String(STR_MAX), primary_key=True)
+    canonical_name = Column(String(STR_MAX), nullable=True, index=True)
+    job            = relationship('ADZJob')
 
 class DatoinDB(Session):
     def __init__(self, url=conf.DATOIN_DB,
@@ -527,7 +532,6 @@ class DatoinDB(Session):
              salary_max
              salary_min
              title
-             crawled_date
              category
              company
 
@@ -542,18 +546,74 @@ class DatoinDB(Session):
                                   == adzjobdict['adref']) \
                           .first()
 
+        cat_tag = self.query(ADZCategory.tag) \
+            .filter(ADZCategory.tag \
+                    == adzjobdict['category']['tag']) \
+            .first()
+
+        # Prepare company for 1-m
+        if 'display_name' in adzjobdict['company']:
+            com_tag = self.query(ADZCompany.display_name) \
+                .filter(ADZCompany.display_name \
+                        == adzjobdict['company']['display_name']) \
+                .first()
+            if not com_tag:
+                adzcom = self.add_from_dict(adzjobdict['company'], ADZCompany, flush=True)
+                self.flush()
+            adzjobdict['company'] = adzjobdict['company']['display_name']
+        else:
+            adzjobdict['company'] = None
+
+
+        # Prepare category for 1-m
+        if not cat_tag:
+            adzcat = self.add_from_dict(adzjobdict['category'], ADZCategory, flush=True)
+            self.flush()
+
+        adzjobdict['category'] = adzjobdict['category']['tag']
+
+        adzjobdict['adz_id'] = adzjobdict['id']
+
+        # Prepare company for 1-m
+        # del adzjobdict['company']['__CLASS__']
+        # del adzjobdict['company']
+        # company = []
+        # company.append(adzjobdict['company'])
+        # adzjobdict['company'] = company
+
+        # Format location
+        location = adzjobdict['location']
+        areas = location['area']
+        adzjobdict['location_name'] = location['display_name']
+        for i, area in enumerate(areas):
+            loc_key = 'location{0:d}'.format(i)
+            adzjobdict[loc_key] = area
+
+        del adzjobdict['location']
+
+        # int to bool type change
+        if adzjobdict['salary_is_predicted']:
+            adzjobdict['salary_is_predicted'] = True
+        else:
+            adzjobdict['salary_is_predicted'] = False
+
+
         if job_id is not None:
             adzjobdict['id'] = job_id[0]
+        else:
+            adzjobdict['adz_id'] = adzjobdict['id']
+            del adzjobdict['id']
 
         del adzjobdict['__CLASS__']
-        del adzjobdict['location']['__CLASS__']
-        del adzjobdict['category']['__CLASS__']
-        del adzjobdict['company']['__CLASS__']
 
+        timestamp = datetime.utcnow()
+        adzjobdict['crawled_date'] = timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
-        inprofile = self.add_from_dict(adzjobdict, ADZJob)
+        adzjob = self.add_from_dict(adzjobdict, ADZJob,  flush=True)
+        self.commit()
         self.flush()
+        self.commit()
 
-        return inprofile
+        return adzjob
 
     
