@@ -183,8 +183,8 @@ class LIGroup(SQLBase):
     url           = Column(Unicode(STR_MAX), index=True)
 
 class LIProfileSkill(SQLBase):
-    # __tablename__ = 'liprofile_skill'
-    __tablename__ = 'mini_skills'
+    __tablename__ = 'liprofile_skill'
+    # __tablename__ = 'mini_skills'
     id            = Column(BigInteger, primary_key=True)
     liprofile_id  = Column(BigInteger,
                            ForeignKey('liprofile.id'),
@@ -198,7 +198,6 @@ class LIProfileSkill(SQLBase):
 class LIExperienceSkill(SQLBase):
     __tablename__ = 'liexperience_skill'
     liexperience_id = Column(BigInteger, ForeignKey('liexperience.id'),
-                             primary_key=True,
                              primary_key=True,
                              index=True)
     skill_id      = Column(BigInteger, ForeignKey('liprofile_skill.id'),
@@ -707,6 +706,74 @@ class GHLink(SQLBase):
     type          = Column(String(STR_MAX))
     url           = Column(String(STR_MAX))
 
+# Adzuna
+
+class ADZJob(SQLBase):
+    __tablename__ = 'adzjob'
+    id            = Column(BigInteger, primary_key=True)
+    adref         = Column(String(STR_MAX), index=True, nullable=False)
+    language      = Column(String(20))
+    nrm_location  = Column(Unicode(STR_MAX), index=True)
+    location0     = Column(String(STR_MAX), index=True, nullable=False)
+    location1     = Column(String(STR_MAX), index=True)
+    location2     = Column(String(STR_MAX), index=True)
+    location3     = Column(String(STR_MAX), index=True)
+    location4     = Column(String(STR_MAX), index=True)
+    title         = Column(Unicode(STR_MAX))
+    parsed_title  = Column(Unicode(STR_MAX))
+    nrm_title     = Column(Unicode(STR_MAX), index=True)
+    title_prefix  = Column(Unicode(STR_MAX))
+    nrm_company   = Column(Unicode(STR_MAX), index=True)
+    description   = Column(Unicode(STR_MAX))
+    text_length   = Column(Integer)
+    url           = Column(String(STR_MAX))
+    updated_on    = Column(DateTime)
+    indexed_on    = Column(DateTime, index=True)
+    crawled_on    = Column(DateTime, index=True)
+    crawl_fail_count = Column(BigInteger, index=True)
+    contract_time = Column(String(STR_MAX))
+    contract_type = Column(String(STR_MAX))
+    created       = Column(DateTime)
+    adz_id        = Column(BigInteger)
+    latitude      = Column(Float)
+    longitude     = Column(Float)
+    location_name = Column(String(STR_MAX))
+    redirect_url  = Column(String(STR_MAX))
+    salary_is_predicted = Column(Boolean)
+    salary_max    = Column(BigInteger, index=True)
+    salary_min    = Column(BigInteger, index=True)
+    crawled_date  = Column(BigInteger, index=True)
+
+    category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
+    company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
+
+    skills        = relationship('ADZJobSkill',
+                                 order_by='INProfileSkill.nrm_name',
+                                 cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('adref'),)
+
+class ADZJobSkill(SQLBase):
+    __tablename__ = 'adzjob_skill'
+    id            = Column(BigInteger, primary_key=True)
+    adzjob_id     = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
+    language      = Column(String(20))
+    name          = Column(Unicode(STR_MAX))
+    nrm_name      = Column(Unicode(STR_MAX), index=True)
+    reenforced    = Column(Boolean)
+    score         = Column(Float)
+
+class ADZCategory(SQLBase):
+    __tablename__ = 'adzcategory'
+    tag           = Column(String(STR_MAX), primary_key=True)
+    label         = Column(String(STR_MAX), nullable=False)
+    job           = relationship('ADZJob')
+
+class ADZCompany(SQLBase):
+    __tablename__  = 'adzcompany'
+    display_name   = Column(String(STR_MAX), primary_key=True)
+    canonical_name = Column(String(STR_MAX), nullable=True, index=True)
+    job            = relationship('ADZJob')
 
 # Entities
 
@@ -1151,6 +1218,140 @@ def _make_inprofile(inprofile):
     return inprofile
 
 
+def _make_adzjob(adzjob):
+    adzjob = deepcopy(adzjob)
+
+    # get profile language
+    language = adzjob.get('language', None)
+
+    # make experience list
+    # adzjob['experiences'] = [_make_inexperience(e, language) \
+    #                          for e in adzjob['experiences']]
+    # adzjob['n_experiences'] = len(adzjob['experiences'])
+    # make education list
+    # adzjob['educations'] \
+    #     = [_make_ineducation(e, language) for e in adzjob['educations']]
+    # adzjob['n_educations'] = len(adzjob['educations'])
+    # make certification list
+    # for certification in adzjob['certifications']:
+    #     certification.pop('id', None)
+    #     certification.pop('inprofile_id', None)
+
+    # add skills
+    profileskills = set(adzjob['skills'])
+    allskills = set(adzjob['skills'])
+
+    # for inexperience in adzjob['experiences']:
+    #     allskills.update(inexperience.get('skills', []))
+
+    adzjob['skills'] = []
+    for skill in allskills:
+        adzjob['skills'].append(_make_inprofile_skill(skill, language, skill in profileskills))
+
+    # find first and last experience
+    adzjob['company'] = None
+    adzjob['curr_title'] = None
+    # adzjob['first_experience_start'] = None
+    # adzjob['last_experience_start'] = None
+    # adzjob['first_title'] = adzjob['curr_title']
+    # adzjob['first_company'] = adzjob['company']
+
+    # experiences = adzjob['experiences']
+    # if len(experiences) == 1:
+    #     adzjob['first_experience_start'] = experiences[0]['start']
+    #     adzjob['last_experience_start'] = experiences[0]['start']
+    #     adzjob['first_title'] = experiences[0]['title']
+    #     adzjob['first_company'] = experiences[0]['company']
+    #     adzjob['company'] = experiences[0]['company']
+    #     adzjob['curr_title'] = experiences[0]['title']
+    # else:
+    #     experiences = [e for e in experiences if e['start'] is not None]
+    #     if experiences:
+    #         first_experience = min(experiences, key=lambda e: e['start'])
+    #         last_experience = max(experiences, key=lambda e: e['start'])
+    #         adzjob['first_experience_start'] = first_experience['start']
+    #         adzjob['last_experience_start'] = last_experience['start']
+    #         adzjob['first_title'] = first_experience['title']
+    #         adzjob['first_company'] = first_experience['company']
+    #     experiences = [e for e in experiences if e['end'] is None]
+    #     if experiences:
+    #         current_experience = max(experiences, key=lambda e: e['start'])
+    #         adzjob['company'] = current_experience['company']
+    #         adzjob['curr_title'] = current_experience['title']
+    # if adzjob['title']:
+    #     titleparts = adzjob['title'].split(' at ')
+    #     if len(titleparts) > 1:
+    #         if not adzjob['company']:
+    #             adzjob['company'] = titleparts[1]
+            # if not adzjob['curr_title']:
+            #     adzjob['curr_title'] = titleparts[0]
+        # else:
+        #     if not adzjob['curr_title']:
+        #         adzjob['curr_title'] = adzjob['title']
+
+    # find first and last education
+    # adzjob['first_education_start'] = None
+    # adzjob['last_education_start'] = None
+    # adzjob['last_education_end'] = None
+    # adzjob['last_institute'] = None
+    # adzjob['last_subject'] = None
+    # adzjob['last_degree'] = None
+    # educations = adzjob['educations']
+    # first_education = None
+    # last_education = None
+    # if len(educations) == 1:
+    #     first_education = educations[0]
+    #     last_education = educations[0]
+    # educations = [e for e in educations if e['start'] is not None]
+    # if last_education is None and educations:
+    #     last_education = max(educations, key=lambda e: e['start'])
+    #     first_education = min(educations, key=lambda e: e['start'])
+    # if last_education is not None:
+    #     adzjob['last_institute'] = last_education['institute']
+    #     adzjob['last_subject'] = last_education['subject']
+    #     adzjob['last_degree'] = last_education['degree']
+    #     adzjob['last_education_start'] = last_education['start']
+    #     adzjob['last_education_end'] = last_education['end']
+    # if first_education is not None:
+    #     adzjob['first_education_start'] = first_education['start']
+
+
+    # normalize fields
+    adzjob['nrm_location'] = normalized_location(adzjob['location'])
+    adzjob['parsed_title'] = parsed_title(language, adzjob['title'])
+    adzjob['nrm_title'] = normalized_title(
+        'indeed', language, adzjob['title'])
+    adzjob['title_prefix'] = normalized_title_prefix(
+        language, adzjob['title'])
+    adzjob['nrm_curr_title'] = normalized_title(
+        'indeed', language, adzjob['curr_title'])
+    adzjob['curr_title_prefix'] = normalized_title_prefix(
+        language, adzjob['curr_title'])
+    adzjob['nrm_first_title'] = normalized_title(
+        'indeed', language, adzjob['first_title'])
+    adzjob['first_title_prefix'] = normalized_title_prefix(
+        language, adzjob['first_title'])
+    adzjob['nrm_company'] = normalized_company(
+        'indeed', language, adzjob['company'])
+    adzjob['nrm_first_company'] = normalized_company(
+        'indeed', language, adzjob['first_company'])
+    adzjob['nrm_last_institute'] = normalized_institute(
+        'indeed', language, adzjob['last_institute'])
+    adzjob['nrm_last_degree'] = normalized_degree(
+        'indeed', language, adzjob['last_degree'])
+    adzjob['nrm_last_subject'] = normalized_subject(
+        'indeed', language, adzjob['last_subject'])
+
+    # determine text length
+    adzjob['text_length'] = _get_length(adzjob, 'title', 'description',
+                                           'additional_information',
+                                        ['experiences', 'title'],
+                                        ['experiences', 'description'],
+                                        ['skills', 'name'])
+
+    return adzjob
+
+
 # Upwork
 
 def _make_uwexperience(uwexperience, language):
@@ -1247,7 +1448,7 @@ def _make_uwprofile(uwprofile):
                            for skill in uwprofile['skills']]
 
     # determine text length
-    inprofile['text_length'] = _get_length(inprofile, 'title', 'description',
+    uwprofile['text_length'] = _get_length(uwprofile, 'title', 'description',
                                          ['experiences', 'title'],
                                          ['experiences', 'description'],
                                          ['skills', 'name'])
@@ -1567,6 +1768,89 @@ class CanonicalDB(Session):
             skill.score = scores[skill.name]
 
         return inprofile
+
+    def add_adzjob(self, adzjob):
+        """Add an Adzuna job to the database (or update if it exists).
+
+        Args:
+          adzjob (dict): Description of the job. Must contain the
+            following fields:
+              id
+              adref
+              contract_time
+              contract_type
+              created
+              description
+              adz_id
+              latitude
+              longitude
+              location0
+              location1
+              location2
+              location3
+              location4
+              location_name
+              redirect_url
+              salary_is_predicted
+              salary_max
+              salary_min
+              title
+              indexed_on
+              crawled_date
+              category
+              company
+              skills (list of str)
+
+        Returns:
+          The ADZJob object that was added to the database.
+
+        """
+        if adzjob['crawl_fail_count'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(ADZJob) \
+                .filter(ADZJob.id == adzjob['id']) \
+                .delete(synchronize_session=False)
+            return None
+
+        adzjob_id = self.query(ADZJob.id) \
+                          .filter(ADZJob.id == adzjob['id']) \
+                          .first()
+
+        # if adzjob_id is not None:
+        #     adzjob['id'] = adzjob_id[0]
+        #     inexperience_ids \
+        #         = [id for id, in self.query(INExperience.id) \
+        #            .filter(INExperience.inprofile_id == adzjob_id[0])]
+        #     if inexperience_ids:
+        #         self.query(INExperienceSkill) \
+        #             .filter(INExperienceSkill.inexperience_id \
+        #                     .in_(inexperience_ids)) \
+        #             .delete(synchronize_session=False)
+
+        adzjob = _make_adzjob(adzjob)
+
+        job_row = self.add_from_dict(adzjob, ADZJob)
+        self.flush()
+
+        # add experiences and compute skill scores
+        # skill_ids = dict((s.name, s.id) for s in inprofile.skills)
+
+        scores = dict((s.name, s.score) for s in job_row.skills)
+
+        # for inexperiencedict in inexperiences:
+        #     inexperiencedict['adzjob_id'] = job_row.id
+        #     skills = []
+        #     for skillname in inexperiencedict.get('skills', []):
+        #         skills.append({'skill_id' : skill_ids[skillname]})
+        #         scores[skillname] += 1.0
+        #     inexperiencedict['skills'] = skills
+        #     self.add_from_dict(inexperiencedict, INExperience)
+
+        # update skill scores
+        for skill in job_row.skills:
+            skill.score = scores[skill.name]
+
+        return job_row
+
 
     def add_uwprofile(self, uwprofile):
         """Add a LinkedIn profile to the database (or update if it exists).

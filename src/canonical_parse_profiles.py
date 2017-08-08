@@ -40,6 +40,17 @@ def make_location(city, country):
         location = None
     return location
 
+def make_adzuna_location(adzjob):
+    locations = list()
+    for i in range(5):
+        loc_key = 'location{0:d}'.format(i)
+        if loc_key in adzjob:
+            locations.append(adzjob[loc_key])
+
+    location = ', '.join(l for l in locations)
+
+    return location
+
 def make_date_time(ts, offset=0):
     if ts:
         result = timestamp0 + timedelta(milliseconds=ts+offset)
@@ -292,6 +303,81 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
     process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
 
+def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
+                    skillextractor):
+    logger = Logger(sys.stdout)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
+
+    q = dtdb.query(ADZJob.id).filter(ADZJob.id >= fromid)
+    if by_indexed_on:
+        q = q.filter(ADZJob.id.indexed_on >= from_ts,
+                     ADZJob.id.indexed_on < to_ts)
+    else:
+        q = q.filter(ADZJob.id.crawled_date >= from_ts,
+                     ADZJob.id.crawled_date < to_ts)
+
+    if toid is not None:
+        q = q.filter(ADZJob.id.id < toid)
+    q = q.order_by(ADZJob.id, ADZJob.category)
+
+    def add_adzjob(adzjob):
+        jobdict = dict_from_row(adzjob, pkeys=False, fkeys=False)
+        jobdict['adref']         = jobdict.pop('adref')
+        jobdict['contract_time'] = jobdict.pop('contract_time')
+        jobdict['contract_type'] = jobdict.pop('contract_type')
+        jobdict['created']       = jobdict.pop('created')
+        jobdict['description']   = jobdict.pop('description')
+        jobdict['adz_id']        = jobdict.pop('adz_id')
+        jobdict['latitude']      = jobdict.pop('latitude')
+        jobdict['longitude']     = jobdict.pop('longitude')
+        jobdict['location0']     = jobdict.pop('location0')
+        jobdict['location1']     = jobdict.pop('location1')
+        jobdict['location2']     = jobdict.pop('location2')
+        jobdict['location3']     = jobdict.pop('location3')
+        jobdict['location4']     = jobdict.pop('location4')
+        jobdict['location_name'] = jobdict.pop('location_name')
+        jobdict['redirect_url']  = jobdict.pop('redirect_url')
+        jobdict['salary_is_predicted'] = jobdict.pop('salary_is_predicted')
+        jobdict['salary_max']    = jobdict.pop('salary_max')
+        jobdict['salary_min']    = jobdict.pop('salary_min')
+        jobdict['title']         = jobdict.pop('title')
+        jobdict['category']      = jobdict.pop('category')
+        jobdict['company']       = jobdict.pop('company')
+        jobdict['indexed_on'] = make_date_time(jobdict.pop('indexed_on', None))
+        jobdict['crawled_on'] = make_date_time(jobdict.pop('crawled_date', None))
+
+        jobdict['skills'] = []
+
+        # determine language
+        profiletexts = [jobdict['title'], jobdict['description']]
+        profiletexts = '. '.join([t for t in profiletexts if t])
+        try:
+            language = langdetect.detect(profiletexts)
+        except LangDetectException:
+            language = None
+
+        if language not in country_languages.values():
+            language = country_languages['United Kingdom'] # Assume English.
+
+        jobdict['language'] = language
+
+
+        # extract skills
+
+        if skillextractor is not None and language == 'en':
+            text = ' '.join(s for s in [jobdict['title'], jobdict['description']] if s)
+            jobdict['skills'] = list(set(skillextractor(text)))
+
+        jobdict['crawl_fail_count'] = 0
+
+        # add profile
+
+        cndb.add_adzjob(jobdict)
+
+    process_db(lastvalid(q), add_adzjob, cndb, logger=logger)
+
+
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
                     skillextractor):
     logger = Logger(sys.stdout)
@@ -491,6 +577,8 @@ def parse_profiles(njobs, batchsize,
                       skillextractor)
         parse_profiles(from_ts, to_ts, fromid, 'github', by_indexed_on,
                       skillextractor)
+        parse_profiles(from_ts, to_ts, fromid, 'adzuna', by_indexed_on,
+                       skillextractor)
         return
     elif source_id == 'linkedin':
         logger.log('Parsing LinkedIn profiles.\n')
@@ -517,6 +605,11 @@ def parse_profiles(njobs, batchsize,
         table = GHProfile
         parsefunc = parse_ghprofiles
         prefix = 'canonical_parse_github'
+    elif source_id == 'adzuna':
+        logger.log('Parsing Adzuna jobs.\n')
+        table = INProfile
+        parsefunc = parse_adzjobs
+        prefix = 'canonical_parse_adzuna'
     else:
         raise ValueError('Invalid source type.')
 
@@ -598,12 +691,12 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--source',
                         choices=['linkedin', 'indeed', 'upwork', 'meetup',
-                                 'github'],
+                                 'github', 'adzuna'],
                         help=
                         'Source type to process. If not specified all sources '
                         'are processed.')
     parser.add_argument('--skills', help=
                         'Name of a CSV file holding skill tags. Only needed '
-                        'when processing Indeed CVs.')
+                        'when processing Indeed CVs or Adzuna jobs')
     args = parser.parse_args()
     main(args)

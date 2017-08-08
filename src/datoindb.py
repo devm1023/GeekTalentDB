@@ -19,6 +19,9 @@ __all__ = [
     'GHProfile',
     'GHLink',
     'DatoinDB',
+    'ADZJob',
+    'ADZCompany',
+    'ADZCategory'
     ]
 
 import conf
@@ -473,18 +476,10 @@ class ADZJob(SQLBase):
     salary_max    = Column(BigInteger, index=True)
     salary_min    = Column(BigInteger, index=True)
     title         = Column(Unicode(STR_MAX), index=True, nullable=False)
-    crawled_date  = Column(DateTime, index=True)
-
+    indexed_on    = Column(BigInteger, index=True)
+    crawled_date  = Column(BigInteger, index=True)
     category      = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
-
-    # category      = relationship('ADZCategory',
-    #                              cascade='all, delete-orphan')
-
     company       = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
-
-    # company       = relationship('ADZCompany',
-    #                              cascade='all, delete-orphan')
-
     __table_args__ = (UniqueConstraint('adref'),)
 
 class ADZCategory(SQLBase):
@@ -607,7 +602,8 @@ class DatoinDB(Session):
         del adzjobdict['__CLASS__']
 
         timestamp = datetime.utcnow()
-        adzjobdict['crawled_date'] = timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        adzjobdict['crawled_date'] = timestamp.timestamp()
+        adzjobdict['indexed_on']   = timestamp.timestamp()
 
         adzjob = self.add_from_dict(adzjobdict, ADZJob,  flush=True)
         self.commit()
@@ -615,5 +611,3 @@ class DatoinDB(Session):
         self.commit()
 
         return adzjob
-
-    
