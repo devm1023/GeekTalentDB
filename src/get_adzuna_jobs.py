@@ -92,7 +92,7 @@ def main(args):
         print('URL failed: {0}\n'.format(init_api))
         raise
 
-    # with open('solr_skills.txt', 'w') as outputfile:
+    # with open('digital_tech_solr_skills.txt', 'w') as outputfile:
     #     for i, skill in enumerate(skills):
     #         if i % 2 == 1:
     #             continue

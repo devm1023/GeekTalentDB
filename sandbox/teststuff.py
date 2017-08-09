@@ -58,7 +58,7 @@ text2 = 'sound Carpetright design As one of after our Store  Managers, as well e
 
 
 # skillfile = 'indeed_skills_trimed.csv'
-skillfile = 'solr_skills.txt'
+skillfile = 'digital_tech_solr_skills.txt'
 
 if skillfile is not None:
     skills = []
