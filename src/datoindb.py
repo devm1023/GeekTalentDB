@@ -479,20 +479,23 @@ class ADZJob(SQLBase):
     indexed_on    = Column(BigInteger, index=True)
     crawled_date  = Column(BigInteger, index=True)
     category      = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
+    cat_obj       = relationship("ADZCategory")
     company       = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
+    com_obj       = relationship("ADZCompany")
+    crawl_fail_count = Column(BigInteger)
     __table_args__ = (UniqueConstraint('adref'),)
 
 class ADZCategory(SQLBase):
     __tablename__ = 'adzcategory'
     tag           = Column(String(STR_MAX), primary_key=True)
     label         = Column(String(STR_MAX), nullable=False)
-    job           = relationship('ADZJob')
+    # job           = relationship('ADZJob')
 
 class ADZCompany(SQLBase):
     __tablename__  = 'adzcompany'
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
-    job            = relationship('ADZJob')
+    # job            = relationship('ADZJob')
 
 class DatoinDB(Session):
     def __init__(self, url=conf.DATOIN_DB,

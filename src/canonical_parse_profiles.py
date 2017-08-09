@@ -93,9 +93,21 @@ def lastvalid(q):
     if currentrow:
         yield currentrow
 
+def lastvalidjob(q):
+    currentrow = None
+    for row in q:
+        if currentrow and row.id != currentrow.id:
+            yield currentrow
+            currentrow = row
+            continue
+        if row.crawl_fail_count == 0 \
+           or row.crawl_fail_count > conf.MAX_CRAWL_FAIL_COUNT:
+            currentrow = row
+    if currentrow:
+        yield currentrow
 
 def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -194,7 +206,7 @@ def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_liprofile, cndb, logger=logger)
 
 def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -304,25 +316,29 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
 
 def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
 
-    q = dtdb.query(ADZJob.id).filter(ADZJob.id >= fromid)
+    q = dtdb.query(ADZJob) \
+        .filter(ADZJob.id >= fromid)
+
+    q = q.filter(ADZJob.category == category)
+
     if by_indexed_on:
-        q = q.filter(ADZJob.id.indexed_on >= from_ts,
-                     ADZJob.id.indexed_on < to_ts)
+        q = q.filter(ADZJob.indexed_on >= from_ts,
+                     ADZJob.indexed_on < to_ts)
     else:
-        q = q.filter(ADZJob.id.crawled_date >= from_ts,
-                     ADZJob.id.crawled_date < to_ts)
+        q = q.filter(ADZJob.crawled_date >= from_ts,
+                     ADZJob.crawled_date < to_ts)
 
     if toid is not None:
-        q = q.filter(ADZJob.id.id < toid)
+        q = q.filter(ADZJob.id < toid)
     q = q.order_by(ADZJob.id, ADZJob.category)
 
     def add_adzjob(adzjob):
-        jobdict = dict_from_row(adzjob, pkeys=False, fkeys=False)
+        jobdict = dict_from_row(adzjob, pkeys=True, fkeys=True)
         jobdict['adref']         = jobdict.pop('adref')
         jobdict['contract_time'] = jobdict.pop('contract_time')
         jobdict['contract_type'] = jobdict.pop('contract_type')
@@ -375,11 +391,11 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
         cndb.add_adzjob(jobdict)
 
-    process_db(lastvalid(q), add_adzjob, cndb, logger=logger)
+    process_db(lastvalidjob(q), add_adzjob, cndb, logger=logger)
 
 
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -441,7 +457,7 @@ def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_uwprofile, cndb, logger=logger)
 
 def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -513,7 +529,7 @@ def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor):
+                    skillextractor, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -564,7 +580,7 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
-                   skillextractor):
+                   skillextractor, category):
     logger = Logger(sys.stdout)
     if source_id is None:
         parse_profiles(from_ts, to_ts, fromid, 'linkedin', by_indexed_on,
@@ -607,7 +623,7 @@ def parse_profiles(njobs, batchsize,
         prefix = 'canonical_parse_github'
     elif source_id == 'adzuna':
         logger.log('Parsing Adzuna jobs.\n')
-        table = INProfile
+        table = ADZJob
         parsefunc = parse_adzjobs
         prefix = 'canonical_parse_adzuna'
     else:
@@ -627,7 +643,7 @@ def parse_profiles(njobs, batchsize,
 
     split_process(query, parsefunc, batchsize,
                   njobs=njobs,
-                  args=[from_ts, to_ts, by_indexed_on, skillextractor],
+                  args=[from_ts, to_ts, by_indexed_on, skillextractor, category],
                   logger=logger, workdir='jobs', prefix=prefix)
 
 
@@ -647,6 +663,7 @@ def main(args):
     fromid = args.from_id
     skillfile = args.skills
     source_id = args.source
+    category  = args.category
 
     from_ts = int((fromdate - timestamp0).total_seconds())*1000
     to_ts   = int((todate   - timestamp0).total_seconds())*1000
@@ -664,7 +681,7 @@ def main(args):
         del skills
 
     parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,
-                   by_indexed_on, skillextractor)
+                   by_indexed_on, skillextractor, category)
     
     
 if __name__ == '__main__':
@@ -698,5 +715,8 @@ if __name__ == '__main__':
     parser.add_argument('--skills', help=
                         'Name of a CSV file holding skill tags. Only needed '
                         'when processing Indeed CVs or Adzuna jobs')
+    parser.add_argument('--category', help=
+                        'Name of an Adzuna category for which skills file contains '
+                        'skills. Only needed Adzuna jobs')
     args = parser.parse_args()
     main(args)

@@ -457,6 +457,20 @@ def normalized_location(name):
         return None
     return nname
 
+def normalized_adzuna_location(loc0, loc1, loc2, loc3, loc4):
+    """Normalize a string describing a location.
+
+    """
+    nloc = ', '.join(filter(None, (loc4, loc3, loc2, loc1, loc0))).lower()
+
+    if not nloc:
+        return None
+    nloc = nloc.replace('en omgeving', '')
+    nloc = nloc.replace('reino unido', 'united kingdom')
+    if not nloc:
+        return None
+    return nloc
+
 def normalized_institute(source, language, name):
     """Normalize a string describing an educational institute.
 

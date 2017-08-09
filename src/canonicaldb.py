@@ -742,7 +742,7 @@ class ADZJob(SQLBase):
     salary_is_predicted = Column(Boolean)
     salary_max    = Column(BigInteger, index=True)
     salary_min    = Column(BigInteger, index=True)
-    crawled_date  = Column(BigInteger, index=True)
+    # crawled_date  = Column(BigInteger, index=True)
 
     category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
     company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
@@ -767,7 +767,7 @@ class ADZCategory(SQLBase):
     __tablename__ = 'adzcategory'
     tag           = Column(String(STR_MAX), primary_key=True)
     label         = Column(String(STR_MAX), nullable=False)
-    job           = relationship('ADZJob')
+    # job           = relationship('ADZJob')
 
 class ADZCompany(SQLBase):
     __tablename__  = 'adzcompany'
@@ -1249,8 +1249,8 @@ def _make_adzjob(adzjob):
         adzjob['skills'].append(_make_inprofile_skill(skill, language, skill in profileskills))
 
     # find first and last experience
-    adzjob['company'] = None
-    adzjob['curr_title'] = None
+    # adzjob['company'] = None
+    # adzjob['curr_title'] = None
     # adzjob['first_experience_start'] = None
     # adzjob['last_experience_start'] = None
     # adzjob['first_title'] = adzjob['curr_title']
@@ -1317,37 +1317,19 @@ def _make_adzjob(adzjob):
 
 
     # normalize fields
-    adzjob['nrm_location'] = normalized_location(adzjob['location'])
-    adzjob['parsed_title'] = parsed_title(language, adzjob['title'])
-    adzjob['nrm_title'] = normalized_title(
-        'indeed', language, adzjob['title'])
-    adzjob['title_prefix'] = normalized_title_prefix(
-        language, adzjob['title'])
-    adzjob['nrm_curr_title'] = normalized_title(
-        'indeed', language, adzjob['curr_title'])
-    adzjob['curr_title_prefix'] = normalized_title_prefix(
-        language, adzjob['curr_title'])
-    adzjob['nrm_first_title'] = normalized_title(
-        'indeed', language, adzjob['first_title'])
-    adzjob['first_title_prefix'] = normalized_title_prefix(
-        language, adzjob['first_title'])
-    adzjob['nrm_company'] = normalized_company(
-        'indeed', language, adzjob['company'])
-    adzjob['nrm_first_company'] = normalized_company(
-        'indeed', language, adzjob['first_company'])
-    adzjob['nrm_last_institute'] = normalized_institute(
-        'indeed', language, adzjob['last_institute'])
-    adzjob['nrm_last_degree'] = normalized_degree(
-        'indeed', language, adzjob['last_degree'])
-    adzjob['nrm_last_subject'] = normalized_subject(
-        'indeed', language, adzjob['last_subject'])
+    adzjob['nrm_location'] = normalized_adzuna_location(
+                                adzjob['location0'],
+                                adzjob['location1'],
+                                adzjob['location2'],
+                                adzjob['location3'],
+                                adzjob['location4'])
+    adzjob['parsed_title']      = parsed_title(language, adzjob['title'])
+    adzjob['nrm_title']         = normalized_title('adzuna', language, adzjob['title'])
+    adzjob['title_prefix']      = normalized_title_prefix(language, adzjob['title'])
+    adzjob['nrm_company']       = normalized_company('adzuna', language, adzjob['company'])
 
     # determine text length
-    adzjob['text_length'] = _get_length(adzjob, 'title', 'description',
-                                           'additional_information',
-                                        ['experiences', 'title'],
-                                        ['experiences', 'description'],
-                                        ['skills', 'name'])
+    adzjob['text_length'] = _get_length(adzjob, 'title', 'description', ['skills', 'name'])
 
     return adzjob
 
@@ -1811,9 +1793,33 @@ class CanonicalDB(Session):
                 .delete(synchronize_session=False)
             return None
 
-        adzjob_id = self.query(ADZJob.id) \
-                          .filter(ADZJob.id == adzjob['id']) \
-                          .first()
+        # adzjob_id = self.query(ADZJob.id) \
+        #                   .filter(ADZJob.id == adzjob['id']) \
+        #                   .first()
+
+        cat_tag = self.query(ADZCategory.tag) \
+            .filter(ADZCategory.tag \
+                    == adzjob['category']) \
+            .first()
+
+        # Prepare category for 1-m
+        if not cat_tag:
+            adzcat = self.add_from_dict(adzjob['cat_obj'], ADZCategory, flush=True)
+            self.flush()
+
+        # Prepare company for 1-m
+        # if 'display_name' in adzjob['com_obj']:
+        if adzjob['com_obj'] is not None and 'display_name' in adzjob['com_obj']:
+            com_tag = self.query(ADZCompany.display_name) \
+                .filter(ADZCompany.display_name \
+                        == adzjob['com_obj']['display_name']) \
+                .first()
+            if not com_tag:
+                adzcom = self.add_from_dict(adzjob['com_obj'], ADZCompany, flush=True)
+                self.flush()
+                adzjob['company'] = adzjob['com_obj']['display_name']
+        else:
+            adzjob['company'] = None
 
         # if adzjob_id is not None:
         #     adzjob['id'] = adzjob_id[0]
