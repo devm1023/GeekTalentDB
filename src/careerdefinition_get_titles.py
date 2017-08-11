@@ -45,6 +45,8 @@ if __name__ == '__main__':
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
                         'Columns: type | lang | sector | name | mapped name')
+    parser.add_argument('--source', choices=['linkedin', 'indeed'], default='linkedin',
+                        help='The data source to process.')
     parser.add_argument('sector', nargs='*', default=[],
                         help='The merged sectors to scan.')
     args = parser.parse_args()
@@ -57,11 +59,16 @@ if __name__ == '__main__':
         sys.stderr.flush()
         sys.exit(1)
 
-    totalc = cndb.query(LIProfile.id) \
+    if args.source == 'linkedin':
+        profile_table = LIProfile
+    elif args.source == 'indeed':
+        profile_table = INProfile
+
+    totalc = cndb.query(profile_table.id) \
                  .join(Location,
-                       Location.nrm_name == LIProfile.nrm_location) \
-                 .filter(LIProfile.nrm_sector != None,
-                         LIProfile.language == 'en',
+                       Location.nrm_name == profile_table.nrm_location) \
+                 .filter(profile_table.nrm_sector != None,
+                         profile_table.language == 'en',
                          Location.nuts0 == 'UK') \
                  .count()
 
@@ -72,29 +79,29 @@ if __name__ == '__main__':
     for nrm_sector in sectors:
         sector = mapper.name(nrm_sector)
         lisectors = mapper.inv(nrm_sector)
-        sectorc = cndb.query(LIProfile.id) \
+        sectorc = cndb.query(profile_table.id) \
                       .join(Location,
-                            Location.nrm_name == LIProfile.nrm_location) \
-                      .filter(LIProfile.nrm_sector.in_(lisectors),
-                              LIProfile.language == 'en',
+                            Location.nrm_name == profile_table.nrm_location) \
+                      .filter(profile_table.nrm_sector.in_(lisectors),
+                              profile_table.language == 'en',
                               Location.nuts0 == 'UK') \
                       .count()
 
         # build title cloud
         entityq = lambda entities: \
-                  cndb.query(LIProfile.nrm_curr_title, countcol) \
+                  cndb.query(profile_table.nrm_curr_title, countcol) \
                       .join(Location,
-                            Location.nrm_name == LIProfile.nrm_location) \
-                      .filter(in_values(LIProfile.nrm_curr_title, entities),
-                              LIProfile.nrm_sector != None,
-                              LIProfile.language == 'en',
+                            Location.nrm_name == profile_table.nrm_location) \
+                      .filter(in_values(profile_table.nrm_curr_title, entities),
+                              profile_table.nrm_sector != None,
+                              profile_table.language == 'en',
                               Location.nuts0 == 'UK') \
-                      .group_by(LIProfile.nrm_curr_title)
-        coincidenceq = cndb.query(LIProfile.nrm_curr_title, countcol) \
+                      .group_by(profile_table.nrm_curr_title)
+        coincidenceq = cndb.query(profile_table.nrm_curr_title, countcol) \
                            .join(Location,
-                                 Location.nrm_name == LIProfile.nrm_location) \
-                           .filter(LIProfile.nrm_sector.in_(lisectors),
-                                   LIProfile.language == 'en',
+                                 Location.nrm_name == profile_table.nrm_location) \
+                           .filter(profile_table.nrm_sector.in_(lisectors),
+                                   profile_table.language == 'en',
                                    Location.nuts0 == 'UK')
         entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
         jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,

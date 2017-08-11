@@ -17,45 +17,45 @@ def _iter_items(keys, d):
             yield key, d[key]
 
 
-def skillvectors(titles, mappings, mincount=1):
+def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=1):
     cndb = CanonicalDB()
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
 
     logger.log('Counting profiles.\n')
-    totalc_nosf = cndb.query(LIProfile.id) \
+    totalc_nosf = cndb.query(profile_table.id) \
                       .join(Location,
-                            Location.nrm_name == LIProfile.nrm_location) \
-                      .filter(LIProfile.language == 'en',
+                            Location.nrm_name == profile_table.nrm_location) \
+                      .filter(profile_table.language == 'en',
                               Location.nuts0 == 'UK') \
                       .count()
-    totalc_sf = cndb.query(LIProfile.id) \
+    totalc_sf = cndb.query(profile_table.id) \
                     .join(Location,
-                          Location.nrm_name == LIProfile.nrm_location) \
-                    .filter(LIProfile.nrm_sector != None,
-                            LIProfile.language == 'en',
+                          Location.nrm_name == profile_table.nrm_location) \
+                    .filter(profile_table.nrm_sector != None,
+                            profile_table.language == 'en',
                             Location.nuts0 == 'UK') \
                     .count()
 
     logger.log('Counting skills.\n')
     countcol = func.count().label('counts')
-    q = cndb.query(LIProfileSkill.nrm_name, countcol) \
-            .join(LIProfile) \
+    q = cndb.query(skill_table.nrm_name, countcol) \
+            .join(profile_table) \
             .join(Location,
-                  Location.nrm_name == LIProfile.nrm_location) \
+                  Location.nrm_name == profile_table.nrm_location) \
             .filter(Location.nuts0 == 'UK',
-                    LIProfile.language == 'en') \
-            .group_by(LIProfileSkill.nrm_name) \
+                    profile_table.language == 'en') \
+            .group_by(skill_table.nrm_name) \
             .having(countcol >= mincount)
     skillcounts_nosf = dict(q)
-    q = cndb.query(LIProfileSkill.nrm_name, countcol) \
-            .join(LIProfile) \
+    q = cndb.query(skill_table.nrm_name, countcol) \
+            .join(profile_table) \
             .join(Location,
-                  Location.nrm_name == LIProfile.nrm_location) \
+                  Location.nrm_name == profile_table.nrm_location) \
             .filter(Location.nuts0 == 'UK',
-                    LIProfile.language == 'en',
-                    LIProfile.nrm_sector != None) \
-            .group_by(LIProfileSkill.nrm_name) \
+                    profile_table.language == 'en',
+                    profile_table.nrm_sector != None) \
+            .group_by(skill_table.nrm_name) \
             .having(countcol >= mincount)
     skillcounts_sf = dict(q)
 
@@ -64,14 +64,14 @@ def skillvectors(titles, mappings, mincount=1):
     titlecounts = []
     for sector, title, sector_filter in titles:
         logger.log('Processing: {0:s}\n'.format(title))
-        nrm_title = normalized_entity('title', 'linkedin', 'en', title)
-        nrm_sector = normalized_entity('sector', 'linkedin', 'en', sector)
+        nrm_title = normalized_entity('title', source, 'en', title)
+        nrm_sector = normalized_entity('sector', source, 'en', sector)
         
         if sector_filter:
             totalc = totalc_sf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_sf)
             sector_clause = (
-                LIProfile.nrm_sector.in_(mapper.inv(nrm_sector)),)
+                profile_table.nrm_sector.in_(mapper.inv(nrm_sector)),)
         else:
             totalc = totalc_nosf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_nosf)
@@ -87,22 +87,22 @@ def skillvectors(titles, mappings, mincount=1):
                         tpe, source, language, words, normalize=False):
                     similar_titles.add(entity)
             
-        titlec = cndb.query(LIProfile.id) \
+        titlec = cndb.query(profile_table.id) \
                      .join(Location,
-                           Location.nrm_name == LIProfile.nrm_location) \
-                     .filter(LIProfile.language == 'en',
+                           Location.nrm_name == profile_table.nrm_location) \
+                     .filter(profile_table.language == 'en',
                              Location.nuts0 == 'UK',
-                             in_values(LIProfile.nrm_curr_title,
+                             in_values(profile_table.nrm_curr_title,
                                        similar_titles),
                              *sector_clause) \
                      .count()
-        coincidenceq = cndb.query(LIProfileSkill.nrm_name, func.count()) \
-                           .join(LIProfile) \
+        coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
+                           .join(profile_table) \
                            .join(Location,
-                                 Location.nrm_name == LIProfile.nrm_location) \
-                           .filter(LIProfile.language == 'en',
+                                 Location.nrm_name == profile_table.nrm_location) \
+                           .filter(profile_table.language == 'en',
                                    Location.nuts0 == 'UK',
-                                   in_values(LIProfile.nrm_curr_title,
+                                   in_values(profile_table.nrm_curr_title,
                                              similar_titles),
                                    *sector_clause)
         
@@ -134,6 +134,8 @@ if __name__ == '__main__':
                         help='CSV file holding entity mappings.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for skills.')
+    parser.add_argument('--source', choices=['linkedin', 'indeed'], default='linkedin',
+                        help='The data source to process.')
     args = parser.parse_args()
 
     logger = Logger()
@@ -147,8 +149,15 @@ if __name__ == '__main__':
             sector_filter = bool(int(row[2]))
             titles.append((row[0], row[1], sector_filter))
 
+    if args.source == 'linkedin':
+        profile_table = LIProfile
+        skill_table = LIProfileSkill
+    elif args.source == 'indeed':
+        profile_table = INProfile
+        skill_table = INProfileSkill
+
     titles, titlecounts, skillvectors \
-        = skillvectors(titles, args.mappings, args.min_count)
+        = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, args.min_count)
 
     with open(args.output_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
