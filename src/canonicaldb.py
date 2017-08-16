@@ -750,6 +750,7 @@ class ADZJob(SQLBase):
 
     category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
     company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
+    la_id = Column(BigInteger, ForeignKey('la.gid'))
 
     skills        = relationship('ADZJobSkill',
                                  order_by='ADZJobSkill.nrm_name',
@@ -778,6 +779,31 @@ class ADZCompany(SQLBase):
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
     job            = relationship('ADZJob')
+
+# la/lep
+class LA(SQLBase):
+    __tablename__ = 'la'
+    gid           = Column(BigInteger, primary_key=True)
+    objectid      = Column(BigInteger, primary_key=True)
+    lau118cd      = Column(String(80), nullable=False)
+    lau118nm      = Column(String(80), nullable=False)
+    bng_e         = Column(Integer, nullable=False)
+    bng_n         = Column(Integer, nullable=False)
+    long          = Column(Float, nullable=False)
+    lat           = Column(Float, nullable=False)
+    st_areasha    = Column(Float, nullable=False)
+    st_lengths    = Column(Float, nullable=False)
+    geom          = Column(Geometry('MULTIPOLYGON'))
+
+class LEP(SQLBase):
+    __tablename__ = 'lep'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(String(50), nullable=False)
+
+class LAInLEP(SQLBase):
+    __tablename__ = 'la_in_lep'
+    la_id         = Column(BigInteger, ForeignKey('la.gid'), primary_key=True)
+    lep_id        = Column(BigInteger, ForeignKey('lep.id'), primary_key=True)
 
 # Entities
 
