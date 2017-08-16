@@ -752,7 +752,7 @@ class ADZJob(SQLBase):
     company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
 
     skills        = relationship('ADZJobSkill',
-                                 order_by='INProfileSkill.nrm_name',
+                                 order_by='ADZJobSkill.nrm_name',
                                  cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('adref'),)
