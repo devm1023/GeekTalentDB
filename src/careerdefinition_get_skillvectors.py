@@ -22,42 +22,64 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
 
+    is_adzuna = profile_table is ADZJob
+
     logger.log('Counting profiles.\n')
-    totalc_nosf = cndb.query(profile_table.id) \
-                      .join(Location,
+
+
+    if is_adzuna:
+        totalc_nosf = cndb.query(profile_table.id) \
+                          .filter(profile_table.language == 'en') \
+                          .count()
+        # every Adzuna job has a category
+        totalc_sf = totalc_nosf
+    else:
+        totalc_nosf = cndb.query(profile_table.id) \
+                          .join(Location,
+                                Location.nrm_name == profile_table.nrm_location) \
+                          .filter(profile_table.language == 'en',
+                                  Location.nuts0 == 'UK') \
+                          .count()
+        totalc_sf = cndb.query(profile_table.id) \
+                        .join(Location,
                             Location.nrm_name == profile_table.nrm_location) \
-                      .filter(profile_table.language == 'en',
-                              Location.nuts0 == 'UK') \
-                      .count()
-    totalc_sf = cndb.query(profile_table.id) \
-                    .join(Location,
-                          Location.nrm_name == profile_table.nrm_location) \
-                    .filter(profile_table.nrm_sector != None,
-                            profile_table.language == 'en',
-                            Location.nuts0 == 'UK') \
-                    .count()
+                        .filter(profile_table.nrm_sector != None,
+                                profile_table.language == 'en',
+                                Location.nuts0 == 'UK') \
+                        .count()
 
     logger.log('Counting skills.\n')
     countcol = func.count().label('counts')
-    q = cndb.query(skill_table.nrm_name, countcol) \
-            .join(profile_table) \
-            .join(Location,
-                  Location.nrm_name == profile_table.nrm_location) \
-            .filter(Location.nuts0 == 'UK',
-                    profile_table.language == 'en') \
-            .group_by(skill_table.nrm_name) \
-            .having(countcol >= mincount)
-    skillcounts_nosf = dict(q)
-    q = cndb.query(skill_table.nrm_name, countcol) \
-            .join(profile_table) \
-            .join(Location,
-                  Location.nrm_name == profile_table.nrm_location) \
-            .filter(Location.nuts0 == 'UK',
-                    profile_table.language == 'en',
-                    profile_table.nrm_sector != None) \
-            .group_by(skill_table.nrm_name) \
-            .having(countcol >= mincount)
-    skillcounts_sf = dict(q)
+
+    if is_adzuna:
+        q = cndb.query(skill_table.nrm_name, countcol) \
+                .join(profile_table) \
+                .filter(profile_table.language == 'en') \
+                .group_by(skill_table.nrm_name) \
+                .having(countcol >= mincount)
+        skillcounts_nosf = dict(q)
+        skillcounts_sf = skillcounts_nosf
+    else:
+        q = cndb.query(skill_table.nrm_name, countcol) \
+                .join(profile_table) \
+                .join(Location,
+                      Location.nrm_name == profile_table.nrm_location) \
+                .filter(Location.nuts0 == 'UK',
+                        profile_table.language == 'en') \
+                .group_by(skill_table.nrm_name) \
+                .having(countcol >= mincount)
+        skillcounts_nosf = dict(q)
+
+        q = cndb.query(skill_table.nrm_name, countcol) \
+                .join(profile_table) \
+                .join(Location,
+                    Location.nrm_name == profile_table.nrm_location) \
+                .filter(Location.nuts0 == 'UK',
+                        profile_table.language == 'en',
+                        profile_table.nrm_sector != None) \
+                .group_by(skill_table.nrm_name) \
+                .having(countcol >= mincount)
+        skillcounts_sf = dict(q)
 
     skillvectors = []
     newtitles = []
@@ -86,25 +108,39 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
                 for entity, _, _, _ in cndb.find_entities(
                         tpe, source, language, words, normalize=False):
                     similar_titles.add(entity)
-            
-        titlec = cndb.query(profile_table.id) \
-                     .join(Location,
-                           Location.nrm_name == profile_table.nrm_location) \
-                     .filter(profile_table.language == 'en',
-                             Location.nuts0 == 'UK',
-                             in_values(profile_table.nrm_curr_title,
-                                       similar_titles),
-                             *sector_clause) \
-                     .count()
-        coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
-                           .join(profile_table) \
-                           .join(Location,
-                                 Location.nrm_name == profile_table.nrm_location) \
-                           .filter(profile_table.language == 'en',
-                                   Location.nuts0 == 'UK',
-                                   in_values(profile_table.nrm_curr_title,
-                                             similar_titles),
-                                   *sector_clause)
+        
+        if is_adzuna:
+            titlec = cndb.query(profile_table.id) \
+                         .filter(profile_table.language == 'en',
+                                 in_values(profile_table.nrm_title,
+                                           similar_titles),
+                                 *sector_clause) \
+                         .count()
+            coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
+                               .join(profile_table) \
+                               .filter(profile_table.language == 'en',
+                                       in_values(profile_table.nrm_title,
+                                                 similar_titles),
+                                       *sector_clause)
+        else:
+            titlec = cndb.query(profile_table.id) \
+                         .join(Location,
+                               Location.nrm_name == profile_table.nrm_location) \
+                         .filter(profile_table.language == 'en',
+                                 Location.nuts0 == 'UK',
+                                 in_values(profile_table.nrm_curr_title,
+                                           similar_titles),
+                                 *sector_clause) \
+                         .count()
+            coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
+                               .join(profile_table) \
+                               .join(Location,
+                                     Location.nrm_name == profile_table.nrm_location) \
+                               .filter(profile_table.language == 'en',
+                                       Location.nuts0 == 'UK',
+                                       in_values(profile_table.nrm_curr_title,
+                                                 similar_titles),
+                                       *sector_clause)
         
         skillvector = {}
         for nrm_skill, skillc, titleskillc, _, _ in \
@@ -134,7 +170,7 @@ if __name__ == '__main__':
                         help='CSV file holding entity mappings.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for skills.')
-    parser.add_argument('--source', choices=['linkedin', 'indeed'], default='linkedin',
+    parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], default='linkedin',
                         help='The data source to process.')
     args = parser.parse_args()
 
@@ -155,6 +191,9 @@ if __name__ == '__main__':
     elif args.source == 'indeed':
         profile_table = INProfile
         skill_table = INProfileSkill
+    elif args.source == 'adzuna':
+        profile_table = ADZJob
+        skill_table = ADZJobSkill
 
     titles, titlecounts, skillvectors \
         = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, args.min_count)
