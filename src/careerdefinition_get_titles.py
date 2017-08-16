@@ -10,15 +10,15 @@ import csv
 import argparse
 
 
-def get_sectors(sectors, filename, mapper):
-    sectors = [mapper(normalized_sector(s)) for s in sectors]
+def get_sectors(sectors, filename, mapper, norm):
+    sectors = [mapper(norm(s)) for s in sectors]
     if filename:
         with open(filename, 'r') as sectorfile:
             for line in sectorfile:
                 row = line.split('|')
                 if not row:
                     continue
-                sector = mapper(normalized_sector(row[0]))
+                sector = mapper(norm(row[0]))
                 if not sector:
                     continue
                 if sector not in sectors:
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
                         'Columns: type | lang | sector | name | mapped name')
-    parser.add_argument('--source', choices=['linkedin', 'indeed'], default='linkedin',
+    parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], default='linkedin',
                         help='The data source to process.')
     parser.add_argument('sector', nargs='*', default=[],
                         help='The merged sectors to scan.')
@@ -53,7 +53,14 @@ if __name__ == '__main__':
 
     cndb = CanonicalDB()
     mapper = EntityMapper(cndb, args.mappings)
-    sectors = get_sectors(args.sector, args.sectors_from, mapper)
+
+    # Adzuna categories are not normalised
+    if args.source == 'adzuna':
+        norm_sector = lambda x: x
+    else:
+        norm_sector = normalized_sector
+    sectors = get_sectors(args.sector, args.sectors_from, mapper, norm_sector)
+
     if not sectors:
         sys.stderr.write('You must specify at least one sector.\n')
         sys.stderr.flush()
@@ -63,50 +70,78 @@ if __name__ == '__main__':
         profile_table = LIProfile
     elif args.source == 'indeed':
         profile_table = INProfile
+    elif args.source == 'adzuna':
+        profile_table = ADZJob
 
-    totalc = cndb.query(profile_table.id) \
-                 .join(Location,
-                       Location.nrm_name == profile_table.nrm_location) \
-                 .filter(profile_table.nrm_sector != None,
-                         profile_table.language == 'en',
-                         Location.nuts0 == 'UK') \
-                 .count()
+    totalc = cndb.query(profile_table.id)
+
+    # Adzuna jobs have categories instead of sectors, should always be in the uk and always
+    # have a category
+    if args.source != 'adzuna':
+        totalc = totalc.join(Location,
+                             Location.nrm_name == profile_table.nrm_location) \
+                       .filter(profile_table.nrm_sector != None,
+                               profile_table.language == 'en',
+                               Location.nuts0 == 'UK')
+    totalc = totalc.count()
 
     joblists = {}
     sectorcounts = {}
     countcol = func.count().label('counts')
     csvwriter = csv.writer(sys.stdout)
     for nrm_sector in sectors:
-        sector = mapper.name(nrm_sector)
-        lisectors = mapper.inv(nrm_sector)
-        sectorc = cndb.query(profile_table.id) \
-                      .join(Location,
-                            Location.nrm_name == profile_table.nrm_location) \
-                      .filter(profile_table.nrm_sector.in_(lisectors),
-                              profile_table.language == 'en',
-                              Location.nuts0 == 'UK') \
-                      .count()
+        if args.source == 'adzuna':
+            sector = nrm_sector
 
-        # build title cloud
-        entityq = lambda entities: \
-                  cndb.query(profile_table.nrm_curr_title, countcol) \
-                      .join(Location,
-                            Location.nrm_name == profile_table.nrm_location) \
-                      .filter(in_values(profile_table.nrm_curr_title, entities),
-                              profile_table.nrm_sector != None,
-                              profile_table.language == 'en',
-                              Location.nuts0 == 'UK') \
-                      .group_by(profile_table.nrm_curr_title)
-        coincidenceq = cndb.query(profile_table.nrm_curr_title, countcol) \
-                           .join(Location,
-                                 Location.nrm_name == profile_table.nrm_location) \
-                           .filter(profile_table.nrm_sector.in_(lisectors),
-                                   profile_table.language == 'en',
-                                   Location.nuts0 == 'UK')
-        entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
-        jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
-                            entitymap=entitymap, limit=args.max_titles,
-                            mincount=args.min_count, sigma=args.sigma)
+            sectorc = cndb.query(profile_table.id) \
+                        .filter(profile_table.category == nrm_sector) \
+                        .count()
+
+            # build title cloud
+            entityq = lambda entities: \
+                    cndb.query(profile_table.nrm_title, countcol) \
+                        .filter(in_values(profile_table.nrm_title, entities)) \
+                        .group_by(profile_table.nrm_title)
+
+            coincidenceq = cndb.query(profile_table.nrm_title, countcol) \
+                            .filter(profile_table.category == nrm_sector)
+
+            entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
+            jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
+                                entitymap=entitymap, limit=args.max_titles,
+                                mincount=args.min_count, sigma=args.sigma)
+        else:
+            sector = mapper.name(nrm_sector)
+            lisectors = mapper.inv(nrm_sector)
+            sectorc = cndb.query(profile_table.id) \
+                        .join(Location,
+                                Location.nrm_name == profile_table.nrm_location) \
+                        .filter(profile_table.nrm_sector.in_(lisectors),
+                                profile_table.language == 'en',
+                                Location.nuts0 == 'UK') \
+                        .count()
+
+            # build title cloud
+            entityq = lambda entities: \
+                    cndb.query(profile_table.nrm_curr_title, countcol) \
+                        .join(Location,
+                                Location.nrm_name == profile_table.nrm_location) \
+                        .filter(in_values(profile_table.nrm_curr_title, entities),
+                                profile_table.nrm_sector != None,
+                                profile_table.language == 'en',
+                                Location.nuts0 == 'UK') \
+                        .group_by(profile_table.nrm_curr_title)
+            coincidenceq = cndb.query(profile_table.nrm_curr_title, countcol) \
+                            .join(Location,
+                                    Location.nrm_name == profile_table.nrm_location) \
+                            .filter(profile_table.nrm_sector.in_(lisectors),
+                                    profile_table.language == 'en',
+                                    Location.nuts0 == 'UK')
+            entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
+            jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
+                                entitymap=entitymap, limit=args.max_titles,
+                                mincount=args.min_count, sigma=args.sigma)
+
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title)
             frac1 = sectortitlec/sectorc
