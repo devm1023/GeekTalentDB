@@ -345,7 +345,7 @@ class CareerDefinitionDB(Session):
                 salary_bins = [dict_from_row(b) for b, in salary_bins \
                                if b is not None]
                 salary = _average_salary(salary_bins)
-                if salary is not None:
+                if salary is not None and count is not None:
                     wsum += count*salary
                     totalcount += count
                 sectordict['careers'].append(title)
