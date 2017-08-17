@@ -343,9 +343,18 @@ def parsed_title(language, name):
     name = clean(name, keep='&/-,\'+#', removebrackets=True)
     for separator in conf['title_separators']:
         name = name.split(separator)[0]
-    name = name.split(' - ')[0]
-    name = name.split(' / ')[0]
-    name = name.split(',')[0]
+
+    # split up to first non-prefix part
+    split = re.split(r'- | / |,', name)
+    name = []
+    for part in split:
+        name.append(part)
+
+        if part.strip().lower() not in conf['title_prefix_words']:
+            break
+
+    name = ' '.join(name)
+
     if not name:
         return None
     return name
