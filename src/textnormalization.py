@@ -48,6 +48,7 @@ _conf = {
             'trainee',
             'associate',
             'staff',
+            'graduate',
         ]),
         'title_suffix_words' : set([
             'intern',
