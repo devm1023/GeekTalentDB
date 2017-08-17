@@ -51,6 +51,7 @@ _conf = {
         ]),
         'title_suffix_words' : set([
             'intern',
+            'apprentice',
         ]),
         'title_replace' : [
             ('.net', ' dotnet'),
