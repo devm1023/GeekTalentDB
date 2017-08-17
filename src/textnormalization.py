@@ -340,7 +340,7 @@ def parsed_title(language, name):
         raise ValueError('Invalid language: '+repr(language))
     conf = _conf[language]
 
-    name = clean(name, keep='&/-,\'', removebrackets=True)
+    name = clean(name, keep='&/-,\'+#', removebrackets=True)
     for separator in conf['title_separators']:
         name = name.split(separator)[0]
     name = name.split(' - ')[0]
