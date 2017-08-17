@@ -60,6 +60,11 @@ _conf = {
             ('tcp/ip', 'tcpip'),
             ('co-ordin', 'coordin'),
             ('advisor', 'adviser'),
+            ('back-end', 'backend'),
+            ('back end', 'backend'),
+            ('front-end', 'frontend'),
+            ('front end', 'frontend'),
+            ('ms dynamics', 'microsoft dynamics'),
         ],
 
         'sector_stopwords' : _stopwords_en,
