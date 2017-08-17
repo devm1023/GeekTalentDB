@@ -67,6 +67,14 @@ _conf = {
             ('ms dynamics', 'microsoft dynamics'),
         ],
 
+        'title_regex_replace' : [
+            # 2x title/x2 title/title 2x/title x2
+            (r'^[0-9]+ ?[xX]', ''),
+            (r'^[xX] ?[0-9]+', ''),
+            (r'[0-9]+ ?[xX]$', ''),
+            (r'[xX] ?[0-9]+$', ''),
+        ],
+
         'sector_stopwords' : _stopwords_en,
 
         'company_stopwords' : _stopwords_en | \
@@ -129,6 +137,7 @@ _conf = {
             ('f#', 'fsharp'),
             ('tcp/ip', 'tcpip'),
         ],
+        'title_regex_replace': [],
 
         'company_stopwords' : _stopwords_nl,
 
@@ -393,6 +402,7 @@ def normalized_title(source, language, name):
                   removebrackets=True,
                   stopwords=conf['title_stopwords'],
                   replace=conf['title_replace'],
+                  regexreplace=conf['title_regex_replace'],
                   stem=conf['stemmer'],
                   protect=conf['protect'])
     return make_nrm_name('title', source, language, title)
