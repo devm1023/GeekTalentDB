@@ -72,7 +72,7 @@ class EntityMapper:
             return nrm_map[entity]
         return entity
 
-    def entities(sectors=None):
+    def entities(self, sectors=None):
         items = set()
         if sectors is None:
             for sector, inv_map in self._inv_nrm_maps.items():
