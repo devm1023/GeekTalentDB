@@ -350,9 +350,13 @@ def parsed_title(language, name):
     split = re.split(r'- | / |,', name)
     name = []
     for part in split:
+        part = part.strip(' /-,')
+        if not part:
+            continue
+
         name.append(part)
 
-        if part.strip().lower() not in conf['title_prefix_words']:
+        if part.lower() not in conf['title_prefix_words']:
             break
 
     name = ' '.join(name)
