@@ -69,6 +69,50 @@ _conf = {
             ('ms dynamics', 'microsoft dynamics'),
         ],
 
+        'job_title_pre_regex_replace' : [
+            # Adzuna titles seem to all be missing the dot from .net
+            (r'(?i)aspnet', 'ASP.net'),
+            (r'(?i)c#net', 'C# .net'),
+            (r'(^| )(NET|Net) ', '\1.net '),
+
+            # 2x title/x2 title/title 2x/title x2
+            (r'^[0-9]+ ?[xX]', ''),
+            (r'^[xX] ?[0-9]+', ''),
+            (r'[0-9]+ ?[xX]$', ''),
+            (r'[xX] ?[0-9]+$', ''),
+
+            # salary
+            (r'(GBP)?[0-9]{2,}(-[0-9]{2})?[kK]', ''),
+            (r'([^0-9]|^)[0-9]{2,3},?[0-9]{3}([^0-9]|$)', '\1\2'),
+            (r'up to [0-9]{2,}', ''),
+
+            (r'[0-9]{1,2} months?( contract)?', ''),
+
+            (r'(^| )BI ', '\1Business Intelligence '),
+
+            (r'(?i)(1st|2nd|3rd|first|second|third)( *([\/&-]|and)? *(2nd|3rd|4th))* line', ''),
+        ],
+
+        'job_title_skill_protect': set([
+            'software',
+            'scrum',
+            'business',
+            'android',
+            'ios',
+            'engineering',
+            # avoid inconsitency with not removing 'front end'
+            'front-end',
+            'frontend'
+        ]),
+
+        #don't remove a skill if it is immediately before one of these words
+        'job_title_skill_suffix_protect': set([
+            'engineer',
+            'manager'
+        ]),
+
+        'job_title_additional_stopwords': set(['bonus', 'benefits', 'bens', 'needed', 'job', 'opportunity', 'urgently']),
+
         'sector_stopwords' : _stopwords_en,
 
         'company_stopwords' : _stopwords_en | \
@@ -131,6 +175,11 @@ _conf = {
             ('f#', 'fsharp'),
             ('tcp/ip', 'tcpip'),
         ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
 
         'company_stopwords' : _stopwords_nl,
 
@@ -419,6 +468,79 @@ def normalized_title_prefix(language, name):
     tokens = nname.lower().split()
     prefix, title = _split_title(language, tokens)
     return prefix
+
+def strip_skills_from_title(title, skills, sep, protect, protect_suffix):
+    words = title.split(sep)
+    non_skill_words = []
+
+    # TODO: only handles single word skills
+    for i in range(len(words)):#w in words:
+        w = words[i]
+        lword = w.strip().lower()
+
+        next_w = None
+        if i + 1 < len(words):
+            next_w = words[i + 1].strip().lower()
+
+        if lword not in protect and lword in skills:
+            if next_w not in protect_suffix:
+                continue
+
+        non_skill_words.append(w)
+
+    return sep.join(non_skill_words)
+
+def preprocess_job_post_title(language, name, skills):
+    """Preprocess a string describing a job title from a job post.
+    Job post titles can contain salaries, skills and locations
+
+    """
+    if language not in _conf:
+        raise ValueError('Invalid language: '+repr(language))
+
+    conf = _conf[language]
+
+    pname = name
+
+    for lhs, rhs in conf['job_title_pre_regex_replace']:
+        pname = re.sub(lhs, rhs, pname)
+
+    pname = pname.replace(',', ' , ')
+    pname = pname.replace('/', ' / ')
+
+    pname = strip_skills_from_title(pname, skills, '-', conf['job_title_skill_protect'], conf['job_title_skill_suffix_protect'])
+    pname = strip_skills_from_title(pname, skills, ' ', conf['job_title_skill_protect'], conf['job_title_skill_suffix_protect'])
+
+    # strip any remaining leading numbers
+    pname = re.sub(r'^[0-9 \-/]+', '', pname)
+
+    return pname
+
+def normalized_job_post_title(source, language, name):
+    """Normalize a string describing a job title from a job post.
+    Removes a few more words and applies some extra regexes
+
+    """
+    if language not in _conf:
+        raise ValueError('Invalid language: '+repr(language))
+    conf = _conf[language]
+
+    nname = parsed_title(language, name)
+    if not nname:
+        return None
+    tokens = nname.lower().split()
+    prefix, title = _split_title(language, tokens)
+    if not title:
+        return None
+
+    title = clean(title,
+                  nospace='\'’.',
+                  removebrackets=True,
+                  stopwords=conf['title_stopwords'] | conf['job_title_additional_stopwords'],
+                  replace=conf['title_replace'],
+                  stem=conf['stemmer'],
+                  protect=conf['protect'])
+    return make_nrm_name('title', source, language, title)
 
 def normalized_sector(name):
     """Normalize a string describing an industry sector.
