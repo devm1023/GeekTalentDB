@@ -87,6 +87,8 @@ if __name__ == '__main__':
                         help='Name of CSV file to write clusters to.')
     parser.add_argument('--mapping-output',
                         help='Name of mapping file to generate.')
+    parser.add_argument('--skill-vector-output',
+                        help='Name of optput skill vector file to generate.')
     args = parser.parse_args()
 
     logger = Logger()
@@ -96,7 +98,7 @@ if __name__ == '__main__':
     titlecounts = dict(zip(titles, titlecounts))
 
     logger.log('Generating clusters.\n')
-    clusters, _ = find_clusters(
+    clusters, clustered_vectors = find_clusters(
         args.clusters, skillvectors, labels=titles,
         distance=lambda v1, v2: distance(v1, v2, power=args.power),
         merge=merge)
@@ -134,3 +136,15 @@ if __name__ == '__main__':
                     sector = sector if sector_filter else ''
                     csvwriter.writerow(
                         ['title', 'en', sector, subtitle, title[1]])
+
+    if args.skill_vector_output:
+        with open(args.skill_vector_output, 'w') as outputfile:
+            csvwriter = csv.writer(outputfile)
+            for cluster, vector in zip(clusters, clustered_vectors):
+                _, title, count = cluster
+                sector, title, filter_sector = title
+                csvwriter.writerow(['t', sector, title, 1 if filter_sector else 0, count])
+
+                norm = sqrt(sum(v**2 for v in vector.values()))
+                for skill, v in vector.items():
+                    csvwriter.writerow(['s', skill, v/norm])
