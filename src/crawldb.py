@@ -41,6 +41,7 @@ class Webpage(SQLBase):
     type          = Column(String(STR_MAX))
     valid         = Column(Boolean, nullable=False)
     fail_count    = Column(Integer, nullable=False)
+    tag           = Column(String(STR_MAX))
 
     links         = relationship('Link',
                                  cascade='all, delete-orphan')
@@ -63,6 +64,7 @@ class Link(SQLBase):
                            index=True)
     url           = Column(String(STR_MAX), index=True, nullable=False)
     type          = Column(String(STR_MAX), index=True)
+    tag           = Column(String(STR_MAX))
 
     __table_args__ = (UniqueConstraint('parent_id', 'url'),)
 
@@ -74,13 +76,13 @@ class CrawlDB(Session):
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
 
-    def add_url(self, site, type, url):
+    def add_url(self, site, type, url, tag):
         q = self.query(Webpage.id) \
                 .filter(Webpage.site == site,
                         Webpage.url == url)
         webpage = None
         if q.first() is None:
             webpage = Webpage(site=site, url=url,
-                              type=type, fail_count=0, valid=False)
+                              type=type, tag=tag, fail_count=0, valid=False)
             self.add(webpage)
         return webpage

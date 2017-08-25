@@ -1,3 +1,5 @@
+import csv
+
 from crawldb import *
 from logger import Logger
 import argparse
@@ -16,11 +18,13 @@ if __name__ == '__main__':
     batch_size = 10000
 
     with CrawlDB() as crdb, open(args.input_file, 'r') as inputfile:
+        csvreader = csv.reader(inputfile)
         count = 0
-        for line in inputfile:
+        for row in csvreader:
             count += 1
-            url = line.strip()
-            crdb.add_url(args.site, args.type, url)
+            url = row[0].strip()
+            tag = row[1] if len(row) > 1 else None
+            crdb.add_url(args.site, args.type, url, tag)
             if count % batch_size == 0:
                 crdb.commit()
                 logger.log('{0:d} URLs loaded.\n'.format(count))

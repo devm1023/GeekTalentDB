@@ -13,7 +13,7 @@ def add_urls(jobid, from_url, to_url,
         maxts = func.max(Webpage.timestamp) \
                     .over(partition_by=Link.url) \
                     .label('maxts')        
-        q = crdb.query(Link.url, Link.type, Webpage.timestamp, maxts) \
+        q = crdb.query(Link.url, Link.type, Link.tag, Webpage.timestamp, maxts) \
                 .join(Webpage) \
                 .filter(Webpage.site == site,
                         Link.url >= from_url)
@@ -29,14 +29,14 @@ def add_urls(jobid, from_url, to_url,
             q = q.filter(Webpage.timestamp < to_ts)
 
         subq = q.subquery()
-        q = crdb.query(subq.c.url, subq.c.type) \
+        q = crdb.query(subq.c.url, subq.c.type, subq.c.tag) \
                 .filter(((subq.c.timestamp == None) \
                          & (subq.c.maxts == None)) \
                         | (subq.c.timestamp == subq.c.maxts))
 
         def add_url(row):
-            url, type = row
-            crdb.add_url(site, type, url)
+            url, type, tag = row
+            crdb.add_url(site, type, url, tag)
             
         process_db(q, add_url, crdb, logger=logger)
 

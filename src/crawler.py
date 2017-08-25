@@ -69,7 +69,7 @@ def _in_range(ts, from_ts, to_ts):
     return True
 
 
-def make_webpage(id, site, url, redirect_url, timestamp, html,
+def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
                  parsefunc, require_valid_html=False, logger=Logger(None)):
     parsed_html = None
     if html is not None:
@@ -115,6 +115,7 @@ def make_webpage(id, site, url, redirect_url, timestamp, html,
         html=html if html else None,
         type=type,
         valid=valid,
+        tag=tag,
         links=[]
     )
 
@@ -140,7 +141,8 @@ def make_webpage(id, site, url, redirect_url, timestamp, html,
                     .format(link_url))
         link = dict(
             url=link_url,
-            type=link_type
+            type=link_type,
+            tag=tag
         )
         webpage['links'].append(link)
         added_links[link_url] = link_type
@@ -373,7 +375,7 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
             # visit or the last one was unsuccessful.
             # Increment fail_count if this and the last visit were unsuccessful.
             webpage_dict = make_webpage(
-                None, site, url, redirect_url, timestamp, html,
+                None, site, url, redirect_url, timestamp, html, webpage.tag,
                 parsefunc, require_valid_html=False, logger=logger)
             if webpage.valid is not True:
                 webpage_dict['id'] = webpage.id
