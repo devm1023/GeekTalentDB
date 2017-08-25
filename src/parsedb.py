@@ -10,6 +10,7 @@ __all__ = [
     'WULeagueTable',
     'WUCity',
     'WUCourse',
+    'ADZJob',
     'ParseDB',
     'WUUniversitySubject'
 ]
@@ -354,6 +355,14 @@ class WUSectorAfter(SQLBase):
                             ForeignKey('wuuniversitysubject.id'),
                             nullable=False,
                             index=True)
+
+# TODO: merge parse and datoin job tables?
+class ADZJob(SQLBase):
+    __tablename__ = 'adzjob'
+    id            = Column(BigInteger, primary_key=True)
+    adref         = Column(String(STR_MAX), index=True, nullable=False)
+    description   = Column(Unicode(STR_MAX))
+    url           = Column(Unicode(STR_MAX))
 
 # database session class
 class ParseDB(Session):
