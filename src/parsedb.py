@@ -11,6 +11,7 @@ __all__ = [
     'WUCity',
     'WUCourse',
     'ADZJob',
+    'ADZSkill',
     'ParseDB',
     'WUUniversitySubject'
 ]
@@ -364,6 +365,18 @@ class ADZJob(SQLBase):
     adref         = Column(String(STR_MAX), index=True, nullable=False)
     description   = Column(Unicode(STR_MAX))
     url           = Column(Unicode(STR_MAX))
+
+    skills        = relationship('ADZSkill',
+                                 cascade='all, delete-orphan')
+
+class ADZSkill(SQLBase):
+    __tablename__ = 'adzskill'
+    id            = Column(BigInteger, primary_key=True)
+    parent_id     = Column(BigInteger,
+                           ForeignKey('adzjob.id'),
+                           nullable=False,
+                           index=True)
+    name          = Column(Unicode(STR_MAX))
 
 # database session class
 class ParseDB(Session):
