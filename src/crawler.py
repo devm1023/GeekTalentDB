@@ -245,20 +245,20 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                     if link not in new_links:
                         msg = 'Spurious link {0:s} for ID {1:d}.' \
                               .format(str(link), w.id)
-                    if repair:
-                        logger.log(msg+' Repairing.\n')
-                        needs_repair = True
-                    else:
-                        raise CrawlDBCheckError(msg)
+                        if repair:
+                            logger.log(msg+' Repairing.\n')
+                            needs_repair = True
+                        else:
+                            raise CrawlDBCheckError(msg)
                 for link in new_links:
                     if link not in old_links:
                         msg = 'Missing link {0:s} for ID {1:d}.' \
                               .format(str(link), w.id)
-                    if repair:
-                        logger.log(msg+' Repairing.\n')
-                        needs_repair = True
-                    else:
-                        raise CrawlDBCheckError(msg)
+                        if repair:
+                            logger.log(msg+' Repairing.\n')
+                            needs_repair = True
+                        else:
+                            raise CrawlDBCheckError(msg)
 
                 if needs_repair:
                     crdb.add_from_dict(wdict, Webpage)
