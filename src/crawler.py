@@ -204,7 +204,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 require_valid_html = w.valid and not repair
                 needs_repair = False
                 wdict = make_webpage(
-                    w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html,
+                    w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html, w.tag,
                     parsefunc, require_valid_html=require_valid_html,
                     logger=logger)
                 wdict['id'] = w.id
