@@ -360,6 +360,7 @@ class WUSectorAfter(SQLBase):
 class ADZJob(SQLBase):
     __tablename__ = 'adzjob'
     id            = Column(BigInteger, primary_key=True)
+    timestamp     = Column(DateTime, index=True, nullable=False)
     adref         = Column(String(STR_MAX), index=True, nullable=False)
     description   = Column(Unicode(STR_MAX))
     url           = Column(Unicode(STR_MAX))
