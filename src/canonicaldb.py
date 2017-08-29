@@ -729,6 +729,7 @@ class ADZJob(SQLBase):
     title_prefix  = Column(Unicode(STR_MAX))
     nrm_company   = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
+    full_description = Column(Unicode(STR_MAX))
     text_length   = Column(Integer)
     url           = Column(String(STR_MAX))
     updated_on    = Column(DateTime)
