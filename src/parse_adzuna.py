@@ -1,6 +1,8 @@
 from crawldb import *
 from parsedb import ParseDB, ADZJob
 from windowquery import split_process, process_db
+from phraseextract import PhraseExtractor
+from textnormalization import tokenized_skill
 from logger import Logger
 
 from sqlalchemy import func
@@ -13,6 +15,7 @@ import re
 from datetime import datetime
 from parse_datetime import parse_datetime
 import argparse
+import csv
 import json
 import html
 
@@ -27,14 +30,15 @@ def check_job_post(url, redirect_url, timestamp, doc, logger=Logger(None)):
     return True
 
 
-def parse_job_post(url, redirect_url, timestamp, tag, doc):
+def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractor):
     logger = Logger()
     if not check_job_post(url, redirect_url, timestamp, doc, logger=logger):
         return None
-    
+
     d = {'url' : redirect_url,
          'timestamp' : timestamp,
-         'adref' : tag}
+         'adref' : tag,
+         'description': None}
 
     # check for json microdata (cwjobs, totaljobs, jobstrackr, ziprecruiter, ...)
     microdata_json_tags = doc.xpath(xp_microdata_json)
@@ -47,15 +51,24 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc):
         
 
     # check for microdata (adzuna, reed and others)
-    if 'description' not in d:
+    if d['description'] is None:
         microdata_root = doc.xpath(xp_microdata_root)
         if len(microdata_root) == 1:
             d['description'] = extract(microdata_root[0], xp_microdata_description, format_content)
-        
+
+
+    # extract skills
+    if skillextractor is not None:
+        text = ' '.join(s for s in [d['description']] \
+                        if s)
+        extracted_skills = list(set(skillextractor(text)))
+
+        d['skills'] = [{'name': s} for s in extracted_skills]
+
     return d
 
 
-def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts):
+def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractor):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'adzuna',
@@ -88,7 +101,7 @@ def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts):
                 return
             try:
                 parsed_job_post = parse_job_post(
-                    webpage.url, webpage.redirect_url, webpage.timestamp, webpage.tag, doc)
+                    webpage.url, webpage.redirect_url, webpage.timestamp, webpage.tag, doc, skillextractor)
             except:
                 logger.log('Error parsing HTML from URL {0:s}\n' \
                            .format(webpage.url))
@@ -107,6 +120,8 @@ def main(args):
     filters = [Webpage.valid,
                Webpage.site == 'adzuna']
     from_ts = parse_datetime(args.from_timestamp)
+    skillfile = args.skills
+
     if from_ts:
         filters.append(Webpage.timestamp >= from_ts)
     to_ts = parse_datetime(args.to_timestamp)
@@ -114,7 +129,19 @@ def main(args):
         filters.append(Webpage.timestamp < to_ts)
     if args.from_url is not None:
         filters.append(Webpage.redirect_url >= args.from_url)
-    
+
+    skillextractor = None
+    if skillfile is not None:
+        skills = []
+        with open(skillfile, 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                if row and len(row[0]) > 1:
+                    skills.append(row[0])
+        tokenize = lambda x: tokenized_skill('en', x)
+        skillextractor = PhraseExtractor(skills, tokenize=tokenize, margin=2.0, fraction=1.0)
+        del skills
+
     with CrawlDB() as crdb:
         # construct a query which returns the redirect_url fields of the pages
         # to process. This query is only used to partition the data. The actual
@@ -122,7 +149,7 @@ def main(args):
         q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_job_posts, args.batch_size,
-                      args=[from_ts, to_ts], njobs=args.jobs, logger=logger,
+                      args=[from_ts, to_ts, skillextractor], njobs=args.jobs, logger=logger,
                       workdir='jobs', prefix='parse_adzuna')
             
 
@@ -140,6 +167,8 @@ if __name__ == '__main__':
     parser.add_argument('--from-url', help=
                         'Start processing from this datoin ID. Useful for '
                         'crash recovery.')
+    parser.add_argument('--skills', help=
+                        'Name of a CSV file holding skill tags.')
     args = parser.parse_args()
     main(args)
     
