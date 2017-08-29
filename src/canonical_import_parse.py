@@ -183,12 +183,22 @@ def import_adzjobs(jobid, fromid, toid, from_ts, to_ts):
         #cndb.add_adzjob(profiledict)
 
         # This is a special case: the data is imported by the old script(parse_profiles),
-        # we just need to add the descriptions
+        # we just need to add the descriptions/skills
         cnjob = cndb.query(cn.ADZJob) \
                     .filter(cn.ADZJob.adref == adzjob.adref) \
                     .first()
 
         cnjob.full_description = adzjob.description
+
+        # existing skills
+        ex_skills = set([s.name for s in cnjob.skills])
+        # new skills
+        skills = set([s.name for s in adzjob.skills])
+
+        for s in skills:
+            if s not in ex_skills:
+                cndb.add_from_dict({'name': s, 'parent_id': cnjob.id}, cn.ADZJobSkill)
+
 
     process_db(q, add_adzjob, cndb, logger=logger)
 
