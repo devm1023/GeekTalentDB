@@ -4,6 +4,7 @@
 
 from linkedin_crawler import LinkedInCrawler
 from whichuni_subject_crawler import WhichUniSubjectCrawler
+from adzuna_crawler import AdzunaCrawler
 from logger import Logger
 from parse_datetime import parse_datetime
 import argparse
@@ -33,6 +34,8 @@ if __name__ == "__main__":
         Crawler = LinkedInCrawler
     elif args.site == 'whichunisubjects':
         Crawler = WhichUniSubjectCrawler
+    elif args.site == 'adzuna':
+        Crawler = AdzunaCrawler
     else:
         raise SystemExit('Unknown site `{0:s}`'.format(args.site))
 
