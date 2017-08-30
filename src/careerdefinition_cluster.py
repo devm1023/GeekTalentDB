@@ -106,6 +106,8 @@ if __name__ == '__main__':
                         key=lambda x: -x[-1]),
                  max(c, key=lambda x: titlecounts[x]),
                  sum(titlecounts[t] for t in c)) for c in clusters]
+    
+    unsorted_clusters = clusters[:]
     clusters.sort(key=lambda c: -c[-1])
     
 
@@ -140,7 +142,7 @@ if __name__ == '__main__':
     if args.skill_vector_output:
         with open(args.skill_vector_output, 'w') as outputfile:
             csvwriter = csv.writer(outputfile)
-            for cluster, vector in zip(clusters, clustered_vectors):
+            for cluster, vector in zip(unsorted_clusters, clustered_vectors):
                 _, title, count = cluster
                 sector, title, filter_sector = title
                 csvwriter.writerow(['t', sector, title, 1 if filter_sector else 0, count])
