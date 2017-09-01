@@ -727,6 +727,7 @@ class ADZJob(SQLBase):
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
     title_prefix  = Column(Unicode(STR_MAX))
+    merged_title  = Column(Unicode(STR_MAX))
     nrm_company   = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
     full_description = Column(Unicode(STR_MAX))
