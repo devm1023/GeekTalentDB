@@ -14,6 +14,7 @@ import hashlib
 import argparse
 from nameparser import HumanName
 from nameparser.config import CONSTANTS
+from textnormalization import normalized_skill
 
 with open('name_constants.csv', 'r') as inputfile:
     for line in inputfile:
@@ -195,9 +196,11 @@ def import_adzjobs(jobid, fromid, toid, from_ts, to_ts):
         # new skills
         skills = set([s.name for s in adzjob.skills])
 
+
         for s in skills:
             if s not in ex_skills:
-                cndb.add_from_dict({'name': s, 'parent_id': cnjob.id}, cn.ADZJobSkill)
+                nrm_skill = normalized_skill('adzuna', cnjob.language, s)
+                cnjob.skills.append(cn.ADZJobSkill(name=s, nrm_name=nrm_skill, language=cnjob.language))
 
 
     process_db(q, add_adzjob, cndb, logger=logger)
