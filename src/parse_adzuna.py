@@ -24,6 +24,7 @@ import html
 xp_microdata_json = '//script[@type="application/ld+json"]'
 xp_microdata_root = '//*[@itemscope and (@itemtype = "http://schema.org/JobPosting" or @itemtype = "https://schema.org/JobPosting")]'
 xp_microdata_description = './/*[@itemprop="description"]'
+xp_job_description = '//*[@class="job-description"]'
 
 def check_job_post(url, redirect_url, timestamp, doc, logger=Logger(None)):
 
@@ -56,6 +57,9 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractor):
         if len(microdata_root) == 1:
             d['description'] = extract(microdata_root[0], xp_microdata_description, format_content)
 
+    # some totaljobs, cwjobs
+    if d['description'] is None:
+        d['description'] = extract(doc, xp_job_description, format_content)
 
     # extract skills
     if skillextractor is not None:
