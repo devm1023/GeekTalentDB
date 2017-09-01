@@ -189,6 +189,10 @@ def import_adzjobs(jobid, fromid, toid, from_ts, to_ts):
                     .filter(cn.ADZJob.adref == adzjob.adref) \
                     .first()
 
+        if not cnjob:
+            print('Existing entry for adref {} not found! {}'.format(adzjob.adref, adzjob.url))
+            return
+
         cnjob.full_description = adzjob.description
 
         # existing skills
