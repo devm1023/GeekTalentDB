@@ -1087,6 +1087,17 @@ def _make_inprofile_skill(skillname, language, reenforced):
                 'reenforced' : reenforced,
                 'score'      : 1.0 if reenforced else 0.0}
 
+def _make_adzjob_skill(skillname, language, reenforced):
+    nrm_name = normalized_skill('adzuna', language, skillname)
+    if not nrm_name:
+        return None
+    else:
+        return {'language': language,
+                'name': skillname,
+                'nrm_name': nrm_name,
+                'reenforced': reenforced,
+                'score': 1.0 if reenforced else 0.0}
+
 def _make_inprofile(inprofile):
     inprofile = deepcopy(inprofile)
 
@@ -1246,7 +1257,7 @@ def _make_adzjob(adzjob):
 
     adzjob['skills'] = []
     for skill in allskills:
-        adzjob['skills'].append(_make_inprofile_skill(skill, language, skill in profileskills))
+        adzjob['skills'].append(_make_adzjob_skill(skill, language, skill in profileskills))
 
     # find first and last experience
     # adzjob['company'] = None
