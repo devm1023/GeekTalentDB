@@ -14,7 +14,7 @@ from math import acos, sqrt
 
 def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings):
     logger = Logger()
-    cndb = CanonicalDB('postgresql://geektalent:geektalent@localhost/canonical2')
+    cndb = CanonicalDB()
 
     q = cndb.query(ADZJob).filter(ADZJob.id >= fromid)
     all_titles = cndb.query(ADZJob.category, ADZJob.parsed_title) \
@@ -68,7 +68,7 @@ def main(args):
     njobs = max(args.jobs, 1)
     batchsize = args.batch_size
 
-    cndb = CanonicalDB('postgresql://geektalent:geektalent@localhost/canonical2')
+    cndb = CanonicalDB()
     logger = Logger()
 
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
