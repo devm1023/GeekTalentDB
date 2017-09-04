@@ -14,6 +14,7 @@ import hashlib
 import argparse
 from nameparser import HumanName
 from nameparser.config import CONSTANTS
+from textnormalization import normalized_skill
 
 with open('name_constants.csv', 'r') as inputfile:
     for line in inputfile:
@@ -163,6 +164,52 @@ def import_liprofiles(jobid, fromid, toid, from_ts, to_ts):
     process_db(q, add_liprofile, cndb, logger=logger)
 
 
+def import_adzjobs(jobid, fromid, toid, from_ts, to_ts):
+    logger = Logger()
+    psdb = ParseDB()
+    cndb = cn.CanonicalDB()
+
+    q = psdb.query(ADZJob).filter(ADZJob.id >= fromid)
+    if toid is not None:
+        q = q.filter(ADZJob.id < toid)
+    if from_ts is not None:
+        q = q.filter(ADZJob.timestamp >= from_ts)
+    if to_ts is not None:
+        q = q.filter(ADZJob.timestamp < to_ts)
+
+    def add_adzjob(adzjob):
+        #profiledict = dict(
+        #)
+
+        #cndb.add_adzjob(profiledict)
+
+        # This is a special case: the data is imported by the old script(parse_profiles),
+        # we just need to add the descriptions/skills
+        cnjob = cndb.query(cn.ADZJob) \
+                    .filter(cn.ADZJob.adref == adzjob.adref) \
+                    .first()
+
+        if not cnjob:
+            print('Existing entry for adref {} not found! {}'.format(adzjob.adref, adzjob.url))
+            return
+
+        cnjob.full_description = adzjob.description
+
+        # existing skills
+        ex_skills = set([s.name for s in cnjob.skills])
+        # new skills
+        skills = set([s.name for s in adzjob.skills])
+
+
+        for s in skills:
+            if s not in ex_skills:
+                nrm_skill = normalized_skill('adzuna', cnjob.language, s)
+                cnjob.skills.append(cn.ADZJobSkill(name=s, nrm_name=nrm_skill, language=cnjob.language))
+
+
+    process_db(q, add_adzjob, cndb, logger=logger)
+
+
 def main(args):
     njobs = max(args.jobs, 1)
     batchsize = args.batch_size
@@ -184,6 +231,20 @@ def main(args):
                   njobs=njobs, args=[from_ts, to_ts],
                   logger=logger, workdir='jobs',
                   prefix='canonical_import_parse')
+
+    # adzuna
+    query = psdb.query(ADZJob.id)
+    if from_ts:
+        query = query.filter(ADZJob.timestamp >= from_ts)
+    if to_ts:
+        query = query.filter(ADZJob.timestamp < to_ts)
+    if args.from_id is not None:
+        query = query.filter(ADZJob.id >= args.from_id)
+
+    split_process(query, import_adzjobs, args.batch_size,
+                njobs=njobs, args=[from_ts, to_ts],
+                logger=logger, workdir='jobs',
+                prefix='canonical_import_parse_adz')
     
     
 if __name__ == '__main__':

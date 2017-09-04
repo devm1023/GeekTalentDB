@@ -21,6 +21,10 @@ __all__ = [
     'GHProfile',
     'GHProfileSkill',
     'GHLink',
+    'ADZJob',
+    'ADZJobSkill',
+    'ADZCategory',
+    'ADZCompany',
     'Entity',
     'Word',
     'Location',
@@ -723,8 +727,10 @@ class ADZJob(SQLBase):
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
     title_prefix  = Column(Unicode(STR_MAX))
+    merged_title  = Column(Unicode(STR_MAX))
     nrm_company   = Column(Unicode(STR_MAX), index=True)
     description   = Column(Unicode(STR_MAX))
+    full_description = Column(Unicode(STR_MAX))
     text_length   = Column(Integer)
     url           = Column(String(STR_MAX))
     updated_on    = Column(DateTime)
@@ -734,7 +740,7 @@ class ADZJob(SQLBase):
     contract_time = Column(String(STR_MAX))
     contract_type = Column(String(STR_MAX))
     created       = Column(DateTime)
-    adz_id        = Column(BigInteger)
+    adz_id        = Column(BigInteger, unique=True)
     latitude      = Column(Float)
     longitude     = Column(Float)
     location_name = Column(String(STR_MAX))
@@ -746,9 +752,10 @@ class ADZJob(SQLBase):
 
     category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
     company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
+    la_id = Column(BigInteger, ForeignKey('la.gid'))
 
     skills        = relationship('ADZJobSkill',
-                                 order_by='INProfileSkill.nrm_name',
+                                 order_by='ADZJobSkill.nrm_name',
                                  cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('adref'),)
@@ -774,6 +781,31 @@ class ADZCompany(SQLBase):
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
     job            = relationship('ADZJob')
+
+# la/lep
+class LA(SQLBase):
+    __tablename__ = 'la'
+    gid           = Column(BigInteger, primary_key=True)
+    objectid      = Column(BigInteger, primary_key=True)
+    lau118cd      = Column(String(80), nullable=False)
+    lau118nm      = Column(String(80), nullable=False)
+    bng_e         = Column(Integer, nullable=False)
+    bng_n         = Column(Integer, nullable=False)
+    long          = Column(Float, nullable=False)
+    lat           = Column(Float, nullable=False)
+    st_areasha    = Column(Float, nullable=False)
+    st_lengths    = Column(Float, nullable=False)
+    geom          = Column(Geometry('MULTIPOLYGON'))
+
+class LEP(SQLBase):
+    __tablename__ = 'lep'
+    id            = Column(BigInteger, primary_key=True)
+    name          = Column(String(50), nullable=False)
+
+class LAInLEP(SQLBase):
+    __tablename__ = 'la_in_lep'
+    la_id         = Column(BigInteger, ForeignKey('la.gid'), primary_key=True)
+    lep_id        = Column(BigInteger, ForeignKey('lep.id'), primary_key=True)
 
 # Entities
 

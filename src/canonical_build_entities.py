@@ -88,6 +88,9 @@ def add_skills(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INProfileSkill.nrm_name
         rawcol = INProfileSkill.name
+    elif source_id == 'adzuna':
+        nrmcol = ADZJobSkill.nrm_name
+        rawcol = ADZJobSkill.name
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -121,6 +124,9 @@ def add_skills(batchsize, source_id):
         jointable = INProfileSkill
         nrmcol    = INProfileSkill.nrm_name
         idcol     = INExperienceSkill.inexperience_id
+    elif source_id == 'adzuna':
+        # no experiences
+        return
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -155,14 +161,24 @@ def add_titles(batchsize, source_id):
         parsedcol1 = INProfile.parsed_title
         nrmcol2    = INExperience.nrm_title
         parsedcol2 = INExperience.parsed_title
+    elif source_id == 'adzuna':
+        nrmcol1    = ADZJob.nrm_title
+        parsedcol1 = ADZJob.parsed_title
+        nrmcol2    = None
+        parsedcol2 = None
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
     q1 = cndb.query(nrmcol1, parsedcol1, literal_column('1').label('type')) \
              .filter(nrmcol1 != None)
-    q2 = cndb.query(nrmcol2, parsedcol2, literal_column('2').label('type')) \
-             .filter(nrmcol2 != None)
-    subq = q1.union_all(q2).subquery()
+
+    if nrmcol2 is not None:
+        q2 = cndb.query(nrmcol2, parsedcol2, literal_column('2').label('type')) \
+                .filter(nrmcol2 != None)
+        subq = q1.union_all(q2).subquery()
+    else:
+        subq = q1.subquery()
+
     nrmcol, parsedcol, typecol = tuple(subq.columns)
     q = cndb.query(nrmcol, parsedcol, typecol, func.count()) \
             .group_by(nrmcol, parsedcol, typecol) \
@@ -199,14 +215,24 @@ def add_companies(batchsize, source_id):
         rawcol1 = INProfile.company
         nrmcol2 = INExperience.nrm_company
         rawcol2 = INExperience.company
+    elif source_id == 'adzuna':
+        nrmcol1 = ADZJob.nrm_company
+        rawcol1 = ADZJob.company
+        nrmcol2 = None
+        rawcol2 = None
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
     q1 = cndb.query(nrmcol1, rawcol1, literal_column('1').label('type')) \
              .filter(nrmcol1 != None)
-    q2 = cndb.query(nrmcol2, rawcol2, literal_column('2').label('type')) \
-             .filter(nrmcol2 != None)
-    subq = q1.union_all(q2).subquery()
+
+    if nrmcol2 is not None:
+        q2 = cndb.query(nrmcol2, rawcol2, literal_column('2').label('type')) \
+                .filter(nrmcol2 != None)
+        subq = q1.union_all(q2).subquery()
+    else:
+        subq = q1.subquery()
+
     nrmcol, rawcol, typecol = tuple(subq.columns)
     q = cndb.query(nrmcol, rawcol, typecol, func.count()) \
             .group_by(nrmcol, rawcol, typecol) \
@@ -266,6 +292,9 @@ def add_institutes(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_institute
         rawcol = INEducation.institute
+    elif source_id == 'adzuna':
+        # no institutes
+        return
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -300,6 +329,9 @@ def add_degrees(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_degree
         rawcol = INEducation.degree
+    elif source_id == 'adzuna':
+        # no degrees
+        return
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -334,6 +366,9 @@ def add_subjects(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_subject
         rawcol = INEducation.subject
+    elif source_id == 'adzuna':
+        # no subjects
+        return
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -368,7 +403,7 @@ allcatalogs = OrderedDict([
     ('subjects'   , add_subjects),
 ])
 
-allsources = ['linkedin', 'indeed']
+allsources = ['linkedin', 'indeed', 'adzuna']
 
     
 def main(args):
