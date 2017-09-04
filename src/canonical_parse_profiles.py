@@ -720,5 +720,3 @@ if __name__ == '__main__':
                         'skills. Only needed Adzuna jobs')
     args = parser.parse_args()
     main(args)
-
-
