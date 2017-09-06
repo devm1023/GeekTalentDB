@@ -24,6 +24,9 @@ def process_locations(jobid, fromlocation, tolocation,
     elif source == 'indeed':
         profile_tab = INProfile
         experience_tab = INExperience
+    elif source == 'adzuna':
+        profile_tab = ADZJob
+        experience_tab = None
     else:
         raise ValueError('Invalid source type.')
 
@@ -38,26 +41,41 @@ def process_locations(jobid, fromlocation, tolocation,
             q1 = cndb.query(profile_tab.nrm_location.label('nrmloc')) \
                      .filter(profile_tab.indexed_on >= fromdate,
                              profile_tab.indexed_on < todate)
-            q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
-                     .join(profile_tab) \
-                     .filter(profile_tab.indexed_on >= fromdate,
-                             profile_tab.indexed_on < todate)
+            if experience_tab is not None:
+                q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
+                        .join(profile_tab) \
+                        .filter(profile_tab.indexed_on >= fromdate,
+                                profile_tab.indexed_on < todate)
         else:
             q1 = cndb.query(profile_tab.nrm_location.label('nrmloc')) \
                      .filter(profile_tab.crawled_on >= fromdate,
                              profile_tab.crawled_on < todate)
-            q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
-                     .join(profile_tab) \
-                     .filter(profile_tab.crawled_on >= fromdate,
-                             profile_tab.crawled_on < todate)
+            if experience_tab is not None:
+                q2 = cndb.query(experience_tab.nrm_location.label('nrmloc')) \
+                        .join(profile_tab) \
+                        .filter(profile_tab.crawled_on >= fromdate,
+                                profile_tab.crawled_on < todate)
 
         q1 = q1.filter(profile_tab.nrm_location >= fromlocation)
-        q2 = q2.filter(experience_tab.nrm_location >= fromlocation)
+        if experience_tab is not None:
+            q2 = q2.filter(experience_tab.nrm_location >= fromlocation)
+
         if tolocation is not None:
             q1 = q1.filter(profile_tab.nrm_location < tolocation)
-            q2 = q2.filter(experience_tab.nrm_location < tolocation)
 
-        q = q1.union(q2)
+            if experience_tab is not None:
+                q2 = q2.filter(experience_tab.nrm_location < tolocation)
+
+        if source == 'adzuna':
+            # ignore jobs with coords already
+            q1 = q1.filter(profile_tab.latitude.is_(None))
+            # and without enough location details
+            q1 = q1.filter(profile_tab.location1.isnot(None))
+
+        if experience_tab is None:
+            q = q1
+        else:
+            q = q1.union(q2)
 
     def add_location(rec):
         cndb.add_location(rec[0], retry=retry, nuts=nuts,
@@ -74,6 +92,9 @@ def run(args, maxretry):
         logger.log('Processing Indeed locations.\n')
         args.source = 'indeed'
         run(args, maxretry)
+        logger.log('Processing Adzuna locations.\n')
+        args.source = 'adzuna'
+        run(args, maxretry)
         return
     elif args.source == 'linkedin':
         profiletab = LIProfile
@@ -81,6 +102,9 @@ def run(args, maxretry):
     elif args.source == 'indeed':
         profiletab = INProfile
         experiencetab = INExperience
+    elif args.source == 'adzuna':
+        profiletab = ADZJob
+        experiencetab = None
     else:
         raise ValueError('Invalid source.')
 
@@ -97,24 +121,30 @@ def run(args, maxretry):
             q1 = cndb.query(profiletab.nrm_location.label('nrmloc')) \
                      .filter(profiletab.indexed_on >= args.from_date,
                              profiletab.indexed_on < args.to_date)
-            q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
-                     .join(profiletab) \
-                     .filter(profiletab.indexed_on >= args.from_date,
-                             profiletab.indexed_on < args.to_date)
+            if experiencetab is not None:
+                q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
+                        .join(profiletab) \
+                        .filter(profiletab.indexed_on >= args.from_date,
+                                profiletab.indexed_on < args.to_date)
         else:
             q1 = cndb.query(profiletab.nrm_location.label('nrmloc')) \
                      .filter(profiletab.crawled_on >= args.from_date,
                              profiletab.crawled_on < args.to_date)
-            q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
-                     .join(profiletab) \
-                     .filter(profiletab.crawled_on >= args.from_date,
-                             profiletab.crawled_on < args.to_date)
+            if experiencetab is not None:
+                q2 = cndb.query(experiencetab.nrm_location.label('nrmloc')) \
+                        .join(profiletab) \
+                        .filter(profiletab.crawled_on >= args.from_date,
+                                profiletab.crawled_on < args.to_date)
 
         if args.from_location is not None:
             q1 = q1.filter(profiletab.nrm_location >= args.from_location)
-            q2 = q2.filter(experiencetab.nrm_location >= args.from_location)
+            if experiencetab is not None:
+                q2 = q2.filter(experiencetab.nrm_location >= args.from_location)
 
-        q = q1.union(q2)
+        if experiencetab is None:
+            q = q1
+        else:
+            q = q1.union(q2)
 
     split_process(q, process_locations, args.batch_size, njobs=args.jobs,
                   args=[args.from_date, args.to_date, args.by_index_date,
@@ -171,7 +201,7 @@ if __name__ == '__main__':
                         'if you want to add new locations to the table.')
     parser.add_argument('--recompute-nuts', action='store_true', help=
                         'Re-compute all NUTS codes.')
-    parser.add_argument('--source', choices=['linkedin', 'indeed'], help=
+    parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], help=
                         'Source type to process. If not specified all sources '
                         'are processed.')
     args = parser.parse_args()
