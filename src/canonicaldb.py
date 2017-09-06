@@ -1355,9 +1355,11 @@ def _make_adzjob(adzjob):
                                 adzjob['location2'],
                                 adzjob['location3'],
                                 adzjob['location4'])
-    adzjob['parsed_title']      = parsed_title(language, adzjob['title'])
-    adzjob['nrm_title']         = normalized_title('adzuna', language, adzjob['title'])
-    adzjob['title_prefix']      = normalized_title_prefix(language, adzjob['title'])
+
+    ptitle = preprocess_job_post_title(language, adzjob['title'], list(allskills))
+    adzjob['parsed_title']      = parsed_title(language, ptitle)
+    adzjob['nrm_title']         = normalized_job_post_title('adzuna', language, ptitle)
+    adzjob['title_prefix']      = normalized_title_prefix(language, ptitle)
     adzjob['nrm_company']       = normalized_company('adzuna', language, adzjob['company'])
 
     # determine text length
