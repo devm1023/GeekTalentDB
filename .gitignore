@@ -1,4 +1,6 @@
 src/conf.py
+src/postcodes
+src/NUTS_2013_SHP
 runs/tordata
 runs/crawljobs
 src/__pycache__
