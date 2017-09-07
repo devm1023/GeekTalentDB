@@ -677,7 +677,11 @@ def main(args):
                 if row:
                     skills.append(row[0])
         tokenize = lambda x: tokenized_skill('en', x)
-        skillextractor = PhraseExtractor(skills, tokenize=tokenize)
+
+        if source_id == 'adzuna':
+            skillextractor = PhraseExtractor(skills, tokenize=tokenize, margin=2.0, fraction=1.0)
+        else:
+            skillextractor = PhraseExtractor(skills, tokenize=tokenize)
         del skills
 
     parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,

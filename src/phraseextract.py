@@ -23,8 +23,7 @@ class _PartialMatch:
 
 class PhraseExtractor:
     def __init__(self, phrases, tokenize=lambda s: s.split(),
-                 # margin=1.5, fraction=0.75):
-                  margin=2.0, fraction=1.0):
+                  margin=1.5, fraction=0.75):
         index = {}
         wordsets = {}
 
