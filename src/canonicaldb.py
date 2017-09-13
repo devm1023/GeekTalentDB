@@ -740,7 +740,7 @@ class ADZJob(SQLBase):
     contract_time = Column(String(STR_MAX))
     contract_type = Column(String(STR_MAX))
     created       = Column(DateTime)
-    adz_id        = Column(BigInteger, unique=True)
+    adz_id        = Column(BigInteger)
     latitude      = Column(Float)
     longitude     = Column(Float)
     location_name = Column(String(STR_MAX))
@@ -786,7 +786,8 @@ class ADZCompany(SQLBase):
 class LA(SQLBase):
     __tablename__ = 'la'
     gid           = Column(BigInteger, primary_key=True)
-    objectid      = Column(BigInteger, primary_key=True)
+    # objectid      = Column(BigInteger, primary_key=True)
+    objectid      = Column(BigInteger)
     lau118cd      = Column(String(80), nullable=False)
     lau118nm      = Column(String(80), nullable=False)
     bng_e         = Column(Integer, nullable=False)
@@ -796,6 +797,8 @@ class LA(SQLBase):
     st_areasha    = Column(Float, nullable=False)
     st_lengths    = Column(Float, nullable=False)
     geom          = Column(Geometry('MULTIPOLYGON'))
+
+    __table_args__ = (UniqueConstraint('objectid'),)
 
 class LEP(SQLBase):
     __tablename__ = 'lep'
@@ -1249,7 +1252,6 @@ def _make_inprofile(inprofile):
     
     return inprofile
 
-
 def _make_adzjob(adzjob):
     adzjob = deepcopy(adzjob)
 
@@ -1278,7 +1280,7 @@ def _make_adzjob(adzjob):
 
     adzjob['skills'] = []
     for skill in allskills:
-        adzjob['skills'].append(_make_inprofile_skill(skill, language, skill in profileskills))
+        adzjob['skills'].append(_make_adzjob_skill(skill, language, skill in profileskills))
 
     # find first and last experience
     # adzjob['company'] = None
@@ -1367,6 +1369,16 @@ def _make_adzjob(adzjob):
 
     return adzjob
 
+def _make_adzjob_skill(skillname, language, reenforced):
+    nrm_name = normalized_skill('adzuna', language, skillname)
+    if not nrm_name:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrm_name'    : nrm_name,
+                'reenforced' : reenforced,
+                'score'      : 1.0 if reenforced else 0.0}
 
 # Upwork
 

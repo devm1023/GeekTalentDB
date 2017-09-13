@@ -14,6 +14,7 @@ import re
 import langdetect
 from langdetect.lang_detect_exception import LangDetectException
 import argparse
+from html.parser import HTMLParser
 
 timestamp0 = datetime(year=1970, month=1, day=1)
 now = datetime.now()
@@ -25,6 +26,22 @@ country_languages = {
     'Netherlands'    : 'nl',
     'Nederland'      : 'nl',
 }
+
+class MLStripper(HTMLParser):
+    """Strips HTML from strings """
+    def __init__(self):
+        super().__init__()
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 def make_name(name, first_name, last_name):
     if name:
@@ -339,34 +356,35 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
     def add_adzjob(adzjob):
         jobdict = dict_from_row(adzjob, pkeys=True, fkeys=True)
-        jobdict['adref']         = jobdict.pop('adref')
-        jobdict['contract_time'] = jobdict.pop('contract_time')
-        jobdict['contract_type'] = jobdict.pop('contract_type')
-        jobdict['created']       = jobdict.pop('created')
-        jobdict['description']   = jobdict.pop('description')
-        jobdict['adz_id']        = jobdict.pop('adz_id')
-        jobdict['latitude']      = jobdict.pop('latitude')
-        jobdict['longitude']     = jobdict.pop('longitude')
-        jobdict['location0']     = jobdict.pop('location0')
-        jobdict['location1']     = jobdict.pop('location1')
-        jobdict['location2']     = jobdict.pop('location2')
-        jobdict['location3']     = jobdict.pop('location3')
-        jobdict['location4']     = jobdict.pop('location4')
-        jobdict['location_name'] = jobdict.pop('location_name')
-        jobdict['redirect_url']  = jobdict.pop('redirect_url')
+        jobdict['adref']            = jobdict.pop('adref')
+        jobdict['contract_time']    = jobdict.pop('contract_time')
+        jobdict['contract_type']    = jobdict.pop('contract_type')
+        jobdict['created']          = jobdict.pop('created')
+        jobdict['description']      = jobdict.pop('description')
+        jobdict['full_description'] = jobdict.pop('full_description')
+        jobdict['adz_id']           = jobdict.pop('adz_id')
+        jobdict['latitude']         = jobdict.pop('latitude')
+        jobdict['longitude']        = jobdict.pop('longitude')
+        jobdict['location0']        = jobdict.pop('location0')
+        jobdict['location1']        = jobdict.pop('location1')
+        jobdict['location2']        = jobdict.pop('location2')
+        jobdict['location3']        = jobdict.pop('location3')
+        jobdict['location4']        = jobdict.pop('location4')
+        jobdict['location_name']    = jobdict.pop('location_name')
+        jobdict['redirect_url']     = jobdict.pop('redirect_url')
         jobdict['salary_is_predicted'] = jobdict.pop('salary_is_predicted')
-        jobdict['salary_max']    = jobdict.pop('salary_max')
-        jobdict['salary_min']    = jobdict.pop('salary_min')
-        jobdict['title']         = jobdict.pop('title')
-        jobdict['category']      = jobdict.pop('category')
-        jobdict['company']       = jobdict.pop('company')
+        jobdict['salary_max']       = jobdict.pop('salary_max')
+        jobdict['salary_min']       = jobdict.pop('salary_min')
+        jobdict['title']            = jobdict.pop('title')
+        jobdict['category']         = jobdict.pop('category')
+        jobdict['company']          = jobdict.pop('company')
         jobdict['indexed_on'] = make_date_time(jobdict.pop('indexed_on', None))
         jobdict['crawled_on'] = make_date_time(jobdict.pop('crawled_date', None))
 
         jobdict['skills'] = []
 
         # determine language
-        profiletexts = [jobdict['title'], jobdict['description']]
+        profiletexts = [jobdict['title'], jobdict['full_description']]
         profiletexts = '. '.join([t for t in profiletexts if t])
         try:
             language = langdetect.detect(profiletexts)
@@ -378,11 +396,11 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
         jobdict['language'] = language
 
-
         # extract skills
 
+        stripped_description = strip_tags(jobdict['full_description'])
         if skillextractor is not None and language == 'en':
-            text = ' '.join(s for s in [jobdict['title'], jobdict['description']] if s)
+            text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
             jobdict['skills'] = list(set(skillextractor(text)))
 
         jobdict['crawl_fail_count'] = 0
