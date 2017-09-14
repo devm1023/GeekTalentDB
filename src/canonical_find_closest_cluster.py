@@ -12,7 +12,7 @@ from careerdefinition_cluster import get_skillvectors, distance
 from math import acos, sqrt
 
 
-def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings):
+def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -59,6 +59,13 @@ def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings):
                 closest = cluster
                 closest_dist = dist
 
+            skill_intersection = list(set(vector.keys()) & set(title_skill_vector.keys()))
+
+        has_full_desc = adzjob.full_description is not None
+
+        if output_csv is not None:
+            output_csv.writerow([adzjob.parsed_title, closest[1], closest_dist, has_full_desc, len(title_skill_vector), len(skill_intersection), ", ".join(skill_intersection)])
+
         adzjob.merged_title = closest[1]
 
     process_db(q, find_closest_cluster, cndb, logger=logger)
@@ -87,6 +94,8 @@ def main(args):
     with open(args.clusters_file, 'r') as inputfile:
         csvreader = csv.reader(inputfile)
         for row in csvreader:
+            if not row:
+                continue
             sector, title, _, mapped_title, _ = row
             mappings[normalized_title('adzuna', 'en', title)] = (normalized_title('adzuna', 'en', mapped_title), mapped_title)
 
@@ -98,8 +107,12 @@ def main(args):
     if args.sector is not None:
         query = query.filter(ADZJob.category == args.sector)
 
+    output_csv = None
+    if args.output is not None:
+        output_csv = csv.writer(open(args.output, 'w'))
+
     split_process(query, find_closest_cluster_adzuna, args.batch_size,
-                njobs=njobs, args=[skillvectors, mappings],
+                njobs=njobs, args=[skillvectors, mappings, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
 
@@ -119,6 +132,8 @@ if __name__ == '__main__':
                         'File containing skill vectors from clustering')
     parser.add_argument('clusters_file', help=
                         'File containing clusters')
+    parser.add_argument('--output', help=
+                        'File to save matches and distances to')
     args = parser.parse_args()
 
 
