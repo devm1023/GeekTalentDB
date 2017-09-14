@@ -49,6 +49,8 @@ def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings, ou
             # no skills?
             return
 
+        title_skill_vector = title_skill_vectors[adzjob.parsed_title]
+
         closest = None
         closest_dist = 0
         skill_intersection = []
