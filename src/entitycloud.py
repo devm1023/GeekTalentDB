@@ -19,6 +19,7 @@ def relevance_score(totalcount, categorycount, entitycount, coincidencecount):
     f2 = c2/n2
     score = f1 - f2
     var = f1*(1-f1)/n1 + f2*(1-f2)/n2
+    var = max(0, var)
     return score, sqrt(var)
 
 
