@@ -76,6 +76,8 @@ class Sector(db.Model):
     education_subjects_total = db.Column(db.BigInteger)
     education_institutes_total = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
+    parent        = db.Column(db.BigInteger,  db.ForeignKey('sector.id'), nullable=False)
+    datatype      = db.Column(db.Unicode(STR_MAX))
 
     skill_cloud = db.relationship(
         'SectorSkill', order_by='desc(SectorSkill.relevance_score)',
@@ -91,6 +93,8 @@ class Sector(db.Model):
         cascade='all, delete-orphan', backref='sector')
     careers = db.relationship(
         'Career', order_by='Career.title', cascade='all, delete-orphan')
+
+    parent_obj = db.relationship('Sector', remote_side=id, backref='child_sectors')
 
     def __str__(self):
         return self.name
@@ -362,6 +366,8 @@ class SectorView(ModelView):
         'total_count' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},
         'education_institutes_total' : {'readonly' : True},
+        'parent' : {'readonly' : False},
+        'datatype' : {'readonly' : False}
     }
     inline_models = [
         (SectorSkill, {'form_widget_args' : {
