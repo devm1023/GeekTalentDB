@@ -76,7 +76,7 @@ class Sector(db.Model):
     education_subjects_total = db.Column(db.BigInteger)
     education_institutes_total = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
-    parent        = db.Column(db.BigInteger,  db.ForeignKey('sector.id'), nullable=False)
+    parent        = db.Column(db.BigInteger,  db.ForeignKey('sector.id'))
     datatype      = db.Column(db.Unicode(STR_MAX))
 
     skill_cloud = db.relationship(

@@ -56,7 +56,7 @@ class Sector(SQLBase):
     education_subjects_total = Column(BigInteger)
     education_institutes_total = Column(BigInteger)
     visible       = Column(Boolean, nullable=False)
-    parent        = Column(BigInteger, nullable=False)
+    parent        = Column(BigInteger)
     datatype      = Column(Unicode(STR_MAX))
 
     skill_cloud = relationship('SectorSkill',
