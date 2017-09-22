@@ -740,7 +740,7 @@ class ADZJob(SQLBase):
     contract_time = Column(String(STR_MAX))
     contract_type = Column(String(STR_MAX))
     created       = Column(DateTime)
-    adz_id        = Column(BigInteger)
+    adz_id        = Column(BigInteger, unique=True)
     latitude      = Column(Float)
     longitude     = Column(Float)
     location_name = Column(String(STR_MAX))
@@ -1839,9 +1839,9 @@ class CanonicalDB(Session):
                 .delete(synchronize_session=False)
             return None
 
-        # adzjob_id = self.query(ADZJob.id) \
-        #                   .filter(ADZJob.id == adzjob['id']) \
-        #                   .first()
+        adzjob_id = self.query(ADZJob.id) \
+                        .filter(ADZJob.adz_id == adzjob['adz_id']) \
+                        .first()
 
         cat_tag = self.query(ADZCategory.tag) \
             .filter(ADZCategory.tag \
@@ -1867,8 +1867,8 @@ class CanonicalDB(Session):
         else:
             adzjob['company'] = None
 
-        # if adzjob_id is not None:
-        #     adzjob['id'] = adzjob_id[0]
+        if adzjob_id is not None:
+             adzjob['id'] = adzjob_id[0]
         #     inexperience_ids \
         #         = [id for id, in self.query(INExperience.id) \
         #            .filter(INExperience.inprofile_id == adzjob_id[0])]
