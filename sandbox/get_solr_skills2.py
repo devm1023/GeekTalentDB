@@ -20,8 +20,14 @@ SOLR_REQ = '{0}{1}/select?q=content_type+%3A+main_profile&fq=merged_sector+%3A+(
 
 def main(args):
 
-    sector = args.merged_sector.replace(' ', '+')
+    sector = args.sector
     limit = args.limit
+
+    if sector == 'eng':
+        sector = '"Machinery" OR "Industrial Automation" OR "Machines" OR ' \
+                 '"Mechanical or Industrial Engineering" OR "Electrical/Eelectronic manufacturing" OR ' \
+                 '"Consumer Electronics" OR "Semiconductors"'
+
     url = SOLR_REQ.format(SOLR_HOST, SOLR_CORE, sector, limit)
 
     print('Querying SOLR with: {0}\n'.format(url))
@@ -46,8 +52,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--merged_sector', type=str, default='digital tech',
-                        help='Sector to get the skills from')
+    parser.add_argument('--sector', choices=['it', 'eng'], default='it',
+                        help='Merged sector to get skill from.')
     parser.add_argument('--limit', type=int, default=1000,
                         help='Number of skills to be obtained.')
     args = parser.parse_args()

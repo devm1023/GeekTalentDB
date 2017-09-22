@@ -14,13 +14,23 @@ class _Api():
     """
     Returns a formatted api request string.
     """
-    def __init__(self, loc, cat):
-        if loc is not None:
-            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&location0=UK&location1={4}&category={5}'
-            self.location = loc.replace(' ', '+')
+    def __init__(self, loc1, loc2, cat):
+        if loc2 is not None:
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
+                       '&location0=UK&location1={4}&location2={5}&category={6}&sort_by=date&sort_direction=down'
+            self.location2 = loc2.replace(' ', '+')
+            self.location1 = loc1.replace(' ', '+')
+        elif loc1 is not None:
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
+                       '&location0=UK&location1={4}&category={5}&sort_by=date&sort_direction=down'
+            self.location2 = None
+            self.location1 = loc1.replace(' ', '+')
         else:
-            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&location0=UK&category={4}'
-            self.location = None
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
+                       '&location0=UK&category={4}&sort_by=date&sort_direction=down'
+            self.location1 = None
+            self.location2 = None
+
         self.category = cat
         self.page  = 1
         self.total = 1
@@ -30,13 +40,22 @@ class _Api():
         return self
 
     def getpage(self, p):
-        if self.location:
+        if self.location2:
             return self.api.format(
                 conf.ADZUNA_SEARCH_API,
                 p,
                 conf.ADZUNA_APP_ID,
                 conf.ADZUNA_APP_KEY,
-                self.location,
+                self.location1,
+                self.location2,
+                self.category)
+        elif self.location1:
+            return self.api.format(
+                conf.ADZUNA_SEARCH_API,
+                p,
+                conf.ADZUNA_APP_ID,
+                conf.ADZUNA_APP_KEY,
+                self.location1,
                 self.category)
         else:
             return self.api.format(
@@ -64,7 +83,7 @@ def main(args):
     dtdb.flush()
     dtdb.commit()
 
-    api = _Api(args.location1, args.category)
+    api = _Api(args.location1, args.location2, args.category)
     init_api = api.getpage(1)
 
     print('Querying Adzuna with: {0}\n'.format(init_api))
@@ -104,8 +123,14 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--location1', type=str,
-                        help='Location to get the jobs from.', default=None)
+                        help='Location 1 to get the jobs from.', default=None)
+    parser.add_argument('--location2', type=str,
+                        help='Location 2 to get the jobs from.', default=None)
     parser.add_argument('--category', type=str,
                         help='Adzuna category for jobs.')
     args = parser.parse_args()
+
+    if args.location2 and not args.location1:
+        raise Exception("Location1 must be provided is location2 is supplied!")
+
     main(args)

@@ -17,9 +17,12 @@ def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings, ou
     cndb = CanonicalDB()
 
     q = cndb.query(ADZJob).filter(ADZJob.id >= fromid)
+    # all_titles = cndb.query(ADZJob.category, ADZJob.parsed_title) \
+    #                  .filter(~ADZJob.nrm_title.in_(mappings.keys())) \
+    #                  .filter(ADZJob.id >= fromid)
     all_titles = cndb.query(ADZJob.category, ADZJob.parsed_title) \
-                     .filter(~ADZJob.nrm_title.in_(mappings.keys())) \
-                     .filter(ADZJob.id >= fromid)
+        .filter(~ADZJob.nrm_title.in_(mappings.keys())) \
+        .filter(ADZJob.id >= fromid)
     if toid is not None:
         q = q.filter(ADZJob.id < toid)
         all_titles = all_titles.filter(ADZJob.id < toid)
@@ -40,10 +43,10 @@ def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings, ou
 
     def find_closest_cluster(adzjob):
 
-        # matches a clustered title
-        if adzjob.nrm_title in mappings:
-            adzjob.merged_title = mappings[adzjob.nrm_title][1]
-            return
+        # matches a clustered title (Commented out to handle every title.)
+        # if adzjob.nrm_title in mappings:
+        #     adzjob.merged_title = mappings[adzjob.nrm_title][1]
+        #     return
 
         if adzjob.parsed_title not in title_skill_vectors:
             # no skills?
