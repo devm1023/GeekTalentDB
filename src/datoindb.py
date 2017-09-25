@@ -490,13 +490,42 @@ class ADZCategory(SQLBase):
     __tablename__ = 'adzcategory'
     tag           = Column(String(STR_MAX), primary_key=True)
     label         = Column(String(STR_MAX), nullable=False)
-    # job           = relationship('ADZJob')
+    job           = relationship('ADZJob')
 
 class ADZCompany(SQLBase):
     __tablename__  = 'adzcompany'
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
-    # job            = relationship('ADZJob')
+    job            = relationship('ADZJob')
+
+class IndeedJob(SQLBase):
+    __tablename__ = 'indeedjob'
+    id                = Column(BigInteger, primary_key=True)
+    jobtitle          = Column(Unicode(STR_MAX), index=True, nullable=False)
+    company           = Column(String(STR_MAX), index=True)
+    city              = Column(String(STR_MAX), index=True)
+    state             = Column(String(STR_MAX), index=True)
+    country           = Column(String(STR_MAX), index=True, nullable=False)
+    language          = Column(String(STR_MAX), index=True, nullable=False)
+    formattedLocation = Column(String(STR_MAX), index=True, nullable=False)
+    source            = Column(String(STR_MAX), index=True, nullable=False)
+    date              = Column(DateTime)
+    snippet           = Column(Unicode(STR_MAX))
+    url               = Column(String(STR_MAX))
+    latitude          = Column(Float)
+    longitude         = Column(Float)
+    jobkey            = Column(String(STR_MAX), index=True, nullable=False)
+    sponsored         = Column(Boolean)
+    expired           = Column(Boolean)
+    indeedApply       = Column(Boolean)
+    formattedLocationFull = Column(String(STR_MAX), index=True, nullable=False)
+    formattedRelativeTime = Column(String(STR_MAX), index=True, nullable=False)
+    stations          = Column(String(STR_MAX), index=True, nullable=False)
+    crawl_url         = Column(String(STR_MAX))
+    crawl_date        = Column(DateTime)
+    category          = Column(String(STR_MAX), index=True)
+    __table_args__   = (UniqueConstraint('jobkey'),)
+
 
 class DatoinDB(Session):
     def __init__(self, url=conf.DATOIN_DB,
@@ -573,13 +602,6 @@ class DatoinDB(Session):
 
         adzjobdict['adz_id'] = adzjobdict['id']
 
-        # Prepare company for 1-m
-        # del adzjobdict['company']['__CLASS__']
-        # del adzjobdict['company']
-        # company = []
-        # company.append(adzjobdict['company'])
-        # adzjobdict['company'] = company
-
         # Format location
         location = adzjobdict['location']
         areas = location['area']
@@ -610,6 +632,59 @@ class DatoinDB(Session):
         adzjobdict['indexed_on']   = timestamp.timestamp()
 
         adzjob = self.add_from_dict(adzjobdict, ADZJob,  flush=True)
+        self.commit()
+        self.flush()
+        self.commit()
+
+        return adzjob
+
+
+    def add_indeed_job(self, injobdict, category, crawl_url):
+        """Add a Indeed job posting to the database.
+
+        Args:
+          injobdict (dict): Description of the job. Must contain the neccesary fields as defined above
+          by class IndeedJob(SQLBase).
+            jobtitle
+            company
+            city
+            state
+            country
+            language
+            formattedLocation
+            source
+            date
+            snippet
+            url
+            latitude
+            longitude
+            jobkey
+            sponsored
+            expired
+            indeedApply
+            formattedLocationFull
+            formattedRelativeTime
+            stations
+
+        crawl_url:
+        crawl_date:
+        category: category to be assigned to the job.
+        req_url: url which was used to obtain the job.
+
+
+        Returns:
+          The IndeedJob object that was added to the database.
+
+        """
+
+        injobdict['category'] = category
+        injobdict['crawl_url'] = crawl_url
+
+        timestamp = datetime.utcnow()
+        injobdict['crawl_date'] = timestamp
+        injobdict['indexed_on'] = timestamp
+
+        adzjob = self.add_from_dict(injobdict, IndeedJob, flush=True)
         self.commit()
         self.flush()
         self.commit()
