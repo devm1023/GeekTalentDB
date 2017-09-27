@@ -12,6 +12,8 @@ __all__ = [
     'WUCourse',
     'ADZJob',
     'ADZSkill',
+    'INJob',
+    'INJobSkill',
     'ParseDB',
     'WUUniversitySubject'
 ]
@@ -374,6 +376,27 @@ class ADZSkill(SQLBase):
     id            = Column(BigInteger, primary_key=True)
     parent_id     = Column(BigInteger,
                            ForeignKey('adzjob.id'),
+                           nullable=False,
+                           index=True)
+    name          = Column(Unicode(STR_MAX))
+
+
+class INJob(SQLBase):
+    __tablename__ = 'injob'
+    id            = Column(BigInteger, primary_key=True)
+    timestamp     = Column(DateTime, index=True, nullable=False)
+    jobkey        = Column(String(STR_MAX), index=True, nullable=False)
+    description   = Column(Unicode(STR_MAX))
+    url           = Column(Unicode(STR_MAX))
+
+    skills        = relationship('INJobSkill',
+                                 cascade='all, delete-orphan')
+
+class INJobSkill(SQLBase):
+    __tablename__ = 'injobskill'
+    id            = Column(BigInteger, primary_key=True)
+    parent_id     = Column(BigInteger,
+                           ForeignKey('injob.id'),
                            nullable=False,
                            index=True)
     name          = Column(Unicode(STR_MAX))
