@@ -21,7 +21,8 @@ __all__ = [
     'DatoinDB',
     'ADZJob',
     'ADZCompany',
-    'ADZCategory'
+    'ADZCategory',
+    'IndeedJob'
     ]
 
 import conf
