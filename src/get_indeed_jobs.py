@@ -1,6 +1,7 @@
 import requests
 import argparse
 import conf
+import urllib.parse as url
 from datoindb import *
 
 
@@ -17,11 +18,11 @@ class _Api:
     Returns a formatted api request string.
     """
 
-    LIMIT = 1025 # Indeed limits pagination to 1024 objects.
+    LIMIT = 1025  # Indeed limits pagination to 1024 objects.
 
     def __init__(self, title, l):
         self.api = '{0}?publisher={1:d}&sort=date&radius=50&st&jt&start={2:d}&limit={3:d}&fromage' \
-                   '&filter=1&latlong=1&co=UK&chnl&userip=1.2.3.4&useragent=Mozilla//4.0(Firefox)' \
+                   '&filter=1&latlong=1&co=UK&chnl&userip=1.2.3.4&useragent=Mozilla//4.0%28Firefox%29' \
                    '&v=2&format=json&latlong=1&q={4}&l={5}'
         self.title = title
         self.location = l
@@ -63,7 +64,7 @@ def main(args):
     titles = []
     with open(args.titles_from, 'r') as infile:
         for title in infile:
-            titles.append(title.rstrip())
+            titles.append(url.quote_plus(title.rstrip()))
             if len(titles) % 100 == 0:
                 print('Reading titles... {0}'.format(len(titles)))
 
@@ -72,7 +73,7 @@ def main(args):
     locations = []
     with open(args.locations_from, 'r') as infile:
         for location in infile:
-            locations.append(location.rstrip())
+            locations.append(url.quote_plus(location.rstrip()))
             if len(locations) % 10 == 0:
                 print('Reading locations... {0}'.format(len(locations)))
 
