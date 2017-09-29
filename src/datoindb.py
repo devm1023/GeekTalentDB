@@ -527,6 +527,15 @@ class IndeedJob(SQLBase):
     category          = Column(String(STR_MAX), index=True)
     __table_args__   = (UniqueConstraint('jobkey'),)
 
+class Duplicates(SQLBase):
+    __tablename__ = 'duplicates'
+    id = Column(BigInteger, primary_key=True)
+    source = Column(String(STR_MAX), index=True, nullable=False)
+    parent_id = Column(BigInteger, index=True, nullable=False)
+    location1 = Column(String(STR_MAX), index=True)
+    text = Column(Unicode(STR_MAX))
+
+    __table_args__ = (UniqueConstraint('source', 'parent_id'),)
 
 class DatoinDB(Session):
     def __init__(self, url=conf.DATOIN_DB,
@@ -691,3 +700,18 @@ class DatoinDB(Session):
         self.commit()
 
         return adzjob
+
+
+    def add_duplicate_job(self, job):
+        """Adds row to duplicates table.
+
+           Returns:
+              The row object that was added to the database.
+        """
+
+        row = self.add_from_dict(job, Duplicates, flush=True)
+        self.commit()
+        self.flush()
+
+        return row
+
