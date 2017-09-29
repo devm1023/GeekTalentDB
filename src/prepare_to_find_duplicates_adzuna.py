@@ -18,8 +18,13 @@ from logger import Logger
     Following formatting is applied to full description text: html strip, whitespace normalisation, lowercasing.
 """
 
+
 class MLStripper(HTMLParser):
     """Strips HTML from strings """
+
+    def error(self, message):
+        pass
+
     def __init__(self):
         super().__init__()
         self.reset()
@@ -52,19 +57,6 @@ def process_rows(jobid, from_id, to_id):
     with DatoinDB() as dtdb:
         q = dtdb.query(ADZJob).filter(*filters)
 
-        # # construct query that retreives the latest version of each profile
-        # maxts = func.max(Webpage.timestamp) \
-        #     .over(partition_by=Webpage.redirect_url) \
-        #     .label('maxts')
-        # subq = crdb.query(Webpage, maxts) \
-        #     .filter(*filters) \
-        #     .subquery()
-        # WebpageAlias = aliased(Webpage, subq)
-        # if from_ts is not None:
-        #     q = q.filter(subq.c.maxts >= from_ts)
-        # if to_ts is not None:
-        #     q = q.filter(subq.c.maxts < to_ts)
-
         def process_row(row):
             d = {'source': args.source,
                  'parent_id': row.id,
@@ -72,31 +64,12 @@ def process_rows(jobid, from_id, to_id):
                  'text': sanitize(row.full_description)}
             dtdb.add_duplicate_job(d)
 
-        # this function does the parsing
-        # def process_row(webpage):
-        #     try:
-        #         doc = parse_html(webpage.html)
-        #     except:
-        #         return
-        #     try:
-        #         parsed_profile = parse_profile(
-        #             webpage.url, webpage.redirect_url, webpage.timestamp, doc)
-        #     except:
-        #         logger.log('Error parsing HTML from URL {0:s}\n' \
-        #                    .format(webpage.url))
-        #         raise
-        #     if parsed_profile is not None:
-        #         psdb.add_from_dict(parsed_profile, LIProfile)
-
-        # apply process_row to each row returned by q and commit to psdb
-        # in regular intervals
         process_db(q, process_row, dtdb, logger=logger)
 
 
 def main(args):
     logger = Logger()
     dtdb = DatoinDB()
-
 
     with DatoinDB() as dtdb:
         filters = [ADZJob.id > args.from_id]
