@@ -41,32 +41,34 @@ def main(args):
 
     dtdb = DatoinDB()
 
-    q1 = dtdb.query(ADZJob).order_by(ADZJob.id)
-    q2 = dtdb.query(ADZJob).order_by(ADZJob.id)
+    q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.location1) \
+             .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
+             .order_by(ADZJob.id)
 
-    d2 = dict(tuple())
-    for row2 in q2:
-        str2 = strip_tags(row2.full_description)
-        str2 = ' '.join(str2.split())
-        d2[row2.id] = (row2.location1, str2)
+    job_posts = dict(tuple())
+    for row in q:
+        id = row[0]
+        job_posts[id] = row[1:]
 
     with open(args.out_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
-        for row in q1:
-            str1 = strip_tags(row.full_description)
-            str1 = ' '.join(str1.split())
-            if row.id % 10 == 0:
-                print('{0} rows checked.'.format(row.id))
-            for key, val in d2.items():
+        for row_id, row in job_posts.items():
+            full_description_1, str1, location1_1 = row
+
+            if row_id % 10 == 0:
+                print('{0} rows checked.'.format(row_id))
+            for key, val in job_posts.items():
                 if key % 1000 == 0:
-                    print('Outer:{0}, Inner: {1} working rows.'.format(row.id, key))
-                if key > row.id:
-                    if val[0] == row.location1 or val[0] is None:
-                        delta = compare(str1, val[1])
+                    print('Outer:{0}, Inner: {1} working rows.'.format(row_id, key))
+
+                full_description_2, str2, location1_2 = val
+                if key > row_id:
+                    if location1_2 == location1_1 or location1_2 is None:
+                        delta = compare(str1, str2)
                         if delta > threshold:
                             print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
-                                  .format(row.id, key, delta, row.full_description, val[1]))
-                            csvwriter.writerow([row.id, key, delta, row.full_description, val[1]])
+                                  .format(row_id, key, delta, full_description_1, full_description_2))
+                            csvwriter.writerow([row_id, key, delta, full_description_1, full_description_2])
 
     # with open(args.out_file, 'w') as outputfile:
     #     csvwriter = csv.writer(outputfile)
