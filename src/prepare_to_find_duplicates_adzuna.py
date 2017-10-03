@@ -1,11 +1,6 @@
-import requests
 import argparse
-from fuzzywuzzy import fuzz
-import csv
-import conf
-import urllib.parse as url
+
 from datoindb import *
-from dbtools import dict_from_row
 from windowquery import split_process, process_db
 from logger import Logger
 from htmlextract import format_content, parse_html
