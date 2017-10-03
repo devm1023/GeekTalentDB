@@ -6,10 +6,9 @@ import conf
 import urllib.parse as url
 from datoindb import *
 from dbtools import dict_from_row
-import collections
-from html.parser import HTMLParser
 from windowquery import split_process, process_db
 from logger import Logger
+from htmlextract import format_content, parse_html
 
 
 
@@ -18,34 +17,9 @@ from logger import Logger
     Following formatting is applied to full description text: html strip, whitespace normalisation, lowercasing.
 """
 
-
-class MLStripper(HTMLParser):
-    """Strips HTML from strings """
-
-    def error(self, message):
-        pass
-
-    def __init__(self):
-        super().__init__()
-        self.reset()
-        self.fed = []
-
-    def handle_data(self, d):
-        self.fed.append(d)
-
-    def get_data(self):
-        return ''.join(self.fed)
-
-
-def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
-
-
 def sanitize(txt):
-    txt = strip_tags(txt)
-    return ' '.join(txt.split())
+    txt = format_content(parse_html(txt))
+    return ' '.join(txt.lower().split())
 
 
 def process_rows(jobid, from_id, to_id):
