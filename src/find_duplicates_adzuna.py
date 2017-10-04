@@ -35,13 +35,14 @@ def strip_tags(html):
 def main(args):
 
     def compare(txt1, txt2):
-        return fuzz.token_sort_ratio(txt1, txt2)
+        return fuzz.ratio(txt1, txt2)
 
     threshold = args.limit
     title_threshold = args.title_limit
 
     dtdb = DatoinDB()
 
+    print('Getting job post data...')
     q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
              .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
              .order_by(ADZJob.id)
@@ -49,7 +50,12 @@ def main(args):
     job_posts = dict(tuple())
     for row in q:
         id = row[0]
-        job_posts[id] = row[1:]
+        sorted_text = ' '.join(sorted(row[2].split()))
+        sorted_title = ' '.join(sorted(row[3].split()))
+
+        job_posts[id] = (row[1], sorted_text, sorted_title, *row[4:])
+
+    print('Processing...')
 
     with open(args.out_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
