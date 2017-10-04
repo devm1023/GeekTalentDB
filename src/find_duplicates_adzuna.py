@@ -72,16 +72,18 @@ def main(args):
 
                 full_description_2, str2, title_2, location1_2 = val
                 if key > row_id:
+                    if location1_2 != location1_1 and location1_2 is not None:
+                        continue
+
                     if compare(title_1, title_2) <= title_threshold:
                         continue
 
-                    if location1_2 == location1_1 or location1_2 is None:
-                        compared_count += 1
-                        delta = compare(str1, str2)
-                        if delta > threshold:
-                            print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
-                                  .format(row_id, key, delta, full_description_1, full_description_2))
-                            csvwriter.writerow([row_id, key, delta, full_description_1, full_description_2])
+                    compared_count += 1
+                    delta = compare(str1, str2)
+                    if delta > threshold:
+                        print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
+                                .format(row_id, key, delta, full_description_1, full_description_2))
+                        csvwriter.writerow([row_id, key, delta, full_description_1, full_description_2])
 
     # with open(args.out_file, 'w') as outputfile:
     #     csvwriter = csv.writer(outputfile)
