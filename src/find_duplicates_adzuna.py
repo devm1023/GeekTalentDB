@@ -38,10 +38,11 @@ def main(args):
         return fuzz.token_sort_ratio(txt1, txt2)
 
     threshold = args.limit
+    title_threshold = args.title_limit
 
     dtdb = DatoinDB()
 
-    q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.location1) \
+    q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
              .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
              .order_by(ADZJob.id)
 
@@ -53,17 +54,23 @@ def main(args):
     with open(args.out_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
         for row_id, row in job_posts.items():
-            full_description_1, str1, location1_1 = row
+            full_description_1, str1, title_1, location1_1 = row
+
+            compared_count = 0
 
             if row_id % 10 == 0:
                 print('{0} rows checked.'.format(row_id))
             for key, val in job_posts.items():
                 if key % 1000 == 0:
-                    print('Outer:{0}, Inner: {1} working rows.'.format(row_id, key))
+                    print('Outer:{0}, Inner: {1} working rows. (Compared: {2})'.format(row_id, key, compared_count))
 
-                full_description_2, str2, location1_2 = val
+                full_description_2, str2, title_2, location1_2 = val
                 if key > row_id:
+                    if compare(title_1, title_2) <= title_threshold:
+                        continue
+
                     if location1_2 == location1_1 or location1_2 is None:
+                        compared_count += 1
                         delta = compare(str1, str2)
                         if delta > threshold:
                             print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
@@ -98,6 +105,8 @@ if __name__ == '__main__':
                         help='CSV files where output will be written to.', default=None, required=True)
     parser.add_argument('--limit', type=int,
                         help='Threshold for a match to be significant. (0 - 100)', default=75)
+    parser.add_argument('--title-limit', type=int,
+                        help='Threshold for a title to be significant. (0 - 100)', default=40)
 
     args = parser.parse_args()
     main(args)
