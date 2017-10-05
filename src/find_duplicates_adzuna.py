@@ -8,6 +8,8 @@ from datoindb import *
 from dbtools import dict_from_row
 import collections
 from html.parser import HTMLParser
+from windowquery import split_process, process_db
+from logger import Logger
 
 
 """
@@ -32,58 +34,85 @@ def strip_tags(html):
     return s.get_data()
 
 
-def main(args):
+def process_rows(jobid, from_id, to_id, threshold, title_threshold, job_posts):
+    logger = Logger()
+    filters = [ADZJob.id >= from_id]
+    if to_id is not None:
+        filters.append(ADZJob.id < to_id)
 
-    def compare(txt1, txt2):
-        return fuzz.ratio(txt1, txt2)
+    with DatoinDB() as dtdb:
+        q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
+                .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
+                .filter(*filters)
+
+        with open('{}.{}'.format(args.out_file, from_id), 'w') as outputfile:
+            csvwriter = csv.writer(outputfile)
+
+            def process_row(row):
+
+                def compare(txt1, txt2):
+                    return fuzz.ratio(txt1, txt2)
+
+                row_id, full_description_1, str1, title_1, location1_1 = row
+
+                str1 = ' '.join(sorted(str1.split()))
+                title_1 = ' '.join(sorted(title_1.split()))
+
+                compared_count = 0
+
+                if row_id % 10 == 0:
+                    print('{0} rows checked.'.format(row_id))
+                for key, val in job_posts.items():
+                    if key % 1000 == 0:
+                        print('Outer:{0}, Inner: {1} working rows. (Compared: {2})'.format(row_id, key, compared_count))
+
+                    full_description_2, str2, title_2, location1_2 = val
+                    if key > row_id:
+                        if location1_2 != location1_1 and location1_2 is not None:
+                            continue
+
+                        if compare(title_1, title_2) <= title_threshold:
+                            continue
+
+                        compared_count += 1
+                        delta = compare(str1, str2)
+                        if delta > threshold:
+                            print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
+                                    .format(row_id, key, delta, full_description_1, full_description_2))
+                            csvwriter.writerow([row_id, key, delta, full_description_1, full_description_2])
+
+
+            process_db(q, process_row, dtdb, logger=logger)
+
+
+def main(args):
+    logger = Logger()
 
     threshold = args.limit
     title_threshold = args.title_limit
 
-    dtdb = DatoinDB()
+    with DatoinDB() as dtdb:
+        print('Getting job post data...')
+        q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
+                .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
+                .order_by(ADZJob.id)
 
-    print('Getting job post data...')
-    q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
-             .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
-             .order_by(ADZJob.id)
+        job_posts = dict(tuple())
+        for row in q:
+            id = row[0]
+            sorted_text = ' '.join(sorted(row[2].split()))
+            sorted_title = ' '.join(sorted(row[3].split()))
 
-    job_posts = dict(tuple())
-    for row in q:
-        id = row[0]
-        sorted_text = ' '.join(sorted(row[2].split()))
-        sorted_title = ' '.join(sorted(row[3].split()))
+            job_posts[id] = (row[1], sorted_text, sorted_title, *row[4:])
 
-        job_posts[id] = (row[1], sorted_text, sorted_title, *row[4:])
+        print('Processing...')
 
-    print('Processing...')
+        filters = [ADZJob.id > args.from_id]
+        q = dtdb.query(ADZJob.id).filter(*filters)
 
-    with open(args.out_file, 'w') as outputfile:
-        csvwriter = csv.writer(outputfile)
-        for row_id, row in job_posts.items():
-            full_description_1, str1, title_1, location1_1 = row
-
-            compared_count = 0
-
-            if row_id % 10 == 0:
-                print('{0} rows checked.'.format(row_id))
-            for key, val in job_posts.items():
-                if key % 1000 == 0:
-                    print('Outer:{0}, Inner: {1} working rows. (Compared: {2})'.format(row_id, key, compared_count))
-
-                full_description_2, str2, title_2, location1_2 = val
-                if key > row_id:
-                    if location1_2 != location1_1 and location1_2 is not None:
-                        continue
-
-                    if compare(title_1, title_2) <= title_threshold:
-                        continue
-
-                    compared_count += 1
-                    delta = compare(str1, str2)
-                    if delta > threshold:
-                        print('Potential duplicates: {0} and {1} score: {2}\ntext1: {3}\ntext2: {4}'
-                                .format(row_id, key, delta, full_description_1, full_description_2))
-                        csvwriter.writerow([row_id, key, delta, full_description_1, full_description_2])
+        split_process(q, process_rows, args.batch_size, args=[threshold, title_threshold, job_posts],
+                      njobs=args.jobs, logger=logger,
+                      workdir='jobs', prefix='de_dup')
 
     # with open(args.out_file, 'w') as outputfile:
     #     csvwriter = csv.writer(outputfile)
@@ -115,6 +144,11 @@ if __name__ == '__main__':
                         help='Threshold for a match to be significant. (0 - 100)', default=75)
     parser.add_argument('--title-limit', type=int,
                         help='Threshold for a title to be significant. (0 - 100)', default=40)
-
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='Number of parallel jobs.')
+    parser.add_argument('--from-id', type=int, default=1,
+                        help='Start of id range.')
+    parser.add_argument('--batch-size', type=int, default=1000,
+                        help='Number of rows per batch.')
     args = parser.parse_args()
     main(args)
