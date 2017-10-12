@@ -22,7 +22,8 @@ __all__ = [
     'ADZJob',
     'ADZCompany',
     'ADZCategory',
-    'IndeedJob'
+    'IndeedJob',
+    'Duplicates'
     ]
 
 import conf
