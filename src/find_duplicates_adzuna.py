@@ -1,6 +1,8 @@
 import requests
 import argparse
 from fuzzywuzzy import fuzz
+from sqlalchemy import and_
+from sqlalchemy.sql.expression import literal_column
 import csv
 import conf
 import urllib.parse as url
@@ -36,14 +38,25 @@ def strip_tags(html):
 
 def process_rows(jobid, from_id, to_id, threshold, title_threshold, job_posts):
     logger = Logger()
-    filters = [ADZJob.id >= from_id]
+
+    if args.source == 'adzuna':
+        table = ADZJob
+    elif args.source == 'indeedjob':
+        table = IndeedJob
+
+    filters = [table.id >= from_id]
     if to_id is not None:
-        filters.append(ADZJob.id < to_id)
+        filters.append(table.id < to_id)
 
     with DatoinDB() as dtdb:
-        q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
-                .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
-                .filter(*filters)
+        if args.source == 'adzuna':
+            q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1)
+        elif args.source == 'indeedjob':
+            null_column = literal_column("NULL")
+            q = dtdb.query(IndeedJob.id, null_column, Duplicates.text, IndeedJob.jobtitle, null_column)
+
+        q = q.join(Duplicates, and_(Duplicates.parent_id == table.id, Duplicates.source == args.source)) \
+             .filter(*filters)
 
         with open('{}.{}'.format(args.out_file, from_id), 'w') as outputfile:
             csvwriter = csv.writer(outputfile)
@@ -67,7 +80,7 @@ def process_rows(jobid, from_id, to_id, threshold, title_threshold, job_posts):
                         print('Outer:{0}, Inner: {1} working rows. (Compared: {2})'.format(row_id, key, compared_count))
 
                     full_description_2, str2, title_2, location1_2 = val
-                    if key > row_id:
+                    if key > row_id or args.source != args.reference:
                         if location1_2 != location1_1 and location1_2 is not None:
                             continue
 
@@ -99,9 +112,17 @@ def main(args):
 
     with DatoinDB() as dtdb:
         print('Getting job post data...')
-        q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1) \
-                .join(Duplicates, Duplicates.parent_id == ADZJob.id and Duplicates.source == "adzuna") \
-                .order_by(ADZJob.id)
+
+        if args.reference == 'adzuna':
+            ref_table = ADZJob
+            q = dtdb.query(ADZJob.id, ADZJob.full_description, Duplicates.text, ADZJob.title, ADZJob.location1)
+        elif args.reference == 'indeedjob':
+            ref_table = IndeedJob
+            null_column = literal_column("NULL")
+            q = dtdb.query(IndeedJob.id, null_column, Duplicates.text, IndeedJob.jobtitle, null_column)
+
+        q = q.join(Duplicates, and_(Duplicates.parent_id == ref_table.id, Duplicates.source == args.reference)) \
+             .order_by(ref_table.id)
 
         job_posts = dict(tuple())
         for row in q:
@@ -113,8 +134,13 @@ def main(args):
 
         print('Processing...')
 
-        filters = [ADZJob.id > args.from_id]
-        q = dtdb.query(ADZJob.id).filter(*filters)
+        if args.source == 'adzuna':
+            table = ADZJob
+        elif args.source == 'indeedjob':
+            table = IndeedJob
+
+        filters = [table.id > args.from_id]
+        q = dtdb.query(table.id).filter(*filters)
 
         split_process(q, process_rows, args.batch_size, args=[threshold, title_threshold, job_posts],
                       njobs=args.jobs, logger=logger,
@@ -144,6 +170,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--source', choices=['adzuna', 'indeedjob'],
+                        help='The data source to process.')
+    parser.add_argument('--reference', choices=['adzuna', 'indeedjob'],
+                        help='The data source to compare against.')
     parser.add_argument('--out_file', type=str,
                         help='CSV files where output will be written to.', default=None, required=True)
     parser.add_argument('--limit', type=int,
