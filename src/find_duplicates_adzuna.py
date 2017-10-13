@@ -74,6 +74,12 @@ def process_rows(jobid, from_id, to_id, threshold, title_threshold, job_posts):
                         if compare(title_1, title_2) <= title_threshold:
                             continue
 
+                        len_ratio = max(len(str1), len(str2)) / min(len(str1), len(str2))
+
+                        # differing lengths
+                        if len_ratio > 2.0:
+                            continue
+
                         compared_count += 1
                         delta = compare(str1, str2)
                         if delta > threshold:
