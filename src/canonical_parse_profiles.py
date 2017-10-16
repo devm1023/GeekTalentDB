@@ -596,6 +596,80 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_ghprofile, cndb, logger=logger)
 
 
+
+def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
+                    skillextractor, category):
+    logger = Logger(sys.stdout)
+    dtdb = DatoinDB()
+    cndb = nf.CanonicalDB()
+
+    q = dtdb.query(IndeedJob) \
+        .filter(IndeedJob.id >= fromid)
+
+    q = q.filter(IndeedJob.category == category)
+
+    if by_indexed_on:
+        q = q.filter(IndeedJob.indexed_on >= from_ts,
+                     IndeedJob.indexed_on < to_ts)
+    else:
+        q = q.filter(IndeedJob.crawled_date >= from_ts,
+                     IndeedJob.crawled_date < to_ts)
+
+    if toid is not None:
+        q = q.filter(IndeedJob.id < toid)
+    q = q.order_by(IndeedJob.id, IndeedJob.category)
+
+    def add_injob(injob):
+        jobdict = dict_from_row(injob, pkeys=True, fkeys=True)
+        jobdict['jobkey']           = jobdict.pop('jobkey')
+        jobdict['created']          = jobdict.pop('date')
+        jobdict['description']      = jobdict.pop('snippet')
+        jobdict['full_description'] = ''
+        jobdict['latitude']         = jobdict.pop('latitude')
+        jobdict['longitude']        = jobdict.pop('longitude')
+        jobdict['location0']        = 'UK'
+        jobdict['location1']        = ''
+        jobdict['location2']        = ''
+        jobdict['location3']        = ''
+        jobdict['location4']        = ''
+        jobdict['location_name']    = jobdict.pop('formattedLocation')
+        jobdict['url']              = jobdict.pop('url')
+        jobdict['title']            = jobdict.pop('jobtitle')
+        jobdict['category']         = jobdict.pop('category')
+        jobdict['company']          = jobdict.pop('company')
+        jobdict['indexed_on'] = make_date_time(jobdict.pop('indexed_on', None))
+        jobdict['crawled_on'] = make_date_time(jobdict.pop('crawled_date', None))
+
+        jobdict['skills'] = []
+
+        # determine language
+        profiletexts = [jobdict['title'], jobdict['description']]
+        profiletexts = '. '.join([t for t in profiletexts if t])
+        try:
+            language = langdetect.detect(profiletexts)
+        except LangDetectException:
+            language = None
+
+        if language not in country_languages.values():
+            language = country_languages['United Kingdom'] # Assume English.
+
+        jobdict['language'] = language
+
+        # extract skills
+
+        #stripped_description = strip_tags(jobdict['full_description'])
+        #if skillextractor is not None and language == 'en':
+        #    text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
+        #    jobdict['skills'] = list(set(skillextractor(text)))
+
+        jobdict['crawl_fail_count'] = 0
+
+        # add profile
+
+        cndb.add_injob(jobdict)
+
+    process_db(lastvalidjob(q), add_injob, cndb, logger=logger)
+
 def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
                    skillextractor, category):
@@ -612,6 +686,8 @@ def parse_profiles(njobs, batchsize,
         parse_profiles(from_ts, to_ts, fromid, 'github', by_indexed_on,
                       skillextractor)
         parse_profiles(from_ts, to_ts, fromid, 'adzuna', by_indexed_on,
+                       skillextractor)
+        parse_profiles(from_ts, to_ts, fromid, 'indeedjob', by_indexed_on,
                        skillextractor)
         return
     elif source_id == 'linkedin':
@@ -644,6 +720,11 @@ def parse_profiles(njobs, batchsize,
         table = ADZJob
         parsefunc = parse_adzjobs
         prefix = 'canonical_parse_adzuna'
+    elif source_id == 'indeedjob':
+        logger.log('Parsing Indeed jobs.\n')
+        table = IndeedJob
+        parsefunc = parse_injobs
+        prefix = 'canonical_parse_indeedjob'
     else:
         raise ValueError('Invalid source type.')
 
@@ -730,7 +811,7 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--source',
                         choices=['linkedin', 'indeed', 'upwork', 'meetup',
-                                 'github', 'adzuna'],
+                                 'github', 'adzuna', 'indeedjob'],
                         help=
                         'Source type to process. If not specified all sources '
                         'are processed.')

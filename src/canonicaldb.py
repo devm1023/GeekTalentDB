@@ -25,6 +25,8 @@ __all__ = [
     'ADZJobSkill',
     'ADZCategory',
     'ADZCompany',
+    'INJob',
+    'INJobSkill',
     'Entity',
     'Word',
     'Location',
@@ -743,6 +745,7 @@ class ADZJob(SQLBase):
     adz_id        = Column(BigInteger, unique=True)
     latitude      = Column(Float)
     longitude     = Column(Float)
+    coords_from_google = Column(Boolean)
     location_name = Column(String(STR_MAX))
     redirect_url  = Column(String(STR_MAX))
     salary_is_predicted = Column(Boolean)
@@ -781,6 +784,58 @@ class ADZCompany(SQLBase):
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
     job            = relationship('ADZJob')
+
+class INJob(SQLBase):
+    __tablename__ = 'injob'
+    id            = Column(BigInteger, primary_key=True)
+    jobkey        = Column(String(STR_MAX), index=True, nullable=False)
+    language      = Column(String(20))
+    nrm_location  = Column(Unicode(STR_MAX), index=True)
+    location0     = Column(String(STR_MAX), index=True, nullable=False)
+    location1     = Column(String(STR_MAX), index=True)
+    location2     = Column(String(STR_MAX), index=True)
+    location3     = Column(String(STR_MAX), index=True)
+    location4     = Column(String(STR_MAX), index=True)
+    title         = Column(Unicode(STR_MAX))
+    parsed_title  = Column(Unicode(STR_MAX))
+    nrm_title     = Column(Unicode(STR_MAX), index=True)
+    title_prefix  = Column(Unicode(STR_MAX))
+    merged_title  = Column(Unicode(STR_MAX))
+    nrm_company   = Column(Unicode(STR_MAX), index=True)
+    description   = Column(Unicode(STR_MAX))
+    full_description = Column(Unicode(STR_MAX))
+    text_length   = Column(Integer)
+    url           = Column(String(STR_MAX))
+    updated_on    = Column(DateTime)
+    indexed_on    = Column(DateTime, index=True)
+    crawled_on    = Column(DateTime, index=True)
+    crawl_fail_count = Column(BigInteger, index=True)
+    created       = Column(DateTime)
+    latitude      = Column(Float)
+    longitude     = Column(Float)
+    location_name = Column(String(STR_MAX))
+    url  = Column(String(STR_MAX))
+
+    category = Column(String(STR_MAX), index=True)
+    company = Column(String(STR_MAX), index=True)
+    la_id = Column(BigInteger, ForeignKey('la.gid'))
+
+    skills        = relationship('INJobSkill',
+                                 order_by='INJobSkill.nrm_name',
+                                 cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('jobkey'),)
+
+class INJobSkill(SQLBase):
+    __tablename__ = 'injob_skill'
+    id            = Column(BigInteger, primary_key=True)
+    adzjob_id     = Column(BigInteger, ForeignKey('injob.id'), index=True)
+    language      = Column(String(20))
+    name          = Column(Unicode(STR_MAX))
+    nrm_name      = Column(Unicode(STR_MAX), index=True)
+    reenforced    = Column(Boolean)
+    score         = Column(Float)
+
 
 # la/lep
 class LA(SQLBase):
@@ -1572,6 +1627,49 @@ def _make_ghprofile_skill(skillname, language):
                 'score'      : 0.0}
 
 
+
+def _make_injob(injob):
+    injob = deepcopy(injob)
+
+    # get profile language
+    language = injob.get('language', None)
+
+    # add skills
+    profileskills = set(injob['skills'])
+    allskills = set(injob['skills'])
+
+
+    injob['skills'] = []
+    for skill in allskills:
+        injob['skills'].append(_make_injob_skill(skill, language, skill in profileskills))
+
+
+    # normalize fields
+    injob['nrm_location'] = normalized_location(injob['location_name'])
+
+    ptitle = preprocess_job_post_title(language, injob['title'], list(allskills))
+    injob['parsed_title']      = parsed_title(language, ptitle)
+    injob['nrm_title']         = normalized_job_post_title('indeedjob', language, ptitle)
+    injob['title_prefix']      = normalized_title_prefix(language, ptitle)
+    injob['nrm_company']       = normalized_company('indeedjob', language, injob['company'])
+
+    # determine text length
+    injob['text_length'] = _get_length(injob, 'title', 'description', ['skills', 'name'])
+
+    return injob
+
+def _make_injob_skill(skillname, language, reenforced):
+    nrm_name = normalized_skill('indeedjob', language, skillname)
+    if not nrm_name:
+        return None
+    else:
+        return {'language'   : language,
+                'name'       : skillname,
+                'nrm_name'    : nrm_name,
+                'reenforced' : reenforced,
+                'score'      : 1.0 if reenforced else 0.0}
+
+
 class GooglePlacesError(Exception):
     pass
 
@@ -2172,6 +2270,62 @@ class CanonicalDB(Session):
                     skills[tag].score += 1.0
 
         return ghprofile
+
+    def add_injob(self, injob):
+        """Add an Indeed job to the database (or update if it exists).
+
+        Args:
+          injob (dict): Description of the job. Must contain the
+            following fields:
+              id
+              jobkey
+              created
+              description
+              latitude
+              longitude
+              location0
+              location1
+              location2
+              location3
+              location4
+              location_name
+              url
+              title
+              indexed_on
+              crawled_date
+              category
+              company
+              skills (list of str)
+
+        Returns:
+          The INJob object that was added to the database.
+
+        """
+        if injob['crawl_fail_count'] > conf.MAX_CRAWL_FAIL_COUNT:
+            self.query(INJob) \
+                .filter(INJob.id == injob['id']) \
+                .delete(synchronize_session=False)
+            return None
+
+        injob_id = self.query(INJob.id) \
+                        .filter(INJob.jobkey == injob['jobkey']) \
+                        .first()
+
+        if injob_id is not None:
+             injob['id'] = injob_id[0]
+
+        injob = _make_injob(injob)
+
+        job_row = self.add_from_dict(injob, INJob)
+        self.flush()
+
+        scores = dict((s.name, s.score) for s in job_row.skills)
+
+        # update skill scores
+        for skill in job_row.skills:
+            skill.score = scores[skill.name]
+
+        return job_row
 
     def add_location(self, nrm_name, retry=False, nuts=None,
                      recompute_nuts=False, logger=Logger(None)):
