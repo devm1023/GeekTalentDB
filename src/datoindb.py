@@ -524,7 +524,8 @@ class IndeedJob(SQLBase):
     formattedRelativeTime = Column(String(STR_MAX), index=True, nullable=False)
     stations          = Column(String(STR_MAX), index=True, nullable=False)
     crawl_url         = Column(String(STR_MAX))
-    crawl_date        = Column(DateTime)
+    crawled_date      = Column(BigInteger)
+    crawl_fail_count  = Column(BigInteger, index=True)
     category          = Column(String(STR_MAX), index=True)
     __table_args__   = (UniqueConstraint('jobkey'),)
 
