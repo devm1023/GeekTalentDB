@@ -210,6 +210,51 @@ def import_adzjobs(jobid, fromid, toid, from_ts, to_ts):
     process_db(q, add_adzjob, cndb, logger=logger)
 
 
+def import_injobs(jobid, fromid, toid, from_ts, to_ts):
+    logger = Logger()
+    psdb = ParseDB()
+    cndb = cn.CanonicalDB()
+
+    q = psdb.query(INJob).filter(INJob.id >= fromid)
+    if toid is not None:
+        q = q.filter(INJob.id < toid)
+    if from_ts is not None:
+        q = q.filter(INJob.timestamp >= from_ts)
+    if to_ts is not None:
+        q = q.filter(INJob.timestamp < to_ts)
+
+    def add_injob(injob):
+        #profiledict = dict(
+        #)
+
+        #cndb.add_injob(profiledict)
+
+        # This is a special case: the data is imported by the old script(parse_profiles),
+        # we just need to add the descriptions/skills
+        cnjob = cndb.query(cn.INJob) \
+                    .filter(cn.INJob.jobkey == injob.jobkey) \
+                    .first()
+
+        if not cnjob:
+            print('Existing entry for jobkey {} not found! {}'.format(injob.jobkey, injob.url))
+            return
+
+        cnjob.full_description = injob.description
+
+        # existing skills
+        ex_skills = set([s.name for s in cnjob.skills])
+        # new skills
+        skills = set([s.name for s in injob.skills])
+
+
+        for s in skills:
+            if s not in ex_skills:
+                nrm_skill = normalized_skill('indeedjob', cnjob.language, s)
+                cnjob.skills.append(cn.INJobSkill(name=s, nrm_name=nrm_skill, language=cnjob.language))
+
+
+    process_db(q, add_injob, cndb, logger=logger)
+
 def main(args):
     njobs = max(args.jobs, 1)
     batchsize = args.batch_size
@@ -245,8 +290,23 @@ def main(args):
                 njobs=njobs, args=[from_ts, to_ts],
                 logger=logger, workdir='jobs',
                 prefix='canonical_import_parse_adz')
-    
-    
+
+
+    # sindeed jobs
+    query = psdb.query(INJob.id)
+    if from_ts:
+        query = query.filter(INJob.timestamp >= from_ts)
+    if to_ts:
+        query = query.filter(INJob.timestamp < to_ts)
+    if args.from_id is not None:
+        query = query.filter(INJob.id >= args.from_id)
+
+    split_process(query, import_injobs, args.batch_size,
+                njobs=njobs, args=[from_ts, to_ts],
+                logger=logger, workdir='jobs',
+                prefix='canonical_import_parse_inj')
+
+
 if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
