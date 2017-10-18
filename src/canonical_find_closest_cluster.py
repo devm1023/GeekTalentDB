@@ -12,30 +12,37 @@ from careerdefinition_cluster import get_skillvectors, distance
 from math import acos, sqrt
 
 
-def find_closest_cluster_adzuna(jobid, fromid, toid, skill_vectors, mappings, output_csv):
+def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
-    q = cndb.query(ADZJob).filter(ADZJob.id >= fromid)
-    # all_titles = cndb.query(ADZJob.category, ADZJob.parsed_title) \
-    #                  .filter(~ADZJob.nrm_title.in_(mappings.keys())) \
-    #                  .filter(ADZJob.id >= fromid)
-    all_titles = cndb.query(ADZJob.category, ADZJob.parsed_title) \
-        .filter(~ADZJob.nrm_title.in_(mappings.keys())) \
-        .filter(ADZJob.id >= fromid)
+    if args.source == 'adzuna':
+        table = ADZJob
+        skill_table = ADZJobSkill
+    elif args.source == 'indeedjob':
+        table = INJob
+        skill_table = INJobSkill
+
+    q = cndb.query(table).filter(table.id >= fromid)
+    # all_titles = cndb.query(table.category, table.parsed_title) \
+    #                  .filter(~table.nrm_title.in_(mappings.keys())) \
+    #                  .filter(table.id >= fromid)
+    all_titles = cndb.query(table.category, table.parsed_title) \
+        .filter(~table.nrm_title.in_(mappings.keys())) \
+        .filter(table.id >= fromid)
     if toid is not None:
-        q = q.filter(ADZJob.id < toid)
-        all_titles = all_titles.filter(ADZJob.id < toid)
+        q = q.filter(table.id < toid)
+        all_titles = all_titles.filter(table.id < toid)
 
     if args.sector is not None:
-        q = q.filter(ADZJob.category == args.sector)
-        all_titles = all_titles.filter(ADZJob.category == args.sector)
+        q = q.filter(table.category == args.sector)
+        all_titles = all_titles.filter(table.category == args.sector)
 
     logger.log('Querying titles...\n')
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _ ,tmp_svs = skillvectors(ADZJob, ADZJobSkill, 'adzuna', titles, None)
+    sv_titles, _ ,tmp_svs = skillvectors(table, skill_table, args.source, titles, None)
     title_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
@@ -83,12 +90,17 @@ def main(args):
     cndb = CanonicalDB()
     logger = Logger()
 
+    if args.source == 'adzuna':
+        table = ADZJob
+    elif args.source == 'indeedjob':
+        table = INJob
+
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
 
     # workaround for applying linkedin clusters
     renamed_skillvectors = []
     for vector in skillvectors:
-        renamed_skillvectors.append({k.replace(':linkedin:', ':adzuna:'): vector[k] for k in vector})
+        renamed_skillvectors.append({k.replace(':linkedin:', ':{}:'.format(args.source)): vector[k] for k in vector})
 
     skillvectors = renamed_skillvectors
     #
@@ -102,21 +114,21 @@ def main(args):
             if not row:
                 continue
             sector, title, _, mapped_title, _ = row
-            mappings[normalized_title('adzuna', 'en', title)] = (normalized_title('adzuna', 'en', mapped_title), mapped_title)
+            mappings[normalized_title(args.source, 'en', title)] = (normalized_title(args.source, 'en', mapped_title), mapped_title)
 
 
-    query = cndb.query(ADZJob.id).filter(~ADZJob.nrm_title.in_(mappings.keys()))
+    query = cndb.query(table.id).filter(~table.nrm_title.in_(mappings.keys()))
     if args.from_id is not None:
-        query = query.filter(ADZJob.id >= args.from_id)
+        query = query.filter(table.id >= args.from_id)
     
     if args.sector is not None:
-        query = query.filter(ADZJob.category == args.sector)
+        query = query.filter(table.category == args.sector)
 
     output_csv = None
     if args.output is not None:
         output_csv = csv.writer(open(args.output, 'w'))
 
-    split_process(query, find_closest_cluster_adzuna, args.batch_size,
+    split_process(query, find_closest_cluster, args.batch_size,
                 njobs=njobs, args=[skillvectors, mappings, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
@@ -133,6 +145,10 @@ if __name__ == '__main__':
                         'Start processing from this ID. Useful for '
                         'crash recovery.')
     parser.add_argument('--sector')
+    parser.add_argument('--source',
+                    choices=['adzuna', 'indeedjob'],
+                    help=
+                    'Source type to process.')
     parser.add_argument('skill_file', help=
                         'File containing skill vectors from clustering')
     parser.add_argument('clusters_file', help=
