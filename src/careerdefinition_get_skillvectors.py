@@ -22,7 +22,7 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
 
-    is_adzuna = profile_table is ADZJob
+    is_adzuna = profile_table is ADZJob or profile_table is INJob
 
     logger.log('Counting profiles.\n')
 
