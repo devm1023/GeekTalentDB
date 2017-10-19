@@ -28,8 +28,7 @@ def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_cs
     #                  .filter(~table.nrm_title.in_(mappings.keys())) \
     #                  .filter(table.id >= fromid)
     all_titles = cndb.query(table.category, table.parsed_title) \
-        .filter(~table.nrm_title.in_(mappings.keys())) \
-        .filter(table.id >= fromid)
+                     .filter(table.id >= fromid)
     if toid is not None:
         q = q.filter(table.id < toid)
         all_titles = all_titles.filter(table.id < toid)
@@ -117,7 +116,7 @@ def main(args):
             mappings[normalized_title(args.source, 'en', title)] = (normalized_title(args.source, 'en', mapped_title), mapped_title)
 
 
-    query = cndb.query(table.id).filter(~table.nrm_title.in_(mappings.keys()))
+    query = cndb.query(table.id)#.filter(~table.nrm_title.in_(mappings.keys()))
     if args.from_id is not None:
         query = query.filter(table.id >= args.from_id)
     
