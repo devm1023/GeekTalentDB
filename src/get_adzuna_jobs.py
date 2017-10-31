@@ -27,7 +27,7 @@ class _Api():
             self.location1 = loc1.replace(' ', '+')
         else:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
-                       '&location0=UK&category={4}&sort_by=date&sort_direction=down'
+                       '&category={4}&sort_by=date&sort_direction=down'
             self.location1 = None
             self.location2 = None
 
