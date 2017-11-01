@@ -32,11 +32,7 @@ def main(args):
     elif args.format == 'skill':
         with open('indeed_titles_skill.txt', 'w') as outputfile:
             for title in titles:
-                skills_list = str()
-                for i in range(skill_limit):
-                    skills_list = skills_list + titles[title][i]
-                    if i != skill_limit - 1:
-                        skills_list = skills_list + ' or '
+                skills_list = ' or '.join(titles[title])
                 outputfile.write('"{0}" ({1})\n'.format(title, skills_list))
     else:
         raise Exception('Output format unspecified!')
