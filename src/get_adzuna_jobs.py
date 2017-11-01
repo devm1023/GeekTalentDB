@@ -14,7 +14,7 @@ class _Api():
     """
     Returns a formatted api request string.
     """
-    def __init__(self, loc1, loc2, cat):
+    def __init__(self, country, loc1, loc2, cat):
         if loc2 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
                        '&location0=UK&location1={4}&location2={5}&category={6}&sort_by=date&sort_direction=down'
@@ -31,6 +31,7 @@ class _Api():
             self.location1 = None
             self.location2 = None
 
+        self.country = country
         self.category = cat
         self.page  = 1
         self.total = 1
@@ -42,7 +43,7 @@ class _Api():
     def getpage(self, p):
         if self.location2:
             return self.api.format(
-                conf.ADZUNA_SEARCH_API,
+                conf.ADZUNA_SEARCH_API.format(self.country),
                 p,
                 conf.ADZUNA_APP_ID,
                 conf.ADZUNA_APP_KEY,
@@ -51,7 +52,7 @@ class _Api():
                 self.category)
         elif self.location1:
             return self.api.format(
-                conf.ADZUNA_SEARCH_API,
+                conf.ADZUNA_SEARCH_API.format(self.country),
                 p,
                 conf.ADZUNA_APP_ID,
                 conf.ADZUNA_APP_KEY,
@@ -59,7 +60,7 @@ class _Api():
                 self.category)
         else:
             return self.api.format(
-                conf.ADZUNA_SEARCH_API,
+                conf.ADZUNA_SEARCH_API.format(self.country),
                 p,
                 conf.ADZUNA_APP_ID,
                 conf.ADZUNA_APP_KEY,
@@ -83,7 +84,7 @@ def main(args):
     dtdb.flush()
     dtdb.commit()
 
-    api = _Api(args.location1, args.location2, args.category)
+    api = _Api(args.country, args.location1, args.location2, args.category)
     init_api = api.getpage(1)
 
     print('Querying Adzuna with: {0}\n'.format(init_api))
@@ -128,6 +129,8 @@ if __name__ == '__main__':
                         help='Location 2 to get the jobs from.', default=None)
     parser.add_argument('--category', type=str,
                         help='Adzuna category for jobs.')
+    parser.add_argument('--country', type=str, default='gb',
+                        help='ISO 3166-1 country code')
     args = parser.parse_args()
 
     if args.location2 and not args.location1:
