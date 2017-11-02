@@ -123,14 +123,11 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--titles_from', type=str,
-                        help='CSV files with titles to be searched for.', default=None)
+                        help='CSV files with titles to be searched for.', default=None, required=True)
     parser.add_argument('--locations_from', type=str,
                         help='CSV files with locations to be searched in.', default=None)
     parser.add_argument('--category', type=str,
-                        help='Category for jobs. e.g. it-jobs')
+                        help='Category for jobs. e.g. it-jobs', required=True)
     args = parser.parse_args()
-
-    if not args.titles_from or not args.category:
-        raise Exception("Titles and category must be provided!")
 
     main(args)
