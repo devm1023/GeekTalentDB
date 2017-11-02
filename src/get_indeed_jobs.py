@@ -122,9 +122,9 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--titles_from', type=str,
+    parser.add_argument('--titles-from', type=str,
                         help='CSV files with titles to be searched for.', default=None, required=True)
-    parser.add_argument('--locations_from', type=str,
+    parser.add_argument('--locations-from', type=str,
                         help='CSV files with locations to be searched in.', default=None)
     parser.add_argument('--category', type=str,
                         help='Category for jobs. e.g. it-jobs', required=True)
