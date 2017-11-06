@@ -12,6 +12,25 @@ _stopwords_nl = set(nltk.corpus.stopwords.words('dutch'))
 _protect_nl = set()
 _stemmer_nl = nltk.stem.snowball.SnowballStemmer('dutch')
 
+_stopwords_de = set(nltk.corpus.stopwords.words('german'))
+_protect_de = set()
+_stemmer_de = nltk.stem.snowball.SnowballStemmer('german')
+
+_stopwords_es = set(nltk.corpus.stopwords.words('spanish'))
+_protect_es = set()
+_stemmer_es = nltk.stem.snowball.SnowballStemmer('spanish')
+
+_stopwords_fr = set(nltk.corpus.stopwords.words('french'))
+_protect_fr = set()
+_stemmer_fr = nltk.stem.snowball.SnowballStemmer('french')
+
+_stopwords_it = set(nltk.corpus.stopwords.words('italian'))
+_protect_it = set()
+_stemmer_it = nltk.stem.snowball.SnowballStemmer('italian')
+
+_stopwords_ru = set(nltk.corpus.stopwords.words('russian'))
+_protect_ru = set()
+_stemmer_ru = nltk.stem.snowball.SnowballStemmer('russian')
 
 _conf = {
     'en' : {
@@ -192,6 +211,246 @@ _conf = {
         'subject_stopwords' : _stopwords_nl,
 
         'group_stopwords' : _stopwords_nl,
+    },
+
+    'de' : {
+        'stemmer' : _stemmer_de.stem,
+        'protect' : _protect_de,
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_de,
+        'skill_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+
+        'title_stopwords' : _stopwords_de,
+        'title_separators' : [
+            ' at ',
+            ' for ',
+            ],
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
+
+        'company_stopwords' : _stopwords_de,
+
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_de,
+
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_de,
+
+        'subject_stopwords' : _stopwords_de,
+
+        'group_stopwords' : _stopwords_de,
+    },
+
+    'es' : {
+        'stemmer' : _stemmer_es.stem,
+        'protect' : _protect_es,
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_es,
+        'skill_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+
+        'title_stopwords' : _stopwords_es,
+        'title_separators' : [
+            ' at ',
+            ' for ',
+            ],
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
+
+        'company_stopwords' : _stopwords_es,
+
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_es,
+
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_es,
+
+        'subject_stopwords' : _stopwords_es,
+
+        'group_stopwords' : _stopwords_es,
+    },
+
+    'fr' : {
+        'stemmer' : _stemmer_fr.stem,
+        'protect' : _protect_fr,
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_fr,
+        'skill_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+
+        'title_stopwords' : _stopwords_fr,
+        'title_separators' : [
+            ' at ',
+            ' for ',
+            ],
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
+
+        'company_stopwords' : _stopwords_fr,
+
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_fr,
+
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_fr,
+
+        'subject_stopwords' : _stopwords_fr,
+
+        'group_stopwords' : _stopwords_fr,
+    },
+
+    'it' : {
+        'stemmer' : _stemmer_it.stem,
+        'protect' : _protect_it,
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_it,
+        'skill_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+
+        'title_stopwords' : _stopwords_it,
+        'title_separators' : [
+            ' at ',
+            ' for ',
+            ],
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
+
+        'company_stopwords' : _stopwords_it,
+
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_it,
+
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_it,
+
+        'subject_stopwords' : _stopwords_it,
+
+        'group_stopwords' : _stopwords_it,
+    },
+
+    'ru' : {
+        'stemmer' : _stemmer_ru.stem,
+        'protect' : _protect_ru,
+
+        'skill_stemmer' : _stemmer_en.stem,
+        'skill_protect' : _protect_en,
+        'skill_stopwords' : _stopwords_ru,
+        'skill_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+            ],
+
+        'title_stopwords' : _stopwords_ru,
+        'title_separators' : [
+            ' at ',
+            ' for ',
+            ],
+        'title_prefix_words' : set(),
+        'title_suffix_words' : set(),
+        'title_replace' : [
+            ('.net', ' dotnet'),
+            ('c++', 'cplusplus'),
+            ('c#', 'csharp'),
+            ('f#', 'fsharp'),
+            ('tcp/ip', 'tcpip'),
+        ],
+
+        'job_title_pre_regex_replace': [],
+        'job_title_skill_protect': set(),
+        'job_title_skill_suffix_protect': set(),
+        'job_title_additional_stopwords': set(),
+
+        'company_stopwords' : _stopwords_ru,
+
+        'institute_regex_replace' : [],
+        'institute_stopwords' : _stopwords_ru,
+
+        'degree_regex_replace' : [],
+        'degree_stopwords' : _stopwords_ru,
+
+        'subject_stopwords' : _stopwords_ru,
+
+        'group_stopwords' : _stopwords_ru,
     },
 }
 

@@ -25,6 +25,15 @@ country_languages = {
     'United Kingdom' : 'en',
     'Netherlands'    : 'nl',
     'Nederland'      : 'nl',
+    'Germany'        : 'de',
+    'Deutschland'    : 'de',
+    'Spain'          : 'es',
+    'Finland'        : 'fi',
+    'France'         : 'fr',
+    'Italy'          : 'it',
+    'Italia'         : 'it',
+    'Russia'         : 'ru',
+    'Россия'         : 'ru',
 }
 
 class MLStripper(HTMLParser):
