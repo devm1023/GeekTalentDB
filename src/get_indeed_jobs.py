@@ -1,5 +1,6 @@
 import requests
 import argparse
+import csv
 import conf
 import urllib.parse as url
 from datoindb import *
@@ -20,10 +21,12 @@ class _Api:
 
     LIMIT = 1025  # Indeed limits pagination to 1024 objects.
 
-    def __init__(self, title, l):
+    def __init__(self, country, title, l):
         self.api = '{0}?publisher={1:d}&sort=date&radius=50&st&jt&start={2:d}&limit={3:d}&fromage' \
-                   '&filter=1&latlong=1&co=UK&chnl&userip=1.2.3.4&useragent=Mozilla//4.0%28Firefox%29' \
-                   '&v=2&format=json&latlong=1&q={4}&l={5}'
+                   '&filter=1&latlong=1&co={4}&chnl&userip=1.2.3.4&useragent=Mozilla//4.0%28Firefox%29' \
+                   '&v=2&format=json&latlong=1&q={5}&l={6}'
+
+        self.country = country
         self.title = title
         self.location = l
         self.start = 1
@@ -39,6 +42,7 @@ class _Api:
             conf.INDEED_PUB_ID,
             start,
             self.step,
+            self.country,
             self.title,
             self.location)
 
@@ -72,8 +76,12 @@ def main(args):
 
     locations = []
     with open(args.locations_from, 'r') as infile:
-        for location in infile:
-            locations.append(url.quote_plus(location.rstrip()))
+        csvreader = csv.reader(infile)
+        for row in csvreader:
+            if len(row) < 2 or row[0] != args.country:
+                continue
+
+            locations.append(url.quote_plus(row[1]))
             if len(locations) % 10 == 0:
                 print('Reading locations... {0}'.format(len(locations)))
 
@@ -83,7 +91,7 @@ def main(args):
 
         for location in locations:
 
-            api = _Api(title, location)
+            api = _Api(args.country, title, location)
 
             init_api = api.getpage(1)
 
@@ -128,6 +136,8 @@ if __name__ == '__main__':
                         help='CSV files with locations to be searched in.', default=None)
     parser.add_argument('--category', type=str,
                         help='Category for jobs. e.g. it-jobs', required=True)
+    parser.add_argument('--country', type=str, default='gb',
+                        help='ISO 3166-1 country code')
     args = parser.parse_args()
 
     main(args)
