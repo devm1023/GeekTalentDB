@@ -86,7 +86,9 @@ def get_ladata():
             results[key]['count'] += count
 
             # add title
-            results[key]['merged_titles'][job_title] = count
+            if job_title not in results[key]['merged_titles']:
+                results[key]['merged_titles'][job_title] = 0
+            results[key]['merged_titles'][job_title] += count
 
             total += count
 
