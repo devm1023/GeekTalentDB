@@ -7,7 +7,7 @@ from flask_cors import CORS
 from sqlalchemy import func
 
 import conf
-from canonicaldb import CanonicalDB, ADZJob, LA, LEP, LAInLEP
+from canonicaldb import CanonicalDB, ADZJob, INJob, LA, LEP, LAInLEP
 from dbtools import dict_from_row
 
 # Create application
@@ -23,6 +23,20 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 
 
+def get_breakdown_for_source(table, category, titles):
+    countcol = func.count().label('counts')
+    q = cndb.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol) \
+            .join(table)
+
+    if category:
+        q = q.filter(table.category == category)
+    if titles:
+        q = q.filter(table.merged_title.in_(titles))
+
+    q = q.group_by(LA.gid, table.merged_title)
+
+    return q
+
 # Flask views
 @app.route('/')
 def index():
@@ -34,17 +48,6 @@ def get_ladata():
     start = datetime.now()
     category = request.args.get('category')
     titles = request.args.getlist('title')
-
-    countcol = func.count().label('counts')
-    q = cndb.query(LA.gid, LA.lau118cd, LA.lau118nm, ADZJob.merged_title, countcol) \
-            .join(ADZJob)
-
-    if category:
-        q = q.filter(ADZJob.category == category)
-    if titles:
-        q = q.filter(ADZJob.merged_title.in_(titles))
-
-    q = q.group_by(LA.gid, ADZJob.merged_title)
 
     # get leps
     lepq = cndb.query(LAInLEP.la_id, LEP).join(LEP)
@@ -59,29 +62,36 @@ def get_ladata():
     results = {}
     total = 0
 
-    for la_id, lau_code, lau_name, job_title, count in q:
-        key = lau_code
+    def build_results(q):
+        nonlocal total
+        nonlocal results
 
-        if job_title is None:
-            job_title = "unknown"
+        for la_id, lau_code, lau_name, job_title, count in q:
+            key = lau_code
 
-        # new la
-        if key not in results:
-            results[key] = {}
-            results[key]['name'] = lau_name
-            if la_id in leps:
-                results[key]['leps'] = leps[la_id]
-            else:
-                results[key]['leps'] = []
-            results[key]['count'] = 0
-            results[key]['merged_titles'] = {}
+            if job_title is None:
+                job_title = "unknown"
 
-        results[key]['count'] += count
+            # new la
+            if key not in results:
+                results[key] = {}
+                results[key]['name'] = lau_name
+                if la_id in leps:
+                    results[key]['leps'] = leps[la_id]
+                else:
+                    results[key]['leps'] = []
+                results[key]['count'] = 0
+                results[key]['merged_titles'] = {}
 
-        # add title
-        results[key]['merged_titles'][job_title] = count
+            results[key]['count'] += count
 
-        total += count
+            # add title
+            results[key]['merged_titles'][job_title] = count
+
+            total += count
+
+    build_results(get_breakdown_for_source(ADZJob, category, titles))
+    build_results(get_breakdown_for_source(INJob, category, titles))
 
     end = datetime.now()
     response = jsonify({'results' : results,
