@@ -492,13 +492,11 @@ class ADZCategory(SQLBase):
     __tablename__ = 'adzcategory'
     tag           = Column(String(STR_MAX), primary_key=True)
     label         = Column(String(STR_MAX), nullable=False)
-    job           = relationship('ADZJob')
 
 class ADZCompany(SQLBase):
     __tablename__  = 'adzcompany'
     display_name   = Column(String(STR_MAX), primary_key=True)
     canonical_name = Column(String(STR_MAX), nullable=True, index=True)
-    job            = relationship('ADZJob')
 
 class IndeedJob(SQLBase):
     __tablename__ = 'indeedjob'
