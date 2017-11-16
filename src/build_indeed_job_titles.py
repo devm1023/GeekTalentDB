@@ -28,7 +28,7 @@ def main(args):
                 skills = []
                 titles[row[2]] = skills
             else:
-                if len(skills) > skill_limit:
+                if len(skills) >= skill_limit:
                     continue
                 if args.destem_skills:
                     skill = skill_name(cndb, row[1])
