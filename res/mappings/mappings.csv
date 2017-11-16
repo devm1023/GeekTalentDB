@@ -36,6 +36,10 @@ sector,en,,Banking,Financial Services
 sector,en,,Investment Banking,Financial Services
 sector,en,,Investment Management,Financial Services
 sector,en,,Venture Capital & Private Equity,Financial Services
+# ONS Sectors
+sector,en,,Retail,Sales Marketing and Retail
+sector,en,,Marketing and Advertising,Sales Marketing and Retail
+sector,en,,Construction,Construction
 #
 # skill mappings
 #
@@ -424,7 +428,7 @@ title,en,Digital Tech,Delivery Manager,Project Manager
 title,en,Digital Tech,PMO,Project Manager
 title,en,Digital Tech,PMO Analyst,Project Manager
 # Management Consultant
-title,en,Digital Tech,Principal Consultant,Management Consultant
+#title,en,Digital Tech,Principal Consultant,Management Consultant
 title,en,Digital Tech,Consultant,Management Consultant
 title,en,Digital Tech,Management Consultant,Management Consultant
 title,en,Digital Tech,Business Consultant,Management Consultant
@@ -451,7 +455,7 @@ title,en,,IT Analyst,IT Manager
 title,en,,Technical Support Analyst,IT Manager
 title,en,,Technical Support Specialist,IT Manager
 title,en,,Infrastructure Engineer,IT Manager
-title,en,,IT Apprentice,IT Manager
+#title,en,,IT Apprentice,IT Manager
 title,en,,Systems Engineer,IT Manager
 title,en,,IT Support Technician,IT Manager
 title,en,,IT Support Engineer,IT Manager
@@ -505,7 +509,7 @@ title,en,,Software Engineer,Software Developer
 title,en,,Sr Software Engineer,Software Developer
 title,en,Digital Tech,Developer,Software Developer
 title,en,,Analyst Programmer,Software Developer
-title,en,,Principal Software Engineer,Software Developer
+#title,en,,Principal Software Engineer,Software Developer
 title,en,,Assistant Consultant,Software Developer
 title,en,,Analyst Developer,Software Developer
 title,en,,Technical Lead,Software Developer
@@ -517,16 +521,16 @@ title,en,,Computer Programmer,Software Developer
 title,en,,Software Development Engineer,Software Developer
 title,en,,Software Architect,Software Developer
 title,en,,Tech Lead,Software Developer
-title,en,,Graduate Software Engineer,Software Developer
+#title,en,,Graduate Software Engineer,Software Developer
 title,en,,Programmer,Software Developer
-title,en,,Android Developer,Software Developer
 title,en,,Technology Analyst,Software Developer
 title,en,,Scrum Master,Software Developer
 title,en,,Systems Developer,Software Developer
 title,en,,Software Consultant,Software Developer
 title,en,,Software Developer,Software Developer
 title,en,,Software Development Manager,Software Developer
-title,en,,iOS Developer,Software Developer
+title,en,,Android Developer,Mobile Developer
+title,en,,iOS Developer,Mobile Developer
 # Data Analyst
 title,en,,Analyst,Data Analyst
 title,en,,Data Analyst,Data Analyst
@@ -650,7 +654,7 @@ title,en,Automotive,Engineer,Project Engineer
 title,en,,Automotive Engineer,Project Engineer
 title,en,Automotive,Project Engineer,Project Engineer
 title,en,Automotive,Production Engineer,Project Engineer
-title,en,Automotive,Principal Engineer,Project Engineer
+#title,en,Automotive,Principal Engineer,Project Engineer
 title,en,Automotive,Application Engineer,Project Engineer
 # Quality Engineer
 title,en,Automotive,Quality Engineer,Quality Engineer
@@ -861,7 +865,7 @@ title,en,,Dentist,Dentist
 title,en,,Dental Nurse,Dentist
 title,en,,Dental Surgeon,Dentist
 title,en,,Dental Hygienist,Dentist
-title,en,,Principal Dentist,Dentist
+#title,en,,Principal Dentist,Dentist
 title,en,Healthcare,Dental Technician,Dentist
 title,en,,Orthodontic Therapist,Dentist
 # Physiotherapist
@@ -1167,7 +1171,7 @@ title,en,Biosciences,Application Specialist,Application Specialist
 title,en,Biosciences,Microbiologist,Microbiologist
 # Scientist
 title,en,Biosciences,Scientist,Scientist
-title,en,Biosciences,Principal Scientist,Scientist
+#title,en,Biosciences,Principal Scientist,Scientist
 title,en,Biosciences,Scientist II,Scientist
 title,en,Biosciences,Scientific Officer,Scientist
 # Research Sceintist
@@ -1187,7 +1191,7 @@ title,en,Biosciences,Independent Nanotechnology Professional,Nanotechnology Prof
 title,en,Biosciences,Biomedical Scientist,Biomedical Scientist
 # Laboratory Technicican
 title,en,Biosciences,Laboratory Technicican,Laboratory Technicican
-title,en,Biosciences,Laboratory Technicican,Research Technicican
+#title,en,Biosciences,Laboratory Technicican,Research Technicican
 ############### Mechanical Engineering ########################
 # Mechanical Engineer
 title,en,Mechanical Engineering,Mechanical Engineer,Mechanical Engineer
@@ -1200,4 +1204,3 @@ title,en,Mechanical Engineering,Technician,Service Engineer
 title,en,Mechanical Engineering,Field Service Engineer,Service Engineer
 title,en,Mechanical Engineering,Refrigeration Engineer,Service Engineer
 title,en,Mechanical Engineering,Lift Engineer,Service Engineer
-
