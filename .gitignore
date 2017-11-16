@@ -5,3 +5,6 @@ src/postcodes
 src/NUTS_2013_SHP
 runs/
 src/__pycache__
+
+nutsregions/country_bounds.json
+nutsregions/??_nuts?.json
