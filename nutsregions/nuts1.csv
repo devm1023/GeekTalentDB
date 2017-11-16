@@ -14,3 +14,103 @@ NL2,Oost-Nederland
 NL3,West-Nederland
 NL4,Zuid-Nederland
 NL1,Noord-Nederland
+AT1,East Austria
+AT2,South Austria
+AT3,West Austria
+BE1,Brussels Capital Region
+BE2,Flemish Region
+BE3,Walloon Region
+BG3,Northern and Eastern Bulgaria
+BG4,South-Western and South-Central Bulgaria
+CH0,Switzerland
+CY0,Cyprus
+CZ0,Czech Republic
+DE1,Baden-Württemberg
+DE2,Bavaria
+DE3,Berlin
+DE4,Brandenburg
+DE5,Free Hanseatic City of Bremen
+DE6,Hamburg
+DE7,Hessen
+DE8,Mecklenburg-Vorpommern
+DE9,Lower Saxony
+DEA,North Rhine-Westphalia
+DEB,Rhineland-Palatinate
+DEC,Saarland
+DED,Saxony
+DEE,Saxony-Anhalt
+DEF,Schleswig-Holstein
+DEG,Thuringia
+DK0,Denmark
+EE0,Estonia
+EL3,Attica
+EL4,"Nisia Aigaiou, Kriti"
+EL5,Voreia Ellada
+EL6,Kentriki Ellada
+ES1,North West
+ES2,North East
+ES3,Community of Madrid
+ES4,Centre
+ES5,East
+ES6,South
+ES7,Canary Islands
+FI1,Mainland Finland
+FI2,Åland
+FR1,Région parisienne
+FR2,Bassin parisien
+FR3,Nord
+FR4,Est
+FR5,Ouest
+FR6,Sud-Ouest
+FR7,Centre-Est (Auvergne-Rhône-Alpes)
+FR8,Méditerranée
+FRA,Départements d'Outre-Mer
+HR0,Croatia
+HU1,Central Hungary
+HU2,Transdanubia
+HU3,Great Plain and North
+IE0,Ireland
+IS0,Iceland
+ITC,North West
+ITH,North East
+ITI,Centre
+ITF,South
+ITG,Islands
+LI0,Liechtenstein
+LT0,Lithuania
+LU0,Luxembourg
+LV0,Latvia
+ME0,Montenegro
+MK0,Macedonia
+MT0,Malta
+NO0,Norway
+PL1,Central Region
+PL2,South Region
+PL3,East Region
+PL4,Northwest Region
+PL5,Southwest Region
+PL6,North Region
+PT1,Mainland Portugal
+PT2,Azores
+PT3,Madeira
+RO1,One
+RO2,Two
+RO3,Three
+RO4,Four
+SE1,East Sweden
+SE2,South Sweden
+SE3,North Sweden
+SI0,Slovenia
+SK0,Slovakia
+TR1,Istanbul Region 
+TR2,West Marmara Region 
+TR3,Aegean Region 
+TR4,East Marmara Region 
+TR5,West Anatolia Region 
+TR6,Mediterranean Region 
+TR7,Central Anatolia Region 
+TR8,West Black Sea Region 
+TR9,East Black Sea Region 
+TRA,Northeast Anatolia Region 
+TRB,Central East Anatolia Region 
+TRC,Southeast Anatolia Region 
