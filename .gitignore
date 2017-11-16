@@ -1,11 +1,7 @@
+.DS_Store
+
 src/conf.py
 src/postcodes
 src/NUTS_2013_SHP
-runs/tordata
-runs/crawljobs
+runs/
 src/__pycache__
-runs/*.out
-runs/*.log
-runs/*.txt
-runs/*.html
-runs/jobs
