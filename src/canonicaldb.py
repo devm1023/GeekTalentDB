@@ -756,6 +756,10 @@ class ADZJob(SQLBase):
     category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
     company = Column(String(STR_MAX), ForeignKey('adzcompany.display_name'), index=True)
     la_id = Column(BigInteger, ForeignKey('la.gid'))
+    nuts0         = Column(String(2), index=True)
+    nuts1         = Column(String(3), index=True)
+    nuts2         = Column(String(4), index=True)
+    nuts3         = Column(String(5), index=True)
 
     skills        = relationship('ADZJobSkill',
                                  order_by='ADZJobSkill.nrm_name',
@@ -819,6 +823,10 @@ class INJob(SQLBase):
     category = Column(String(STR_MAX), index=True)
     company = Column(String(STR_MAX), index=True)
     la_id = Column(BigInteger, ForeignKey('la.gid'))
+    nuts0         = Column(String(2), index=True)
+    nuts1         = Column(String(3), index=True)
+    nuts2         = Column(String(4), index=True)
+    nuts3         = Column(String(5), index=True)
 
     skills        = relationship('INJobSkill',
                                  order_by='INJobSkill.nrm_name',
