@@ -47,7 +47,7 @@ class _Api:
             self.location)
 
     def __next__(self):
-        if self.start + self.step < self.total:
+        if self.start + self.step < min(self.total, _Api.LIMIT):
             self.start += self.step
             return self.getpage(self.start)
         else:
