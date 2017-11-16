@@ -1,6 +1,7 @@
 import requests
 import argparse
 import csv
+import sys
 import conf
 import urllib.parse as url
 from datoindb import *
@@ -112,7 +113,7 @@ def main(args):
 
                 # Those combinations would have to be made more granular.
                 if total > _Api.LIMIT:
-                    print('Location/Title combination exceeds API limits: {0}'.format(init_api))
+                    print('Location/Title combination exceeds API limits: {}, {}, {}/{}'.format(title, location, total, _Api.LIMIT), file=sys.stderr)
 
                 extract_jobs(jobs, init_api)
 
