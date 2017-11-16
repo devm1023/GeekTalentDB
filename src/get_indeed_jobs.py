@@ -129,8 +129,7 @@ def main(args):
                 print('Jobs found: {0:d}'.format(total))
 
             except Exception as e:
-                print('URL failed: {0} {1}'.format(init_api, e))
-                raise
+                print('URL failed: {0} {1}'.format(init_api, e), file=sys.stderr)
 
     print('Done!')
 
