@@ -89,6 +89,12 @@ def main(args):
 
     for title in titles:
 
+        if args.from_title is not None and title != url.quote_plus(args.from_title):
+            continue
+
+        #Reached first title, reset
+        args.from_title = None
+
         for location in locations:
 
             api = _Api(args.country, title, location)
@@ -138,6 +144,8 @@ if __name__ == '__main__':
                         help='Category for jobs. e.g. it-jobs', required=True)
     parser.add_argument('--country', type=str, default='gb',
                         help='ISO 3166-1 country code')
+    parser.add_argument('--from-title', type=str,
+                        help='First title to search for.', default=None)
     args = parser.parse_args()
 
     main(args)
