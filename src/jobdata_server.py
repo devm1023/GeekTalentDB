@@ -48,7 +48,7 @@ def get_breakdown_for_source(table, category, titles, region_type):
             group_field = table.nuts3
 
         null_column = literal_column("NULL")
-        q = cndb.query(null_column, group_field, group_field, table.merged_title, countcol) \
+        q = cndb.query(null_column, group_field, null_column, table.merged_title, countcol) \
                 .filter(group_field.isnot(None))
     else:
         return None
@@ -106,7 +106,8 @@ def get_ladata():
             # new region
             if key not in results:
                 results[key] = {}
-                results[key]['name'] = region_name
+                if region_name is not None:
+                    results[key]['name'] = region_name
                 # leps for la
                 if leps is not None:
                     if region_id in leps:
