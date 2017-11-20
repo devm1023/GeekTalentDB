@@ -264,47 +264,53 @@ def main(args):
     psdb = ParseDB()
     logger = Logger()
 
-    query = psdb.query(LIProfile.id)
-    if from_ts:
-        query = query.filter(LIProfile.timestamp >= from_ts)
-    if to_ts:
-        query = query.filter(LIProfile.timestamp < to_ts)
-    if args.from_id is not None:
-        query = query.filter(table.id >= from_id)
+    if not args.source or args.source == 'linkedin':
+        logger.log('Importing LinkedIn profiles.\n')
+        query = psdb.query(LIProfile.id)
+        if from_ts:
+            query = query.filter(LIProfile.timestamp >= from_ts)
+        if to_ts:
+            query = query.filter(LIProfile.timestamp < to_ts)
+        if args.from_id is not None:
+            query = query.filter(table.id >= from_id)
 
-    split_process(query, import_liprofiles, args.batch_size,
-                  njobs=njobs, args=[from_ts, to_ts],
-                  logger=logger, workdir='jobs',
-                  prefix='canonical_import_parse')
+        split_process(query, import_liprofiles, args.batch_size,
+                    njobs=njobs, args=[from_ts, to_ts],
+                    logger=logger, workdir='jobs',
+                    prefix='canonical_import_parse')
 
     # adzuna
-    query = psdb.query(ADZJob.id)
-    if from_ts:
-        query = query.filter(ADZJob.timestamp >= from_ts)
-    if to_ts:
-        query = query.filter(ADZJob.timestamp < to_ts)
-    if args.from_id is not None:
-        query = query.filter(ADZJob.id >= args.from_id)
+    if not args.source or args.source == 'adzuna':
+        logger.log('Importing Adzuna job posts.\n')
+        query = psdb.query(ADZJob.id)
+        if from_ts:
+            query = query.filter(ADZJob.timestamp >= from_ts)
+        if to_ts:
+            query = query.filter(ADZJob.timestamp < to_ts)
+        if args.from_id is not None:
+            query = query.filter(ADZJob.id >= args.from_id)
 
-    split_process(query, import_adzjobs, args.batch_size,
-                njobs=njobs, args=[from_ts, to_ts],
-                logger=logger, workdir='jobs',
-                prefix='canonical_import_parse_adz')
+        split_process(query, import_adzjobs, args.batch_size,
+                    njobs=njobs, args=[from_ts, to_ts],
+                    logger=logger, workdir='jobs',
+                    prefix='canonical_import_parse_adz')
 
 
-    # sindeed jobs
-    query = psdb.query(INJob.id)
-    if from_ts:
-        query = query.filter(INJob.timestamp >= from_ts)
-    if to_ts:
-        query = query.filter(INJob.timestamp < to_ts)
-    if args.from_id is not None:
-        query = query.filter(INJob.id >= args.from_id)
+    # indeed jobs
+    if not args.source or args.source == 'indeedjob':
+        logger.log('Importing Indeed job posts.\n')
+        query = psdb.query(INJob.id)
+        if from_ts:
+            query = query.filter(INJob.timestamp >= from_ts)
+        if to_ts:
+            query = query.filter(INJob.timestamp < to_ts)
+        if args.from_id is not None:
+            query = query.filter(INJob.id >= args.from_id)
 
-    split_process(query, import_injobs, args.batch_size,
-                njobs=njobs, args=[from_ts, to_ts],
-                logger=logger, workdir='jobs',
-                prefix='canonical_import_parse_inj')
+        split_process(query, import_injobs, args.batch_size,
+                    njobs=njobs, args=[from_ts, to_ts],
+                    logger=logger, workdir='jobs',
+                    prefix='canonical_import_parse_inj')
 
 
 if __name__ == '__main__':
@@ -314,6 +320,11 @@ if __name__ == '__main__':
                         help='Number of parallel jobs.')
     parser.add_argument('--batch-size', type=int, default=1000,
                         help='Number of rows per batch.')
+    parser.add_argument('--source',
+                        choices=['linkedin', 'adzuna', 'indeedjob'],
+                        help=
+                        'Source type to process. If not specified all sources '
+                        'are processed.')
     parser.add_argument('--from-timestamp', help=
                         'Only process profiles crawled or indexed on or after '
                         'this date. Format: YYYY-MM-DD',
