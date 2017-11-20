@@ -16,7 +16,7 @@ from nameparser import HumanName
 from nameparser.config import CONSTANTS
 from textnormalization import normalized_skill
 
-with open('name_constants.csv', 'r') as inputfile:
+with open('../res/name_constants.csv', 'r') as inputfile:
     for line in inputfile:
         line = line.strip()
         if not line or line.startswith('#'):
