@@ -1,0 +1,628 @@
+de,Aschheim
+de,Bergkirchen
+de,Berlin
+de,Berlin-Buch
+de,Berlin-Friedrichshain
+de,Berlin-Kreuzberg
+de,Berlin-Mitte
+de,Brandenburg an der Havel
+de,Dachau
+de,Dahlewitz
+de,Düsseldorf
+de,Erding
+de,Feldkirchen
+de,Frankfurt am Main
+de,Freising
+de,Friedberg
+de,Fürstenfeldbruck
+de,Garching bei München
+de,Germering
+de,Gilching
+de,Grünwald
+de,Haar
+de,Hallbergmoos
+de,Hennigsdorf
+de,Holzkirchen
+de,Ismaning
+de,Karlsfeld
+de,München
+de,Neubiberg
+de,Oberbayern
+de,Oberhaching
+de,Oberpfaffenhofen
+de,Ottobrunn
+de,Penzberg
+de,Planegg
+de,Poing
+de,Potsdam
+de,Puchheim
+de,Sauerlach
+de,Starnberg
+de,Taufkirchen
+de,Teltow
+de,Unterföhring
+de,Unterhaching
+de,Unterschleißheim
+de,Weßling
+de,Wildau
+de,Wolfratshausen
+
+es,Barcelona
+
+fi,Helsinki
+
+fr,Antony
+fr,Arcueil
+fr,Argenteuil
+fr,Asnières-sur-Seine
+fr,Aubergenville
+fr,Aubervilliers
+fr,Bagneux
+fr,Bailly-Romainvilliers
+fr,Bastille
+fr,Bezons
+fr,Bobigny
+fr,Bois-Colombes
+fr,Bondoufle
+fr,Bondy
+fr,Bonneuil-sur-Marne
+fr,Boulogne-Billancourt
+fr,Bourg-la-Reine
+fr,Brie-Comte-Robert
+fr,Bry-sur-Marne
+fr,Buc
+fr,Cergy
+fr,Chambourcy
+fr,Charenton-le-Pont
+fr,Châtillon
+fr,Chatou
+fr,Clamart
+fr,Clichy
+fr,Coignières
+fr,Colombes
+fr,Corbeil-Essonnes
+fr,Courbevoie
+fr,Créteil
+fr,Croissy-sur-Seine
+fr,Dourdan
+fr,Élancourt
+fr,Étampes
+fr,Évry
+fr,Fontenay-sous-Bois
+fr,Franconville
+fr,Garches
+fr,Gennevilliers
+fr,Gentilly
+fr,Gif-sur-Yvette
+fr,Gonesse
+fr,Guyancourt
+fr,Issy-les-Moulineaux
+fr,Ivry-sur-Seine
+fr,La Celle-Saint-Cloud
+fr,La Défense
+fr,La Garenne-Colombes
+fr,La Plaine-Saint-Denis
+fr,Lardy
+fr,Le Chesnay
+fr,Le Pecq
+fr,Le Plessis-Robinson
+fr,Les Clayes-sous-Bois
+fr,Les Ulis
+fr,Levallois-Perret
+fr,Limeil-Brévannes
+fr,Lognes
+fr,Magny-les-Hameaux
+fr,Maisons-Alfort
+fr,Malakoff
+fr,Marly-le-Roi
+fr,Marne-la-Vallée
+fr,Massy
+fr,Melun
+fr,Méru
+fr,Meudon
+fr,Moissy-Cramayel
+fr,Montigny-le-Bretonneux
+fr,Montreuil
+fr,Montrouge
+fr,Morangis
+fr,Nanterre
+fr,Neuilly-sur-Seine
+fr,Noisy-le-Grand
+fr,Nozay
+fr,Orly
+fr,Orsay
+fr,Osny
+fr,Palaiseau
+fr,Pantin
+fr,Paris
+fr,Paris 10e
+fr,Paris 11e
+fr,Paris 12e
+fr,Paris 13e
+fr,Paris 14e
+fr,Paris 15e
+fr,Paris 16e
+fr,Paris 17e
+fr,Paris 18e
+fr,Paris 19e
+fr,Paris 1er
+fr,Paris 20e
+fr,Paris 2e
+fr,Paris 3e
+fr,Paris 4e
+fr,Paris 5e
+fr,Paris 6e
+fr,Paris 7e
+fr,Paris 8e
+fr,Paris 9e
+fr,Poissy
+fr,Pontoise
+fr,Pringy
+fr,Puteaux
+fr,Rambouillet
+fr,Roissy-en-Brie
+fr,Roissy-en-France
+fr,Romainville
+fr,Rueil-Malmaison
+fr,Rungis
+fr,Saint-Cloud
+fr,Saint-Denis
+fr,Saint-Germain-en-Laye
+fr,Saint-Mandé
+fr,Saint-Maurice
+fr,Saint-Ouen
+fr,Saint-Quentin-en-Yvelines
+fr,Sceaux
+fr,Sèvres
+fr,Suresnes
+fr,Torcy
+fr,Trappes
+fr,Vanves
+fr,Varennes-Jarcy
+fr,Vaucresson
+fr,Vélizy-Villacoublay
+fr,Versailles
+fr,Villebon-sur-Yvette
+fr,Villejuif
+fr,Villiers-Saint-Fréderic
+fr,Vincennes
+fr,Voisins-le-Bretonneux
+
+gb,Aberdeen City
+gb,Aberdeenshire
+gb,Adur
+gb,Allerdale
+gb,Amber Valley
+gb,Angus
+gb,Antrim
+gb,Ards
+gb,Argyll & Bute Islands
+gb,Argyll & Bute Mainland
+gb,Armagh City
+gb,Arran & Cumbrae
+gb,Arun
+gb,Ashfield
+gb,Ashford
+gb,Aylesbury Vale
+gb,Babergh
+gb,Badenoch & Strathspey
+gb,Banbridge
+gb,Banstead
+gb,Barking
+gb,Barnet
+gb,Barnsley
+gb,Barrow-in-Furness
+gb,Basildon
+gb,Basingstoke
+gb,Bassetlaw
+gb,Bath
+gb,Bedford
+gb,Bedworth
+gb,Belfast
+gb,Bexley
+gb,Birmingham
+gb,Blaby
+gb,Blackburn with Darwen
+gb,Blackpool
+gb,Blaenau Gwent
+gb,Bolsover
+gb,Bolton
+gb,Boston
+gb,Bosworth
+gb,Bournemouth
+gb,Bracknell Forest
+gb,Bradford
+gb,Braintree
+gb,Breckland
+gb,Brent
+gb,Brentwood
+gb,Bridgend
+gb,Brighton
+gb,Bristol
+gb,Broadland
+gb,Bromley
+gb,Bromsgrove
+gb,Broxbourne
+gb,Broxtowe
+gb,Burnley
+gb,Bury
+gb,Caerphilly
+gb,Caithness & Sutherland
+gb,Calderdale
+gb,Cambridge
+gb,Camden
+gb,Cannock Chase
+gb,Canterbury
+gb,Cardiff
+gb,Carlisle
+gb,Carmarthenshire
+gb,Castle Point
+gb,Castlereagh
+gb,Causeway Coast
+gb,Central Bedfordshire
+gb,Ceredigion
+gb,Charnwood
+gb,Chelmsford
+gb,Chelsea
+gb,Cheltenham
+gb,Cherwell
+gb,Cheshire East
+gb,Cheshire West
+gb,Chester
+gb,Chesterfield
+gb,Chichester
+gb,Chiltern
+gb,Chorley
+gb,Christchurch
+gb,City of London
+gb,Clackmannanshire
+gb,Cleveland
+gb,Colchester
+gb,Conwy
+gb,Copeland
+gb,Corby
+gb,Cornwall
+gb,Cotswold
+gb,County Durham
+gb,Coventry
+gb,Craigavon
+gb,Craven
+gb,Crawley
+gb,Croydon
+gb,Dacorum
+gb,Dagenham
+gb,Darlington
+gb,Dartford
+gb,Daventry
+gb,Deane
+gb,Denbighshire
+gb,Derby
+gb,Derbyshire Dales
+gb,Derry City
+gb,Doncaster
+gb,Dover
+gb,Down
+gb,Dudley
+gb,Dumfries & Galloway
+gb,Dundee City
+gb,Ealing
+gb,East Antrim
+gb,East Ayrshire
+gb,East Cambridgeshire
+gb,East Devon
+gb,East Dorset
+gb,East Dunbartonshire
+gb,East Hampshire
+gb,East Hertfordshire
+gb,East Lindsey
+gb,East Lothian
+gb,East Northamptonshire
+gb,East Renfrewshire
+gb,East Riding of Yorkshire
+gb,East Staffordshire
+gb,Eastbourne
+gb,Eastleigh
+gb,Eden
+gb,Edinburgh
+gb,Eilean Siar (Western Isles)
+gb,Elmbridge
+gb,Enfield
+gb,Epping Forest
+gb,Epsom
+gb,Erewash
+gb,Ewell
+gb,Exeter
+gb,Falkirk
+gb,Fareham
+gb,Fenland
+gb,Fermanagh
+gb,Fife
+gb,Flintshire
+gb,Forest Heath
+gb,Forest of Dean
+gb,Fulham
+gb,Fylde
+gb,Gateshead
+gb,Gedling
+gb,Glasgow City
+gb,Glens
+gb,Gloucester
+gb,Gosport
+gb,Gravesham
+gb,Great Yarmouth
+gb,Greenwich
+gb,Guildford
+gb,Gwynedd
+gb,Hackney
+gb,Halton
+gb,Hambleton
+gb,Hammersmith
+gb,Harborough
+gb,Haringey
+gb,Harlow
+gb,Harrogate
+gb,Harrow
+gb,Hart
+gb,Hartlepool
+gb,Hastings
+gb,Havant
+gb,Havering
+gb,Helensburgh & Lomond
+gb,Herefordshire
+gb,Hertsmere
+gb,High Peak
+gb,Hillingdon
+gb,Hinckley
+gb,Horsham
+gb,Hounslow
+gb,Hove
+gb,Huntingdonshire
+gb,Hyndburn
+gb,Inverclyde
+gb,Inverness & Nairn
+gb,Ipswich
+gb,Isle of Anglesey
+gb,Isle of Wight
+gb,Isles of Scilly
+gb,Islington
+gb,Kensington
+gb,Kettering
+gb,King's Lynn
+gb,Kingston upon Hull
+gb,Kingston upon Thames
+gb,Kirklees
+gb,Knowsley
+gb,Lambeth
+gb,Lancaster
+gb,Leeds
+gb,Leicester
+gb,Lewes
+gb,Lewisham
+gb,Lichfield
+gb,Lincoln
+gb,Lisburn
+gb,Liverpool
+gb,Lochaber
+gb,Luton
+gb,Maidenhead
+gb,Maidstone
+gb,Maldon
+gb,Malling
+gb,Malvern Hills
+gb,Manchester
+gb,Mansfield
+gb,Medway
+gb,Melton
+gb,Mendip
+gb,Merthyr Tydfil
+gb,Merton
+gb,Mid Antrim
+gb,Mid Devon
+gb,Mid Suffolk
+gb,Mid Sussex
+gb,Mid Ulster
+gb,Middlesbrough
+gb,Midlothian
+gb,Milton Keynes
+gb,Mole Valley
+gb,Monmouthshire
+gb,Mourne
+gb,Neath Port Talbot
+gb,New Forest
+gb,Newark
+gb,Newcastle upon Tyne
+gb,Newcastle-under-Lyme
+gb,Newham
+gb,Newport
+gb,Newry
+gb,Newtownabbey
+gb,North Ayrshire mainland
+gb,North Devon
+gb,North Dorset
+gb,North Down
+gb,North East Derbyshire
+gb,North East Lincolnshire
+gb,North East Moray
+gb,North East Somerset
+gb,North Hertfordshire
+gb,North Kesteven
+gb,North Lanarkshire
+gb,North Lincolnshire
+gb,North Norfolk
+gb,North Somerset
+gb,North Tyneside
+gb,North Warwickshire
+gb,North West Leicestershire
+gb,Northampton
+gb,Northumberland
+gb,Norwich
+gb,Nottingham
+gb,Nuneaton
+gb,Oadby
+gb,Oldham
+gb,Omagh
+gb,Orkney Islands
+gb,Oxford
+gb,Pembrokeshire
+gb,Pendle
+gb,Perth & Kinross
+gb,Peterborough
+gb,Plymouth
+gb,Poole
+gb,Portland
+gb,Portsmouth
+gb,Powys
+gb,Preston
+gb,Purbeck
+gb,Reading
+gb,Redbridge
+gb,Redcar
+gb,Redditch
+gb,Reigate
+gb,Renfrewshire
+gb,Rhondda Cynon Taf
+gb,Ribble Valley
+gb,Richmond upon Thames
+gb,Richmondshire
+gb,Rochdale
+gb,Rochford
+gb,Ross & Cromarty
+gb,Rossendale
+gb,Rother
+gb,Rotherham
+gb,Rugby
+gb,Runnymede
+gb,Rushcliffe
+gb,Rushmoor
+gb,Rutland
+gb,Ryedale
+gb,Salford
+gb,Sandwell
+gb,Scarborough
+gb,Scottish Borders
+gb,Sedgemoor
+gb,Sefton
+gb,Selby
+gb,Sevenoaks
+gb,Sheffield
+gb,Shepway
+gb,Sherwood
+gb,Shetland Islands
+gb,Shropshire
+gb,Skye & Lochalsh
+gb,Slough
+gb,Solihull
+gb,South Ayrshire
+gb,South Bucks
+gb,South Cambridgeshire
+gb,South Derbyshire
+gb,South Gloucestershire
+gb,South Hams
+gb,South Holland
+gb,South Kesteven
+gb,South Lakeland
+gb,South Lanarkshire
+gb,South Norfolk
+gb,South Northamptonshire
+gb,South Oxfordshire
+gb,South Ribble
+gb,South Somerset
+gb,South Staffordshire
+gb,South Tyneside
+gb,Southampton
+gb,Southend-on-Sea
+gb,Southwark
+gb,Spelthorne
+gb,St Albans
+gb,St Edmundsbury
+gb,St. Helens
+gb,Stafford
+gb,Staffordshire Moorlands
+gb,Stevenage
+gb,Stirling
+gb,Stockport
+gb,Stockton-on-Tees
+gb,Stoke-on-Trent
+gb,Strabane
+gb,Stratford-on-Avon
+gb,Stroud
+gb,Suffolk Coastal
+gb,Sunderland
+gb,Surrey Heath
+gb,Sutton
+gb,Swale
+gb,Swansea
+gb,Swindon
+gb,Tameside
+gb,Tamworth
+gb,Tandridge
+gb,Taunton Deane
+gb,Teignbridge
+gb,Telford
+gb,Tendring
+gb,Test Valley
+gb,Tewkesbury
+gb,Thanet
+gb,Three Rivers
+gb,Thurrock
+gb,Tonbridge
+gb,Torbay
+gb,Torfaen
+gb,Torridge
+gb,Tower Hamlets
+gb,Trafford
+gb,Tunbridge Wells
+gb,Uttlesford
+gb,Vale of Glamorgan
+gb,Vale of White Horse
+gb,Wakefield
+gb,Walsall
+gb,Waltham Forest
+gb,Wandsworth
+gb,Warrington
+gb,Warwick
+gb,Watford
+gb,Waveney
+gb,Waverley
+gb,Wealden
+gb,Wellingborough
+gb,Welwyn Hatfield
+gb,West Berkshire
+gb,West Devon
+gb,West Dorset
+gb,West Dunbartonshire
+gb,West Lancashire
+gb,West Lindsey
+gb,West Lothian
+gb,West Moray
+gb,West Norfolk
+gb,West Oxfordshire
+gb,West Somerset
+gb,Westminster
+gb,Weymouth
+gb,Wigan
+gb,Wigston
+gb,Wiltshire
+gb,Winchester
+gb,Windsor
+gb,Wirral
+gb,Woking
+gb,Wokingham
+gb,Wolverhampton
+gb,Worcester
+gb,Worthing
+gb,Wrekin
+gb,Wrexham
+gb,Wychavon
+gb,Wycombe
+gb,Wyre
+gb,Wyre Forest
+gb,York
+
+ie,Dublin
+
+it,Milan
+
+nl,Hilversum
+
+ru,Moscow
