@@ -24,7 +24,9 @@ def map_job_nuts(jobid, fromid, toid):
     elif args.source == 'indeedjob':
         table = INJob
 
-    q = cndb.query(table).filter(table.id >= fromid)
+    q = cndb.query(table, Location) \
+            .outerjoin(Location, Location.nrm_name == table.nrm_location) \
+            .filter(table.id >= fromid)
 
     if toid is not None:
         q = q.filter(table.id < toid)
@@ -32,9 +34,15 @@ def map_job_nuts(jobid, fromid, toid):
     if args.sector is not None:
         q = q.filter(table.category == args.sector)
 
-    def map_nuts(job):
+    def map_nuts(tables):
+        job, loc = tables
+
         if not job.longitude:
+            if loc is not None: # from geolookup
+                (job.nuts0, job.nuts1, job.nuts2, job.nuts3) = (loc.nuts0, loc.nuts1, loc.nuts2, loc.nuts3)
+
             return
+
         (job.nuts0, job.nuts1,
             job.nuts2, job.nuts3) = nuts.get_ids(Point(job.longitude, job.latitude))
 
