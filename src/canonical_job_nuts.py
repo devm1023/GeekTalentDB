@@ -11,7 +11,13 @@ def map_job_nuts(jobid, fromid, toid):
     logger = Logger()
     cndb = CanonicalDB()
 
-    nuts = NutsRegions(conf.NUTS_DATA)
+    countries = [
+        'AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR',
+        'HU', 'IE', 'IS', 'IT', 'LI', 'LT', 'LU', 'LV', 'ME', 'MK', 'MT', 'NL', 'NO', 'PL',
+        'PT', 'RO', 'SE', 'SI', 'SK', 'TR', 'UK'
+    ]
+
+    nuts = NutsRegions(conf.NUTS_DATA, countries=countries)
 
     if args.source == 'adzuna':
         table = ADZJob
