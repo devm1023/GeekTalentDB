@@ -27,6 +27,9 @@ def process_locations(jobid, fromlocation, tolocation,
     elif source == 'adzuna':
         profile_tab = ADZJob
         experience_tab = None
+    elif source == 'indeedjob':
+        profile_tab = INJob
+        experience_tab = None
     else:
         raise ValueError('Invalid source type.')
 
@@ -66,9 +69,11 @@ def process_locations(jobid, fromlocation, tolocation,
             if experience_tab is not None:
                 q2 = q2.filter(experience_tab.nrm_location < tolocation)
 
-        if source == 'adzuna':
+        if source == 'adzuna' or source == 'indeedjob':
             # ignore jobs with coords already
             q1 = q1.filter(profile_tab.latitude.is_(None))
+
+        if source == 'adzuna':
             # and without enough location details
             q1 = q1.filter(profile_tab.location1.isnot(None))
 
@@ -95,6 +100,9 @@ def run(args, maxretry):
         logger.log('Processing Adzuna locations.\n')
         args.source = 'adzuna'
         run(args, maxretry)
+        logger.log('Processing Indeed job locations.\n')
+        args.source = 'indeedjob'
+        run(args, maxretry)
         return
     elif args.source == 'linkedin':
         profiletab = LIProfile
@@ -104,6 +112,9 @@ def run(args, maxretry):
         experiencetab = INExperience
     elif args.source == 'adzuna':
         profiletab = ADZJob
+        experiencetab = None
+    elif args.source == 'indeedjob':
+        profiletab = INJob
         experiencetab = None
     else:
         raise ValueError('Invalid source.')
@@ -201,7 +212,7 @@ if __name__ == '__main__':
                         'if you want to add new locations to the table.')
     parser.add_argument('--recompute-nuts', action='store_true', help=
                         'Re-compute all NUTS codes.')
-    parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], help=
+    parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna', 'indeedjob'], help=
                         'Source type to process. If not specified all sources '
                         'are processed.')
     args = parser.parse_args()
