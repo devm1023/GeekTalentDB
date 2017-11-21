@@ -152,6 +152,10 @@ def run(args, maxretry):
             if experiencetab is not None:
                 q2 = q2.filter(experiencetab.nrm_location >= args.from_location)
 
+        if args.source == 'adzuna' or args.source == 'indeedjob':
+            # ignore jobs with coords already
+            q1 = q1.filter(profiletab.latitude.is_(None))
+
         if experiencetab is None:
             q = q1
         else:
