@@ -133,7 +133,7 @@ def lastvalidjob(q):
         yield currentrow
 
 def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -232,7 +232,7 @@ def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_liprofile, cndb, logger=logger)
 
 def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -323,16 +323,16 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
         # extract skills
 
-        if skillextractor is not None and language == 'en':
+        if skillextractors is not None and language in skillextractors:
             text = ' '.join(s for s in [profiledict['title'],
                                         profiledict['description'],
                                         profiledict['additional_information']] \
                             if s)
-            profiledict['skills'] = list(set(skillextractor(text)))
+            profiledict['skills'] = list(set(skillextractors[language](text)))
             for inexperience in profiledict['experiences']:
                 text = ' '.join(s for s in [inexperience['title'],
                                             inexperience['description']] if s)
-                inexperience['skills'] = list(set(skillextractor(text)))
+                inexperience['skills'] = list(set(skillextractors[language](text)))
 
 
         # add profile
@@ -342,7 +342,7 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
 
 def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -408,9 +408,9 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         # extract skills
 
         stripped_description = strip_tags(jobdict['full_description'])
-        if skillextractor is not None and language == 'en':
+        if skillextractors is not None and language in skillextractors:
             text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
-            jobdict['skills'] = list(set(skillextractor(text)))
+            jobdict['skills'] = list(set(skillextractors[language](text)))
 
         jobdict['crawl_fail_count'] = 0
 
@@ -422,7 +422,7 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    s, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -484,7 +484,7 @@ def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_uwprofile, cndb, logger=logger)
 
 def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -556,7 +556,7 @@ def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -607,7 +607,7 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractor, category):
+                    skillextractors, category):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -671,9 +671,9 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         # extract skills
 
         #stripped_description = strip_tags(jobdict['full_description'])
-        #if skillextractor is not None and language == 'en':
+        #if skillextractors is not None and language in skillextractors:
         #    text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
-        #    jobdict['skills'] = list(set(skillextractor(text)))
+        #    jobdict['skills'] = list(set(skillextractors[language](text)))
 
         jobdict['crawl_fail_count'] = 0
 
@@ -685,23 +685,23 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
-                   skillextractor, category):
+                   skillextractors, category):
     logger = Logger(sys.stdout)
     if source_id is None:
         parse_profiles(from_ts, to_ts, fromid, 'linkedin', by_indexed_on,
-                      skillextractor)
+                      skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'indeed', by_indexed_on,
-                      skillextractor)
+                      skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'upwork', by_indexed_on,
-                      skillextractor)
+                      skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'meetup', by_indexed_on,
-                      skillextractor)
+                      skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'github', by_indexed_on,
-                      skillextractor)
+                      skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'adzuna', by_indexed_on,
-                       skillextractor)
+                       skillextractors)
         parse_profiles(from_ts, to_ts, fromid, 'indeedjob', by_indexed_on,
-                       skillextractor)
+                       skillextractors)
         return
     elif source_id == 'linkedin':
         logger.log('Parsing LinkedIn profiles.\n')
@@ -755,7 +755,7 @@ def parse_profiles(njobs, batchsize,
 
     split_process(query, parsefunc, batchsize,
                   njobs=njobs,
-                  args=[from_ts, to_ts, by_indexed_on, skillextractor, category],
+                  args=[from_ts, to_ts, by_indexed_on, skillextractors, category],
                   logger=logger, workdir='jobs', prefix=prefix)
 
 
@@ -780,24 +780,38 @@ def main(args):
     from_ts = int((fromdate - timestamp0).total_seconds())*1000
     to_ts   = int((todate   - timestamp0).total_seconds())*1000
 
-    skillextractor = None
+    skillextractors = None
     if skillfile is not None:
-        skills = []
+        skills = {}
         with open(skillfile, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
                 if row:
-                    skills.append(row[0])
-        tokenize = lambda x: tokenized_skill('en', x)
+                    if len(row) == 1:
+                        lang = 'en'
+                        skill = row[0]
+                    else:
+                        lang = row[0]
+                        skill = row[1]
 
-        if source_id == 'adzuna':
-            skillextractor = PhraseExtractor(skills, tokenize=tokenize, margin=2.0, fraction=1.0)
-        else:
-            skillextractor = PhraseExtractor(skills, tokenize=tokenize)
+                    if lang not in skills:
+                        skills[lang] = []
+
+                    skills[lang].append(skill)
+
+        skillextractors = {}
+        for lang in skills.keys():
+            tokenize = lambda x: tokenized_skill(lang, x)
+
+            if source_id == 'adzuna':
+                skillextractors[lang] = PhraseExtractor(skills[lang], tokenize=tokenize, margin=2.0, fraction=1.0)
+            else:
+                skillextractors[lang] = PhraseExtractor(skills[lang], tokenize=tokenize)
+        
         del skills
 
     parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,
-                   by_indexed_on, skillextractor, category)
+                   by_indexed_on, skillextractors, category)
     
     
 if __name__ == '__main__':

@@ -18,6 +18,7 @@ import argparse
 import csv
 import json
 import html
+import langdetect
 
 
 # job post xpaths
@@ -31,7 +32,7 @@ def check_job_post(url, redirect_url, timestamp, doc, logger=Logger(None)):
     return True
 
 
-def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractor):
+def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractors):
     logger = Logger()
     if not check_job_post(url, redirect_url, timestamp, doc, logger=logger):
         return None
@@ -61,18 +62,20 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractor):
     if d['description'] is None:
         d['description'] = extract(doc, xp_job_description, format_content)
 
+    language = langdetect.detect(d['description'])
+
     # extract skills
-    if skillextractor is not None:
+    if skillextractors is not None and language in skillextractors:
         text = ' '.join(s for s in [d['description']] \
                         if s)
-        extracted_skills = list(set(skillextractor(text)))
+        extracted_skills = list(set(skillextractors[language](text)))
 
         d['skills'] = [{'name': s} for s in extracted_skills]
 
     return d
 
 
-def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractor):
+def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'adzuna',
@@ -105,7 +108,7 @@ def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractor):
                 return
             try:
                 parsed_job_post = parse_job_post(
-                    webpage.url, webpage.redirect_url, webpage.timestamp, webpage.tag, doc, skillextractor)
+                    webpage.url, webpage.redirect_url, webpage.timestamp, webpage.tag, doc, skillextractors)
             except:
                 logger.log('Error parsing HTML from URL {0:s}\n' \
                            .format(webpage.url))
@@ -134,16 +137,30 @@ def main(args):
     if args.from_url is not None:
         filters.append(Webpage.redirect_url >= args.from_url)
 
-    skillextractor = None
+    skillextractors = None
     if skillfile is not None:
-        skills = []
+        skills = {}
         with open(skillfile, 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             for row in csvreader:
-                if row and len(row[0]) > 1:
-                    skills.append(row[0])
-        tokenize = lambda x: tokenized_skill('en', x)
-        skillextractor = PhraseExtractor(skills, tokenize=tokenize, margin=2.0, fraction=1.0)
+                if row:
+                    if len(row) == 1:
+                        lang = 'en'
+                        skill = row[0]
+                    else:
+                        lang = row[0]
+                        skill = row[1]
+
+                    if lang not in skills:
+                        skills[lang] = []
+
+                    skills[lang].append(skill)
+
+        skillextractors = {}
+        for lang in skills.keys():
+            tokenize = lambda x: tokenized_skill(lang, x)
+            skillextractors[lang] = PhraseExtractor(skills[lang], tokenize=tokenize, margin=2.0, fraction=1.0)
+
         del skills
 
     with CrawlDB() as crdb:
@@ -153,7 +170,7 @@ def main(args):
         q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_job_posts, args.batch_size,
-                      args=[from_ts, to_ts, skillextractor], njobs=args.jobs, logger=logger,
+                      args=[from_ts, to_ts, skillextractors], njobs=args.jobs, logger=logger,
                       workdir='jobs', prefix='parse_adzuna')
             
 
