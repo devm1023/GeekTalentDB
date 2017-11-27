@@ -27,6 +27,8 @@ def main(args):
         sector = '"Machinery" OR "Industrial Automation" OR "Machines" OR ' \
                  '"Mechanical or Industrial Engineering" OR "Electrical/Eelectronic manufacturing" OR ' \
                  '"Consumer Electronics" OR "Semiconductors"'
+    elif sector == 'healthcare':
+        sector = '"healthcare"'
 
     url = SOLR_REQ.format(SOLR_HOST, SOLR_CORE, sector, limit)
 
@@ -52,7 +54,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sector', choices=['it', 'eng'], default='it',
+    parser.add_argument('--sector', choices=['it', 'eng', 'healthcare'], default='it',
                         help='Merged sector to get skill from.')
     parser.add_argument('--limit', type=int, default=1000,
                         help='Number of skills to be obtained.')
