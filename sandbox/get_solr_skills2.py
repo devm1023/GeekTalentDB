@@ -1,4 +1,3 @@
-from htmlextract import parse_html
 import requests
 import argparse
 

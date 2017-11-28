@@ -207,5 +207,3 @@ if __name__ == '__main__':
             skillvector.sort(key=lambda x: -x[-1])
             for skill, frac in skillvector:
                 csvwriter.writerow(['s', skill, frac])
-
-    
