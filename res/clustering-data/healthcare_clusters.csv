@@ -1,0 +1,200 @@
+Healthcare,Nurse,0,Nurse,61548
+Healthcare,Midwife,0,Nurse,2973
+Healthcare,Clinical Specialist,0,Nurse,2137
+Healthcare,Clinical Nurse,0,Nurse,1866
+Healthcare,Advanced Practitioner,0,Nurse,1016
+Healthcare,Retired Nurse,0,Nurse,681
+Healthcare,Head of Clinical Services,0,Nurse,548
+Healthcare,Consultant Nurse,0,Nurse,457
+Healthcare,Director of Nursing,0,Nurse,455
+Healthcare,Specialist Practitioner,0,Nurse,448
+Healthcare,Public Health,1,Nurse,350
+Healthcare,Children's Nurse,0,Nurse,339
+Healthcare,Practice Educator,0,Nurse,304
+Healthcare,Public Health Nurse,0,Nurse,253
+Healthcare,Neonatal Nurse,0,Nurse,219
+Healthcare,Critical Care Nurse,0,Nurse,204
+Healthcare,Health Advisor,1,Nurse,200
+Healthcare,nurse/midwife,0,Nurse,162
+Healthcare,Clinical Research Nurse,0,Nurse,146
+Healthcare,Bank Nurse,0,Nurse,144
+Healthcare,Registered Dietitian,0,Nurse,139
+Healthcare,Paediatric Dietitian,0,Nurse,126
+Healthcare,Scrub Nurse,0,Nurse,122
+Healthcare,Tissue Viability Nurse,0,Nurse,120
+Healthcare,Hospital Director,0,Nurse,116
+Healthcare,Family Nurse,0,Nurse,107
+Healthcare,Specialist Community Public Health Nurse,0,Nurse,99
+Healthcare,Community Dietitian,0,Nurse,98
+Healthcare,Anaesthetic Nurse,0,Nurse,93
+Healthcare,Practice Development Nurse,0,Nurse,91
+Healthcare,Specialist Midwife,0,Nurse,91
+Healthcare,domestic,1,Nurse,87
+Healthcare,SN,0,Nurse,86
+Healthcare,Deputy Director of Nursing,0,Nurse,79
+Healthcare,Theatre Manager,1,Nurse,71
+Healthcare,Student Health Visitor,0,Nurse,67
+Healthcare,Anaesthetic Practitioner,0,Nurse,66
+Healthcare,Specialist Advisor,1,Nurse,56
+Healthcare,ANNP,0,Nurse,35
+Healthcare,Doctor,0,Doctor,39681
+Healthcare,Radiographer,0,Doctor,2738
+Healthcare,Medical Practice Professional,0,Doctor,1383
+Healthcare,Independent Medical Practice Professional,0,Doctor,883
+Healthcare,Retired GP,0,Doctor,151
+Healthcare,Retired Doctor,0,Doctor,118
+Healthcare,Clinical Technologist,0,Doctor,118
+Healthcare,Consultant Pathologist,0,Doctor,112
+Healthcare,Consultant Respiratory Physician,0,Doctor,103
+Healthcare,Consultant Nephrologist,0,Doctor,99
+Healthcare,Clinical Lecturer,1,Doctor,94
+Healthcare,Housing Officer,1,Doctor,90
+Healthcare,Cardiologist,0,Doctor,81
+Healthcare,Consultant Medical Oncologist,0,Doctor,71
+Healthcare,Anaesthetic Registrar,0,Doctor,68
+Healthcare,Foundation Year 2 Doctor,0,Doctor,65
+Healthcare,FY1,0,Doctor,56
+Healthcare,Healthcare Assistant,0,Healthcare Assistant,27858
+Healthcare,Health Assistant,0,Healthcare Assistant,3466
+Healthcare,Medical Student,0,Healthcare Assistant,1063
+Healthcare,Optician,1,Healthcare Assistant,448
+Healthcare,Clinical Administrator,0,Healthcare Assistant,352
+Healthcare,Healthcare worker,0,Healthcare Assistant,323
+Healthcare,Therapy Assistant,0,Healthcare Assistant,303
+Healthcare,Nursing Auxiliary,0,Healthcare Assistant,291
+Healthcare,Live in carer,0,Healthcare Assistant,217
+Healthcare,Personal Care Assistant,0,Healthcare Assistant,158
+Healthcare,H C A,0,Healthcare Assistant,149
+Healthcare,Theatre Assistant,0,Healthcare Assistant,149
+Healthcare,Housekeeper,1,Healthcare Assistant,140
+Healthcare,care assisstant,0,Healthcare Assistant,131
+Healthcare,Rehabilitation Assistant,0,Healthcare Assistant,128
+Healthcare,Locum Optometrist,0,Healthcare Assistant,128
+Healthcare,care assitant,0,Healthcare Assistant,118
+Healthcare,Assistant Technical Officer,0,Healthcare Assistant,89
+Healthcare,Porter,1,Healthcare Assistant,87
+Healthcare,Catering Assistant,1,Healthcare Assistant,70
+Healthcare,Maternity Support Worker,0,Healthcare Assistant,67
+Healthcare,Qualified Dental Nurse,0,Healthcare Assistant,54
+Healthcare,support work,1,Healthcare Assistant,42
+Healthcare,Optical Assistant,1,Healthcare Assistant,36
+Healthcare,Principal Dentist,0,Principal Dentist,8351
+Healthcare,Dentist,0,Principal Dentist,8351
+Healthcare,Dental Therapist,0,Principal Dentist,275
+Healthcare,Dental Assistant,0,Principal Dentist,207
+Healthcare,Dental Officer,0,Principal Dentist,138
+Healthcare,Orthodontist,0,Principal Dentist,127
+Healthcare,Dental Hygienist/Therapist,0,Principal Dentist,124
+Healthcare,General Dentist,0,Principal Dentist,118
+Healthcare,Dental,0,Principal Dentist,81
+Healthcare,General Dental Practitioner,0,Principal Dentist,75
+Healthcare,Specialist Orthodontist,0,Principal Dentist,63
+Healthcare,Consultant Orthodontist,0,Principal Dentist,54
+Healthcare,health care,0,health care,11161
+Healthcare,home care,0,health care,1038
+Healthcare,Dental Practice Manager,0,health care,152
+Healthcare,Activities Coordinator,1,health care,91
+Healthcare,career,1,health care,52
+Healthcare,Care Manager,0,Care Manager,8436
+Healthcare,Health Service Manager,1,Care Manager,3101
+Healthcare,care,1,Care Manager,114
+Healthcare,Hospital Porter,0,Care Manager,85
+Healthcare,Compliance Inspector,0,Care Manager,82
+Healthcare,Performance Manager,1,Care Manager,78
+Healthcare,ECA,0,Care Manager,54
+Healthcare,Service Improvement Manager,1,Care Manager,25
+Healthcare,Health Professional,0,Health Professional,6048
+Healthcare,Pharmacist,1,Health Professional,1101
+Healthcare,Team Leader,1,Health Professional,956
+Healthcare,NHS,0,Health Professional,648
+Healthcare,Healthcare,0,Health Professional,428
+Healthcare,Healthcare Professional,0,Health Professional,211
+Healthcare,Medicines Management Technician,0,Health Professional,74
+Healthcare,Theatre Support Worker,0,Health Professional,55
+Healthcare,Technical Instructor,1,Health Professional,52
+Healthcare,Health Trainer,1,Health Professional,36
+Healthcare,Practice Administrator,1,Health Professional,30
+Healthcare,Pharmacy Intern,1,Health Professional,24
+Healthcare,doc,1,Health Professional,21
+Healthcare,Physiotherapist,0,Physiotherapist,6887
+Healthcare,Musculoskeletal Physiotherapist,0,Physiotherapist,163
+Healthcare,Healthcare Administrator,1,Healthcare Administrator,5148
+Healthcare,Receptionist,1,Healthcare Administrator,711
+Healthcare,Admin,1,Healthcare Administrator,256
+Healthcare,Medical Secretary/PA,0,Healthcare Administrator,153
+Healthcare,MDT Co-ordinator,0,Healthcare Administrator,114
+Healthcare,Admin Manager,1,Healthcare Administrator,76
+Healthcare,Doctors Receptionist,0,Healthcare Administrator,75
+Healthcare,Medical Records Clerk,0,Healthcare Administrator,72
+Healthcare,Deputy Practice Manager,0,Healthcare Administrator,65
+Healthcare,Team Secretary,1,Healthcare Administrator,58
+Healthcare,Personal Secretary,1,Healthcare Administrator,50
+Healthcare,Clerical Assistant,1,Healthcare Administrator,45
+Healthcare,Reception Manager,1,Healthcare Administrator,42
+Healthcare,Project Support Officer,1,Healthcare Administrator,42
+Healthcare,Clerical,1,Healthcare Administrator,35
+Healthcare,General Practitioner (GP),0,General Practitioner (GP),6031
+Healthcare,Locum GP,0,General Practitioner (GP),162
+Healthcare,GP Locum,0,General Practitioner (GP),162
+Healthcare,Hospital and health care professional,0,Hospital and health care professional,4129
+Healthcare,Independent Hospital & Health Care Professional,0,Hospital and health care professional,1354
+Healthcare,Med Sec,0,Hospital and health care professional,68
+Healthcare,Health Care Professional,0,Health Care Professional,5415
+Healthcare,Care Worker,1,Care Worker,4861
+Healthcare,Project Worker,1,Care Worker,76
+Healthcare,Mental Health Support Worker,1,Care Worker,34
+Healthcare,Residential Support Worker,1,Care Worker,26
+Healthcare,Mental Health Nurse,0,Mental Health Nurse,1407
+Healthcare,Psychiatric Nurse,0,Mental Health Nurse,616
+Healthcare,RMN,0,Mental Health Nurse,568
+Healthcare,Mental Health Practitioner,0,Mental Health Nurse,440
+Healthcare,Registered Mental Health Nurse,0,Mental Health Nurse,324
+Healthcare,CPN,0,Mental Health Nurse,312
+Healthcare,Community Psychiatric Nurse,0,Mental Health Nurse,297
+Healthcare,Mental Health Worker,1,Mental Health Nurse,108
+Healthcare,Therapist,1,Mental Health Nurse,73
+Healthcare,Recovery Worker,1,Mental Health Nurse,57
+Healthcare,SSN,0,Mental Health Nurse,55
+Healthcare,Community Mental Health Nurse,1,Mental Health Nurse,40
+Healthcare,Surgeon,0,Surgeon,3089
+Healthcare,Obstetrician and Gynaecologist,0,Surgeon,315
+Healthcare,Orthopaedic Registrar,0,Surgeon,159
+Healthcare,Consultant ENT Surgeon,0,Surgeon,100
+Healthcare,Consultant Vascular Surgeon,0,Surgeon,91
+Healthcare,Core Surgical Trainee,0,Surgeon,90
+Healthcare,Surgical Registrar,0,Surgeon,79
+Healthcare,Consultant Spinal Surgeon,0,Surgeon,76
+Healthcare,Orthotist,0,Surgeon,73
+Healthcare,Urologist,0,Surgeon,54
+Healthcare,Biomedical Scientist,0,Biomedical Scientist,2794
+Healthcare,Principal Clinical Scientist,0,Biomedical Scientist,824
+Healthcare,Healthcare Scientist,0,Biomedical Scientist,166
+Healthcare,Genetic Technologist,0,Biomedical Scientist,73
+Healthcare,Medical Lab Assistant,0,Biomedical Scientist,57
+Healthcare,Microbiologist,1,Biomedical Scientist,24
+Healthcare,Occupational Therapist,0,Occupational Therapist,3670
+Healthcare,Case Manager,1,Occupational Therapist,106
+Healthcare,Speech Therapist,0,Speech Therapist,1868
+Healthcare,Speech and Language Therapist,0,Speech Therapist,1769
+Healthcare,Highly Specialist Speech and Language Therapist,0,Speech Therapist,85
+Healthcare,Consultant Psychiatrist,0,Consultant Psychiatrist,1334
+Healthcare,Clinical Psychologist,1,Consultant Psychiatrist,438
+Healthcare,Psychiatrist,0,Consultant Psychiatrist,401
+Healthcare,Cognitive Behavioural Psychotherapist,0,Consultant Psychiatrist,203
+Healthcare,Psychological Therapist,0,Consultant Psychiatrist,187
+Healthcare,Consultant Child and Adolescent Psychiatrist,0,Consultant Psychiatrist,133
+Healthcare,Counsellor,1,Consultant Psychiatrist,113
+Healthcare,Consultant Forensic Psychiatrist,0,Consultant Psychiatrist,112
+Healthcare,Consultant Clinical Psychologist,1,Consultant Psychiatrist,76
+Healthcare,Assistant Psychologist,1,Consultant Psychiatrist,72
+Healthcare,Psychotherapist,1,Consultant Psychiatrist,58
+Healthcare,Psychologist,1,Consultant Psychiatrist,57
+Healthcare,Counselling Psychologist,1,Consultant Psychiatrist,39
+Healthcare,CBT Therapist,1,Consultant Psychiatrist,38
+Healthcare,Cognitive Behavioural Therapist,1,Consultant Psychiatrist,31
+Healthcare,Psychological Wellbeing Practitioner,1,Consultant Psychiatrist,30
+Healthcare,Art Psychotherapist,1,Consultant Psychiatrist,25
+Healthcare,Clinician,1,Consultant Psychiatrist,23
+Healthcare,Paramedic,0,Paramedic,2540
+Healthcare,Emergency Care Practitioner,0,Paramedic,86
+Healthcare,Emergency Medical Dispatcher,0,Paramedic,61
