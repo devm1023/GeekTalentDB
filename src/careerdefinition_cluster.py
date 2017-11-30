@@ -1,15 +1,8 @@
-import conf
 from logger import Logger
-from textnormalization import normalized_entity, split_nrm_name
-from entitycloud import relevance_scores
-from entity_mapper import EntityMapper
-from sqlalchemy import func
 import csv
-from math import log, sqrt, acos
+from math import sqrt, acos
 import argparse
-
 from clustering import find_clusters
-import numpy as np
 
 
 def get_skillvectors(filename, titles_from):
