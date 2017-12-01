@@ -1861,6 +1861,9 @@ class CanonicalDB(Session):
                 .delete(synchronize_session=False)
             return None
 
+        # Prevent overwriting existing rows.
+        # del adzjob['id']
+
         adzjob_id = self.query(ADZJob.id) \
                         .filter(ADZJob.adz_id == adzjob['adz_id']) \
                         .first()
@@ -1893,7 +1896,7 @@ class CanonicalDB(Session):
              adzjob['id'] = adzjob_id[0]
 
         # Prevent overwriting existing rows.
-        del adzjob['id']
+        # del adzjob['id']
 
         adzjob = _make_adzjob(adzjob)
 
