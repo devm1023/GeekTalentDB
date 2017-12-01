@@ -1895,9 +1895,6 @@ class CanonicalDB(Session):
         if adzjob_id is not None:
              adzjob['id'] = adzjob_id[0]
 
-        # Prevent overwriting existing rows.
-        # del adzjob['id']
-
         adzjob = _make_adzjob(adzjob)
 
         job_row = self.add_from_dict(adzjob, ADZJob)

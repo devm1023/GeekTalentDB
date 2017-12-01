@@ -760,7 +760,7 @@ def parse_profiles(njobs, batchsize,
 
 
 def main(args):
-    njobs = max(args.jobs, 1)
+    njobs = 1
     batchsize = args.batch_size
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
@@ -817,8 +817,7 @@ def main(args):
 if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--jobs', type=int, default=1,
-                        help='Number of parallel jobs.')
+
     parser.add_argument('--batch-size', type=int, default=1000,
                         help='Number of rows per batch.')
     parser.add_argument('--from-date', help=
