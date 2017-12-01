@@ -1321,97 +1321,13 @@ def _make_adzjob(adzjob):
     # get profile language
     language = adzjob.get('language', None)
 
-    # make experience list
-    # adzjob['experiences'] = [_make_inexperience(e, language) \
-    #                          for e in adzjob['experiences']]
-    # adzjob['n_experiences'] = len(adzjob['experiences'])
-    # make education list
-    # adzjob['educations'] \
-    #     = [_make_ineducation(e, language) for e in adzjob['educations']]
-    # adzjob['n_educations'] = len(adzjob['educations'])
-    # make certification list
-    # for certification in adzjob['certifications']:
-    #     certification.pop('id', None)
-    #     certification.pop('inprofile_id', None)
-
     # add skills
     profileskills = set(adzjob['skills'])
     allskills = set(adzjob['skills'])
 
-    # for inexperience in adzjob['experiences']:
-    #     allskills.update(inexperience.get('skills', []))
-
     adzjob['skills'] = []
     for skill in allskills:
         adzjob['skills'].append(_make_adzjob_skill(skill, language, skill in profileskills))
-
-    # find first and last experience
-    # adzjob['company'] = None
-    # adzjob['curr_title'] = None
-    # adzjob['first_experience_start'] = None
-    # adzjob['last_experience_start'] = None
-    # adzjob['first_title'] = adzjob['curr_title']
-    # adzjob['first_company'] = adzjob['company']
-
-    # experiences = adzjob['experiences']
-    # if len(experiences) == 1:
-    #     adzjob['first_experience_start'] = experiences[0]['start']
-    #     adzjob['last_experience_start'] = experiences[0]['start']
-    #     adzjob['first_title'] = experiences[0]['title']
-    #     adzjob['first_company'] = experiences[0]['company']
-    #     adzjob['company'] = experiences[0]['company']
-    #     adzjob['curr_title'] = experiences[0]['title']
-    # else:
-    #     experiences = [e for e in experiences if e['start'] is not None]
-    #     if experiences:
-    #         first_experience = min(experiences, key=lambda e: e['start'])
-    #         last_experience = max(experiences, key=lambda e: e['start'])
-    #         adzjob['first_experience_start'] = first_experience['start']
-    #         adzjob['last_experience_start'] = last_experience['start']
-    #         adzjob['first_title'] = first_experience['title']
-    #         adzjob['first_company'] = first_experience['company']
-    #     experiences = [e for e in experiences if e['end'] is None]
-    #     if experiences:
-    #         current_experience = max(experiences, key=lambda e: e['start'])
-    #         adzjob['company'] = current_experience['company']
-    #         adzjob['curr_title'] = current_experience['title']
-    # if adzjob['title']:
-    #     titleparts = adzjob['title'].split(' at ')
-    #     if len(titleparts) > 1:
-    #         if not adzjob['company']:
-    #             adzjob['company'] = titleparts[1]
-            # if not adzjob['curr_title']:
-            #     adzjob['curr_title'] = titleparts[0]
-        # else:
-        #     if not adzjob['curr_title']:
-        #         adzjob['curr_title'] = adzjob['title']
-
-    # find first and last education
-    # adzjob['first_education_start'] = None
-    # adzjob['last_education_start'] = None
-    # adzjob['last_education_end'] = None
-    # adzjob['last_institute'] = None
-    # adzjob['last_subject'] = None
-    # adzjob['last_degree'] = None
-    # educations = adzjob['educations']
-    # first_education = None
-    # last_education = None
-    # if len(educations) == 1:
-    #     first_education = educations[0]
-    #     last_education = educations[0]
-    # educations = [e for e in educations if e['start'] is not None]
-    # if last_education is None and educations:
-    #     last_education = max(educations, key=lambda e: e['start'])
-    #     first_education = min(educations, key=lambda e: e['start'])
-    # if last_education is not None:
-    #     adzjob['last_institute'] = last_education['institute']
-    #     adzjob['last_subject'] = last_education['subject']
-    #     adzjob['last_degree'] = last_education['degree']
-    #     adzjob['last_education_start'] = last_education['start']
-    #     adzjob['last_education_end'] = last_education['end']
-    # if first_education is not None:
-    #     adzjob['first_education_start'] = first_education['start']
-
 
     # normalize fields
     adzjob['nrm_location'] = normalized_adzuna_location(
@@ -1975,33 +1891,16 @@ class CanonicalDB(Session):
 
         if adzjob_id is not None:
              adzjob['id'] = adzjob_id[0]
-        #     inexperience_ids \
-        #         = [id for id, in self.query(INExperience.id) \
-        #            .filter(INExperience.inprofile_id == adzjob_id[0])]
-        #     if inexperience_ids:
-        #         self.query(INExperienceSkill) \
-        #             .filter(INExperienceSkill.inexperience_id \
-        #                     .in_(inexperience_ids)) \
-        #             .delete(synchronize_session=False)
+
+        # Prevent overwriting existing rows.
+        del adzjob['id']
 
         adzjob = _make_adzjob(adzjob)
 
         job_row = self.add_from_dict(adzjob, ADZJob)
         self.flush()
 
-        # add experiences and compute skill scores
-        # skill_ids = dict((s.name, s.id) for s in inprofile.skills)
-
         scores = dict((s.name, s.score) for s in job_row.skills)
-
-        # for inexperiencedict in inexperiences:
-        #     inexperiencedict['adzjob_id'] = job_row.id
-        #     skills = []
-        #     for skillname in inexperiencedict.get('skills', []):
-        #         skills.append({'skill_id' : skill_ids[skillname]})
-        #         scores[skillname] += 1.0
-        #     inexperiencedict['skills'] = skills
-        #     self.add_from_dict(inexperiencedict, INExperience)
 
         # update skill scores
         for skill in job_row.skills:

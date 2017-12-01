@@ -1,13 +1,10 @@
 import conf
 from canonicaldb import *
 import sys
-from datetime import datetime, timedelta
 from logger import Logger
-from sqlalchemy import and_
 from windowquery import split_process, process_db
 from nuts import NutsRegions
-from datetime import datetime, timedelta
-import time
+from datetime import datetime
 import argparse
 
 

@@ -81,7 +81,7 @@ class Session(sqlalchemy.orm.session.Session):
             self.metadata.drop_all(self.bind)
         
 
-    def add_from_dict(self, d, table, update=True, flush=False, delete=True,
+    def add_from_dict(self, d, table, update=False, flush=False, delete=True,
                       protect=[]):
         """Insert or update nested data in the database.
 
