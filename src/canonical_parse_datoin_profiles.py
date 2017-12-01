@@ -364,7 +364,7 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     q = q.order_by(ADZJob.id, ADZJob.category)
 
     def add_adzjob(adzjob):
-        jobdict = dict_from_row(adzjob, pkeys=False, fkeys=True)
+        jobdict = dict_from_row(adzjob, pkeys=True, fkeys=True)
         jobdict['adref']            = jobdict.pop('adref')
         jobdict['contract_time']    = jobdict.pop('contract_time')
         jobdict['contract_type']    = jobdict.pop('contract_type')

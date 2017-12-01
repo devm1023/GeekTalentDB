@@ -1862,7 +1862,7 @@ class CanonicalDB(Session):
             return None
 
         # Prevent overwriting existing rows.
-        # del adzjob['id']
+        del adzjob['id']
 
         adzjob_id = self.query(ADZJob.id) \
                         .filter(ADZJob.adz_id == adzjob['adz_id']) \
