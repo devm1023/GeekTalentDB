@@ -59,7 +59,6 @@ def get_breakdown_for_source(table, category, titles, region_type):
         q = q.filter(table.merged_title.in_(titles))
 
     q = q.group_by(group_field, table.merged_title)
-
     return q
 
 # Flask views

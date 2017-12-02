@@ -754,13 +754,17 @@ def parse_profiles(njobs, batchsize,
         query = query.filter(table.id >= fromid)
 
     split_process(query, parsefunc, batchsize,
-                  njobs=njobs,
+                  njobs=1,
                   args=[from_ts, to_ts, by_indexed_on, skillextractors, category],
                   logger=logger, workdir='jobs', prefix=prefix)
 
 
 def main(args):
-    njobs = 1
+    njobs = max(args.jobs, 1)
+    if args.skills is not None:
+        print('Skill extraction cannot be run with multiple jobs.')
+        njobs = 1
+
     batchsize = args.batch_size
     try:
         fromdate = datetime.strptime(args.from_date, '%Y-%m-%d')
@@ -817,7 +821,8 @@ def main(args):
 if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
-
+    parser.add_argument('--jobs', type=int, default=1,
+                        help='Number of parallel jobs.')
     parser.add_argument('--batch-size', type=int, default=1000,
                         help='Number of rows per batch.')
     parser.add_argument('--from-date', help=
