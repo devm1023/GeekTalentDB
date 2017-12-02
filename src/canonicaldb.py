@@ -2214,6 +2214,9 @@ class CanonicalDB(Session):
                 .delete(synchronize_session=False)
             return None
 
+        # Prevent overwriting existing rows.
+        del injob['id']
+
         injob_id = self.query(INJob.id) \
                         .filter(INJob.jobkey == injob['jobkey']) \
                         .first()

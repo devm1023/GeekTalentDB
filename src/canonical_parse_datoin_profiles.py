@@ -667,17 +667,7 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
             language = country_languages['United Kingdom'] # Assume English.
 
         jobdict['language'] = language
-
-        # extract skills
-
-        #stripped_description = strip_tags(jobdict['full_description'])
-        #if skillextractors is not None and language in skillextractors:
-        #    text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
-        #    jobdict['skills'] = list(set(skillextractors[language](text)))
-
         jobdict['crawl_fail_count'] = 0
-
-        # add profile
 
         cndb.add_injob(jobdict)
 
@@ -687,6 +677,8 @@ def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
                    skillextractors, category):
     logger = Logger(sys.stdout)
+
+    # Process all sources if source is not specified.
     if source_id is None:
         parse_profiles(from_ts, to_ts, fromid, 'linkedin', by_indexed_on,
                       skillextractors)
