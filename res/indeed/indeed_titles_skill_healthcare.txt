@@ -30,7 +30,6 @@
 "Mental Health Nurse" (Mental Health or Healthcare or Nursing or Treatment or Hospitals)
 "RMN" (Healthcare or Nursing or Mental Health or Hospitals or Treatment)
 "Psychiatrist" (Clinical Research or Psychiatry or Treatment or Mental Health or Medical Education)
-"Healthcare" (Healthcare or Hospitals or Customer Service or Healthcare Management or Management)
 "care" (Customer Service or Management or Healthcare Management or Leadership or Team Building)
 "Health Advisor" (Healthcare or Healthcare Management or Public Health or Health Promotion or Hospitals)
 "Housekeeper" (Customer Service or Healthcare or Hospitals or Microsoft Word or Microsoft Excel)
