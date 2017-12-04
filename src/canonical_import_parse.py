@@ -239,6 +239,14 @@ def import_injobs(jobid, fromid, toid, from_ts, to_ts):
             print('Existing entry for jobkey {} not found! {}'.format(injob.jobkey, injob.url))
             return
 
+        rejectjob = cndb.query(cn.INJobReject) \
+                    .filter(cn.INJobReject.jobkey == injob.jobkey) \
+                    .first()
+
+        # Save to rejects table if job is there.
+        if rejectjob:
+            cnjob = rejectjob
+
         cnjob.full_description = injob.description
 
         # existing skills
@@ -250,8 +258,11 @@ def import_injobs(jobid, fromid, toid, from_ts, to_ts):
         for s in skills:
             if s not in ex_skills:
                 nrm_skill = normalized_skill('indeedjob', cnjob.language, s)
-                cnjob.skills.append(cn.INJobSkill(name=s, nrm_name=nrm_skill, language=cnjob.language))
 
+                if not rejectjob:
+                    cnjob.skills.append(cn.INJobSkill(name=s, nrm_name=nrm_skill, language=cnjob.language))
+                else:
+                    cnjob.skills.append(cn.INJobSkillReject(name=s, nrm_name=nrm_skill, language=cnjob.language))
 
     process_db(q, add_injob, cndb, logger=logger)
 
