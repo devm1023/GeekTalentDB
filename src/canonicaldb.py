@@ -844,6 +844,64 @@ class INJobSkill(SQLBase):
     reenforced    = Column(Boolean)
     score         = Column(Float)
 
+class INJobReject(SQLBase):
+    __tablename__ = 'injob_reject'
+    id = Column(BigInteger, primary_key=True)
+    jobkey = Column(String(STR_MAX), index=True, nullable=False)
+    language = Column(String(20))
+    nrm_location = Column(Unicode(STR_MAX), index=True)
+    location0 = Column(String(STR_MAX), index=True, nullable=False)
+    location1 = Column(String(STR_MAX), index=True)
+    location2 = Column(String(STR_MAX), index=True)
+    location3 = Column(String(STR_MAX), index=True)
+    location4 = Column(String(STR_MAX), index=True)
+    title = Column(Unicode(STR_MAX))
+    parsed_title = Column(Unicode(STR_MAX))
+    nrm_title = Column(Unicode(STR_MAX), index=True)
+    title_prefix = Column(Unicode(STR_MAX))
+    merged_title = Column(Unicode(STR_MAX))
+    nrm_company = Column(Unicode(STR_MAX), index=True)
+    description = Column(Unicode(STR_MAX))
+    full_description = Column(Unicode(STR_MAX))
+    text_length = Column(Integer)
+    url = Column(String(STR_MAX))
+    updated_on = Column(DateTime)
+    indexed_on = Column(DateTime, index=True)
+    crawled_on = Column(DateTime, index=True)
+    crawl_fail_count = Column(BigInteger, index=True)
+    created = Column(DateTime)
+    latitude = Column(Float)
+    longitude = Column(Float)
+    location_name = Column(String(STR_MAX))
+    url = Column(String(STR_MAX))
+
+    category = Column(String(STR_MAX), index=True)
+    company = Column(String(STR_MAX), index=True)
+    la_id = Column(BigInteger, ForeignKey('la.gid'))
+    nuts0 = Column(String(2), index=True)
+    nuts1 = Column(String(3), index=True)
+    nuts2 = Column(String(4), index=True)
+    nuts3 = Column(String(5), index=True)
+
+    reject_cause = Column(String(STR_MAX), index=True)
+
+
+    skills = relationship('INJobSkillReject',
+                          order_by='INJobSkillReject.nrm_name',
+                          cascade='all, delete-orphan')
+
+    __table_args__ = (UniqueConstraint('jobkey'),)
+
+class INJobSkillReject(SQLBase):
+    __tablename__ = 'injob_skill_reject'
+    id            = Column(BigInteger, primary_key=True)
+    adzjob_id     = Column(BigInteger, ForeignKey('injob_reject.id'), index=True)
+    language      = Column(String(20))
+    name          = Column(Unicode(STR_MAX))
+    nrm_name      = Column(Unicode(STR_MAX), index=True)
+    reenforced    = Column(Boolean)
+    score         = Column(Float)
+
 
 # la/lep
 class LA(SQLBase):
@@ -2222,11 +2280,16 @@ class CanonicalDB(Session):
                         .first()
 
         if injob_id is not None:
-             injob['id'] = injob_id[0]
+            injob['id'] = injob_id[0]
 
         injob = _make_injob(injob)
 
-        job_row = self.add_from_dict(injob, INJob)
+        if injob_id is not None:
+            injob['reject_cause'] = 'duplicate jobkey'
+            job_row = self.add_from_dict(injob, INJobReject)
+        else:
+            job_row = self.add_from_dict(injob, INJob)
+
         self.flush()
 
         scores = dict((s.name, s.score) for s in job_row.skills)
