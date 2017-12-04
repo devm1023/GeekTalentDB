@@ -68,7 +68,10 @@ def main(args):
     if args.sector is not None:
         query = query.filter(table.category == args.sector)
 
-    split_process(query, map_job_nuts, args.batch_size,
+    if args.new_only:
+        query = query.filter(table.nuts0.is_(None))
+
+    split_process(query, map_job_nuts, batchsize,
                 njobs=njobs, logger=logger, workdir='jobs',
                 prefix='canonical_job_nuts')
 
@@ -83,7 +86,9 @@ if __name__ == '__main__':
     parser.add_argument('--from-id', help=
                         'Start processing from this ID. Useful for '
                         'crash recovery.')
-    parser.add_argument('--sector')
+    parser.add_argument('--sector', help="Sector filter.")
+    parser.add_argument('--new-only', action='store_true', help=
+                        "Process only rows which have not yet been NUTs tagged.")
     parser.add_argument('--source',
                     choices=['adzuna', 'indeedjob'],
                     help=
