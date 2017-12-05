@@ -81,7 +81,7 @@ if __name__ == '__main__':
     parser.add_argument('--mapping-output',
                         help='Name of mapping file to generate.')
     parser.add_argument('--skill-vector-output',
-                        help='Name of optput skill vector file to generate.')
+                        help='Name of output skill vector file to generate.')
     args = parser.parse_args()
 
     logger = Logger()
