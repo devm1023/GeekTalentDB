@@ -87,6 +87,10 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     for sector, title, sector_filter in titles:
         logger.log('Processing: {0:s}\n'.format(title))
         nrm_title = normalized_entity('title', source, 'en', title)
+
+        if nrm_title is None:
+            continue
+
         nrm_sector = normalized_entity('sector', source, 'en', sector)
         
         if sector_filter:

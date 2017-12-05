@@ -87,7 +87,7 @@ if __name__ == '__main__':
                         'Start processing from this ID. Useful for '
                         'crash recovery.')
     parser.add_argument('--sector', help="Sector filter.")
-    parser.add_argument('--new-only', action='store_true', help=
+    parser.add_argument('--no-nuts-only', action='store_true', help=
                         "Process only rows which have not yet been NUTs tagged.")
     parser.add_argument('--source',
                     choices=['adzuna', 'indeedjob'],
