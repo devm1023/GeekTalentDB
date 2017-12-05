@@ -22,12 +22,12 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
 
-    is_adzuna = profile_table is ADZJob or profile_table is INJob
+    is_job = profile_table is ADZJob or profile_table is INJob
 
     logger.log('Counting profiles.\n')
 
 
-    if is_adzuna:
+    if is_job:
         totalc_nosf = cndb.query(profile_table.id) \
                           .filter(profile_table.language == 'en') \
                           .count()
@@ -51,7 +51,7 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     logger.log('Counting skills.\n')
     countcol = func.count().label('counts')
 
-    if is_adzuna:
+    if is_job:
         q = cndb.query(skill_table.nrm_name, countcol) \
                 .join(profile_table) \
                 .filter(profile_table.language == 'en') \
@@ -84,9 +84,11 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     skillvectors = []
     newtitles = []
     titlecounts = []
+
     for sector, title, sector_filter in titles:
         logger.log('Processing: {0:s}\n'.format(title))
-        nrm_title = normalized_entity('title', source, 'en', title)
+
+        nrm_title = normalized_entity('job_title' if is_job else 'title', source, 'en', title)
 
         if nrm_title is None:
             continue
@@ -113,7 +115,7 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
                         tpe, source, language, words, normalize=False):
                     similar_titles.add(entity)
         
-        if is_adzuna:
+        if is_job:
             titlec = cndb.query(profile_table.id) \
                          .filter(profile_table.language == 'en',
                                  in_values(profile_table.nrm_title,

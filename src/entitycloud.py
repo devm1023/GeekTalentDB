@@ -47,7 +47,7 @@ def relevance_scores(totalcount, categorycount, entitiesq, coincidenceq,
       extra columns appended:
 
         coincidencecount
-          The number of documents matching the category and containin the entity
+          The number of documents matching the category and containing the entity
           in the first column (i.e. the value in the second column of
           `coincidenceq`).
         score

@@ -942,6 +942,8 @@ def normalized_entity(type, source, language, name):
         return normalized_skill(source, language, name)
     elif type == 'title':
         return normalized_title(source, language, name)
+    elif type == 'job_title':
+        return normalized_job_post_title(source, language, name)
     elif type == 'company':
         return normalized_company(source, language, name)
     elif type == 'sector':
