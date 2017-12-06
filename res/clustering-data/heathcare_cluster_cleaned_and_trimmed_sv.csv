@@ -1,0 +1,2575 @@
+t,Healthcare,Nurse,0,76199
+s,skill:linkedin:en:psychiatri,0.020254234139396175
+s,skill:linkedin:en:social media,0.019703343706820833
+s,skill:linkedin:en:oncolog,0.01595331614181213
+s,skill:linkedin:en:phlebotomi,0.017666183510263417
+s,skill:linkedin:en:chang manag,0.057603930550705416
+s,skill:linkedin:en:therapist,0.011192062143332647
+s,skill:linkedin:en:elder care,0.01342251172387994
+s,skill:linkedin:en:public speak,0.06279895668924898
+s,skill:linkedin:en:budget,0.016872742912671098
+s,skill:linkedin:en:general surgeri,0.012858719147827291
+s,skill:linkedin:en:social servic,0.011676253136133647
+s,skill:linkedin:en:data analysi,0.012111648848992488
+s,skill:linkedin:en:powerpoint,0.053165177826569376
+s,skill:linkedin:en:photoshop,0.014469257055106767
+s,skill:linkedin:en:home care,0.03405511358092565
+s,skill:linkedin:en:microsoft offic,0.08461127446026004
+s,skill:linkedin:en:surgeri,0.07116461837493833
+s,skill:linkedin:en:medic administr,0.04146335569742114
+s,skill:linkedin:en:critic care,0.1517752027824629
+s,skill:linkedin:en:wound care,0.06471163290059552
+s,skill:linkedin:en:nurs educ,0.09776434169604885
+s,skill:linkedin:en:communic,0.014707747620556766
+s,skill:linkedin:en:medic devic,0.01635562573073139
+s,skill:linkedin:en:outlook,0.015685079896846775
+s,skill:linkedin:en:hospit,0.36925321568158587
+s,skill:linkedin:en:health educ,0.05279975658601801
+s,skill:linkedin:en:communiti health,0.010893570951824912
+s,skill:linkedin:en:teamwork,0.036789477175866184
+s,skill:linkedin:en:cbt,0.017139177021449188
+s,skill:linkedin:en:cardiolog,0.01135515511565457
+s,skill:linkedin:en:nurs care,0.030021644993856036
+s,skill:linkedin:en:rehabilit,0.029109225048345247
+s,skill:linkedin:en:oper manag,0.011993922231202962
+s,skill:linkedin:en:inpati,0.1249057553870307
+s,skill:linkedin:en:team leadership,0.03529827777471074
+s,skill:linkedin:en:window,0.015385737253526575
+s,skill:linkedin:en:perform manag,0.020518412355937286
+s,skill:linkedin:en:medicin,0.13457016936533295
+s,skill:linkedin:en:project plan,0.011440650858039478
+s,skill:linkedin:en:mental health,0.08194523561678632
+s,skill:linkedin:en:infect control,0.02481527925230534
+s,skill:linkedin:en:sale,0.02280347054276844
+s,skill:linkedin:en:medic educ,0.04805204195579467
+s,skill:linkedin:en:health promot,0.07840714728977306
+s,skill:linkedin:en:emerg nurs,0.014077335410913078
+s,skill:linkedin:en:strateg plan,0.03993400866029368
+s,skill:linkedin:en:cannul,0.016050558886282974
+s,skill:linkedin:en:process improv,0.010121425850371636
+s,skill:linkedin:en:child develop,0.01395182494157968
+s,skill:linkedin:en:microsoft word,0.06541865143602177
+s,skill:linkedin:en:nurs manag,0.015121817775957402
+s,skill:linkedin:en:orthoped,0.025845872867394926
+s,skill:linkedin:en:teach,0.06416187080846181
+s,skill:linkedin:en:medic terminolog,0.01150758362713053
+s,skill:linkedin:en:dietet,0.013193515963457298
+s,skill:linkedin:en:coach,0.047386295308375445
+s,skill:linkedin:en:project manag,0.03590492980493469
+s,skill:linkedin:en:polici,0.029291389482508305
+s,skill:linkedin:en:palliat care,0.035157457047177376
+s,skill:linkedin:en:clinic govern,0.011360829503580163
+s,skill:linkedin:en:staff develop,0.013606704923790609
+s,skill:linkedin:en:risk assess,0.011194533549579827
+s,skill:linkedin:en:well,0.020958080362202102
+s,skill:linkedin:en:pain manag,0.010791581118586432
+s,skill:linkedin:en:informat,0.014925879063863782
+s,skill:linkedin:en:icu,0.0541768531367117
+s,skill:linkedin:en:manag,0.08121839421547049
+s,skill:linkedin:en:acl,0.03979368171004574
+s,skill:linkedin:en:nutrit educ,0.011055627280289918
+s,skill:linkedin:en:treatment,0.12280926608486246
+s,skill:linkedin:en:event plan,0.010584075290218757
+s,skill:linkedin:en:psycholog,0.022796199668462646
+s,skill:linkedin:en:patient safeti,0.27325150314238084
+s,skill:linkedin:en:mentor,0.01095407066213959
+s,skill:linkedin:en:train,0.05943248289953362
+s,skill:linkedin:en:childcar,0.010849510225112033
+s,skill:linkedin:en:medic surgic,0.024843639965087587
+s,skill:linkedin:en:pediatr,0.09216397898283848
+s,skill:linkedin:en:clinic trial,0.023637611991725285
+s,skill:linkedin:en:clinic nutrit,0.011308034636089646
+s,skill:linkedin:en:psychotherapi,0.014562078343572362
+s,skill:linkedin:en:negoti,0.013920107783530715
+s,skill:linkedin:en:bls,0.11562537491885762
+s,skill:linkedin:en:patient educ,0.038919291526353324
+s,skill:linkedin:en:clinic research,0.26554423020786255
+s,skill:linkedin:en:nurs practition,0.011966868666983897
+s,skill:linkedin:en:custom servic,0.10609354137736274
+s,skill:linkedin:en:patient advocaci,0.02512202274709712
+s,skill:linkedin:en:event manag,0.012558556538351773
+s,skill:linkedin:en:public health,0.14423959656618746
+s,skill:linkedin:en:english,0.023864469511490537
+s,skill:linkedin:en:healthcar inform technolog,0.09071080132183051
+s,skill:linkedin:en:first aid,0.020131317134633224
+s,skill:linkedin:en:public sector,0.013237747985948633
+s,skill:linkedin:en:nutrit,0.026314169861247273
+s,skill:linkedin:en:qualiti improv,0.022390906580516304
+s,skill:linkedin:en:nurs document,0.012613313370934213
+s,skill:linkedin:en:team build,0.02541915437261948
+s,skill:linkedin:en:diabet,0.01831158869787254
+s,skill:linkedin:en:healthcar,0.4337870627908332
+s,skill:linkedin:en:surgic,0.017191376793292534
+s,skill:linkedin:en:time manag,0.02630443196094909
+s,skill:linkedin:en:acut care,0.13572635825328455
+s,skill:linkedin:en:iv,0.02606160171850993
+s,skill:linkedin:en:leadership develop,0.018161326779934785
+s,skill:linkedin:en:team manag,0.011647125661388688
+s,skill:linkedin:en:midwiferi,0.014700640597855828
+s,skill:linkedin:en:regist nurs,0.02227280167143346
+s,skill:linkedin:en:emr,0.01576529485742342
+s,skill:linkedin:en:emerg medicin,0.04180644795057872
+s,skill:linkedin:en:new busi develop,0.010710211198423438
+s,skill:linkedin:en:case manag,0.03057032418904867
+s,skill:linkedin:en:healthcar manag,0.2723771805431214
+s,skill:linkedin:en:microsoft excel,0.06675967873125818
+s,skill:linkedin:en:research,0.08976094703597401
+s,skill:linkedin:en:leadership,0.06172009939346293
+s,skill:linkedin:en:clinic supervis,0.027354967973589838
+s,skill:linkedin:en:cpr certifi,0.03742928482475456
+s,skill:linkedin:en:nurs,0.4025830286721506
+t,Healthcare,Doctor,0,45911
+s,skill:linkedin:en:leadership develop,0.01829972028037364
+s,skill:linkedin:en:ctms,0.02373569289841554
+s,skill:linkedin:en:psychiatri,0.02146439578882296
+s,skill:linkedin:en:social media,0.021735583336738383
+s,skill:linkedin:en:life scienc,0.02289019737464887
+s,skill:linkedin:en:higher educ,0.012209874106937108
+s,skill:linkedin:en:chang manag,0.055138832263138836
+s,skill:linkedin:en:therapist,0.013588465161735383
+s,skill:linkedin:en:clinic,0.010008662009670205
+s,skill:linkedin:en:public speak,0.07012964381396226
+s,skill:linkedin:en:pac,0.015249356496751793
+s,skill:linkedin:en:strategi,0.014139411515836978
+s,skill:linkedin:en:cpr certifi,0.01673058092410026
+s,skill:linkedin:en:neurosci,0.019257760068439565
+s,skill:linkedin:en:budget,0.011684241784814335
+s,skill:linkedin:en:edc,0.01754828278183581
+s,skill:linkedin:en:laparoscop surgeri,0.012603901963461384
+s,skill:linkedin:en:general surgeri,0.03144116761762891
+s,skill:linkedin:en:powerpoint,0.05236814035573728
+s,skill:linkedin:en:photoshop,0.01312501759387261
+s,skill:linkedin:en:board certifi,0.030500217525546183
+s,skill:linkedin:en:microsoft offic,0.09982270585192092
+s,skill:linkedin:en:regulatori submiss,0.013902517660955798
+s,skill:linkedin:en:surgeri,0.14938725088853824
+s,skill:linkedin:en:critic care,0.062251987139785886
+s,skill:linkedin:en:prevent,0.011570874027334645
+s,skill:linkedin:en:acl,0.01151542578810459
+s,skill:linkedin:en:healthcar consult,0.012252472707221867
+s,skill:linkedin:en:medic devic,0.04071416557292033
+s,skill:linkedin:en:outlook,0.014273499586851951
+s,skill:linkedin:en:hospit,0.33970506778184006
+s,skill:linkedin:en:medic write,0.015806964284872535
+s,skill:linkedin:en:qualit research,0.014516663961906142
+s,skill:linkedin:en:healthcar inform technolog,0.11524452611431663
+s,skill:linkedin:en:clinic develop,0.042990096603416225
+s,skill:linkedin:en:teamwork,0.03425404546213301
+s,skill:linkedin:en:rehabilit,0.030630463248679574
+s,skill:linkedin:en:famili medicin,0.037059164877307205
+s,skill:linkedin:en:inpati,0.029396678621520282
+s,skill:linkedin:en:mri,0.015579883875679488
+s,skill:linkedin:en:healthcar,0.4165899515535674
+s,skill:linkedin:en:team leadership,0.03026693265453643
+s,skill:linkedin:en:window,0.01269881972711414
+s,skill:linkedin:en:perform manag,0.015806010927340016
+s,skill:linkedin:en:project plan,0.011282343460611466
+s,skill:linkedin:en:mental health,0.044906020468673674
+s,skill:linkedin:en:counsel psycholog,0.01028881169592833
+s,skill:linkedin:en:sale,0.017662480961721117
+s,skill:linkedin:en:medic educ,0.2737105786944111
+s,skill:linkedin:en:sport medicin,0.012246304367551612
+s,skill:linkedin:en:ich gcp,0.02867315228497977
+s,skill:linkedin:en:oncolog,0.05815510981542889
+s,skill:linkedin:en:health promot,0.018985242568922214
+s,skill:linkedin:en:epidemiolog,0.04638621360490594
+s,skill:linkedin:en:health educ,0.014265667250259103
+s,skill:linkedin:en:strateg plan,0.04936938770616163
+s,skill:linkedin:en:process improv,0.012927708861435547
+s,skill:linkedin:en:microsoft word,0.05819143493622834
+s,skill:linkedin:en:cancer,0.05136521706981908
+s,skill:linkedin:en:biochemistri,0.014031572226502982
+s,skill:linkedin:en:clinic data manag,0.01385154557814208
+s,skill:linkedin:en:radiolog,0.029166697245963567
+s,skill:linkedin:en:orthoped,0.033602838191165094
+s,skill:linkedin:en:teach,0.06937609814843942
+s,skill:linkedin:en:coach,0.03505002249057055
+s,skill:linkedin:en:nutrit,0.010984396118516792
+s,skill:linkedin:en:polici,0.028591792071147544
+s,skill:linkedin:en:statist,0.012012608710924886
+s,skill:linkedin:en:molecular biolog,0.027838622924912886
+s,skill:linkedin:en:cardiolog,0.03348834074905421
+s,skill:linkedin:en:lectur,0.011990111678029988
+s,skill:linkedin:en:well,0.016799846481793588
+s,skill:linkedin:en:pain manag,0.019761539720569786
+s,skill:linkedin:en:informat,0.03154361979216885
+s,skill:linkedin:en:icu,0.030260875241607213
+s,skill:linkedin:en:medic terminolog,0.01049408227650632
+s,skill:linkedin:en:manag,0.07143230720489607
+s,skill:linkedin:en:treatment,0.1445435433651606
+s,skill:linkedin:en:sop,0.015749705322201667
+s,skill:linkedin:en:dentistri,0.010585951417304429
+s,skill:linkedin:en:event plan,0.010307235995270243
+s,skill:linkedin:en:drug develop,0.018901411410422092
+s,skill:linkedin:en:psycholog,0.02188134902284603
+s,skill:linkedin:en:gynecolog,0.011213248952600584
+s,skill:linkedin:en:ultrasound,0.025226295372116615
+s,skill:linkedin:en:patient safeti,0.1487662793825743
+s,skill:linkedin:en:lifesci,0.028368486727827758
+s,skill:linkedin:en:pharmaceut industri,0.04658690000872291
+s,skill:linkedin:en:hematolog,0.01069766181100894
+s,skill:linkedin:en:cell biolog,0.011856881419128879
+s,skill:linkedin:en:train,0.0516542072969487
+s,skill:linkedin:en:intern medicin,0.1155828073900416
+s,skill:linkedin:en:pediatr,0.0974377213284585
+s,skill:linkedin:en:clinic trial,0.13224987698739396
+s,skill:linkedin:en:psychotherapi,0.01897942050863746
+s,skill:linkedin:en:negoti,0.012241311601746617
+s,skill:linkedin:en:bls,0.018232758561033797
+s,skill:linkedin:en:neurolog,0.017336691006227884
+s,skill:linkedin:en:govern,0.013205698445299974
+s,skill:linkedin:en:medic research,0.05357152999427702
+s,skill:linkedin:en:custom servic,0.0859223233836099
+s,skill:linkedin:en:therapeut area,0.014513669104075736
+s,skill:linkedin:en:public health,0.15490967798586672
+s,skill:linkedin:en:english,0.020965650230967768
+s,skill:linkedin:en:aesthet,0.010469029251100617
+s,skill:linkedin:en:gcp,0.04048203200686815
+s,skill:linkedin:en:cro,0.031059556948695752
+s,skill:linkedin:en:public sector,0.017534604336636506
+s,skill:linkedin:en:qualiti improv,0.021108195624566468
+s,skill:linkedin:en:team build,0.018318639228209314
+s,skill:linkedin:en:infecti diseas,0.02355321753882932
+s,skill:linkedin:en:data analysi,0.03404338938952659
+s,skill:linkedin:en:clinic research,0.40032458346797994
+s,skill:linkedin:en:event manag,0.01200249260227859
+s,skill:linkedin:en:program manag,0.015330226078051895
+s,skill:linkedin:en:time manag,0.01770129438939077
+s,skill:linkedin:en:physician,0.0198007460626602
+s,skill:linkedin:en:diabet,0.02394388355095391
+s,skill:linkedin:en:busi strategi,0.014483474702685592
+s,skill:linkedin:en:acut care,0.02133340958880792
+s,skill:linkedin:en:project manag,0.053626517371693584
+s,skill:linkedin:en:team manag,0.010297359548671402
+s,skill:linkedin:en:cbt,0.01448531861246369
+s,skill:linkedin:en:emr,0.012121363755937272
+s,skill:linkedin:en:emerg medicin,0.11075497739725977
+s,skill:linkedin:en:medicin,0.313599356674202
+s,skill:linkedin:en:cell cultur,0.01400955804360067
+s,skill:linkedin:en:scienc,0.03234736191356719
+s,skill:linkedin:en:medic imag,0.03522621729073053
+s,skill:linkedin:en:pharmacovigil,0.01663860346310244
+s,skill:linkedin:en:new busi develop,0.01116296057621259
+s,skill:linkedin:en:immunolog,0.019251048405152977
+s,skill:linkedin:en:pcr,0.01023433675787788
+s,skill:linkedin:en:sport injuri,0.010887967715341519
+s,skill:linkedin:en:case manag,0.013309134028330612
+s,skill:linkedin:en:regulatori affair,0.012893953280692106
+s,skill:linkedin:en:ophthalmolog,0.013162747360988615
+s,skill:linkedin:en:healthcar manag,0.25505563466247966
+s,skill:linkedin:en:microsoft excel,0.06667427263522445
+s,skill:linkedin:en:research,0.1443926459725321
+s,skill:linkedin:en:leadership,0.05470566284314301
+s,skill:linkedin:en:clinic supervis,0.02144446882432209
+s,skill:linkedin:en:stress manag,0.011892948349115537
+s,skill:linkedin:en:nurs,0.048148915420050176
+s,skill:linkedin:en:biotechnolog,0.02138917325893449
+s,skill:linkedin:en:clinic monitor,0.01945799515658299
+t,Healthcare,Healthcare Assistant,0,35867
+s,skill:linkedin:en:well,0.012668871437171318
+s,skill:linkedin:en:social media,0.08642427065784794
+s,skill:linkedin:en:hospitality,0.015186772194214207
+s,skill:linkedin:en:higher educ,0.013225145092797992
+s,skill:linkedin:en:phlebotomi,0.0217404834265195
+s,skill:linkedin:en:public relat,0.02330288564440941
+s,skill:linkedin:en:chang manag,0.04369431541933287
+s,skill:linkedin:en:group therapi,0.0111435848025727
+s,skill:linkedin:en:leadership develop,0.016093405312861114
+s,skill:linkedin:en:data entri,0.04443076909235253
+s,skill:linkedin:en:manag,0.142575666113465
+s,skill:linkedin:en:peopl skill,0.01415816933409109
+s,skill:linkedin:en:event plan,0.03836495641761269
+s,skill:linkedin:en:psycholog,0.07217867414842948
+s,skill:linkedin:en:report write,0.027312220865333463
+s,skill:linkedin:en:elder care,0.0798381490344222
+s,skill:linkedin:en:public speak,0.13435002692977646
+s,skill:linkedin:en:patient safeti,0.13617052987135453
+s,skill:linkedin:en:administr,0.02733969195104898
+s,skill:linkedin:en:train,0.0888002392671947
+s,skill:linkedin:en:busi develop,0.010667559294062419
+s,skill:linkedin:en:biochemistri,0.01783255986762381
+s,skill:linkedin:en:chariti,0.010042280512109321
+s,skill:linkedin:en:employe train,0.011611573485375889
+s,skill:linkedin:en:pediatr,0.02689810101026331
+s,skill:linkedin:en:organ,0.012054765212660043
+s,skill:linkedin:en:social servic,0.04938387495707767
+s,skill:linkedin:en:autism spectrum disord,0.013305451880863699
+s,skill:linkedin:en:problem solv,0.024153200913683257
+s,skill:linkedin:en:organiz develop,0.010875702917814077
+s,skill:linkedin:en:photoshop,0.04170857525066836
+s,skill:linkedin:en:childcar,0.01372227803122304
+s,skill:linkedin:en:telephon skill,0.014955892064473236
+s,skill:linkedin:en:blog,0.012396328691425602
+s,skill:linkedin:en:home care,0.108468853329438
+s,skill:linkedin:en:care plan,0.012967846049727547
+s,skill:linkedin:en:nonprofit,0.030478137036924684
+s,skill:linkedin:en:negoti,0.031211897100926374
+s,skill:linkedin:en:fire safeti,0.010297564558497656
+s,skill:linkedin:en:clinic research,0.13142796011666166
+s,skill:linkedin:en:human resourc,0.01743688612458474
+s,skill:linkedin:en:microsoft offic,0.26942903659051626
+s,skill:linkedin:en:dementia,0.010089279183526466
+s,skill:linkedin:en:surgeri,0.014293157172879756
+s,skill:linkedin:en:html,0.01468422402327896
+s,skill:linkedin:en:adolesc,0.01210497145231441
+s,skill:linkedin:en:medic administr,0.0403483280354994
+s,skill:linkedin:en:custom servic,0.3681269118754852
+s,skill:linkedin:en:critic care,0.0391493049594044
+s,skill:linkedin:en:english,0.06391783447272269
+s,skill:linkedin:en:public health,0.07125627223987624
+s,skill:linkedin:en:communiti outreach,0.020794195733092075
+s,skill:linkedin:en:healthcar inform technolog,0.040928669751442916
+s,skill:linkedin:en:social media market,0.015159530295494411
+s,skill:linkedin:en:data analysi,0.05465033733044092
+s,skill:linkedin:en:laboratori,0.019140799116002163
+s,skill:linkedin:en:outlook,0.04146885615551382
+s,skill:linkedin:en:merchandis,0.013531843790223205
+s,skill:linkedin:en:oper manag,0.012942776270981537
+s,skill:linkedin:en:first aid,0.07961531509881148
+s,skill:linkedin:en:administr assist,0.019678846015900815
+s,skill:linkedin:en:hospit,0.21687485087373334
+s,skill:linkedin:en:treatment,0.07170655070118455
+s,skill:linkedin:en:qualit research,0.024288722527928425
+s,skill:linkedin:en:health educ,0.014979959222400517
+s,skill:linkedin:en:analysi,0.021761886633491764
+s,skill:linkedin:en:public sector,0.01959076078219767
+s,skill:linkedin:en:sale manag,0.012391468883816079
+s,skill:linkedin:en:fundrais,0.026659971918810237
+s,skill:linkedin:en:photographi,0.019699183661683606
+s,skill:linkedin:en:teamwork,0.21863271047865934
+s,skill:linkedin:en:manual handl,0.014324439763700209
+s,skill:linkedin:en:nurs care,0.016121502764973646
+s,skill:linkedin:en:rehabilit,0.0255489619280655
+s,skill:linkedin:en:creativ write,0.016252184980280082
+s,skill:linkedin:en:cpr certifi,0.04564967542535396
+s,skill:linkedin:en:retail,0.04672405187663479
+s,skill:linkedin:en:team build,0.04279666905371859
+s,skill:linkedin:en:nutrit,0.014825255589257472
+s,skill:linkedin:en:psychotherapi,0.017027750169403964
+s,skill:linkedin:en:microbiolog,0.015205809394945967
+s,skill:linkedin:en:bls,0.03253756573399664
+s,skill:linkedin:en:spss,0.03536741549830271
+s,skill:linkedin:en:retail sale,0.011973138526182158
+s,skill:linkedin:en:event manag,0.04132002959412523
+s,skill:linkedin:en:learn disabl,0.024718354305075876
+s,skill:linkedin:en:mental health care,0.011881215513632042
+s,skill:linkedin:en:inpati,0.0367042324450686
+s,skill:linkedin:en:program manag,0.01020515239080449
+s,skill:linkedin:en:healthcar,0.392751079855603
+s,skill:linkedin:en:team leadership,0.0797389268474476
+s,skill:linkedin:en:time manag,0.155033838622015
+s,skill:linkedin:en:window,0.03414490610819124
+s,skill:linkedin:en:visual merchandis,0.012450371477452166
+s,skill:linkedin:en:perform manag,0.019031502537747852
+s,skill:linkedin:en:social network,0.03348786191969982
+s,skill:linkedin:en:project plan,0.02826423224078592
+s,skill:linkedin:en:cell cultur,0.011818085406580647
+s,skill:linkedin:en:infect control,0.021038567355610743
+s,skill:linkedin:en:busi strategi,0.014622041102018968
+s,skill:linkedin:en:counsel psycholog,0.0187753708157727
+s,skill:linkedin:en:medic educ,0.020636036600800226
+s,skill:linkedin:en:acut care,0.040505062841373216
+s,skill:linkedin:en:health promot,0.01715612448217309
+s,skill:linkedin:en:quantit research,0.011374956438909707
+s,skill:linkedin:en:custom satisfact,0.023379607511260118
+s,skill:linkedin:en:budget,0.029592921430610142
+s,skill:linkedin:en:market strategi,0.013147281805443884
+s,skill:linkedin:en:strateg plan,0.05952602891238601
+s,skill:linkedin:en:cbt,0.01681069470942482
+s,skill:linkedin:en:volunt,0.0128955285095082
+s,skill:linkedin:en:market communic,0.012726714917156599
+s,skill:linkedin:en:critic think,0.014161731159794952
+s,skill:linkedin:en:mental health,0.1578217814816903
+s,skill:linkedin:en:child develop,0.01042866815932119
+s,skill:linkedin:en:emerg medicin,0.015336854044022637
+s,skill:linkedin:en:medicin,0.06143276657989736
+s,skill:linkedin:en:govern,0.013322856227617128
+s,skill:linkedin:en:sale,0.08004505654395909
+s,skill:linkedin:en:microsoft word,0.22823061592051877
+s,skill:linkedin:en:advertis,0.01000999902798651
+s,skill:linkedin:en:communiti engag,0.010329029676530353
+s,skill:linkedin:en:scienc,0.021193693861968843
+s,skill:linkedin:en:volunt manag,0.014632764685813072
+s,skill:linkedin:en:write,0.01090381263739388
+s,skill:linkedin:en:offic administr,0.03460062384537989
+s,skill:linkedin:en:new busi develop,0.017781515751964003
+s,skill:linkedin:en:pcr,0.014679727812796134
+s,skill:linkedin:en:case manag,0.022881952576572648
+s,skill:linkedin:en:edit,0.024959359465364015
+s,skill:linkedin:en:healthcar manag,0.12407414491696897
+s,skill:linkedin:en:account,0.011798139365821749
+s,skill:linkedin:en:powerpoint,0.16447551659928059
+s,skill:linkedin:en:teach,0.06400334242257909
+s,skill:linkedin:en:microsoft excel,0.214066403834701
+s,skill:linkedin:en:research,0.2372810809210918
+s,skill:linkedin:en:person care,0.01198388050180151
+s,skill:linkedin:en:laboratori skill,0.014165614861489281
+s,skill:linkedin:en:medic terminolog,0.024051716724551933
+s,skill:linkedin:en:coach,0.055240148896480046
+s,skill:linkedin:en:wound care,0.015041752156451661
+s,skill:linkedin:en:leadership,0.107633212386239
+s,skill:linkedin:en:care,0.011564061431937132
+s,skill:linkedin:en:nurs,0.18118220216830183
+s,skill:linkedin:en:statist,0.020384457664597202
+s,skill:linkedin:en:project manag,0.06392970693297219
+s,skill:linkedin:en:communic skill,0.015069914797922144
+s,skill:linkedin:en:team manag,0.015697341212876255
+s,skill:linkedin:en:polici,0.035218757210944446
+s,skill:linkedin:en:molecular biolog,0.019490498568556443
+s,skill:linkedin:en:account manag,0.01728999856021102
+s,skill:linkedin:en:palliat care,0.027735296944558785
+s,skill:linkedin:en:communic,0.07503573262760938
+s,skill:linkedin:en:market,0.034126789237909246
+s,skill:linkedin:en:risk assess,0.020967905903874477
+s,skill:linkedin:en:local govern,0.010336025408186398
+t,Healthcare,Care Worker,1,4997
+s,skill:linkedin:en:process improv,0.01821029125895345
+s,skill:linkedin:en:volunt,0.013925516845082047
+s,skill:linkedin:en:rehabilit,0.02999342089709979
+s,skill:linkedin:en:home care,0.13068561962307768
+s,skill:linkedin:en:critic think,0.010711936034678498
+s,skill:linkedin:en:train,0.1318938147900383
+s,skill:linkedin:en:child develop,0.02822247655259055
+s,skill:linkedin:en:mental health counsel,0.035720831776865504
+s,skill:linkedin:en:famili therapi,0.0192814848624213
+s,skill:linkedin:en:medicin,0.017775079624819612
+s,skill:linkedin:en:retail,0.020352678465889146
+s,skill:linkedin:en:social media,0.05042259274008472
+s,skill:linkedin:en:team build,0.04669730691845155
+s,skill:linkedin:en:govern,0.011783129638146348
+s,skill:linkedin:en:sale,0.04449115093980848
+s,skill:linkedin:en:psychotherapi,0.055638298608620816
+s,skill:linkedin:en:nonprofit,0.07254295496517275
+s,skill:linkedin:en:microsoft word,0.17752318869033237
+s,skill:linkedin:en:hospitality,0.014628528171433796
+s,skill:linkedin:en:negoti,0.027482851413048
+s,skill:linkedin:en:fundrais,0.05955489074537611
+s,skill:linkedin:en:motiv interview,0.040470915632844634
+s,skill:linkedin:en:crisi intervent,0.11000463327857361
+s,skill:linkedin:en:public relat,0.012419111607480361
+s,skill:linkedin:en:market,0.02098866043522316
+s,skill:linkedin:en:chang manag,0.05526685574619435
+s,skill:linkedin:en:clinic research,0.12810802078200814
+s,skill:linkedin:en:bls,0.014996710448549895
+s,skill:linkedin:en:therapist,0.01858173412137991
+s,skill:linkedin:en:group therapi,0.059859304250784826
+s,skill:linkedin:en:spss,0.02420224124562671
+s,skill:linkedin:en:intervent,0.027787264918456716
+s,skill:linkedin:en:data entri,0.020352678465889146
+s,skill:linkedin:en:human resourc,0.012854323241614196
+s,skill:linkedin:en:peopl skill,0.012854323241614196
+s,skill:linkedin:en:microsoft offic,0.1657433196374964
+s,skill:linkedin:en:workshop facilit,0.0171390976554856
+s,skill:linkedin:en:volunt manag,0.034478965646171374
+s,skill:linkedin:en:interview,0.013925516845082047
+s,skill:linkedin:en:offic administr,0.023131047642158863
+s,skill:linkedin:en:learn disabl,0.067856639880901
+s,skill:linkedin:en:treatment,0.13232902642417216
+s,skill:linkedin:en:healthcar,0.431864642739631
+s,skill:linkedin:en:mental health care,0.013925516845082047
+s,skill:linkedin:en:new busi develop,0.01821029125895345
+s,skill:linkedin:en:harm reduct,0.012422372192790722
+s,skill:linkedin:en:communiti engag,0.027787264918456716
+s,skill:linkedin:en:person care,0.014996710448549895
+s,skill:linkedin:en:inpati,0.025708646483228393
+s,skill:linkedin:en:event plan,0.03786647956911157
+s,skill:linkedin:en:adult social care,0.01606790405201775
+s,skill:linkedin:en:psycholog,0.11010176044356522
+s,skill:linkedin:en:palliat care,0.0321358081040355
+s,skill:linkedin:en:manag,0.13088638995827784
+s,skill:linkedin:en:html,0.013557334567965944
+s,skill:linkedin:en:program manag,0.01349030521094821
+s,skill:linkedin:en:team leadership,0.06929927634679531
+s,skill:linkedin:en:time manag,0.09868681308253499
+s,skill:linkedin:en:medic administr,0.045361574208076155
+s,skill:linkedin:en:custom servic,0.2882978626522755
+s,skill:linkedin:en:case manag,0.20055059316228271
+s,skill:linkedin:en:report write,0.027851033690164093
+s,skill:linkedin:en:window,0.030696432223451538
+s,skill:linkedin:en:critic care,0.01606790405201775
+s,skill:linkedin:en:custom satisfact,0.014996710448549895
+s,skill:linkedin:en:edit,0.011615717696230423
+s,skill:linkedin:en:social skill,0.011783129638146348
+s,skill:linkedin:en:healthcar manag,0.1141825039369261
+s,skill:linkedin:en:elder care,0.07926832665662088
+s,skill:linkedin:en:perform manag,0.023566259276292696
+s,skill:linkedin:en:problem solv,0.011783129638146348
+s,skill:linkedin:en:person develop,0.016703886021351762
+s,skill:linkedin:en:work children,0.011783129638146348
+s,skill:linkedin:en:social network,0.01928474544773166
+s,skill:linkedin:en:project plan,0.023566259276292696
+s,skill:linkedin:en:public speak,0.16724972487509807
+s,skill:linkedin:en:mental health,0.32468477420644887
+s,skill:linkedin:en:patient safeti,0.07354417636216554
+s,skill:linkedin:en:teach,0.0680639313867219
+s,skill:linkedin:en:patient advocaci,0.013925516845082047
+s,skill:linkedin:en:event manag,0.02811883338238201
+s,skill:linkedin:en:infect control,0.010711936034678498
+s,skill:linkedin:en:microsoft excel,0.1411026061724255
+s,skill:linkedin:en:public health,0.07203777112456385
+s,skill:linkedin:en:research,0.19077905260234695
+s,skill:linkedin:en:adolesc,0.0564449531051811
+s,skill:linkedin:en:adult,0.013925516845082047
+s,skill:linkedin:en:communiti outreach,0.08653550116727254
+s,skill:linkedin:en:english,0.038767000645353135
+s,skill:linkedin:en:counsel psycholog,0.04947893668003162
+s,skill:linkedin:en:care plan,0.03421442653926382
+s,skill:linkedin:en:medic social work,0.0192814848624213
+s,skill:linkedin:en:non profit,0.013557334567965944
+s,skill:linkedin:en:program develop,0.02741582205603026
+s,skill:linkedin:en:behavior health,0.01751054051791206
+s,skill:linkedin:en:child welfar,0.04466182346703477
+s,skill:linkedin:en:administr,0.01858173412137991
+s,skill:linkedin:en:healthcar inform technolog,0.02962523861998369
+s,skill:linkedin:en:medic terminolog,0.012854323241614196
+s,skill:linkedin:en:youth work,0.017775079624819612
+s,skill:linkedin:en:acut care,0.020352678465889146
+s,skill:linkedin:en:coach,0.08117627256462293
+s,skill:linkedin:en:wound care,0.011347918004012513
+s,skill:linkedin:en:leadership,0.09520869316522387
+s,skill:linkedin:en:outlook,0.039265981051194346
+s,skill:linkedin:en:leadership develop,0.03207203933232811
+s,skill:linkedin:en:clinic supervis,0.011347918004012513
+s,skill:linkedin:en:cpr certifi,0.0321358081040355
+s,skill:linkedin:en:first aid,0.05178873582888324
+s,skill:linkedin:en:busi develop,0.013925516845082047
+s,skill:linkedin:en:health promot,0.013925516845082047
+s,skill:linkedin:en:hospit,0.19150921372181146
+s,skill:linkedin:en:psychosoci,0.010276724400544663
+s,skill:linkedin:en:chariti,0.01814652248724607
+s,skill:linkedin:en:nurs,0.1463183120409616
+s,skill:linkedin:en:communiti develop,0.027151282949122706
+s,skill:linkedin:en:foster care,0.010711936034678498
+s,skill:linkedin:en:project manag,0.06939314292647658
+s,skill:linkedin:en:health educ,0.011347918004012513
+s,skill:linkedin:en:team manag,0.0171390976554856
+s,skill:linkedin:en:polici,0.07946909699182106
+s,skill:linkedin:en:budget,0.021055689792240893
+s,skill:linkedin:en:qualit research,0.013925516845082047
+s,skill:linkedin:en:public sector,0.049646348621947556
+s,skill:linkedin:en:strateg plan,0.0666818031072246
+s,skill:linkedin:en:account manag,0.014996710448549895
+s,skill:linkedin:en:organiz develop,0.01643934691444421
+s,skill:linkedin:en:communic,0.04117392695919638
+s,skill:linkedin:en:safeguard adult,0.010276724400544663
+s,skill:linkedin:en:teamwork,0.11877495244151658
+s,skill:linkedin:en:social servic,0.23353619074669002
+s,skill:linkedin:en:data analysi,0.020352678465889146
+s,skill:linkedin:en:autism spectrum disord,0.0321358081040355
+s,skill:linkedin:en:staff develop,0.014932941676842521
+s,skill:linkedin:en:young peopl,0.010711936034678498
+s,skill:linkedin:en:group work,0.010276724400544663
+s,skill:linkedin:en:powerpoint,0.13082588177188084
+s,skill:linkedin:en:manual handl,0.010711936034678498
+s,skill:linkedin:en:photoshop,0.019549284554639213
+s,skill:linkedin:en:supervisori skill,0.010711936034678498
+s,skill:linkedin:en:manag care,0.011783129638146348
+s,skill:linkedin:en:cbt,0.05697729190430657
+s,skill:linkedin:en:risk assess,0.020352678465889146
+s,skill:linkedin:en:local govern,0.020352678465889146
+t,Healthcare,Healthcare Administrator,1,6942
+s,skill:linkedin:en:market communic,0.01276706227534732
+s,skill:linkedin:en:process improv,0.014378798039201777
+s,skill:linkedin:en:emr,0.030276531786931835
+s,skill:linkedin:en:fundrais,0.01650785748425019
+s,skill:linkedin:en:medicin,0.06589547353018253
+s,skill:linkedin:en:retail,0.022812908780719184
+s,skill:linkedin:en:social media,0.053832553554886295
+s,skill:linkedin:en:team build,0.03492374566674479
+s,skill:linkedin:en:sale,0.05531076461530032
+s,skill:linkedin:en:appoint schedul,0.02751469559821648
+s,skill:linkedin:en:nonprofit,0.013985730789566674
+s,skill:linkedin:en:microsoft word,0.25692581448693613
+s,skill:linkedin:en:negoti,0.024507709531134635
+s,skill:linkedin:en:medic bill,0.027152330919076297
+s,skill:linkedin:en:public relat,0.013366853128844417
+s,skill:linkedin:en:informat,0.01089118295046438
+s,skill:linkedin:en:databas administr,0.014477080128564915
+s,skill:linkedin:en:file,0.027065695979435145
+s,skill:linkedin:en:data entri,0.15720136502411525
+s,skill:linkedin:en:manag,0.13036082861742718
+s,skill:linkedin:en:clinic research,0.10231093792442505
+s,skill:linkedin:en:human resourc,0.051093365409175036
+s,skill:linkedin:en:medic transcript,0.022488404834793755
+s,skill:linkedin:en:microsoft offic,0.26456323098017315
+s,skill:linkedin:en:event manag,0.04556134623181075
+s,skill:linkedin:en:confidenti,0.03403514836645742
+s,skill:linkedin:en:interview,0.010688529515131356
+s,skill:linkedin:en:offic administr,0.1788588309682092
+s,skill:linkedin:en:offic manag,0.0986771067261921
+s,skill:linkedin:en:medic record,0.06564966400192374
+s,skill:linkedin:en:treatment,0.023427431781826036
+s,skill:linkedin:en:program manag,0.015077058056702595
+s,skill:linkedin:en:spreadsheet,0.02868411529218198
+s,skill:linkedin:en:healthcar,0.3661330748034858
+s,skill:linkedin:en:chang manag,0.08931871552961719
+s,skill:linkedin:en:inpati,0.02040550512033799
+s,skill:linkedin:en:event plan,0.06476535427583942
+s,skill:linkedin:en:surgeri,0.041034297181716986
+s,skill:linkedin:en:minut take,0.01429139999900551
+s,skill:linkedin:en:payrol,0.011300812668088236
+s,skill:linkedin:en:team leadership,0.049747699842344395
+s,skill:linkedin:en:custom servic,0.37441277560196534
+s,skill:linkedin:en:receptionist duti,0.05337422871813539
+s,skill:linkedin:en:window,0.024731129654866266
+s,skill:linkedin:en:edit,0.014169333412630694
+s,skill:linkedin:en:databas,0.012437503705754083
+s,skill:linkedin:en:travel arrang,0.0173003387031567
+s,skill:linkedin:en:account,0.013316778154478045
+s,skill:linkedin:en:project plan,0.02606362295274383
+s,skill:linkedin:en:public speak,0.0530298203572034
+s,skill:linkedin:en:mental health,0.01858799789156687
+s,skill:linkedin:en:patient safeti,0.09073783199742626
+s,skill:linkedin:en:teach,0.020603118748655745
+s,skill:linkedin:en:microsoft excel,0.2705803649909234
+s,skill:linkedin:en:public health,0.06623924548020779
+s,skill:linkedin:en:research,0.11424112062214645
+s,skill:linkedin:en:audio type,0.02576270953347888
+s,skill:linkedin:en:busi strategi,0.013622874232759296
+s,skill:linkedin:en:softwar document,0.016335964222585063
+s,skill:linkedin:en:english,0.0366951535372981
+s,skill:linkedin:en:medic educ,0.03678928661773441
+s,skill:linkedin:en:communic,0.025140351989947983
+s,skill:linkedin:en:fax,0.015870821492386736
+s,skill:linkedin:en:administr,0.12704249103432802
+s,skill:linkedin:en:healthcar inform technolog,0.12362169880615205
+s,skill:linkedin:en:medic terminolog,0.12786326252591773
+s,skill:linkedin:en:coach,0.03835532267782107
+s,skill:linkedin:en:secretari skill,0.026922632676899583
+s,skill:linkedin:en:leadership,0.06149630827586117
+s,skill:linkedin:en:outlook,0.1708455660846158
+s,skill:linkedin:en:govern,0.012299970990615425
+s,skill:linkedin:en:train,0.08560043517467042
+s,skill:linkedin:en:oper manag,0.013075211108267525
+s,skill:linkedin:en:cpr certifi,0.022847682693688705
+s,skill:linkedin:en:administr work,0.013898335423576264
+s,skill:linkedin:en:busi develop,0.013005932210930627
+s,skill:linkedin:en:administr assist,0.1745036112030447
+s,skill:linkedin:en:diari manag,0.05175531719024222
+s,skill:linkedin:en:stakehold manag,0.01958134509461131
+s,skill:linkedin:en:hospit,0.26418078435188386
+s,skill:linkedin:en:employe relat,0.02764176978063046
+s,skill:linkedin:en:invoic,0.0352145150627922
+s,skill:linkedin:en:employe train,0.010531432373174622
+s,skill:linkedin:en:nurs,0.057620486980411036
+s,skill:linkedin:en:custom satisfact,0.024248423100333885
+s,skill:linkedin:en:project manag,0.07456348596907218
+s,skill:linkedin:en:team manag,0.019012286175810498
+s,skill:linkedin:en:polici,0.04399964199764543
+s,skill:linkedin:en:system administr,0.036640438322909974
+s,skill:linkedin:en:analysi,0.011149777955529022
+s,skill:linkedin:en:budget,0.030256466502834773
+s,skill:linkedin:en:pediatr,0.022602735094144948
+s,skill:linkedin:en:healthcar manag,0.20035656248677605
+s,skill:linkedin:en:organiz develop,0.010303850688364265
+s,skill:linkedin:en:public sector,0.03704132264400828
+s,skill:linkedin:en:new busi develop,0.01949503913275458
+s,skill:linkedin:en:market strategi,0.01098522298190117
+s,skill:linkedin:en:medic code,0.019181883184029604
+s,skill:linkedin:en:strateg plan,0.04677226045910935
+s,skill:linkedin:en:account manag,0.022261705318124037
+s,skill:linkedin:en:type,0.018282993248557748
+s,skill:linkedin:en:teamwork,0.13192375068092552
+s,skill:linkedin:en:data analysi,0.03195718584415323
+s,skill:linkedin:en:problem solv,0.014599346549735269
+s,skill:linkedin:en:perform manag,0.03241201863428083
+s,skill:linkedin:en:stakehold engag,0.01000186111145553
+s,skill:linkedin:en:powerpoint,0.1832404420451413
+s,skill:linkedin:en:photoshop,0.023999405054972948
+s,skill:linkedin:en:market,0.02889189705432141
+s,skill:linkedin:en:telephon skill,0.04618683344428269
+s,skill:linkedin:en:social network,0.012888041271556759
+s,skill:linkedin:en:time manag,0.1162565480892356
+s,skill:linkedin:en:access,0.023226807120841752
+t,Healthcare,General Practitioner (GP),0,6355
+s,skill:linkedin:en:public speak,0.032697774213868935
+s,skill:linkedin:en:mental health,0.04234724659531207
+s,skill:linkedin:en:well,0.012270166026301172
+s,skill:linkedin:en:patient safeti,0.12308430857760494
+s,skill:linkedin:en:healthcar consult,0.010058511437080576
+s,skill:linkedin:en:teach,0.04240408550978455
+s,skill:linkedin:en:medic educ,0.3443340027980033
+s,skill:linkedin:en:emerg medicin,0.21283850566019763
+s,skill:linkedin:en:microsoft excel,0.033655920895132994
+s,skill:linkedin:en:public health,0.1907483505090359
+s,skill:linkedin:en:research,0.05482954419278902
+s,skill:linkedin:en:cpr certifi,0.010566004234948842
+s,skill:linkedin:en:travel medicin,0.02213176997892009
+s,skill:linkedin:en:urgent care,0.0392342842392999
+s,skill:linkedin:en:famili plan,0.012171712284070343
+s,skill:linkedin:en:sport medicin,0.032599320471638105
+s,skill:linkedin:en:microsoft word,0.03164117379037405
+s,skill:linkedin:en:healthcar inform technolog,0.10913637150099566
+s,skill:linkedin:en:bls,0.01559525995348913
+s,skill:linkedin:en:acut care,0.010312257836014709
+s,skill:linkedin:en:board certifi,0.03003546574125255
+s,skill:linkedin:en:coach,0.01604591383688492
+s,skill:linkedin:en:leadership,0.019821661647468666
+s,skill:linkedin:en:aesthet,0.010566004234948842
+s,skill:linkedin:en:outlook,0.010566004234948842
+s,skill:linkedin:en:train,0.023483731629107458
+s,skill:linkedin:en:chang manag,0.022991462917953318
+s,skill:linkedin:en:informat,0.02600597153173467
+s,skill:linkedin:en:health promot,0.03993868452162982
+s,skill:linkedin:en:icu,0.011270404517278764
+s,skill:linkedin:en:powerpoint,0.024498717224843997
+s,skill:linkedin:en:famili medicin,0.27692370726550647
+s,skill:linkedin:en:hospit,0.2580865830403461
+s,skill:linkedin:en:diabet,0.03164117379037405
+s,skill:linkedin:en:cancer,0.010664457977179671
+s,skill:linkedin:en:manag,0.028217626120955266
+s,skill:linkedin:en:clinic research,0.26925853381539405
+s,skill:linkedin:en:microsoft offic,0.04647519454706078
+s,skill:linkedin:en:nurs,0.012523912425235305
+s,skill:linkedin:en:primari health care,0.017806914542709728
+s,skill:linkedin:en:obstetr,0.01559525995348913
+s,skill:linkedin:en:polici,0.011622604658443727
+s,skill:linkedin:en:acl,0.010566004234948842
+s,skill:linkedin:en:intern medicin,0.16264440221702559
+s,skill:linkedin:en:project manag,0.01508776715562086
+s,skill:linkedin:en:health educ,0.01851131482503965
+s,skill:linkedin:en:general practic,0.015341513554554995
+s,skill:linkedin:en:treatment,0.15488077502468228
+s,skill:linkedin:en:medic research,0.025653771390569704
+s,skill:linkedin:en:pediatr,0.1797885313051637
+s,skill:linkedin:en:primari care,0.09552946791122124
+s,skill:linkedin:en:general surgeri,0.035515375343188625
+s,skill:linkedin:en:psychiatri,0.03279622795609976
+s,skill:linkedin:en:inpati,0.01232700494077365
+s,skill:linkedin:en:surgeri,0.16992692735254483
+s,skill:linkedin:en:strateg plan,0.0352616289442545
+s,skill:linkedin:en:evid base medicin,0.01393271298989515
+s,skill:linkedin:en:dentistri,0.011270404517278764
+s,skill:linkedin:en:healthcar,0.3979780446516383
+s,skill:linkedin:en:custom servic,0.03389444320735299
+s,skill:linkedin:en:clinic govern,0.019117261365138746
+s,skill:linkedin:en:clinic trial,0.02811917237872444
+s,skill:linkedin:en:critic care,0.02459717096707482
+s,skill:linkedin:en:physician,0.021075169555425207
+s,skill:linkedin:en:window,0.0131298589653344
+s,skill:linkedin:en:dermatolog,0.020624515672029418
+s,skill:linkedin:en:qualiti improv,0.016299660235819052
+s,skill:linkedin:en:gynecolog,0.01594746009465409
+s,skill:linkedin:en:orthoped,0.019215715107369573
+s,skill:linkedin:en:healthcar manag,0.2770069369210232
+s,skill:linkedin:en:epidemiolog,0.03471252131862788
+s,skill:linkedin:en:cardiolog,0.012270166026301172
+s,skill:linkedin:en:english,0.014890859671159207
+s,skill:linkedin:en:medicin,0.4010077773521339
+s,skill:linkedin:en:women health,0.01639811397804988
+s,skill:linkedin:en:prevent,0.017004060518148973
+t,Healthcare,Dentist,0,17964
+s,skill:linkedin:en:dentist,0.010399114175344032
+s,skill:linkedin:en:well,0.011355240853291901
+s,skill:linkedin:en:conscious sedat,0.011844669208307077
+s,skill:linkedin:en:invis brace,0.010387993774072563
+s,skill:linkedin:en:botox cosmet,0.011261598659163043
+s,skill:linkedin:en:medicin,0.03317749649000809
+s,skill:linkedin:en:social media,0.0154655689075225
+s,skill:linkedin:en:team build,0.015663844000490323
+s,skill:linkedin:en:bone graft,0.011056423695652599
+s,skill:linkedin:en:sale,0.01863460162411071
+s,skill:linkedin:en:dental assist,0.04323673237418292
+s,skill:linkedin:en:microsoft word,0.05350848660743
+s,skill:linkedin:en:sedat,0.019255108649352926
+s,skill:linkedin:en:dental care,0.09368426692209168
+s,skill:linkedin:en:radiographi,0.01329301689760141
+s,skill:linkedin:en:oral surgeri,0.20510070692450563
+s,skill:linkedin:en:patient educ,0.10138594440771864
+s,skill:linkedin:en:pain manag,0.013966454145117931
+s,skill:linkedin:en:dental softwar,0.01722865103602002
+s,skill:linkedin:en:cosmet,0.024792238723905798
+s,skill:linkedin:en:clinic research,0.15886417488055002
+s,skill:linkedin:en:bls,0.01340692484305417
+s,skill:linkedin:en:manag,0.04171225665032274
+s,skill:linkedin:en:microsoft offic,0.07185023750676929
+s,skill:linkedin:en:tooth color fill,0.04290727440335544
+s,skill:linkedin:en:practic manag,0.03219505934377072
+s,skill:linkedin:en:periodont diseas,0.03463146060091977
+s,skill:linkedin:en:treatment,0.20984270380112818
+s,skill:linkedin:en:team leadership,0.01568106740869173
+s,skill:linkedin:en:time manag,0.020146862060790745
+s,skill:linkedin:en:dentur,0.16305451232772045
+s,skill:linkedin:en:tmj dysfunct,0.05312403194010633
+s,skill:linkedin:en:dentistri,0.4265940448355561
+s,skill:linkedin:en:surgeri,0.19431132600843734
+s,skill:linkedin:en:veneer,0.1550414619345292
+s,skill:linkedin:en:healthcar,0.3137808680070175
+s,skill:linkedin:en:custom servic,0.10111123815064467
+s,skill:linkedin:en:digit radiographi,0.012320141616126516
+s,skill:linkedin:en:local anesthesia,0.019980706462982084
+s,skill:linkedin:en:dermal filler,0.010864844968245841
+s,skill:linkedin:en:root canal,0.05499085034318573
+s,skill:linkedin:en:receptionist duti,0.010545850968607166
+s,skill:linkedin:en:window,0.011985735188791244
+s,skill:linkedin:en:periodont,0.1761662758936888
+s,skill:linkedin:en:healthcar manag,0.09731952004826017
+s,skill:linkedin:en:teeth whiten,0.23249707002218373
+s,skill:linkedin:en:public speak,0.04490657765801173
+s,skill:linkedin:en:powerpoint,0.044888425712838034
+s,skill:linkedin:en:patient safeti,0.04926553767279168
+s,skill:linkedin:en:teach,0.02785513275696617
+s,skill:linkedin:en:oral maxillofaci surgeri,0.010675628586060696
+s,skill:linkedin:en:infect control,0.03456791438150125
+s,skill:linkedin:en:orthodont,0.09565194586747133
+s,skill:linkedin:en:microsoft excel,0.05331507739154815
+s,skill:linkedin:en:implantolog,0.053882448346722935
+s,skill:linkedin:en:prosthet,0.022233022868910966
+s,skill:linkedin:en:public health,0.07152160306070443
+s,skill:linkedin:en:research,0.04864358540891998
+s,skill:linkedin:en:english,0.01974384234879225
+s,skill:linkedin:en:endodont,0.18469576863663584
+s,skill:linkedin:en:pediatr dentistri,0.10525838184322688
+s,skill:linkedin:en:medic educ,0.018743979796254313
+s,skill:linkedin:en:dental restor,0.01876942043268528
+s,skill:linkedin:en:brace,0.012415507912767429
+s,skill:linkedin:en:invisalign,0.0544369930342607
+s,skill:linkedin:en:medic terminolog,0.015917481685534512
+s,skill:linkedin:en:dental implant,0.030007097930663452
+s,skill:linkedin:en:coach,0.017128491641557175
+s,skill:linkedin:en:leadership,0.027853919052222894
+s,skill:linkedin:en:aesthet,0.1581045054173162
+s,skill:linkedin:en:cpr certifi,0.07834383209169561
+s,skill:linkedin:en:first aid,0.011826413677947867
+s,skill:linkedin:en:health promot,0.0153798386942058
+s,skill:linkedin:en:laser dentistri,0.012040805868248388
+s,skill:linkedin:en:hospit,0.10363495187371446
+s,skill:linkedin:en:oral care,0.031033196791342164
+s,skill:linkedin:en:cosmet dentistri,0.31070267701426935
+s,skill:linkedin:en:nurs,0.04633225208098067
+s,skill:linkedin:en:train,0.025211879062203228
+s,skill:linkedin:en:project manag,0.010383868915910257
+s,skill:linkedin:en:health educ,0.0555724183750203
+s,skill:linkedin:en:pediatr,0.03299175555871959
+s,skill:linkedin:en:dental surgeri,0.053523450348559924
+s,skill:linkedin:en:sleep apnea,0.015697151593873502
+s,skill:linkedin:en:strateg plan,0.032473880990556564
+s,skill:linkedin:en:healthcar inform technolog,0.015375805583375061
+s,skill:linkedin:en:teamwork,0.027583539774108514
+s,skill:linkedin:en:dental technolog,0.017853773359878367
+s,skill:linkedin:en:sedat dentistri,0.045837179614655936
+s,skill:linkedin:en:medic devic,0.022820154816002382
+s,skill:linkedin:en:crown,0.08401472045176764
+s,skill:linkedin:en:nutrit,0.012222712952905957
+s,skill:linkedin:en:prosthodont,0.17581167283853838
+s,skill:linkedin:en:photoshop,0.012322695328877349
+s,skill:linkedin:en:restor dentistri,0.2972269053973729
+s,skill:linkedin:en:prevent,0.030199897539867817
+s,skill:linkedin:en:cerec,0.011463402807579594
+t,Healthcare,Physiotherapist,0,7050
+s,skill:linkedin:en:musculoskelet physiotherapi,0.1292716126113136
+s,skill:linkedin:en:exercis physiolog,0.05565295066309164
+s,skill:linkedin:en:rehabilit,0.36528981301081453
+s,skill:linkedin:en:well,0.08134794063284317
+s,skill:linkedin:en:spine,0.02124429357849694
+s,skill:linkedin:en:holist health,0.0471710549358778
+s,skill:linkedin:en:injuri rehabilit,0.013713003414949078
+s,skill:linkedin:en:stroke rehabilit,0.016613140066649698
+s,skill:linkedin:en:cpr certifi,0.01373352912176375
+s,skill:linkedin:en:medicin,0.046686986453804466
+s,skill:linkedin:en:orthoped rehabilit,0.02963082931871078
+s,skill:linkedin:en:clinic research,0.1304407324028676
+s,skill:linkedin:en:neck pain,0.11381433517647657
+s,skill:linkedin:en:microsoft word,0.0378471707917393
+s,skill:linkedin:en:osteopath manipul medicin,0.03155983469993076
+s,skill:linkedin:en:pain manag,0.15414214556462116
+s,skill:linkedin:en:spinal manipul,0.03607510251796334
+s,skill:linkedin:en:injuri prevent,0.2133935413486354
+s,skill:linkedin:en:therapeut massag,0.059755989972902226
+s,skill:linkedin:en:oper condit,0.010949278163877797
+s,skill:linkedin:en:chronic pain,0.06308888083963951
+s,skill:linkedin:en:pregnanc,0.025916498503973526
+s,skill:linkedin:en:therapist,0.019819882386164975
+s,skill:linkedin:en:sciatica,0.04651679218661915
+s,skill:linkedin:en:diabet,0.015505597395539717
+s,skill:linkedin:en:postur assess,0.010073506880397149
+s,skill:linkedin:en:manag,0.02767830392434216
+s,skill:linkedin:en:wellb,0.03409178856337271
+s,skill:linkedin:en:diabet foot care,0.017720682737759678
+s,skill:linkedin:en:microsoft offic,0.04791041481872912
+s,skill:linkedin:en:athlet,0.030547652015820766
+s,skill:linkedin:en:neuromuscular,0.018828225408869657
+s,skill:linkedin:en:injuri,0.08543045423583907
+s,skill:linkedin:en:craniosacr therapi,0.013069003519097762
+s,skill:linkedin:en:sport,0.07171745082089001
+s,skill:linkedin:en:treatment,0.24953022098704272
+s,skill:linkedin:en:hip,0.011065163857692465
+s,skill:linkedin:en:acupunctur,0.09593970963760685
+s,skill:linkedin:en:pilat,0.04255315858377188
+s,skill:linkedin:en:low back pain,0.09983877181367616
+s,skill:linkedin:en:kinesio tape,0.039356679117663926
+s,skill:linkedin:en:inpati,0.02059003082923829
+s,skill:linkedin:en:fit train,0.022921001865272912
+s,skill:linkedin:en:surgeri,0.03277300021144806
+s,skill:linkedin:en:physiotherapi,0.011739952313765786
+s,skill:linkedin:en:podiatri,0.03699192521507332
+s,skill:linkedin:en:healthcar,0.25690457404314654
+s,skill:linkedin:en:team leadership,0.014166283336800409
+s,skill:linkedin:en:time manag,0.017942191271981673
+s,skill:linkedin:en:custom servic,0.06330012652045416
+s,skill:linkedin:en:sport injuri,0.3180747123549735
+s,skill:linkedin:en:strength train,0.06050561270916088
+s,skill:linkedin:en:tape,0.027511103963490817
+s,skill:linkedin:en:knee pain,0.022573344783828917
+s,skill:linkedin:en:ergonom,0.013491494880727083
+s,skill:linkedin:en:stretch,0.014725186099059063
+s,skill:linkedin:en:communic,0.011729689460358449
+s,skill:linkedin:en:orthoped,0.15138141461988383
+s,skill:linkedin:en:musculoskelet injuri,0.04213066722214255
+s,skill:linkedin:en:healthcar manag,0.07361566764188798
+s,skill:linkedin:en:fit,0.09849945775493685
+s,skill:linkedin:en:exercis prescript,0.14158073054074535
+s,skill:linkedin:en:footbal,0.013058740665690426
+s,skill:linkedin:en:prevent,0.020927425057274948
+s,skill:linkedin:en:trigger point therapi,0.022794853318050912
+s,skill:linkedin:en:public speak,0.0438279012157332
+s,skill:linkedin:en:biomechan,0.062308469543158856
+s,skill:linkedin:en:shoulder,0.04694954640165581
+s,skill:linkedin:en:patient safeti,0.03916595914366394
+s,skill:linkedin:en:teach,0.028121320992786154
+s,skill:linkedin:en:neurolog,0.020484407988830965
+s,skill:linkedin:en:social media,0.016486991519427698
+s,skill:linkedin:en:microsoft excel,0.035843331130334
+s,skill:linkedin:en:sport massag,0.022678967624236247
+s,skill:linkedin:en:public health,0.029968223546747445
+s,skill:linkedin:en:research,0.0635318979080835
+s,skill:linkedin:en:english,0.01670850005364969
+s,skill:linkedin:en:headach,0.07066122241681672
+s,skill:linkedin:en:back pain,0.145237758475778
+s,skill:linkedin:en:medic educ,0.011181049551507128
+s,skill:linkedin:en:ankl,0.01682438574746436
+s,skill:linkedin:en:rehabilit psycholog,0.04912358033024643
+s,skill:linkedin:en:deep tissu massag,0.024556658738419543
+s,skill:linkedin:en:sport medicin,0.16881601739664354
+s,skill:linkedin:en:dri needl,0.028976566569452127
+s,skill:linkedin:en:orthot,0.025684727116344196
+s,skill:linkedin:en:musculoskelet,0.24729760424434205
+s,skill:linkedin:en:acut care,0.02124429357849694
+s,skill:linkedin:en:coach,0.026792269787454175
+s,skill:linkedin:en:leadership,0.01990497951975763
+s,skill:linkedin:en:train,0.020252636601201628
+s,skill:linkedin:en:first aid,0.021254556431904274
+s,skill:linkedin:en:myofasci releas,0.0530256368126497
+s,skill:linkedin:en:health promot,0.02722502400249083
+s,skill:linkedin:en:person train,0.02590623565056619
+s,skill:linkedin:en:knee,0.036190988211778005
+s,skill:linkedin:en:hospit,0.1305668809500896
+s,skill:linkedin:en:gait analysi,0.026666121240232175
+s,skill:linkedin:en:strength condit,0.0229855732920509
+s,skill:linkedin:en:sport nutrit,0.013069003519097762
+s,skill:linkedin:en:health educ,0.01649725437283503
+s,skill:linkedin:en:manual therapi,0.2707672460184663
+s,skill:linkedin:en:pediatr,0.0649665719538228
+s,skill:linkedin:en:soft tissu therapi,0.018575928314425654
+s,skill:linkedin:en:strateg plan,0.01383915196217108
+s,skill:linkedin:en:altern medicin,0.01196146084798778
+s,skill:linkedin:en:teamwork,0.0343132970975947
+s,skill:linkedin:en:arthriti,0.01860671687464766
+s,skill:linkedin:en:whiplash,0.054249065177574336
+s,skill:linkedin:en:shoulder pain,0.0579941845525336
+s,skill:linkedin:en:osteopathi,0.07043971388259472
+s,skill:linkedin:en:physic therapi,0.3303222531639612
+s,skill:linkedin:en:wound care,0.03167572039374543
+s,skill:linkedin:en:nutrit,0.033754394335336044
+s,skill:linkedin:en:powerpoint,0.035969479677556
+s,skill:linkedin:en:joint pain,0.01383915196217108
+s,skill:linkedin:en:stress,0.014619563258651732
+s,skill:linkedin:en:hydrotherapi,0.010611883935841136
+t,Healthcare,Care Manager,0,11975
+s,skill:linkedin:en:leadership develop,0.10971488329818681
+s,skill:linkedin:en:train,0.22189446943838817
+s,skill:linkedin:en:social media,0.037021694305384004
+s,skill:linkedin:en:higher educ,0.01341595657190439
+s,skill:linkedin:en:public relat,0.01757391603669137
+s,skill:linkedin:en:chang manag,0.24775047299219374
+s,skill:linkedin:en:e learn,0.010633675676923415
+s,skill:linkedin:en:informat,0.016541395726981017
+s,skill:linkedin:en:curriculum design,0.011133993428970895
+s,skill:linkedin:en:data entri,0.010608630166314874
+s,skill:linkedin:en:forecast,0.012336678564647017
+s,skill:linkedin:en:manag,0.3094925083746889
+s,skill:linkedin:en:workshop facilit,0.03277059887908965
+s,skill:linkedin:en:treatment,0.046950521202190246
+s,skill:linkedin:en:privat sector,0.025043837170548748
+s,skill:linkedin:en:event plan,0.02770410540125936
+s,skill:linkedin:en:psycholog,0.03190864044377618
+s,skill:linkedin:en:cultur chang,0.012848772859332815
+s,skill:linkedin:en:elder care,0.055003522345428844
+s,skill:linkedin:en:public speak,0.09779240542422722
+s,skill:linkedin:en:patient safeti,0.06761137893102741
+s,skill:linkedin:en:strategi,0.057044998098534784
+s,skill:linkedin:en:custom experi,0.017635504725903188
+s,skill:linkedin:en:perform improv,0.03585857590101342
+s,skill:linkedin:en:manag consult,0.018874572516648945
+s,skill:linkedin:en:administr,0.01692502308941288
+s,skill:linkedin:en:mentor,0.012895341511502303
+s,skill:linkedin:en:servic improv,0.010773125194358515
+s,skill:linkedin:en:busi develop,0.04241102879229004
+s,skill:linkedin:en:chariti,0.02744074557674821
+s,skill:linkedin:en:employe train,0.020419727259223548
+s,skill:linkedin:en:communiti develop,0.02064252321863174
+s,skill:linkedin:en:busi plan,0.03148376384119043
+s,skill:linkedin:en:pediatr,0.011544321530195509
+s,skill:linkedin:en:organiz develop,0.0716659387163902
+s,skill:linkedin:en:social servic,0.10928851918917118
+s,skill:linkedin:en:data analysi,0.03543881717926691
+s,skill:linkedin:en:crisi intervent,0.01843794940018338
+s,skill:linkedin:en:powerpoint,0.0701878447406438
+s,skill:linkedin:en:photoshop,0.021559726265483352
+s,skill:linkedin:en:market strategi,0.023242732653293317
+s,skill:linkedin:en:residenti home,0.011851929736729825
+s,skill:linkedin:en:busi transform,0.016881953134864923
+s,skill:linkedin:en:psychotherapi,0.014268552472516226
+s,skill:linkedin:en:nonprofit,0.038126394363798125
+s,skill:linkedin:en:negoti,0.059833007566041485
+s,skill:linkedin:en:govern,0.08007075998679326
+s,skill:linkedin:en:clinic research,0.09646240710556887
+s,skill:linkedin:en:sourc,0.010884243433984454
+s,skill:linkedin:en:human resourc,0.03687616932764741
+s,skill:linkedin:en:microsoft offic,0.1405654709954447
+s,skill:linkedin:en:interview,0.025281468972039554
+s,skill:linkedin:en:busi process improv,0.023539245310239206
+s,skill:linkedin:en:surgeri,0.016618522922688287
+s,skill:linkedin:en:medic administr,0.023644092736942065
+s,skill:linkedin:en:communiti outreach,0.027007280489884756
+s,skill:linkedin:en:custom servic,0.261606511670347
+s,skill:linkedin:en:critic care,0.01826626260363656
+s,skill:linkedin:en:problem solv,0.015853433807619246
+s,skill:linkedin:en:public health,0.04694130344288601
+s,skill:linkedin:en:prince2,0.028085868695699834
+s,skill:linkedin:en:care plan,0.021741524193933354
+s,skill:linkedin:en:social media market,0.010536953837274375
+s,skill:linkedin:en:outlook,0.031391197617726914
+s,skill:linkedin:en:merchandis,0.012034681927664678
+s,skill:linkedin:en:communic,0.021347523570820447
+s,skill:linkedin:en:oper manag,0.05309660082189475
+s,skill:linkedin:en:stakehold manag,0.07534969180719026
+s,skill:linkedin:en:hospit,0.1713797403775523
+s,skill:linkedin:en:employe relat,0.018724773201108557
+s,skill:linkedin:en:child welfar,0.02006868376167441
+s,skill:linkedin:en:qualit research,0.011831907852493153
+s,skill:linkedin:en:healthcar inform technolog,0.07830133963738749
+s,skill:linkedin:en:market research,0.010873673661313662
+s,skill:linkedin:en:public sector,0.12142207209438653
+s,skill:linkedin:en:sale manag,0.031235367534391108
+s,skill:linkedin:en:fundrais,0.03269164770196511
+s,skill:linkedin:en:itil,0.010746460101272073
+s,skill:linkedin:en:custom relat,0.010427281257337296
+s,skill:linkedin:en:custom retent,0.012745668807167411
+s,skill:linkedin:en:teamwork,0.055950181059431135
+s,skill:linkedin:en:busi analysi,0.027193962331696128
+s,skill:linkedin:en:wound care,0.01113605573126547
+s,skill:linkedin:en:qualiti improv,0.02333854449390077
+s,skill:linkedin:en:crm,0.017510987596526806
+s,skill:linkedin:en:social hous,0.014029803009920499
+s,skill:linkedin:en:rehabilit,0.015489013973484771
+s,skill:linkedin:en:intervent,0.01098012107549861
+s,skill:linkedin:en:retail,0.02993215005278271
+s,skill:linkedin:en:team build,0.12092840138394612
+s,skill:linkedin:en:first aid,0.017269060866266447
+s,skill:linkedin:en:project deliveri,0.02528921176880463
+s,skill:linkedin:en:bls,0.011278642506933913
+s,skill:linkedin:en:qualiti assur,0.017937468249515847
+s,skill:linkedin:en:event manag,0.03709296343567845
+s,skill:linkedin:en:practic manag,0.019607323625668457
+s,skill:linkedin:en:learn disabl,0.03962495696212875
+s,skill:linkedin:en:stakehold engag,0.06558023792429653
+s,skill:linkedin:en:contract manag,0.0286701169189011
+s,skill:linkedin:en:procur,0.020229776070683523
+s,skill:linkedin:en:inpati,0.017251815667654786
+s,skill:linkedin:en:adult social care,0.01908085582014784
+s,skill:linkedin:en:program manag,0.06814721951391815
+s,skill:linkedin:en:healthcar,0.34689087834726046
+s,skill:linkedin:en:team leadership,0.12265429869354232
+s,skill:linkedin:en:window,0.02097852049132921
+s,skill:linkedin:en:staff manag,0.011366601604089836
+s,skill:linkedin:en:perform manag,0.15354512985916124
+s,skill:linkedin:en:social network,0.012336966008848543
+s,skill:linkedin:en:project plan,0.05771062996555996
+s,skill:linkedin:en:mental health,0.12553585853380625
+s,skill:linkedin:en:risk manag,0.021175439882714194
+s,skill:linkedin:en:infect control,0.016741316635993174
+s,skill:linkedin:en:call center,0.018180417936688197
+s,skill:linkedin:en:busi strategi,0.040773605239072155
+s,skill:linkedin:en:counsel psycholog,0.013254035388823497
+s,skill:linkedin:en:medic educ,0.01100411378699956
+s,skill:linkedin:en:manag care,0.012840318654327318
+s,skill:linkedin:en:acut care,0.016595933493144612
+s,skill:linkedin:en:manag develop,0.010840724459964077
+s,skill:linkedin:en:health promot,0.010868641396484484
+s,skill:linkedin:en:perman placement,0.010884243433984454
+s,skill:linkedin:en:custom satisfact,0.027627950727789438
+s,skill:linkedin:en:analysi,0.025539810649427532
+s,skill:linkedin:en:budget,0.06997184632441546
+s,skill:linkedin:en:cross function team leadership,0.010512752524800719
+s,skill:linkedin:en:strateg plan,0.13796693568999802
+s,skill:linkedin:en:b2b,0.012789892003877742
+s,skill:linkedin:en:employe engag,0.010840724459964077
+s,skill:linkedin:en:medic devic,0.013920982957721702
+s,skill:linkedin:en:time manag,0.057263645033057704
+s,skill:linkedin:en:cbt,0.010515110069242843
+s,skill:linkedin:en:process improv,0.059125336717978934
+s,skill:linkedin:en:market communic,0.012393795965100575
+s,skill:linkedin:en:emr,0.014781997921246308
+s,skill:linkedin:en:report write,0.025023734347905148
+s,skill:linkedin:en:child develop,0.011588289523688308
+s,skill:linkedin:en:medicin,0.0345331862161274
+s,skill:linkedin:en:sale,0.07339113689976011
+s,skill:linkedin:en:microsoft word,0.0894854682410588
+s,skill:linkedin:en:servic deliveri,0.01653143837240271
+s,skill:linkedin:en:communiti engag,0.03293136013440238
+s,skill:linkedin:en:product develop,0.013803302829557088
+s,skill:linkedin:en:volunt manag,0.022476985917779146
+s,skill:linkedin:en:offic administr,0.015240363379850741
+s,skill:linkedin:en:new busi develop,0.056239411885672067
+s,skill:linkedin:en:english,0.026529046924368523
+s,skill:linkedin:en:case manag,0.0632901542387942
+s,skill:linkedin:en:temporari staf,0.0106065678640203
+s,skill:linkedin:en:edit,0.011270176898836883
+s,skill:linkedin:en:healthcar manag,0.21972557360962794
+s,skill:linkedin:en:autism spectrum disord,0.0136192662388238
+s,skill:linkedin:en:teach,0.06496625963578076
+s,skill:linkedin:en:home care,0.07661023316918442
+s,skill:linkedin:en:microsoft excel,0.11804194268220479
+s,skill:linkedin:en:research,0.11318860861370228
+s,skill:linkedin:en:contract negoti,0.029174028177756335
+s,skill:linkedin:en:train deliveri,0.048352274479185706
+s,skill:linkedin:en:coach,0.19891457920418337
+s,skill:linkedin:en:leadership,0.17204965358042235
+s,skill:linkedin:en:key account manag,0.013555077763320987
+s,skill:linkedin:en:clinic supervis,0.012857939350046331
+s,skill:linkedin:en:cpr certifi,0.011858171467261383
+s,skill:linkedin:en:fmcg,0.010828841124149877
+s,skill:linkedin:en:nurs,0.10907753055063833
+s,skill:linkedin:en:project manag,0.1807556587126941
+s,skill:linkedin:en:team manag,0.05507990407315902
+s,skill:linkedin:en:polici,0.14632433473460812
+s,skill:linkedin:en:account manag,0.04822183606639678
+s,skill:linkedin:en:palliat care,0.017815819416826875
+s,skill:linkedin:en:suppli chain,0.010904111540896256
+s,skill:linkedin:en:local govern,0.05181896413865553
+s,skill:linkedin:en:continu improv,0.010004184340782528
+s,skill:linkedin:en:staff develop,0.06031247081816049
+s,skill:linkedin:en:person develop,0.031929416880384115
+s,skill:linkedin:en:market,0.032133094888359165
+s,skill:linkedin:en:risk assess,0.020700617464233993
+t,Healthcare,Hospital and health care professional,0,5551
+s,skill:linkedin:en:process improv,0.023858772363693763
+s,skill:linkedin:en:public speak,0.06083728930596771
+s,skill:linkedin:en:mental health,0.0772505393865974
+s,skill:linkedin:en:rehabilit,0.022144100867051483
+s,skill:linkedin:en:home care,0.1115891303382904
+s,skill:linkedin:en:emr,0.06831618319651858
+s,skill:linkedin:en:patient safeti,0.24023497554461112
+s,skill:linkedin:en:teach,0.03132687515618152
+s,skill:linkedin:en:patient advocaci,0.01253290828208523
+s,skill:linkedin:en:infect control,0.010987445884164811
+s,skill:linkedin:en:emerg medicin,0.015623833077926077
+s,skill:linkedin:en:microsoft excel,0.0436905743395449
+s,skill:linkedin:en:public health,0.11130734063175236
+s,skill:linkedin:en:chang manag,0.05578327491443336
+s,skill:linkedin:en:communiti outreach,0.010987445884164811
+s,skill:linkedin:en:busi strategi,0.03192450255073959
+s,skill:linkedin:en:medicin,0.08531626957364323
+s,skill:linkedin:en:social media,0.012871326479528952
+s,skill:linkedin:en:receptionist duti,0.013909161581283795
+s,skill:linkedin:en:team build,0.04119727693826212
+s,skill:linkedin:en:sale,0.03158608435329587
+s,skill:linkedin:en:medic educ,0.03948260544161984
+s,skill:linkedin:en:nurs educ,0.015623833077926077
+s,skill:linkedin:en:perform improv,0.01253290828208523
+s,skill:linkedin:en:clinic research,0.2378100960455946
+s,skill:linkedin:en:microsoft word,0.04035123144465282
+s,skill:linkedin:en:administr assist,0.016910086278732153
+s,skill:linkedin:en:negoti,0.020429429370409202
+s,skill:linkedin:en:healthcar inform technolog,0.11689156282887599
+s,skill:linkedin:en:medic bill,0.022313309965773343
+s,skill:linkedin:en:medic terminolog,0.1444388873829687
+s,skill:linkedin:en:acut care,0.040858858740818405
+s,skill:linkedin:en:patient educ,0.03141687525457401
+s,skill:linkedin:en:coach,0.048055962924831254
+s,skill:linkedin:en:leadership,0.05097767862195024
+s,skill:linkedin:en:outlook,0.01081823678544295
+s,skill:linkedin:en:public relat,0.011325864081608532
+s,skill:linkedin:en:communic,0.024896607465448604
+s,skill:linkedin:en:train,0.047717544727387526
+s,skill:linkedin:en:cpr certifi,0.04583366413202339
+s,skill:linkedin:en:first aid,0.01905317607121064
+s,skill:linkedin:en:psychotherapi,0.011156654982886672
+s,skill:linkedin:en:bls,0.10161693904645673
+s,skill:linkedin:en:health promot,0.014247579778727515
+s,skill:linkedin:en:icu,0.014078370680005654
+s,skill:linkedin:en:powerpoint,0.027987532261289447
+s,skill:linkedin:en:research,0.06556367659812146
+s,skill:linkedin:en:hospit,0.41830224587689857
+s,skill:linkedin:en:leadership develop,0.02866436865617689
+s,skill:linkedin:en:data entri,0.02944299456081738
+s,skill:linkedin:en:medic record,0.02832595045873317
+s,skill:linkedin:en:manag,0.04274273933618254
+s,skill:linkedin:en:human resourc,0.01081823678544295
+s,skill:linkedin:en:microsoft offic,0.08643331367572744
+s,skill:linkedin:en:nurs,0.24152122874541723
+s,skill:linkedin:en:acl,0.03810635214242128
+s,skill:linkedin:en:event manag,0.014495997877778747
+s,skill:linkedin:en:medic surgic,0.011156654982886672
+s,skill:linkedin:en:offic administr,0.02618286066625468
+s,skill:linkedin:en:intern medicin,0.015793042176647936
+s,skill:linkedin:en:project manag,0.04206590294129511
+s,skill:linkedin:en:polici,0.03158608435329587
+s,skill:linkedin:en:treatment,0.07621270428484256
+s,skill:linkedin:en:telephon skill,0.013909161581283795
+s,skill:linkedin:en:analysi,0.017000086377124638
+s,skill:linkedin:en:budget,0.0171692954758465
+s,skill:linkedin:en:communic skill,0.01253290828208523
+s,skill:linkedin:en:new busi develop,0.01905317607121064
+s,skill:linkedin:en:pediatr,0.03484621824785858
+s,skill:linkedin:en:organiz develop,0.022482519064495204
+s,skill:linkedin:en:public sector,0.02059863846913106
+s,skill:linkedin:en:surgic,0.010987445884164811
+s,skill:linkedin:en:dentistri,0.019222385169932497
+s,skill:linkedin:en:hipaa,0.04943221622402982
+s,skill:linkedin:en:person care,0.01081823678544295
+s,skill:linkedin:en:inpati,0.1026547741482116
+s,skill:linkedin:en:event plan,0.012871326479528952
+s,skill:linkedin:en:surgeri,0.03673009884322272
+s,skill:linkedin:en:strateg plan,0.05440702161523481
+s,skill:linkedin:en:psycholog,0.025235025662892326
+s,skill:linkedin:en:fundrais,0.010897445785772324
+s,skill:linkedin:en:direct patient care,0.011156654982886672
+s,skill:linkedin:en:phlebotomi,0.039731023540671075
+s,skill:linkedin:en:program manag,0.012871326479528952
+s,skill:linkedin:en:healthcar,0.5698023999526449
+s,skill:linkedin:en:team leadership,0.033131546751216295
+s,skill:linkedin:en:time manag,0.02936378556048802
+s,skill:linkedin:en:teamwork,0.018545548775045058
+s,skill:linkedin:en:social servic,0.0171692954758465
+s,skill:linkedin:en:qualiti manag,0.015962251275369797
+s,skill:linkedin:en:medic administr,0.03158608435329587
+s,skill:linkedin:en:custom servic,0.12816079841957884
+s,skill:linkedin:en:clinic trial,0.010897445785772324
+s,skill:linkedin:en:case manag,0.01733850457456836
+s,skill:linkedin:en:data analysi,0.018714757873766922
+s,skill:linkedin:en:critic care,0.06300295960786989
+s,skill:linkedin:en:problem solv,0.01081823678544295
+s,skill:linkedin:en:report write,0.015703042078255448
+s,skill:linkedin:en:vital sign,0.03192450255073959
+s,skill:linkedin:en:medic devic,0.010987445884164811
+s,skill:linkedin:en:wound care,0.023689563264971902
+s,skill:linkedin:en:qualiti improv,0.017507713673290216
+s,skill:linkedin:en:market,0.011156654982886672
+s,skill:linkedin:en:supervisori skill,0.010987445884164811
+s,skill:linkedin:en:healthcar manag,0.34064487039059116
+s,skill:linkedin:en:elder care,0.028156741360011308
+s,skill:linkedin:en:perform manag,0.023520354166250042
+s,skill:linkedin:en:risk assess,0.010987445884164811
+t,Healthcare,Biomedical Scientist,0,3938
+s,skill:linkedin:en:process improv,0.010410151846535083
+s,skill:linkedin:en:ctms,0.012231165214454802
+s,skill:linkedin:en:haematolog,0.022706403635632557
+s,skill:linkedin:en:microscopi,0.06771507739717471
+s,skill:linkedin:en:qpcr,0.019805995469352897
+s,skill:linkedin:en:laboratori autom,0.028168938597910063
+s,skill:linkedin:en:dna sequenc,0.020324323428990248
+s,skill:linkedin:en:medicin,0.11104769275111256
+s,skill:linkedin:en:social media,0.021989539397259072
+s,skill:linkedin:en:biomed scienc,0.13335765888542417
+s,skill:linkedin:en:sale,0.010637195261410472
+s,skill:linkedin:en:vitro,0.012736310848366579
+s,skill:linkedin:en:microsoft word,0.07246157175322714
+s,skill:linkedin:en:gel electrophoresi,0.0244253774777708
+s,skill:linkedin:en:infecti diseas,0.07622043509780936
+s,skill:linkedin:en:phlebotomi,0.01164605889741437
+s,skill:linkedin:en:drug discoveri,0.010879872036218681
+s,skill:linkedin:en:immunofluoresc,0.02268773024969798
+s,skill:linkedin:en:chang manag,0.018881510697802608
+s,skill:linkedin:en:hardwar diagnost,0.02143990827002244
+s,skill:linkedin:en:informat,0.01750736393884704
+s,skill:linkedin:en:microbiolog,0.16061560523514615
+s,skill:linkedin:en:glp,0.016518149965650777
+s,skill:linkedin:en:biochemistri,0.15263632390445836
+s,skill:linkedin:en:cancer,0.09593504480857418
+s,skill:linkedin:en:gmp,0.012027632315011336
+s,skill:linkedin:en:spss,0.01934466694839316
+s,skill:linkedin:en:qualiti assur,0.03278822465733588
+s,skill:linkedin:en:patholog,0.18243842014694125
+s,skill:linkedin:en:data entri,0.01211160069715118
+s,skill:linkedin:en:medic microbiolog,0.04139022050093786
+s,skill:linkedin:en:chemistri,0.013453437931643032
+s,skill:linkedin:en:valid,0.015692714554316395
+s,skill:linkedin:en:manag,0.04892739870204411
+s,skill:linkedin:en:clinic research,0.3658541115050368
+s,skill:linkedin:en:microsoft offic,0.11660247675433599
+s,skill:linkedin:en:scienc,0.13159501743853624
+s,skill:linkedin:en:medic imag,0.023689779584324836
+s,skill:linkedin:en:pharmacovigil,0.014085924342521532
+s,skill:linkedin:en:physic,0.01725288965465699
+s,skill:linkedin:en:virolog,0.042222817483294255
+s,skill:linkedin:en:treatment,0.011045688692117056
+s,skill:linkedin:en:microsoft excel,0.10897051616352263
+s,skill:linkedin:en:medic research,0.032274378421241375
+s,skill:linkedin:en:regulatori submiss,0.01014228487221378
+s,skill:linkedin:en:sop,0.027781573628304745
+s,skill:linkedin:en:clinic data manag,0.010646716690215729
+s,skill:linkedin:en:parasitolog,0.0109304085385143
+s,skill:linkedin:en:coagul,0.03379693180613062
+s,skill:linkedin:en:immunolog,0.1729300399874369
+s,skill:linkedin:en:drug develop,0.017353917223711223
+s,skill:linkedin:en:biomed engin,0.0506059726812778
+s,skill:linkedin:en:pcr,0.15262859294781084
+s,skill:linkedin:en:healthcar,0.3447340359210699
+s,skill:linkedin:en:r d,0.011361198221239663
+s,skill:linkedin:en:team leadership,0.03156412656149876
+s,skill:linkedin:en:time manag,0.05401177012834206
+s,skill:linkedin:en:flow cytometri,0.046387481580816035
+s,skill:linkedin:en:molecular diagnost,0.01276681642833292
+s,skill:linkedin:en:custom servic,0.10295880585385425
+s,skill:linkedin:en:scientif write,0.031174771937394787
+s,skill:linkedin:en:report write,0.013203587408543827
+s,skill:linkedin:en:asept techniqu,0.010286018644499885
+s,skill:linkedin:en:window,0.015753297592808534
+s,skill:linkedin:en:immunohistochemistri,0.05192864188637492
+s,skill:linkedin:en:cytolog,0.011378702779298103
+s,skill:linkedin:en:bacteriolog,0.014056012544473048
+s,skill:linkedin:en:edc,0.010042223171330892
+s,skill:linkedin:en:epidemiolog,0.029140552447995526
+s,skill:linkedin:en:histopatholog,0.03348356738175721
+s,skill:linkedin:en:dna extract,0.033865360559702073
+s,skill:linkedin:en:problem solv,0.017076123285114812
+s,skill:linkedin:en:pharmacolog,0.013345893549010281
+s,skill:linkedin:en:bacteri cultur,0.015751177147947278
+s,skill:linkedin:en:public speak,0.049742977513607484
+s,skill:linkedin:en:patient safeti,0.03704533594666947
+s,skill:linkedin:en:cell cultur,0.09811452515137045
+s,skill:linkedin:en:teach,0.040660868170778755
+s,skill:linkedin:en:cancer research,0.010280669621838876
+s,skill:linkedin:en:lifesci,0.11784905642276988
+s,skill:linkedin:en:bioinformat,0.013455274102933363
+s,skill:linkedin:en:public health,0.16515077365564804
+s,skill:linkedin:en:research,0.2080103852074976
+s,skill:linkedin:en:serolog,0.03646358861385165
+s,skill:linkedin:en:english,0.028134095142270495
+s,skill:linkedin:en:assay develop,0.01752457100910695
+s,skill:linkedin:en:medic educ,0.04284581872763635
+s,skill:linkedin:en:communic,0.024157662949699205
+s,skill:linkedin:en:laboratori skill,0.04854681477554779
+s,skill:linkedin:en:medic diagnost,0.023222239526225725
+s,skill:linkedin:en:histolog,0.047270317925338444
+s,skill:linkedin:en:pharmaceut industri,0.03577548121289701
+s,skill:linkedin:en:hematolog,0.14973247996123976
+s,skill:linkedin:en:healthcar inform technolog,0.11445172373837172
+s,skill:linkedin:en:molecular genet,0.019925400903585383
+s,skill:linkedin:en:cell,0.022801841575424604
+s,skill:linkedin:en:leadership,0.05034073842892114
+s,skill:linkedin:en:laboratori,0.18365640570038622
+s,skill:linkedin:en:cell biolog,0.057713051782062465
+s,skill:linkedin:en:outlook,0.012382394498778647
+s,skill:linkedin:en:gcp,0.03818948846205798
+s,skill:linkedin:en:ich gcp,0.01822968721459506
+s,skill:linkedin:en:train,0.033655805939200645
+s,skill:linkedin:en:oncolog,0.04495399436368914
+s,skill:linkedin:en:fluoresc microscopi,0.014817910431603904
+s,skill:linkedin:en:dna,0.014124629424148391
+s,skill:linkedin:en:qualiti control,0.022350389889224623
+s,skill:linkedin:en:hospit,0.28350689600301204
+s,skill:linkedin:en:neurosci,0.015256790254295155
+s,skill:linkedin:en:medic write,0.010613684745978548
+s,skill:linkedin:en:genet,0.048070782897507616
+s,skill:linkedin:en:statist,0.03008418623637519
+s,skill:linkedin:en:life scienc,0.13689882937301942
+s,skill:linkedin:en:qualit research,0.010092867068278943
+s,skill:linkedin:en:project manag,0.04992675093400472
+s,skill:linkedin:en:analysi,0.021809005773102765
+s,skill:linkedin:en:blood bank,0.03141198967482845
+s,skill:linkedin:en:medic physic,0.016378085531944506
+s,skill:linkedin:en:cro,0.021969079969549516
+s,skill:linkedin:en:healthcar manag,0.1028675094668521
+s,skill:linkedin:en:laboratori medicin,0.1702295047120096
+s,skill:linkedin:en:molecular biolog,0.2111568052462832
+s,skill:linkedin:en:agaros gel electrophoresi,0.010800830748765736
+s,skill:linkedin:en:tissu cultur,0.011771217852819087
+s,skill:linkedin:en:rt pcr,0.015007046088889758
+s,skill:linkedin:en:strateg plan,0.028461306231782845
+s,skill:linkedin:en:clinic develop,0.03558360443830628
+s,skill:linkedin:en:teamwork,0.08241239775658041
+s,skill:linkedin:en:clinic microbiolog,0.023070555420883907
+s,skill:linkedin:en:qualiti manag,0.01420517028554403
+s,skill:linkedin:en:clinic trial,0.14222954718178457
+s,skill:linkedin:en:biotechnolog,0.0477628492642053
+s,skill:linkedin:en:data analysi,0.11752588629602029
+s,skill:linkedin:en:western blot,0.05214516297743842
+s,skill:linkedin:en:blood transfus,0.03732795453214427
+s,skill:linkedin:en:pediatr,0.01346493756928661
+s,skill:linkedin:en:medic devic,0.05136036203309166
+s,skill:linkedin:en:immunoassay,0.03720529909144408
+s,skill:linkedin:en:powerpoint,0.07116085237651412
+s,skill:linkedin:en:photoshop,0.0115338534544633
+s,skill:linkedin:en:matlab,0.012601537519165342
+s,skill:linkedin:en:biolog,0.012602097851866835
+s,skill:linkedin:en:clinic monitor,0.012197167402046278
+s,skill:linkedin:en:clinic chemistri,0.037876513433515745
+s,skill:linkedin:en:hplc,0.015755620997374577
+s,skill:linkedin:en:elisa,0.11272929273238094
+t,Healthcare,Occupational Therapist,0,3776
+s,skill:linkedin:en:rehabilit,0.37161454603092625
+s,skill:linkedin:en:well,0.0413352078887251
+s,skill:linkedin:en:home care,0.07913160220394375
+s,skill:linkedin:en:holist health,0.010574122948278515
+s,skill:linkedin:en:splint,0.023551455657529422
+s,skill:linkedin:en:spinal cord injuri,0.024707269818609878
+s,skill:linkedin:en:child develop,0.021939631377539764
+s,skill:linkedin:en:stroke rehabilit,0.05394369043313938
+s,skill:linkedin:en:acut rehabilit,0.011535406852667471
+s,skill:linkedin:en:stress,0.012496690757056426
+s,skill:linkedin:en:intervent,0.07831558488967573
+s,skill:linkedin:en:medicin,0.020750342413696214
+s,skill:linkedin:en:social media,0.020978347473150808
+s,skill:linkedin:en:orthoped rehabilit,0.01201604880486195
+s,skill:linkedin:en:team build,0.01504074562341085
+s,skill:linkedin:en:function capac evalu,0.01569128599901155
+s,skill:linkedin:en:microsoft word,0.056997440569712475
+s,skill:linkedin:en:psycholog,0.060390987553098005
+s,skill:linkedin:en:vocat rehabilit,0.04082551261850644
+s,skill:linkedin:en:patient educ,0.01071496805366055
+s,skill:linkedin:en:pain manag,0.014249360142428119
+s,skill:linkedin:en:motiv interview,0.010574122948278515
+s,skill:linkedin:en:teach,0.05253081789458014
+s,skill:linkedin:en:injuri prevent,0.013457974661445382
+s,skill:linkedin:en:chang manag,0.01967726672194941
+s,skill:linkedin:en:psychotherapi,0.01376871819023364
+s,skill:linkedin:en:clinic research,0.16841921352475878
+s,skill:linkedin:en:cognit rehabilit,0.02513422661949489
+s,skill:linkedin:en:therapist,0.1679385715725643
+s,skill:linkedin:en:group therapi,0.04192764162827744
+s,skill:linkedin:en:assist technolog,0.02513422661949489
+s,skill:linkedin:en:manag,0.05023939992096559
+s,skill:linkedin:en:wellb,0.02595466541850181
+s,skill:linkedin:en:microsoft offic,0.07876717352384602
+s,skill:linkedin:en:hospit,0.23528213003110068
+s,skill:linkedin:en:injuri,0.018856827922942486
+s,skill:linkedin:en:treatment,0.3236084574475268
+s,skill:linkedin:en:sensori process,0.042437336898496096
+s,skill:linkedin:en:earli intervent,0.05906085348387242
+s,skill:linkedin:en:traumat brain injuri,0.10686799032584143
+s,skill:linkedin:en:psychiatri,0.011365508429261251
+s,skill:linkedin:en:inpati,0.13689579642135366
+s,skill:linkedin:en:development disabl,0.03231480258438787
+s,skill:linkedin:en:healthcar,0.3805187380631668
+s,skill:linkedin:en:team leadership,0.016482671479994285
+s,skill:linkedin:en:time manag,0.035057809192172704
+s,skill:linkedin:en:custom servic,0.08580690438335696
+s,skill:linkedin:en:case manag,0.10078512188598053
+s,skill:linkedin:en:fall prevent,0.010093480996084038
+s,skill:linkedin:en:report write,0.011365508429261251
+s,skill:linkedin:en:window,0.013288076238039164
+s,skill:linkedin:en:orthoped,0.08673913496972173
+s,skill:linkedin:en:mind,0.015861184422417775
+s,skill:linkedin:en:healthcar manag,0.12128724889167576
+s,skill:linkedin:en:autism spectrum disord,0.06997477327896338
+s,skill:linkedin:en:public speak,0.058099569579483465
+s,skill:linkedin:en:mental health,0.2734808493139191
+s,skill:linkedin:en:patient safeti,0.07022741017170325
+s,skill:linkedin:en:neurolog,0.030392234775609955
+s,skill:linkedin:en:geriatr rehabilit,0.0190557796643729
+s,skill:linkedin:en:microsoft excel,0.05408453553852142
+s,skill:linkedin:en:older adult,0.011054764900472995
+s,skill:linkedin:en:public health,0.03760186405852713
+s,skill:linkedin:en:research,0.07828653157165154
+s,skill:linkedin:en:adapt,0.010884866477066771
+s,skill:linkedin:en:adolesc,0.019988010250737664
+s,skill:linkedin:en:adult,0.019847165145355634
+s,skill:linkedin:en:communiti outreach,0.013428921343421196
+s,skill:linkedin:en:english,0.018575137712178426
+s,skill:linkedin:en:rehab,0.015380542470223295
+s,skill:linkedin:en:communic,0.013428921343421196
+s,skill:linkedin:en:occup therapist,0.17585684786713054
+s,skill:linkedin:en:acut care,0.11430562466821319
+s,skill:linkedin:en:coach,0.05521571786631659
+s,skill:linkedin:en:train,0.06112426639803236
+s,skill:linkedin:en:clinic supervis,0.04529213529363878
+s,skill:linkedin:en:cpr certifi,0.033615883335589264
+s,skill:linkedin:en:health promot,0.03777176248193336
+s,skill:linkedin:en:learn disabl,0.08357359304579079
+s,skill:linkedin:en:activ daili live,0.010404224524872295
+s,skill:linkedin:en:stress manag,0.034125578605807935
+s,skill:linkedin:en:cognit assess,0.012326792333650206
+s,skill:linkedin:en:sensori integr,0.08679724160577011
+s,skill:linkedin:en:nurs,0.025270650240138023
+s,skill:linkedin:en:cognit,0.06530919886240064
+s,skill:linkedin:en:cerebr palsi,0.030702978304398214
+s,skill:linkedin:en:project manag,0.014390205247810152
+s,skill:linkedin:en:health educ,0.010064427678059852
+s,skill:linkedin:en:polici,0.021119192578532845
+s,skill:linkedin:en:pediatr,0.1474118127335838
+s,skill:linkedin:en:public sector,0.015521387575605332
+s,skill:linkedin:en:strateg plan,0.017104158537570798
+s,skill:linkedin:en:disabl,0.01376871819023364
+s,skill:linkedin:en:palliat care,0.013909563295615676
+s,skill:linkedin:en:teamwork,0.044840546659468496
+s,skill:linkedin:en:social servic,0.053574840268302754
+s,skill:linkedin:en:occup therapi,0.39098549070882627
+s,skill:linkedin:en:self esteem,0.012496690757056426
+s,skill:linkedin:en:brain injuri,0.013060071178584565
+s,skill:linkedin:en:problem solv,0.012156893910243983
+s,skill:linkedin:en:staff develop,0.011676251958049506
+s,skill:linkedin:en:elder care,0.03519865429755474
+s,skill:linkedin:en:physic therapi,0.031834160632193395
+s,skill:linkedin:en:health,0.012156893910243983
+s,skill:linkedin:en:person develop,0.019196624769754936
+s,skill:linkedin:en:leadership,0.04209754005168366
+s,skill:linkedin:en:group work,0.013938616613639862
+s,skill:linkedin:en:powerpoint,0.05637595351213596
+s,skill:linkedin:en:neurorehabilit,0.016002029527799805
+s,skill:linkedin:en:manual handl,0.01504074562341085
+s,skill:linkedin:en:photoshop,0.010404224524872295
+s,skill:linkedin:en:acquir brain injuri,0.022022369846873426
+s,skill:linkedin:en:cbt,0.02114824589655703
+s,skill:linkedin:en:risk assess,0.02623635562926588
+t,Healthcare,Paramedic,0,2687
+s,skill:linkedin:en:leadership develop,0.02336304963950768
+s,skill:linkedin:en:process improv,0.011231689682096603
+s,skill:linkedin:en:oper manag,0.027917250559762376
+s,skill:linkedin:en:defens drive,0.010429426133375417
+s,skill:linkedin:en:secur oper,0.02885743055477593
+s,skill:linkedin:en:communic,0.01604527097442372
+s,skill:linkedin:en:person secur,0.022463379364193205
+s,skill:linkedin:en:defibril,0.012333843322589277
+s,skill:linkedin:en:emerg medicin,0.31936001479098425
+s,skill:linkedin:en:oper plan,0.03720401333294604
+s,skill:linkedin:en:afghanistan,0.03188805858366923
+s,skill:linkedin:en:counterterror,0.01604527097442372
+s,skill:linkedin:en:medicin,0.14622427930416662
+s,skill:linkedin:en:social media,0.02855754046300444
+s,skill:linkedin:en:team build,0.039424773134443716
+s,skill:linkedin:en:a,0.06615885061431527
+s,skill:linkedin:en:sale,0.027917250559762376
+s,skill:linkedin:en:al,0.05003256020049339
+s,skill:linkedin:en:microsoft word,0.06225260950929425
+s,skill:linkedin:en:forc protect,0.030785904943176554
+s,skill:linkedin:en:fire safeti,0.018452061620587275
+s,skill:linkedin:en:defens,0.019554215261079953
+s,skill:linkedin:en:chang manag,0.050113579639891555
+s,skill:linkedin:en:bls,0.2604216013484769
+s,skill:linkedin:en:icu,0.011231689682096603
+s,skill:linkedin:en:weapon train,0.010429426133375417
+s,skill:linkedin:en:clinic research,0.08842846398853378
+s,skill:linkedin:en:microsoft offic,0.09640193761416023
+s,skill:linkedin:en:atl,0.06515410370041587
+s,skill:linkedin:en:pal,0.11571309455704572
+s,skill:linkedin:en:hospit,0.20067318921193952
+s,skill:linkedin:en:acl,0.2087034293778258
+s,skill:linkedin:en:event manag,0.026312723462320005
+s,skill:linkedin:en:psd,0.011231689682096603
+s,skill:linkedin:en:hazard materi,0.014440743876981342
+s,skill:linkedin:en:secur clearanc,0.03720401333294604
+s,skill:linkedin:en:treatment,0.016944941249738193
+s,skill:linkedin:en:firearm,0.019254325169308462
+s,skill:linkedin:en:new busi develop,0.013452449483594277
+s,skill:linkedin:en:ekg,0.04131273780314526
+s,skill:linkedin:en:defenc,0.027276960656520313
+s,skill:linkedin:en:mod,0.018452061620587275
+s,skill:linkedin:en:ecg interpret,0.014740633968752834
+s,skill:linkedin:en:pepp,0.010226942768197213
+s,skill:linkedin:en:logist,0.010105478842417167
+s,skill:linkedin:en:research,0.05901949811522276
+s,skill:linkedin:en:event plan,0.017463767227200205
+s,skill:linkedin:en:emt,0.02326564291291439
+s,skill:linkedin:en:incid command,0.018751951712358765
+s,skill:linkedin:en:manag,0.09040518324194229
+s,skill:linkedin:en:emerg,0.03677498940340288
+s,skill:linkedin:en:program manag,0.011231689682096603
+s,skill:linkedin:en:healthcar,0.32659683924998734
+s,skill:linkedin:en:team leadership,0.07401190777737356
+s,skill:linkedin:en:time manag,0.03641820230473717
+s,skill:linkedin:en:airway manag,0.03188805858366923
+s,skill:linkedin:en:public safeti,0.012171869677110156
+s,skill:linkedin:en:pre hospit care,0.11994334818634218
+s,skill:linkedin:en:custom servic,0.1416209817556437
+s,skill:linkedin:en:critic care,0.14679121968000214
+s,skill:linkedin:en:firefight,0.028881487753962685
+s,skill:linkedin:en:window,0.01427877023150222
+s,skill:linkedin:en:exercis,0.014440743876981342
+s,skill:linkedin:en:weapon handl,0.013638480328260157
+s,skill:linkedin:en:healthcar manag,0.141110807920068
+s,skill:linkedin:en:secur train,0.018452061620587275
+s,skill:linkedin:en:english,0.015721323683465464
+s,skill:linkedin:en:em,0.05444884467445573
+s,skill:linkedin:en:rescu,0.051037307114392784
+s,skill:linkedin:en:combat lifesav,0.014440743876981342
+s,skill:linkedin:en:em educ,0.0166450511579667
+s,skill:linkedin:en:secur manag,0.016523587232186655
+s,skill:linkedin:en:social network,0.011231689682096603
+s,skill:linkedin:en:conting plan,0.014740633968752834
+s,skill:linkedin:en:project plan,0.019894615072550522
+s,skill:linkedin:en:public speak,0.06459483323657196
+s,skill:linkedin:en:militari,0.06427849062428816
+s,skill:linkedin:en:disast respons,0.04529999834756444
+s,skill:linkedin:en:patient safeti,0.13890650063908264
+s,skill:linkedin:en:teach,0.04259331760962938
+s,skill:linkedin:en:ministri defenc,0.031085795034948047
+s,skill:linkedin:en:microsoft excel,0.07843579693001033
+s,skill:linkedin:en:public health,0.04559988843933593
+s,skill:linkedin:en:command,0.04843570301504264
+s,skill:linkedin:en:crisi manag,0.014238260511803139
+s,skill:linkedin:en:powerpoint,0.05342771047336121
+s,skill:linkedin:en:negoti,0.022617748330997892
+s,skill:linkedin:en:militari train,0.025170060102128255
+s,skill:linkedin:en:medic educ,0.047723176280923124
+s,skill:linkedin:en:protect,0.012512269488580724
+s,skill:linkedin:en:secur,0.018428004421400516
+s,skill:linkedin:en:emerg manag,0.13424617561703114
+s,skill:linkedin:en:healthcar inform technolog,0.020891692074458287
+s,skill:linkedin:en:medic terminolog,0.01939224161560083
+s,skill:linkedin:en:perform manag,0.01457866032327371
+s,skill:linkedin:en:train deliveri,0.02109417543963649
+s,skill:linkedin:en:acut care,0.026669510560985713
+s,skill:linkedin:en:mentor,0.01006496912271809
+s,skill:linkedin:en:iv,0.015542897517474024
+s,skill:linkedin:en:coach,0.042755291255108505
+s,skill:linkedin:en:militari oper,0.04843570301504264
+s,skill:linkedin:en:leadership,0.08452989279550438
+s,skill:linkedin:en:paramed,0.19901936978627738
+s,skill:linkedin:en:outlook,0.014440743876981342
+s,skill:linkedin:en:first respond,0.04887350955310651
+s,skill:linkedin:en:surveil,0.011710005939859538
+s,skill:linkedin:en:train,0.11807183603815294
+s,skill:linkedin:en:disast medicin,0.013435996963081953
+s,skill:linkedin:en:cpr certifi,0.23813664815027516
+s,skill:linkedin:en:first aid,0.2623982553685682
+s,skill:linkedin:en:busi develop,0.012033953230817785
+s,skill:linkedin:en:occup health,0.023865423096457374
+s,skill:linkedin:en:emerg plan,0.01794968816363758
+s,skill:linkedin:en:wound care,0.017642128159874468
+s,skill:linkedin:en:maritim secur,0.016847534523144903
+s,skill:linkedin:en:prepared,0.012633733414360767
+s,skill:linkedin:en:photoshop,0.01427877023150222
+s,skill:linkedin:en:nurs,0.07386625618577239
+s,skill:linkedin:en:custom satisfact,0.011045658837430718
+s,skill:linkedin:en:physic secur,0.014116796586023092
+s,skill:linkedin:en:combat,0.01764979807186609
+s,skill:linkedin:en:close protect,0.02775527691428326
+s,skill:linkedin:en:person protect,0.015243007425702532
+s,skill:linkedin:en:tactic,0.01604527097442372
+s,skill:linkedin:en:project manag,0.03625622865925805
+s,skill:linkedin:en:team manag,0.014116796586023092
+s,skill:linkedin:en:polici,0.029619184383798042
+s,skill:linkedin:en:weapon,0.047131066009371766
+s,skill:linkedin:en:emerg medic,0.09996777890771069
+s,skill:linkedin:en:pediatr,0.0653729743527892
+s,skill:linkedin:en:phtls,0.08533215634422556
+s,skill:linkedin:en:emerg servic,0.23188051340598476
+s,skill:linkedin:en:emerg room,0.011831469865639587
+s,skill:linkedin:en:sale manag,0.010105478842417167
+s,skill:linkedin:en:ambul,0.2564343408040577
+s,skill:linkedin:en:strateg plan,0.030299984006739184
+s,skill:linkedin:en:account manag,0.017804167038670778
+s,skill:linkedin:en:militari experi,0.05565607495353332
+s,skill:linkedin:en:execut protect,0.014440743876981342
+s,skill:linkedin:en:teamwork,0.040591493693822235
+s,skill:linkedin:en:armi,0.03479722268678248
+s,skill:linkedin:en:reconnaiss,0.01764979807186609
+s,skill:linkedin:en:cbrn,0.0335899924077049
+s,skill:linkedin:en:manual handl,0.012033953230817785
+s,skill:linkedin:en:market,0.01283621677953897
+s,skill:linkedin:en:supervisori skill,0.011231689682096603
+s,skill:linkedin:en:prehospit care,0.06848462182108066
+s,skill:linkedin:en:risk assess,0.05846016241806166
+t,Healthcare,Health Professional,0,9684
+s,skill:linkedin:en:rehabilit,0.022259964685442127
+s,skill:linkedin:en:well,0.02437125432287304
+s,skill:linkedin:en:program evalu,0.010647474818914593
+s,skill:linkedin:en:behavior base safeti,0.012516661030862759
+s,skill:linkedin:en:mental health counsel,0.02966879703805271
+s,skill:linkedin:en:clinic supervis,0.027411615046690114
+s,skill:linkedin:en:intervent,0.016131374695537
+s,skill:linkedin:en:retail,0.013031710004651531
+s,skill:linkedin:en:team build,0.047722766289458325
+s,skill:linkedin:en:well coach,0.011220463542566138
+s,skill:linkedin:en:motiv interview,0.014351613615126917
+s,skill:linkedin:en:chang manag,0.09995161255850095
+s,skill:linkedin:en:informat,0.013736198884987007
+s,skill:linkedin:en:psychotherapi,0.06811751644931725
+s,skill:linkedin:en:bls,0.060168799773740796
+s,skill:linkedin:en:icu,0.013981050121603568
+s,skill:linkedin:en:therapist,0.018289218349874646
+s,skill:linkedin:en:spss,0.010155586575401774
+s,skill:linkedin:en:diabet,0.01330356761887504
+s,skill:linkedin:en:audit,0.013219532890755418
+s,skill:linkedin:en:data entri,0.021318204774758237
+s,skill:linkedin:en:manag,0.131144547995102
+s,skill:linkedin:en:workshop facilit,0.010396324212492902
+s,skill:linkedin:en:event manag,0.015580698744305647
+s,skill:linkedin:en:learn disabl,0.011812927538924517
+s,skill:linkedin:en:sport,0.010399701160273942
+s,skill:linkedin:en:treatment,0.10911119522013044
+s,skill:linkedin:en:contract manag,0.016345830551178598
+s,skill:linkedin:en:inpati,0.07323425292979698
+s,skill:linkedin:en:event plan,0.018346228730107758
+s,skill:linkedin:en:psycholog,0.07363956709346459
+s,skill:linkedin:en:program manag,0.023209006717459266
+s,skill:linkedin:en:healthcar,0.5104647317603778
+s,skill:linkedin:en:team leadership,0.05799338205236552
+s,skill:linkedin:en:time manag,0.043089981029876455
+s,skill:linkedin:en:pharmacist,0.03760223220233838
+s,skill:linkedin:en:report write,0.021086219141414713
+s,skill:linkedin:en:window,0.01654130247877632
+s,skill:linkedin:en:hospit pharmaci,0.011405105645820684
+s,skill:linkedin:en:epidemiolog,0.01233995064483388
+s,skill:linkedin:en:famili therapi,0.03017371323906336
+s,skill:linkedin:en:elder care,0.020503744900111358
+s,skill:linkedin:en:perform manag,0.03598330738764721
+s,skill:linkedin:en:person develop,0.031199458538399283
+s,skill:linkedin:en:social network,0.013131736786316205
+s,skill:linkedin:en:project plan,0.032422789496605015
+s,skill:linkedin:en:public speak,0.11674093125748683
+s,skill:linkedin:en:mental health,0.17625561946007917
+s,skill:linkedin:en:patient counsel,0.010854448404386869
+s,skill:linkedin:en:patient safeti,0.20073583722787972
+s,skill:linkedin:en:risk manag,0.023189593018943338
+s,skill:linkedin:en:infect control,0.010070725936838356
+s,skill:linkedin:en:social media,0.02538649289958959
+s,skill:linkedin:en:strategi,0.017765160067625504
+s,skill:linkedin:en:counsel psycholog,0.03789021286085907
+s,skill:linkedin:en:medic educ,0.05405151290024933
+s,skill:linkedin:en:perform improv,0.013169032370447519
+s,skill:linkedin:en:program develop,0.012468111093775583
+s,skill:linkedin:en:pharmaceut industri,0.018900962157694365
+s,skill:linkedin:en:acut care,0.04124747062559421
+s,skill:linkedin:en:inspect,0.010226209813358002
+s,skill:linkedin:en:leadership develop,0.03931741231231411
+s,skill:linkedin:en:train,0.12460250605995951
+s,skill:linkedin:en:busi develop,0.023630860481646816
+s,skill:linkedin:en:occup health,0.02510276541653415
+s,skill:linkedin:en:health promot,0.02875626906841947
+s,skill:linkedin:en:person train,0.011967861386527284
+s,skill:linkedin:en:anger manag,0.014945998957984773
+s,skill:linkedin:en:life transit,0.013372735909775847
+s,skill:linkedin:en:nutrit counsel,0.010789640459545629
+s,skill:linkedin:en:employe train,0.012555647319671832
+s,skill:linkedin:en:communiti develop,0.010055897124775264
+s,skill:linkedin:en:team manag,0.017440562123880902
+s,skill:linkedin:en:polici,0.06838664679805363
+s,skill:linkedin:en:intern medicin,0.012939498253533164
+s,skill:linkedin:en:sport nutrit,0.013004359093553354
+s,skill:linkedin:en:budget,0.021583014957679815
+s,skill:linkedin:en:organiz develop,0.021900197234816586
+s,skill:linkedin:en:market strategi,0.011851988292247853
+s,skill:linkedin:en:strateg plan,0.07909288981450234
+s,skill:linkedin:en:fire safeti,0.014583911370450677
+s,skill:linkedin:en:phlebotomi,0.01844297587298285
+s,skill:linkedin:en:social servic,0.041226846862261954
+s,skill:linkedin:en:fit train,0.01261711897424245
+s,skill:linkedin:en:clinic trial,0.019673397253280548
+s,skill:linkedin:en:data analysi,0.032006690241846734
+s,skill:linkedin:en:problem solv,0.01549263721194851
+s,skill:linkedin:en:pediatr,0.03872008194027151
+s,skill:linkedin:en:vital sign,0.012491985480642674
+s,skill:linkedin:en:crisi intervent,0.025926246133270128
+s,skill:linkedin:en:medic devic,0.015292378316362092
+s,skill:linkedin:en:fit,0.01518491008426014
+s,skill:linkedin:en:powerpoint,0.06550345966099806
+s,skill:linkedin:en:photoshop,0.01445947512285413
+s,skill:linkedin:en:psycholog assess,0.02050995187997014
+s,skill:linkedin:en:cbt,0.03301512949711347
+s,skill:linkedin:en:process improv,0.02674182603838455
+s,skill:linkedin:en:home care,0.06054146872256183
+s,skill:linkedin:en:emr,0.03519032290024837
+s,skill:linkedin:en:holist health,0.011704443448259902
+s,skill:linkedin:en:communic,0.02349377598633132
+s,skill:linkedin:en:emerg medicin,0.022382456394166268
+s,skill:linkedin:en:accid investig,0.019665788102611544
+s,skill:linkedin:en:oper manag,0.015968507491359845
+s,skill:linkedin:en:iso 14001,0.010156766458549373
+s,skill:linkedin:en:medicin,0.11853822297972823
+s,skill:linkedin:en:sale,0.04245203742272179
+s,skill:linkedin:en:nonprofit,0.03089249799627065
+s,skill:linkedin:en:microsoft word,0.09391403627203519
+s,skill:linkedin:en:negoti,0.028512623691656032
+s,skill:linkedin:en:patient educ,0.03265110638897434
+s,skill:linkedin:en:group therapi,0.0357261827473293
+s,skill:linkedin:en:govern,0.019860549222036977
+s,skill:linkedin:en:clinic research,0.23614624719894317
+s,skill:linkedin:en:medic therapi manag,0.01656900218952426
+s,skill:linkedin:en:human resourc,0.018833221367250824
+s,skill:linkedin:en:wellb,0.013196505395340136
+s,skill:linkedin:en:microsoft offic,0.14876719610704653
+s,skill:linkedin:en:post traumat stress,0.010156766458549373
+s,skill:linkedin:en:clinic pharmaci,0.022218260124009803
+s,skill:linkedin:en:offic administr,0.023136841106258597
+s,skill:linkedin:en:medic record,0.0143220628395787
+s,skill:linkedin:en:new busi develop,0.03125147076759536
+s,skill:linkedin:en:surgeri,0.036843749176019285
+s,skill:linkedin:en:medic administr,0.022859233095617174
+s,skill:linkedin:en:custom servic,0.2069459393563608
+s,skill:linkedin:en:case manag,0.04843709907045823
+s,skill:linkedin:en:pharmaci practic,0.010645563835873202
+s,skill:linkedin:en:critic care,0.05348666320770429
+s,skill:linkedin:en:busi strategi,0.025644587912132696
+s,skill:linkedin:en:workplac safeti,0.010226209813358002
+s,skill:linkedin:en:orthoped,0.016242666071345887
+s,skill:linkedin:en:healthcar manag,0.2784479060431682
+s,skill:linkedin:en:self esteem,0.021014313576893012
+s,skill:linkedin:en:prevent,0.010976260384949359
+s,skill:linkedin:en:staff develop,0.015147533243602927
+s,skill:linkedin:en:acl,0.025672885983241522
+s,skill:linkedin:en:teach,0.05756127858707921
+s,skill:linkedin:en:patient advocaci,0.010043884129892076
+s,skill:linkedin:en:microsoft excel,0.10492210062086635
+s,skill:linkedin:en:public health,0.11979187826672606
+s,skill:linkedin:en:research,0.131501643562473
+s,skill:linkedin:en:adolesc,0.03037188013619938
+s,skill:linkedin:en:communiti outreach,0.032737989499966806
+s,skill:linkedin:en:english,0.02115894320388492
+s,skill:linkedin:en:nurs educ,0.01626334086671179
+s,skill:linkedin:en:emerg manag,0.017121181310519727
+s,skill:linkedin:en:child welfar,0.014213409517866654
+s,skill:linkedin:en:healthcar inform technolog,0.09994162629671763
+s,skill:linkedin:en:medic terminolog,0.0684318637856799
+s,skill:linkedin:en:train deliveri,0.02668613599030853
+s,skill:linkedin:en:coach,0.09459258145756212
+s,skill:linkedin:en:wound care,0.024021724094809377
+s,skill:linkedin:en:leadership,0.10594228692567709
+s,skill:linkedin:en:outlook,0.02761121488301838
+s,skill:linkedin:en:safeti manag system,0.02073413494980982
+s,skill:linkedin:en:cpr certifi,0.036898145096656725
+s,skill:linkedin:en:first aid,0.031405126798166316
+s,skill:linkedin:en:administr assist,0.012929621184815417
+s,skill:linkedin:en:stakehold manag,0.018709508032534537
+s,skill:linkedin:en:stress manag,0.021358263928530834
+s,skill:linkedin:en:hospit,0.3348294888213928
+s,skill:linkedin:en:nurs,0.17651731617278413
+s,skill:linkedin:en:qualit research,0.01759101222656294
+s,skill:linkedin:en:project manag,0.11019963425480887
+s,skill:linkedin:en:health educ,0.024858233510573317
+s,skill:linkedin:en:analysi,0.02047937402103478
+s,skill:linkedin:en:public sector,0.04331725428267834
+s,skill:linkedin:en:pharmaci autom,0.011741917552665855
+s,skill:linkedin:en:sale manag,0.012834117255277288
+s,skill:linkedin:en:pharmaci,0.04911400020783588
+s,skill:linkedin:en:account manag,0.021209633801720352
+s,skill:linkedin:en:fundrais,0.019809890787269392
+s,skill:linkedin:en:palliat care,0.013747467545849051
+s,skill:linkedin:en:teamwork,0.05014157343553222
+s,skill:linkedin:en:local govern,0.011717461131619757
+s,skill:linkedin:en:busi analysi,0.011966687488402915
+s,skill:linkedin:en:stakehold engag,0.016182611491869756
+s,skill:linkedin:en:hipaa,0.020175772389265267
+s,skill:linkedin:en:nutrit,0.02332293326271334
+s,skill:linkedin:en:qualiti improv,0.013332081022520554
+s,skill:linkedin:en:market,0.02159286894859755
+s,skill:linkedin:en:supervisori skill,0.01400616441485988
+s,skill:linkedin:en:lifestyl,0.010360423946603222
+s,skill:linkedin:en:risk assess,0.04054912855903479
+s,skill:linkedin:en:communiti pharmaci,0.01997949625105795
+t,Healthcare,Surgeon,0,4126
+s,skill:linkedin:en:rehabilit,0.03772139658348329
+s,skill:linkedin:en:spine,0.03330110764240625
+s,skill:linkedin:en:public speak,0.025819308287829846
+s,skill:linkedin:en:emerg medicin,0.1169345469320729
+s,skill:linkedin:en:medicin,0.29374076105881075
+s,skill:linkedin:en:microsoft word,0.018594296671161213
+s,skill:linkedin:en:obstetr,0.015263721296276293
+s,skill:linkedin:en:board certifi,0.04874310012853559
+s,skill:linkedin:en:pain manag,0.018134647351697224
+s,skill:linkedin:en:knee surgeri,0.024846049858800387
+s,skill:linkedin:en:chang manag,0.020530942890913055
+s,skill:linkedin:en:informat,0.019465283365692386
+s,skill:linkedin:en:icu,0.015257951650009862
+s,skill:linkedin:en:famili medicin,0.011911652554966855
+s,skill:linkedin:en:cancer,0.10921606389149323
+s,skill:linkedin:en:diabet,0.0106247333308197
+s,skill:linkedin:en:medic research,0.08048911387442056
+s,skill:linkedin:en:elbow,0.014652419559718431
+s,skill:linkedin:en:manag,0.01752847902629872
+s,skill:linkedin:en:clinic research,0.337519082018985
+s,skill:linkedin:en:microsoft offic,0.03573514842795916
+s,skill:linkedin:en:minim invas procedur,0.049017885627110326
+s,skill:linkedin:en:hospit,0.33709972705700714
+s,skill:linkedin:en:injuri,0.016509945570304354
+s,skill:linkedin:en:medic imag,0.018551138369484247
+s,skill:linkedin:en:trauma surgeri,0.037185083440033614
+s,skill:linkedin:en:treatment,0.16131051266872273
+s,skill:linkedin:en:hip,0.024798294350226482
+s,skill:linkedin:en:radiolog,0.015766652236985916
+s,skill:linkedin:en:vascular,0.018898684409105942
+s,skill:linkedin:en:inpati,0.016416694662916804
+s,skill:linkedin:en:surgeri,0.35771962743949476
+s,skill:linkedin:en:endoscopi,0.04248405891945184
+s,skill:linkedin:en:healthcar,0.33787465243600495
+s,skill:linkedin:en:reconstruct surgeri,0.10783295947476203
+s,skill:linkedin:en:custom servic,0.027051946952098928
+s,skill:linkedin:en:sport injuri,0.05304751037326717
+s,skill:linkedin:en:critic care,0.04381547309805184
+s,skill:linkedin:en:nurs,0.016173457843908588
+s,skill:linkedin:en:physician,0.01630322520332334
+s,skill:linkedin:en:foot,0.010949522217213814
+s,skill:linkedin:en:neurosurgeri,0.017737916141644123
+s,skill:linkedin:en:ophthalmolog,0.013162188474911327
+s,skill:linkedin:en:gynecolog,0.018104483077668307
+s,skill:linkedin:en:orthoped,0.19950333694950056
+s,skill:linkedin:en:healthcar manag,0.24533923235940683
+s,skill:linkedin:en:urolog,0.01980194907166593
+s,skill:linkedin:en:epidemiolog,0.026912638298962403
+s,skill:linkedin:en:ultrasound,0.0296469405735062
+s,skill:linkedin:en:arthroscopi,0.048570512553217766
+s,skill:linkedin:en:ent,0.01371897037683023
+s,skill:linkedin:en:biomechan,0.010995727273095049
+s,skill:linkedin:en:shoulder,0.017950624614040334
+s,skill:linkedin:en:foot surgeri,0.010508665984343404
+s,skill:linkedin:en:patient safeti,0.1363697858009736
+s,skill:linkedin:en:healthcar consult,0.017458338106328283
+s,skill:linkedin:en:teach,0.04115993543908058
+s,skill:linkedin:en:colorect surgeri,0.012435295309792392
+s,skill:linkedin:en:microsoft excel,0.027351444717052045
+s,skill:linkedin:en:public health,0.11929873577571272
+s,skill:linkedin:en:research,0.06662858856957847
+s,skill:linkedin:en:medic educ,0.3342025689530797
+s,skill:linkedin:en:ankl,0.016960909264462375
+s,skill:linkedin:en:sport medicin,0.07531268748873916
+s,skill:linkedin:en:healthcar inform technolog,0.11631085351195214
+s,skill:linkedin:en:musculoskelet,0.015967650952476233
+s,skill:linkedin:en:acut care,0.01039571944769931
+s,skill:linkedin:en:surgeon,0.05568033041487305
+s,skill:linkedin:en:plastic surgeri,0.038206843725403235
+s,skill:linkedin:en:leadership,0.015507528258142613
+s,skill:linkedin:en:aesthet,0.019710498485133773
+s,skill:linkedin:en:train,0.014637444439948289
+s,skill:linkedin:en:oncolog,0.0414791908360655
+s,skill:linkedin:en:knee,0.03975159047077179
+s,skill:linkedin:en:neurosci,0.011423815596303125
+s,skill:linkedin:en:microsurgeri,0.022760333407361878
+s,skill:linkedin:en:arthroplasti,0.0260692538355948
+s,skill:linkedin:en:intern medicin,0.08392666964808766
+s,skill:linkedin:en:project manag,0.011557769581113797
+s,skill:linkedin:en:pediatr,0.09830755185010398
+s,skill:linkedin:en:general surgeri,0.14150999094902006
+s,skill:linkedin:en:strateg plan,0.020886377268913087
+s,skill:linkedin:en:breast augment,0.010517769410221698
+s,skill:linkedin:en:joint replac,0.01966959044288562
+s,skill:linkedin:en:clinic trial,0.09846043328058664
+s,skill:linkedin:en:laparoscop surgeri,0.07377319889316482
+s,skill:linkedin:en:hand surgeri,0.0247458424023031
+s,skill:linkedin:en:vascular surgeri,0.014233610293121441
+s,skill:linkedin:en:medic devic,0.061470656068746785
+s,skill:linkedin:en:wound care,0.026383533143879753
+s,skill:linkedin:en:powerpoint,0.01880622777118255
+s,skill:linkedin:en:rhinoplasti,0.013523220561205817
+s,skill:linkedin:en:surgic oncolog,0.012861821618827566
+t,Healthcare,Speech Therapist,0,3722
+s,skill:linkedin:en:rehabilit,0.17800509829405325
+s,skill:linkedin:en:oral motor,0.028583708811508544
+s,skill:linkedin:en:experi work children,0.010728641659662842
+s,skill:linkedin:en:child develop,0.09301278862893736
+s,skill:linkedin:en:stroke rehabilit,0.05291561910743055
+s,skill:linkedin:en:stutter,0.013410802074578555
+s,skill:linkedin:en:autism spectrum disord,0.24003962632760387
+s,skill:linkedin:en:communic disord,0.06944856215677098
+s,skill:linkedin:en:intervent,0.10947659188984657
+s,skill:linkedin:en:pec,0.02779888976117313
+s,skill:linkedin:en:social media,0.03826592507072416
+s,skill:linkedin:en:microsoft word,0.05257078061694129
+s,skill:linkedin:en:higher educ,0.011884301481413218
+s,skill:linkedin:en:appli behavior analysi,0.012145907831525023
+s,skill:linkedin:en:neurolog,0.019312427956579836
+s,skill:linkedin:en:asperg,0.016092962489494263
+s,skill:linkedin:en:clinic research,0.17328731693769486
+s,skill:linkedin:en:therapist,0.155323015364546
+s,skill:linkedin:en:group therapi,0.03733177696621364
+s,skill:linkedin:en:auditori process,0.011444320921567058
+s,skill:linkedin:en:phonolog disord,0.0533555996672767
+s,skill:linkedin:en:stroke,0.010096194538136077
+s,skill:linkedin:en:manag,0.034882177745850486
+s,skill:linkedin:en:microsoft offic,0.07314810281657465
+s,skill:linkedin:en:dysphagia,0.1772603738765898
+s,skill:linkedin:en:event manag,0.011622695131301413
+s,skill:linkedin:en:dementia,0.010742734011609092
+s,skill:linkedin:en:treatment,0.24522557294770095
+s,skill:linkedin:en:communic skill,0.010096194538136077
+s,skill:linkedin:en:syndrom,0.03055018996452004
+s,skill:linkedin:en:languag delay,0.022063728159926747
+s,skill:linkedin:en:earli intervent,0.16871972508717833
+s,skill:linkedin:en:traumat brain injuri,0.08801930857052088
+s,skill:linkedin:en:inpati,0.023259482614549076
+s,skill:linkedin:en:event plan,0.010288661099816682
+s,skill:linkedin:en:psycholog,0.04076971127590553
+s,skill:linkedin:en:development disabl,0.08497821731316968
+s,skill:linkedin:en:linguist,0.01788106943277141
+s,skill:linkedin:en:educ,0.011622695131301413
+s,skill:linkedin:en:healthcar,0.2638914614308077
+s,skill:linkedin:en:assess,0.010619407238359689
+s,skill:linkedin:en:team leadership,0.013686500776636606
+s,skill:linkedin:en:time manag,0.039338352752097086
+s,skill:linkedin:en:social skill,0.03896751198068213
+s,skill:linkedin:en:articul,0.06257183308572047
+s,skill:linkedin:en:report write,0.015198909017855693
+s,skill:linkedin:en:window,0.012516748602939984
+s,skill:linkedin:en:aphasia,0.12943337689693263
+s,skill:linkedin:en:languag disord,0.26816926222731996
+s,skill:linkedin:en:dysfluenc,0.010728641659662842
+s,skill:linkedin:en:edit,0.010288661099816682
+s,skill:linkedin:en:healthcar manag,0.05031669083289229
+s,skill:linkedin:en:speech languag therapi,0.017441088872925243
+s,skill:linkedin:en:work children,0.010728641659662842
+s,skill:linkedin:en:public speak,0.09046586491625049
+s,skill:linkedin:en:mental health,0.07165064737896856
+s,skill:linkedin:en:teach,0.12222590168733911
+s,skill:linkedin:en:microsoft excel,0.05276324717862189
+s,skill:linkedin:en:public health,0.020192389076272153
+s,skill:linkedin:en:dyspraxia,0.01866588848310682
+s,skill:linkedin:en:research,0.11199228802400737
+s,skill:linkedin:en:adult,0.02492426278457681
+s,skill:linkedin:en:english,0.026381623589310944
+s,skill:linkedin:en:custom servic,0.08028643823773696
+s,skill:linkedin:en:voic therapi,0.03405726406264312
+s,skill:linkedin:en:voic disord,0.04504751207241777
+s,skill:linkedin:en:communic,0.0620345280335506
+s,skill:linkedin:en:acut care,0.029848603054562075
+s,skill:linkedin:en:apraxia,0.09445605708172523
+s,skill:linkedin:en:coach,0.029848603054562075
+s,skill:linkedin:en:leadership,0.027275677060949518
+s,skill:linkedin:en:outlook,0.011622695131301413
+s,skill:linkedin:en:train,0.07452527435556489
+s,skill:linkedin:en:social communic,0.010990248009774647
+s,skill:linkedin:en:clinic supervis,0.032599903257908985
+s,skill:linkedin:en:speech,0.3128719358092485
+s,skill:linkedin:en:hospit,0.1125436854281235
+s,skill:linkedin:en:learn disabl,0.2222677913161356
+s,skill:linkedin:en:neurolog disord,0.011622695131301413
+s,skill:linkedin:en:acquir brain injuri,0.026450763377742145
+s,skill:linkedin:en:cognit,0.08686364874877052
+s,skill:linkedin:en:adolesc,0.033603191150850704
+s,skill:linkedin:en:literaci,0.017978393925095107
+s,skill:linkedin:en:languag develop,0.05771663260416641
+s,skill:linkedin:en:cerebr palsi,0.032970744029323935
+s,skill:linkedin:en:aac,0.09053500470468169
+s,skill:linkedin:en:special educ,0.07508858168866044
+s,skill:linkedin:en:augment communic,0.04038477815254431
+s,skill:linkedin:en:phonet,0.012516748602939984
+s,skill:linkedin:en:strateg plan,0.012516748602939984
+s,skill:linkedin:en:fundrais,0.011182714571455253
+s,skill:linkedin:en:speech therapi,0.4179042626218279
+s,skill:linkedin:en:phonolog,0.02771565762079568
+s,skill:linkedin:en:teamwork,0.05767349509666091
+s,skill:linkedin:en:brain injuri,0.010096194538136077
+s,skill:linkedin:en:staff develop,0.024044301664884492
+s,skill:linkedin:en:makaton,0.014566461896328927
+s,skill:linkedin:en:pediatr,0.19887002912472415
+s,skill:linkedin:en:dysarthria,0.07712420263010314
+s,skill:linkedin:en:powerpoint,0.050782673673664146
+s,skill:linkedin:en:photoshop,0.010728641659662842
+s,skill:linkedin:en:motor speech disord,0.016176194629871715
+t,Healthcare,Consultant Psychiatrist,0,3370
+s,skill:linkedin:en:rehabilit,0.03305344906645663
+s,skill:linkedin:en:well,0.010046051793917023
+s,skill:linkedin:en:child develop,0.033202708198169104
+s,skill:linkedin:en:emerg medicin,0.01292811038803097
+s,skill:linkedin:en:autism spectrum disord,0.02096461119720786
+s,skill:linkedin:en:chang manag,0.022280487320749626
+s,skill:linkedin:en:mental health counsel,0.05758802259893196
+s,skill:linkedin:en:stress,0.048089331314275445
+s,skill:linkedin:en:intervent,0.08220727916927327
+s,skill:linkedin:en:famili therapi,0.06338389809176023
+s,skill:linkedin:en:medicin,0.15408428805370747
+s,skill:linkedin:en:strateg plan,0.013472964021385326
+s,skill:linkedin:en:microsoft word,0.017788634875936227
+s,skill:linkedin:en:forens psycholog,0.020886144212625107
+s,skill:linkedin:en:forens psychiatri,0.026194198966496732
+s,skill:linkedin:en:dual diagnosi,0.014243730029522556
+s,skill:linkedin:en:board certifi,0.013380489745641641
+s,skill:linkedin:en:motiv interview,0.03643815218572608
+s,skill:linkedin:en:crisi intervent,0.02749644045904927
+s,skill:linkedin:en:cognit therapi,0.013797161444745442
+s,skill:linkedin:en:psychotherapi,0.2531083269299316
+s,skill:linkedin:en:clinic research,0.3075150577847635
+s,skill:linkedin:en:group therapi,0.0933775181229402
+s,skill:linkedin:en:psychopharmacolog,0.09322013418109422
+s,skill:linkedin:en:spss,0.01448584440748122
+s,skill:linkedin:en:medic research,0.013172536126534205
+s,skill:linkedin:en:wellb,0.017867259000794188
+s,skill:linkedin:en:microsoft offic,0.031125743317869332
+s,skill:linkedin:en:clinic,0.016336144330753602
+s,skill:linkedin:en:post traumat stress,0.05348824918575671
+s,skill:linkedin:en:clinic psycholog,0.06864697204803241
+s,skill:linkedin:en:health psycholog,0.013946029466438142
+s,skill:linkedin:en:learn disabl,0.0242341940434524
+s,skill:linkedin:en:treatment,0.3292375165562724
+s,skill:linkedin:en:psycholog test,0.04653122274865396
+s,skill:linkedin:en:child psychiatri,0.01353081270087809
+s,skill:linkedin:en:individu counsel,0.018462525084886654
+s,skill:linkedin:en:psychiatri,0.21638782019012717
+s,skill:linkedin:en:inpati,0.06856118927284101
+s,skill:linkedin:en:surgeri,0.01352657337454065
+s,skill:linkedin:en:psycholog,0.2388436757513373
+s,skill:linkedin:en:manag,0.02265621239546713
+s,skill:linkedin:en:healthcar,0.25513890755743523
+s,skill:linkedin:en:grief counsel,0.01589033475952363
+s,skill:linkedin:en:custom servic,0.027043976137937523
+s,skill:linkedin:en:case manag,0.032434558189807304
+s,skill:linkedin:en:neuropsycholog assess,0.021312455548515106
+s,skill:linkedin:en:anger manag,0.0524673329051813
+s,skill:linkedin:en:life transit,0.023339001104725088
+s,skill:linkedin:en:mind,0.08977213284537379
+s,skill:linkedin:en:healthcar manag,0.13614056566110647
+s,skill:linkedin:en:epidemiolog,0.019803630277515135
+s,skill:linkedin:en:therapist,0.1332341382226944
+s,skill:linkedin:en:prevent,0.02388479796252343
+s,skill:linkedin:en:phobia,0.017742001879441367
+s,skill:linkedin:en:public speak,0.044795187818144004
+s,skill:linkedin:en:mental health,0.3818328263532543
+s,skill:linkedin:en:treatment depress,0.01829130766610877
+s,skill:linkedin:en:patient safeti,0.03836289614235089
+s,skill:linkedin:en:teach,0.0701312792641403
+s,skill:linkedin:en:microsoft excel,0.01889477669900823
+s,skill:linkedin:en:public health,0.09922208508224008
+s,skill:linkedin:en:research,0.09389068457142472
+s,skill:linkedin:en:medico legal,0.010620311226815166
+s,skill:linkedin:en:adolesc,0.11717540664552431
+s,skill:linkedin:en:adult,0.029965039653945084
+s,skill:linkedin:en:emdr,0.021050729871361584
+s,skill:linkedin:en:counsel psycholog,0.10717065875015062
+s,skill:linkedin:en:neuropsycholog,0.0285381915189064
+s,skill:linkedin:en:medic educ,0.166681446321111
+s,skill:linkedin:en:behavior health,0.03973882649660808
+s,skill:linkedin:en:healthcar inform technolog,0.031838821101740696
+s,skill:linkedin:en:coach,0.029753695916129735
+s,skill:linkedin:en:leadership,0.01812118555476345
+s,skill:linkedin:en:leadership develop,0.013061226075561335
+s,skill:linkedin:en:train,0.03174456700057927
+s,skill:linkedin:en:person develop,0.0321484044618828
+s,skill:linkedin:en:clinic supervis,0.21916984823048422
+s,skill:linkedin:en:stress manag,0.07797459616449573
+s,skill:linkedin:en:hospit,0.19128569162214273
+s,skill:linkedin:en:neurosci,0.02815497497095692
+s,skill:linkedin:en:nurs,0.018757313174553727
+s,skill:linkedin:en:cognit,0.11925436208577336
+s,skill:linkedin:en:intern medicin,0.017718832391149478
+s,skill:linkedin:en:project manag,0.012063790481018395
+s,skill:linkedin:en:qualit research,0.01369547216461993
+s,skill:linkedin:en:pediatr,0.019288118406403196
+s,skill:linkedin:en:social servic,0.020384217653858363
+s,skill:linkedin:en:clinic trial,0.019366716432324415
+s,skill:linkedin:en:self esteem,0.0645004218362654
+s,skill:linkedin:en:psychometr,0.01050242601760203
+s,skill:linkedin:en:powerpoint,0.015002426392547641
+s,skill:linkedin:en:psychodynam psychotherapi,0.01244966251853515
+s,skill:linkedin:en:expert wit,0.013440483879243886
+s,skill:linkedin:en:psycholog assess,0.16268453218943474
+s,skill:linkedin:en:cbt,0.2264619226495627
+s,skill:linkedin:en:risk assess,0.010282098779109605
+t,Healthcare,health care,0,12494
+s,skill:linkedin:en:rehabilit,0.024822259576099022
+s,skill:linkedin:en:well,0.015873647550561653
+s,skill:linkedin:en:mental health counsel,0.018010543629351554
+s,skill:linkedin:en:retail,0.020529669115555205
+s,skill:linkedin:en:social media,0.05153043108149507
+s,skill:linkedin:en:team build,0.06988347996229186
+s,skill:linkedin:en:first aid,0.05100798598801496
+s,skill:linkedin:en:inpati,0.05673168179555078
+s,skill:linkedin:en:psycholog,0.07529014832248396
+s,skill:linkedin:en:higher educ,0.030152189706953245
+s,skill:linkedin:en:crisi intervent,0.016889316651944722
+s,skill:linkedin:en:chang manag,0.09849805353513115
+s,skill:linkedin:en:e learn,0.017567129074837533
+s,skill:linkedin:en:psychotherapi,0.048097788573649214
+s,skill:linkedin:en:curriculum design,0.02128389861667288
+s,skill:linkedin:en:bls,0.05004089989742848
+s,skill:linkedin:en:spss,0.02067103095643566
+s,skill:linkedin:en:data entri,0.028405316023369303
+s,skill:linkedin:en:univers teach,0.012859022080906531
+s,skill:linkedin:en:manag,0.16408437105769752
+s,skill:linkedin:en:peopl skill,0.011946811789634927
+s,skill:linkedin:en:workshop facilit,0.022653705860626958
+s,skill:linkedin:en:acl,0.014019812638725386
+s,skill:linkedin:en:event manag,0.030547181826227194
+s,skill:linkedin:en:learn disabl,0.026515854056312554
+s,skill:linkedin:en:emerg medicin,0.015076094853476623
+s,skill:linkedin:en:treatment,0.08626450125076553
+s,skill:linkedin:en:mental health care,0.011672850340844114
+s,skill:linkedin:en:contract manag,0.010746457651404053
+s,skill:linkedin:en:person care,0.01272913255559535
+s,skill:linkedin:en:event plan,0.032519594523361874
+s,skill:linkedin:en:adult social care,0.011229435786330094
+s,skill:linkedin:en:program manag,0.029474377284060438
+s,skill:linkedin:en:healthcar,0.44207707595793955
+s,skill:linkedin:en:team leadership,0.08005400373904976
+s,skill:linkedin:en:time manag,0.0938789657557287
+s,skill:linkedin:en:custom servic,0.29038897635957206
+s,skill:linkedin:en:report write,0.02609651395367149
+s,skill:linkedin:en:window,0.025425521579388054
+s,skill:linkedin:en:critic care,0.04762899283689162
+s,skill:linkedin:en:communiti develop,0.014567735536307016
+s,skill:linkedin:en:famili therapi,0.01651084686008629
+s,skill:linkedin:en:elder care,0.051514837227874526
+s,skill:linkedin:en:perform manag,0.05502793806421829
+s,skill:linkedin:en:social network,0.019498768083047534
+s,skill:linkedin:en:public speak,0.13723888741773757
+s,skill:linkedin:en:mental health,0.1888180784196655
+s,skill:linkedin:en:patient safeti,0.1592804413598957
+s,skill:linkedin:en:infect control,0.019902715679007487
+s,skill:linkedin:en:strategi,0.025849337039352813
+s,skill:linkedin:en:statist,0.015793470856781462
+s,skill:linkedin:en:counsel psycholog,0.026709381613908716
+s,skill:linkedin:en:medic educ,0.01961474874168442
+s,skill:linkedin:en:perform improv,0.017841090523628346
+s,skill:linkedin:en:manag consult,0.011346546265701385
+s,skill:linkedin:en:pharmaceut industri,0.013003094004386167
+s,skill:linkedin:en:administr,0.02352906265408572
+s,skill:linkedin:en:acut care,0.03763947476920442
+s,skill:linkedin:en:mentor,0.012507336823520239
+s,skill:linkedin:en:leadership develop,0.0674576313669213
+s,skill:linkedin:en:busi develop,0.018428577001622
+s,skill:linkedin:en:health promot,0.023201628758208585
+s,skill:linkedin:en:quantit research,0.010915910757127256
+s,skill:linkedin:en:chariti,0.013160978172682138
+s,skill:linkedin:en:employe train,0.014359945292764147
+s,skill:linkedin:en:custom satisfact,0.01361709148535779
+s,skill:linkedin:en:budget,0.03334100559910834
+s,skill:linkedin:en:busi plan,0.01657701806533424
+s,skill:linkedin:en:pediatr,0.02561484254911606
+s,skill:linkedin:en:organiz develop,0.03929574897639505
+s,skill:linkedin:en:market strategi,0.013159768064169483
+s,skill:linkedin:en:strateg plan,0.09916382851200936
+s,skill:linkedin:en:adult educ,0.01064194930833644
+s,skill:linkedin:en:phlebotomi,0.01712371452032352
+s,skill:linkedin:en:social servic,0.07898676360355819
+s,skill:linkedin:en:autism spectrum disord,0.011398888892053297
+s,skill:linkedin:en:busi strategi,0.034705025993329496
+s,skill:linkedin:en:vital sign,0.012415607526392513
+s,skill:linkedin:en:medic devic,0.010538747695639441
+s,skill:linkedin:en:powerpoint,0.11078641419629556
+s,skill:linkedin:en:photoshop,0.021798044783575405
+s,skill:linkedin:en:telephon skill,0.012247461151039923
+s,skill:linkedin:en:psycholog assess,0.013368688128446752
+s,skill:linkedin:en:cbt,0.027974680514795174
+s,skill:linkedin:en:public relat,0.01620124202199529
+s,skill:linkedin:en:project plan,0.03422204785840346
+s,skill:linkedin:en:process improv,0.02386796886553212
+s,skill:linkedin:en:home care,0.09696501414223746
+s,skill:linkedin:en:emr,0.02814413362051838
+s,skill:linkedin:en:medicin,0.0678088270196019
+s,skill:linkedin:en:sale,0.05703478404214049
+s,skill:linkedin:en:nonprofit,0.03844848344777903
+s,skill:linkedin:en:microsoft word,0.14887517065752517
+s,skill:linkedin:en:negoti,0.038256725926946
+s,skill:linkedin:en:fundrais,0.024001681960097186
+s,skill:linkedin:en:patient educ,0.01460712220708283
+s,skill:linkedin:en:therapist,0.014972893240779625
+s,skill:linkedin:en:group therapi,0.025068226381905048
+s,skill:linkedin:en:govern,0.029710081882809842
+s,skill:linkedin:en:clinic research,0.16224280449097714
+s,skill:linkedin:en:communiti engag,0.016681606696180108
+s,skill:linkedin:en:human resourc,0.021050550281250243
+s,skill:linkedin:en:microsoft offic,0.20013007636244437
+s,skill:linkedin:en:scienc,0.011907248209222905
+s,skill:linkedin:en:interview,0.010134639524122982
+s,skill:linkedin:en:dementia,0.010304349827260648
+s,skill:linkedin:en:offic administr,0.02407567882129674
+s,skill:linkedin:en:communic skill,0.013406944978488163
+s,skill:linkedin:en:new busi develop,0.030454162132808556
+s,skill:linkedin:en:stakehold engag,0.02613607753408351
+s,skill:linkedin:en:surgeri,0.017580957653733572
+s,skill:linkedin:en:curriculum develop,0.021557860065463695
+s,skill:linkedin:en:medic administr,0.03381950361467207
+s,skill:linkedin:en:case manag,0.04357593054435109
+s,skill:linkedin:en:tutor,0.011802739866155295
+s,skill:linkedin:en:edit,0.017611076152753907
+s,skill:linkedin:en:healthcar manag,0.2111800656054502
+s,skill:linkedin:en:problem solv,0.019785508577778235
+s,skill:linkedin:en:teach,0.11165592864236637
+s,skill:linkedin:en:patient advocaci,0.010030388378469833
+s,skill:linkedin:en:microsoft excel,0.1524236169143717
+s,skill:linkedin:en:public health,0.09135871044879064
+s,skill:linkedin:en:research,0.193795872852003
+s,skill:linkedin:en:adolesc,0.020501577850712455
+s,skill:linkedin:en:communiti outreach,0.03414553415832064
+s,skill:linkedin:en:contract negoti,0.010577004545680852
+s,skill:linkedin:en:volunt manag,0.01575652073711066
+s,skill:linkedin:en:english,0.041648498124009226
+s,skill:linkedin:en:nurs educ,0.015598636568814687
+s,skill:linkedin:en:healthcar inform technolog,0.06440084519019264
+s,skill:linkedin:en:medic terminolog,0.04942803223719127
+s,skill:linkedin:en:train deliveri,0.0353432748358103
+s,skill:linkedin:en:data analysi,0.0352133853104991
+s,skill:linkedin:en:coach,0.1315488880531026
+s,skill:linkedin:en:leadership,0.12275888546170682
+s,skill:linkedin:en:outlook,0.034737323846040384
+s,skill:linkedin:en:care plan,0.014399589160954422
+s,skill:linkedin:en:oper manag,0.016081437794104515
+s,skill:linkedin:en:person develop,0.0327745168058539
+s,skill:linkedin:en:clinic supervis,0.016067432305572275
+s,skill:linkedin:en:cpr certifi,0.04350801850168186
+s,skill:linkedin:en:administr assist,0.01439828243058381
+s,skill:linkedin:en:stakehold manag,0.021831821514254512
+s,skill:linkedin:en:stress manag,0.010225319288294558
+s,skill:linkedin:en:hospit,0.26118760654517054
+s,skill:linkedin:en:nurs,0.20778732416320905
+s,skill:linkedin:en:train,0.14622561205183957
+s,skill:linkedin:en:qualit research,0.030256698050020864
+s,skill:linkedin:en:project manag,0.10580152618385445
+s,skill:linkedin:en:health educ,0.02407680864203114
+s,skill:linkedin:en:team manag,0.01900310752403956
+s,skill:linkedin:en:polici,0.0817872257533739
+s,skill:linkedin:en:analysi,0.02209300391710544
+s,skill:linkedin:en:public sector,0.04465628721097528
+s,skill:linkedin:en:sale manag,0.011112148397322592
+s,skill:linkedin:en:pharmaci,0.010277661914646467
+s,skill:linkedin:en:account manag,0.018548124032098306
+s,skill:linkedin:en:palliat care,0.025838041633419743
+s,skill:linkedin:en:communic,0.04796902886907243
+s,skill:linkedin:en:teamwork,0.11519868467133795
+s,skill:linkedin:en:local govern,0.01992827377088726
+s,skill:linkedin:en:self esteem,0.011528778417364478
+s,skill:linkedin:en:staff develop,0.04015701999354331
+s,skill:linkedin:en:hipaa,0.015519509407990644
+s,skill:linkedin:en:wound care,0.023532316330855663
+s,skill:linkedin:en:lectur,0.020944992405226476
+s,skill:linkedin:en:nutrit,0.010446938110733463
+s,skill:linkedin:en:manual handl,0.011359325311641275
+s,skill:linkedin:en:qualiti improv,0.012455171106804537
+s,skill:linkedin:en:market,0.026817376041037497
+s,skill:linkedin:en:risk assess,0.019381480694040033
+s,skill:linkedin:en:nurs care,0.015220166776956257
+t,Healthcare,Mental Health Nurse,0,4297
+s,skill:linkedin:en:leadership develop,0.017875258999171736
+s,skill:linkedin:en:rehabilit,0.06273548717630466
+s,skill:linkedin:en:well,0.017130139834036492
+s,skill:linkedin:en:home care,0.03490390783247804
+s,skill:linkedin:en:holist health,0.011682523965052065
+s,skill:linkedin:en:communic,0.01513644997926994
+s,skill:linkedin:en:chang manag,0.03630899026311445
+s,skill:linkedin:en:mental health counsel,0.06141675611159148
+s,skill:linkedin:en:stress,0.01224185279792447
+s,skill:linkedin:en:intervent,0.058226899325527375
+s,skill:linkedin:en:famili therapi,0.030851971559728967
+s,skill:linkedin:en:medicin,0.04024370565922722
+s,skill:linkedin:en:social media,0.011513570743875472
+s,skill:linkedin:en:team build,0.02143330695596395
+s,skill:linkedin:en:sale,0.01218348579427807
+s,skill:linkedin:en:nonprofit,0.016487601028855308
+s,skill:linkedin:en:microsoft word,0.05690284392762362
+s,skill:linkedin:en:negoti,0.012626680545670572
+s,skill:linkedin:en:forens psychiatri,0.01429929145420649
+s,skill:linkedin:en:dual diagnosi,0.01591229128779285
+s,skill:linkedin:en:motiv interview,0.04947571567198309
+s,skill:linkedin:en:crisi intervent,0.05116879693927445
+s,skill:linkedin:en:psychotherapi,0.08949700555041566
+s,skill:linkedin:en:clinic research,0.2583687188554459
+s,skill:linkedin:en:bls,0.036013257632056844
+s,skill:linkedin:en:icu,0.010918194302250713
+s,skill:linkedin:en:therapist,0.05847499907981723
+s,skill:linkedin:en:group therapi,0.05059001981770017
+s,skill:linkedin:en:psychopharmacolog,0.014096470934648457
+s,skill:linkedin:en:spss,0.012552482700352195
+s,skill:linkedin:en:microsoft offic,0.07250244611817346
+s,skill:linkedin:en:acl,0.0110683076102093
+s,skill:linkedin:en:event manag,0.011395901957802329
+s,skill:linkedin:en:learn disabl,0.014113171898772155
+s,skill:linkedin:en:treatment,0.31553254363067523
+s,skill:linkedin:en:mental health care,0.03421193890477623
+s,skill:linkedin:en:psychiatri,0.15961457395447196
+s,skill:linkedin:en:inpati,0.14985430467284636
+s,skill:linkedin:en:event plan,0.011909666307500448
+s,skill:linkedin:en:psycholog,0.11546468296063289
+s,skill:linkedin:en:manag,0.057659100898257265
+s,skill:linkedin:en:healthcar,0.3651372994952848
+s,skill:linkedin:en:team leadership,0.0349840102388661
+s,skill:linkedin:en:time manag,0.019043929499056114
+s,skill:linkedin:en:custom servic,0.07396026255989638
+s,skill:linkedin:en:medic administr,0.0715142598060804
+s,skill:linkedin:en:case manag,0.1419574931453582
+s,skill:linkedin:en:critic care,0.02311566336165992
+s,skill:linkedin:en:nurs,0.31744633970297514
+s,skill:linkedin:en:window,0.016687423553750143
+s,skill:linkedin:en:communiti mental health,0.03595672729555647
+s,skill:linkedin:en:mind,0.02811379934147512
+s,skill:linkedin:en:healthcar manag,0.18231013703866883
+s,skill:linkedin:en:prevent,0.012672169188169996
+s,skill:linkedin:en:public speak,0.079239069742147
+s,skill:linkedin:en:mental health,0.4336356294178426
+s,skill:linkedin:en:patient safeti,0.16378652837651528
+s,skill:linkedin:en:risk manag,0.01699055600140502
+s,skill:linkedin:en:teach,0.06633968406825791
+s,skill:linkedin:en:patient advocaci,0.01374670351981054
+s,skill:linkedin:en:microsoft excel,0.05639909944211883
+s,skill:linkedin:en:public health,0.09755646460897878
+s,skill:linkedin:en:research,0.10081491276798296
+s,skill:linkedin:en:adolesc,0.043406727931403204
+s,skill:linkedin:en:adult,0.017355339950204073
+s,skill:linkedin:en:communiti outreach,0.02946736578343302
+s,skill:linkedin:en:english,0.020700575723179022
+s,skill:linkedin:en:counsel psycholog,0.05405180385167589
+s,skill:linkedin:en:nurs educ,0.052801653430525175
+s,skill:linkedin:en:care plan,0.028427985446695277
+s,skill:linkedin:en:behavior health,0.03004447614854449
+s,skill:linkedin:en:acut care,0.07996631601358287
+s,skill:linkedin:en:mentor,0.023243057189701787
+s,skill:linkedin:en:coach,0.04656153579519741
+s,skill:linkedin:en:leadership,0.052040159094832276
+s,skill:linkedin:en:outlook,0.018706393728566407
+s,skill:linkedin:en:train,0.04439728884014789
+s,skill:linkedin:en:clinic supervis,0.15925874057668166
+s,skill:linkedin:en:cpr certifi,0.01672078114570058
+s,skill:linkedin:en:first aid,0.011459832346134253
+s,skill:linkedin:en:health promot,0.0416973456140503
+s,skill:linkedin:en:anger manag,0.015487192764468579
+s,skill:linkedin:en:stress manag,0.04217625916866124
+s,skill:linkedin:en:hospit,0.2521484547059737
+s,skill:linkedin:en:cognit,0.019479248895642457
+s,skill:linkedin:en:qualit research,0.013579020918284961
+s,skill:linkedin:en:post traumat stress,0.02113964895892625
+s,skill:linkedin:en:project manag,0.02397338349889078
+s,skill:linkedin:en:health educ,0.01816131412290886
+s,skill:linkedin:en:polici,0.021331028927062328
+s,skill:linkedin:en:budget,0.014494938099967578
+s,skill:linkedin:en:healthcar inform technolog,0.0365588159538802
+s,skill:linkedin:en:acut,0.010822933877081603
+s,skill:linkedin:en:pediatr,0.012991094828392382
+s,skill:linkedin:en:strateg plan,0.032670270476595424
+s,skill:linkedin:en:teamwork,0.034776900029665644
+s,skill:linkedin:en:social servic,0.038960319191521035
+s,skill:linkedin:en:self esteem,0.0274032614692251
+s,skill:linkedin:en:staff develop,0.011187960441926607
+s,skill:linkedin:en:elder care,0.025848833057701588
+s,skill:linkedin:en:person develop,0.029524620274812494
+s,skill:linkedin:en:powerpoint,0.050280679681018015
+s,skill:linkedin:en:photoshop,0.016616703872775918
+s,skill:linkedin:en:nurs document,0.013415040929635491
+s,skill:linkedin:en:psycholog assess,0.05890867364459497
+s,skill:linkedin:en:mental health treatment,0.015802928760531465
+s,skill:linkedin:en:cbt,0.15645748624836445
+s,skill:linkedin:en:risk assess,0.04267494111630352
+t,Healthcare,Health Care Professional,0,5415
+s,skill:linkedin:en:process improv,0.019646434934494892
+s,skill:linkedin:en:rehabilit,0.021283637845702797
+s,skill:linkedin:en:home care,0.10969259505092982
+s,skill:linkedin:en:emr,0.057302101892276774
+s,skill:linkedin:en:cbt,0.03765566695778187
+s,skill:linkedin:en:emerg medicin,0.022920840756910706
+s,skill:linkedin:en:mental health counsel,0.042567275691405594
+s,skill:linkedin:en:clinic supervis,0.031106855312950245
+s,skill:linkedin:en:medicin,0.08840895720522701
+s,skill:linkedin:en:retail,0.011460420378455353
+s,skill:linkedin:en:team build,0.047478884425029316
+s,skill:linkedin:en:sale,0.03765566695778187
+s,skill:linkedin:en:nonprofit,0.036018464046573974
+s,skill:linkedin:en:microsoft word,0.06712531935952422
+s,skill:linkedin:en:negoti,0.019646434934494892
+s,skill:linkedin:en:medic bill,0.01637202911207908
+s,skill:linkedin:en:patient educ,0.036018464046573974
+s,skill:linkedin:en:crisi intervent,0.022920840756910706
+s,skill:linkedin:en:chang manag,0.05075329024744514
+s,skill:linkedin:en:govern,0.014734826200871168
+s,skill:linkedin:en:psychotherapi,0.11460420378455355
+s,skill:linkedin:en:clinic research,0.21119917554582007
+s,skill:linkedin:en:bls,0.09332056593885073
+s,skill:linkedin:en:icu,0.01637202911207908
+s,skill:linkedin:en:therapist,0.021283637845702797
+s,skill:linkedin:en:group therapi,0.05239049315865303
+s,skill:linkedin:en:data entri,0.029469652401742336
+s,skill:linkedin:en:manag,0.06221371062590049
+s,skill:linkedin:en:human resourc,0.013097623289663258
+s,skill:linkedin:en:microsoft offic,0.11460420378455355
+s,skill:linkedin:en:post traumat stress,0.014734826200871168
+s,skill:linkedin:en:acl,0.036018464046573974
+s,skill:linkedin:en:event manag,0.013097623289663258
+s,skill:linkedin:en:offic administr,0.03274405822415816
+s,skill:linkedin:en:medic record,0.02455804366811861
+s,skill:linkedin:en:treatment,0.11132979796213772
+s,skill:linkedin:en:communic skill,0.011460420378455353
+s,skill:linkedin:en:famili therapi,0.04911608733623722
+s,skill:linkedin:en:new busi develop,0.022920840756910706
+s,skill:linkedin:en:dentistri,0.013097623289663258
+s,skill:linkedin:en:person care,0.013097623289663258
+s,skill:linkedin:en:inpati,0.09659497176126654
+s,skill:linkedin:en:event plan,0.013097623289663258
+s,skill:linkedin:en:surgeri,0.031106855312950245
+s,skill:linkedin:en:psycholog,0.106418189228514
+s,skill:linkedin:en:healthcar,0.5255421344977385
+s,skill:linkedin:en:team leadership,0.039292869868989784
+s,skill:linkedin:en:time manag,0.042567275691405594
+s,skill:linkedin:en:medic administr,0.03438126113536606
+s,skill:linkedin:en:custom servic,0.16535749403199868
+s,skill:linkedin:en:case manag,0.03274405822415816
+s,skill:linkedin:en:critic care,0.0638509135371084
+s,skill:linkedin:en:report write,0.014734826200871168
+s,skill:linkedin:en:receptionist duti,0.018009232023286987
+s,skill:linkedin:en:data analysi,0.019646434934494892
+s,skill:linkedin:en:anger manag,0.02455804366811861
+s,skill:linkedin:en:life transit,0.026195246579326516
+s,skill:linkedin:en:orthoped,0.013097623289663258
+s,skill:linkedin:en:mind,0.013097623289663258
+s,skill:linkedin:en:healthcar manag,0.3028825385734629
+s,skill:linkedin:en:elder care,0.03274405822415816
+s,skill:linkedin:en:perform manag,0.02783244949053443
+s,skill:linkedin:en:problem solv,0.01637202911207908
+s,skill:linkedin:en:interperson skill,0.011460420378455353
+s,skill:linkedin:en:project plan,0.019646434934494892
+s,skill:linkedin:en:public speak,0.09986937758368236
+s,skill:linkedin:en:mental health,0.20628756681219637
+s,skill:linkedin:en:patient safeti,0.23248281339152288
+s,skill:linkedin:en:counsel,0.01637202911207908
+s,skill:linkedin:en:teach,0.05566489898106886
+s,skill:linkedin:en:patient advocaci,0.014734826200871168
+s,skill:linkedin:en:infect control,0.011460420378455353
+s,skill:linkedin:en:social media,0.01637202911207908
+s,skill:linkedin:en:microsoft excel,0.0638509135371084
+s,skill:linkedin:en:public health,0.106418189228514
+s,skill:linkedin:en:research,0.08513455138281119
+s,skill:linkedin:en:adolesc,0.044204478602613506
+s,skill:linkedin:en:communiti outreach,0.031106855312950245
+s,skill:linkedin:en:busi strategi,0.02455804366811861
+s,skill:linkedin:en:counsel psycholog,0.05893930480348467
+s,skill:linkedin:en:medic educ,0.036018464046573974
+s,skill:linkedin:en:nurs educ,0.018009232023286987
+s,skill:linkedin:en:perform improv,0.01637202911207908
+s,skill:linkedin:en:emerg manag,0.014734826200871168
+s,skill:linkedin:en:healthcar inform technolog,0.10150658049489028
+s,skill:linkedin:en:medic terminolog,0.12115301542938516
+s,skill:linkedin:en:medic devic,0.013097623289663258
+s,skill:linkedin:en:manag care,0.013097623289663258
+s,skill:linkedin:en:acut care,0.047478884425029316
+s,skill:linkedin:en:coach,0.07039972518194001
+s,skill:linkedin:en:wound care,0.031106855312950245
+s,skill:linkedin:en:outlook,0.01637202911207908
+s,skill:linkedin:en:leadership develop,0.042567275691405594
+s,skill:linkedin:en:train,0.07203692809314795
+s,skill:linkedin:en:cpr certifi,0.05402769606986096
+s,skill:linkedin:en:first aid,0.03438126113536606
+s,skill:linkedin:en:administr assist,0.021283637845702797
+s,skill:linkedin:en:health promot,0.013097623289663258
+s,skill:linkedin:en:powerpoint,0.04584168151382141
+s,skill:linkedin:en:stress manag,0.014734826200871168
+s,skill:linkedin:en:hospit,0.3569102346433239
+s,skill:linkedin:en:contract manag,0.011460420378455353
+s,skill:linkedin:en:nurs,0.23739442212514658
+s,skill:linkedin:en:qualit research,0.013097623289663258
+s,skill:linkedin:en:supervisori skill,0.014734826200871168
+s,skill:linkedin:en:intern medicin,0.01637202911207908
+s,skill:linkedin:en:project manag,0.07694853682677165
+s,skill:linkedin:en:health educ,0.018009232023286987
+s,skill:linkedin:en:polici,0.04911608733623722
+s,skill:linkedin:en:analysi,0.021283637845702797
+s,skill:linkedin:en:budget,0.019646434934494892
+s,skill:linkedin:en:organiz develop,0.018009232023286987
+s,skill:linkedin:en:public sector,0.026195246579326516
+s,skill:linkedin:en:strateg plan,0.05566489898106886
+s,skill:linkedin:en:train deliveri,0.011460420378455353
+s,skill:linkedin:en:fundrais,0.01637202911207908
+s,skill:linkedin:en:phlebotomi,0.03274405822415816
+s,skill:linkedin:en:palliat care,0.013097623289663258
+s,skill:linkedin:en:communic,0.03274405822415816
+s,skill:linkedin:en:teamwork,0.03438126113536606
+s,skill:linkedin:en:social servic,0.036018464046573974
+s,skill:linkedin:en:qualiti manag,0.011460420378455353
+s,skill:linkedin:en:self esteem,0.03274405822415816
+s,skill:linkedin:en:staff develop,0.011460420378455353
+s,skill:linkedin:en:motiv interview,0.011460420378455353
+s,skill:linkedin:en:pediatr,0.03438126113536606
+s,skill:linkedin:en:vital sign,0.02455804366811861
+s,skill:linkedin:en:person develop,0.031106855312950245
+s,skill:linkedin:en:leadership,0.06057650771469258
+s,skill:linkedin:en:qualiti improv,0.01637202911207908
+s,skill:linkedin:en:market,0.013097623289663258
+s,skill:linkedin:en:telephon skill,0.01637202911207908
+s,skill:linkedin:en:psycholog assess,0.02455804366811861
+s,skill:linkedin:en:hipaa,0.03765566695778187
+s,skill:linkedin:en:risk assess,0.018009232023286987
