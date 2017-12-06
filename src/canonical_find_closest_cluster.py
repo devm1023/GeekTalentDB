@@ -44,7 +44,7 @@ def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_cs
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _ ,tmp_svs = skillvectors(table, skill_table, args.source, titles, None)
+    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, None)
     title_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
@@ -105,7 +105,6 @@ def main(args):
         renamed_skillvectors.append({k.replace(':linkedin:', ':{}:'.format(args.source)): vector[k] for k in vector})
 
     skillvectors = renamed_skillvectors
-    #
 
     skillvectors = dict(zip(titles, skillvectors))
     mappings = {}
