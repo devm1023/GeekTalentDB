@@ -981,13 +981,11 @@ s,skill:linkedin:en:train,0.22189446943838817
 s,skill:linkedin:en:social media,0.037021694305384004
 s,skill:linkedin:en:higher educ,0.01341595657190439
 s,skill:linkedin:en:public relat,0.01757391603669137
-s,skill:linkedin:en:chang manag,0.24775047299219374
 s,skill:linkedin:en:e learn,0.010633675676923415
 s,skill:linkedin:en:informat,0.016541395726981017
 s,skill:linkedin:en:curriculum design,0.011133993428970895
 s,skill:linkedin:en:data entri,0.010608630166314874
 s,skill:linkedin:en:forecast,0.012336678564647017
-s,skill:linkedin:en:manag,0.3094925083746889
 s,skill:linkedin:en:workshop facilit,0.03277059887908965
 s,skill:linkedin:en:treatment,0.046950521202190246
 s,skill:linkedin:en:privat sector,0.025043837170548748
@@ -1000,7 +998,6 @@ s,skill:linkedin:en:patient safeti,0.06761137893102741
 s,skill:linkedin:en:strategi,0.057044998098534784
 s,skill:linkedin:en:custom experi,0.017635504725903188
 s,skill:linkedin:en:perform improv,0.03585857590101342
-s,skill:linkedin:en:manag consult,0.018874572516648945
 s,skill:linkedin:en:administr,0.01692502308941288
 s,skill:linkedin:en:mentor,0.012895341511502303
 s,skill:linkedin:en:servic improv,0.010773125194358515
@@ -1074,7 +1071,6 @@ s,skill:linkedin:en:event manag,0.03709296343567845
 s,skill:linkedin:en:practic manag,0.019607323625668457
 s,skill:linkedin:en:learn disabl,0.03962495696212875
 s,skill:linkedin:en:stakehold engag,0.06558023792429653
-s,skill:linkedin:en:contract manag,0.0286701169189011
 s,skill:linkedin:en:procur,0.020229776070683523
 s,skill:linkedin:en:inpati,0.017251815667654786
 s,skill:linkedin:en:adult social care,0.01908085582014784
@@ -1082,12 +1078,10 @@ s,skill:linkedin:en:program manag,0.06814721951391815
 s,skill:linkedin:en:healthcar,0.34689087834726046
 s,skill:linkedin:en:team leadership,0.12265429869354232
 s,skill:linkedin:en:window,0.02097852049132921
-s,skill:linkedin:en:staff manag,0.011366601604089836
 s,skill:linkedin:en:perform manag,0.15354512985916124
 s,skill:linkedin:en:social network,0.012336966008848543
 s,skill:linkedin:en:project plan,0.05771062996555996
 s,skill:linkedin:en:mental health,0.12553585853380625
-s,skill:linkedin:en:risk manag,0.021175439882714194
 s,skill:linkedin:en:infect control,0.016741316635993174
 s,skill:linkedin:en:call center,0.018180417936688197
 s,skill:linkedin:en:busi strategi,0.040773605239072155
@@ -1142,9 +1136,7 @@ s,skill:linkedin:en:cpr certifi,0.011858171467261383
 s,skill:linkedin:en:fmcg,0.010828841124149877
 s,skill:linkedin:en:nurs,0.10907753055063833
 s,skill:linkedin:en:project manag,0.1807556587126941
-s,skill:linkedin:en:team manag,0.05507990407315902
 s,skill:linkedin:en:polici,0.14632433473460812
-s,skill:linkedin:en:account manag,0.04822183606639678
 s,skill:linkedin:en:palliat care,0.017815819416826875
 s,skill:linkedin:en:suppli chain,0.010904111540896256
 s,skill:linkedin:en:local govern,0.05181896413865553
