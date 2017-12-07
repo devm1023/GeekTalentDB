@@ -128,6 +128,10 @@ echo Pip install requirements.
 env\scripts\pip install -r requirements.txt
 IF !ERRORLEVEL! NEQ 0 goto error
 
+echo Installing Shapely
+env\scripts\pip install "%DEPLOYMENT_SOURCE%\wheels\Shapely-1.6.2-cp34-cp34m-win32.whl"
+IF !ERRORLEVEL! NEQ 0 goto error
+
 REM Add additional package installation here
 REM -- Example --
 REM env\scripts\easy_install pytz
