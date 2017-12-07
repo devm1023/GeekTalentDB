@@ -128,6 +128,10 @@ REM -- Example --
 REM env\scripts\easy_install pytz
 REM IF !ERRORLEVEL! NEQ 0 goto error
 
+REM copy config
+echo Copying config
+copy /y "%DEPLOYMENT_SOURCE%\src\conf_azure.py" "%DEPLOYMENT_TARGET%\src\conf.py"
+
 :: 5. Copy web.config
 IF EXIST "%DEPLOYMENT_SOURCE%\web.%PYTHON_VER%.config" (
   echo Overwriting web.config with web.%PYTHON_VER%.config
