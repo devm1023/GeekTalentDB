@@ -128,6 +128,9 @@ REM -- Example --
 REM env\scripts\easy_install pytz
 REM IF !ERRORLEVEL! NEQ 0 goto error
 
+REM Install stopwords
+env\scripts\python -m nltk.downloader -d env\nltk_data stopwords
+
 REM copy config
 echo Copying config
 copy /y "%DEPLOYMENT_SOURCE%\src\conf_azure.py" "%DEPLOYMENT_TARGET%\src\conf.py"
