@@ -1,7 +1,6 @@
 from canonicaldb import *
 from entitycloud import entity_cloud
-from careerdefinitiondb import CareerDefinitionDB
-from textnormalization import normalized_entity, normalized_sector
+from textnormalization import normalized_sector
 from entity_mapper import EntityMapper
 from sqlalchemy import func
 from pgvalues import in_values

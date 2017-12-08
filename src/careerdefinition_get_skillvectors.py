@@ -158,7 +158,7 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
             skillvector[nrm_skill] = titleskillc/totalc
         if skillvector:
             norm = sqrt(sum(v**2 for v in skillvector.values()))
-            skillvector = dict((s, v/norm) for s,v in skillvector.items())
+            skillvector = dict((s, v/norm) for s, v in skillvector.items())
             newtitles.append((sector, title, sector_filter))
             titlecounts.append(titlec)
             skillvectors.append(skillvector)

@@ -136,4 +136,7 @@ if __name__ == '__main__':
     if args.location2 and not args.location1:
         raise Exception("Location1 must be provided is location2 is supplied!")
 
+    if not args.category:
+        raise Exception("No category provided.")
+
     main(args)
