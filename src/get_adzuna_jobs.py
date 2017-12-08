@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         help='Location 1 to get the jobs from.', default=None)
     parser.add_argument('--location2', type=str,
                         help='Location 2 to get the jobs from.', default=None)
-    parser.add_argument('--category', type=str,
+    parser.add_argument('--category', type=str, required=True,
                         help='Adzuna category for jobs.')
     parser.add_argument('--country', type=str, default='gb',
                         help='ISO 3166-1 country code')
@@ -135,8 +135,5 @@ if __name__ == '__main__':
 
     if args.location2 and not args.location1:
         raise Exception("Location1 must be provided is location2 is supplied!")
-
-    if not args.category:
-        raise Exception("No category provided.")
 
     main(args)
