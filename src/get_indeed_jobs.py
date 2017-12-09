@@ -113,7 +113,8 @@ def main(args):
 
                 # Those combinations would have to be made more granular.
                 if total > _Api.LIMIT:
-                    print('Location/Title combination exceeds API limits: {}, {}, {}/{}'.format(title, location, total, _Api.LIMIT), file=sys.stderr)
+                    print('Location/Title combination exceeds API limits: {}, {}, {}/{}'
+                          .format(title, location, total, _Api.LIMIT), file=sys.stderr)
 
                 extract_jobs(jobs, init_api)
 
