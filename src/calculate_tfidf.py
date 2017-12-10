@@ -14,11 +14,14 @@ def get_idf(job_table, skill_table, category):
 
     logger.log('Counting total document count:\n')
 
-    totalc = cndb.query(job_table.merged_title) \
+    q = cndb.query(job_table.merged_title) \
             .filter(job_table.language == 'en') \
-            .filter(job_table.category == category) \
-            .group_by(job_table.merged_title) \
-            .count()
+            .group_by(job_table.merged_title)
+
+    if category is not None:
+        q.filter(job_table.category == category) \
+
+    totalc = q.count()
 
     logger.log("Total: {} merged titles.\n".format(totalc))
 
@@ -57,9 +60,11 @@ def get_tfs(job_table, skill_table, category):
 
     q = cndb.query(job_table.merged_title) \
         .filter(job_table.language == 'en') \
-        .filter(job_table.category == category) \
         .group_by(job_table.merged_title) \
         .order_by(job_table.merged_title.asc())
+
+    if category is not None:
+        q.filter(job_table.category == category)
 
     merged_titles = [row[0] for row in q]
 
@@ -83,9 +88,9 @@ def get_tfs(job_table, skill_table, category):
 
 def compute_tfidfs(tfs, idfs):
 
-    for merged_title, tf in tfs.items():
-        for skill_name, tf_score in tf.items():
-           tf[skill_name] = float(tf_score) * float(idfs[skill_name])
+    for doc, tf in tfs.items():
+        for term, tf_score in tf.items():
+           tf[term] = float(tf_score) * float(idfs[term])
 
     return tfs
 
@@ -96,7 +101,7 @@ if __name__ == '__main__':
                         help='Name of the CSV file to generate.')
     parser.add_argument('--source', choices=['indeed', 'adzuna'], required=True,
                         help='The data source to process.')
-    parser.add_argument('--category', choices=['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs'], required=True,
+    parser.add_argument('--category', choices=['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs'],
                         help='Sector category.')
 
     group = parser.add_mutually_exclusive_group(required=True)
