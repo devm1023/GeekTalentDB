@@ -12,7 +12,7 @@ from careerdefinition_cluster import get_skillvectors, distance
 from math import acos, sqrt
 
 
-def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_csv):
+def find_closest_cluster(jobid, fromid, toid, skill_vectors, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -24,9 +24,6 @@ def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_cs
         skill_table = INJobSkill
 
     q = cndb.query(table).filter(table.id >= fromid)
-    # all_titles = cndb.query(table.category, table.parsed_title) \
-    #                  .filter(~table.nrm_title.in_(mappings.keys())) \
-    #                  .filter(table.id >= fromid)
     all_titles = cndb.query(table.category, table.parsed_title) \
                      .filter(table.id >= fromid)
 
@@ -44,18 +41,13 @@ def find_closest_cluster(jobid, fromid, toid, skill_vectors, mappings, output_cs
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, None)
+    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings)
     title_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
         title_skill_vectors[title[1]] = vector
 
     def find_closest_cluster(adzjob):
-
-        # matches a clustered title (Commented out to handle every title.)
-        # if adzjob.nrm_title in mappings:
-        #     adzjob.merged_title = mappings[adzjob.nrm_title][1]
-        #     return
 
         if adzjob.parsed_title not in title_skill_vectors:
             # no skills?
@@ -105,20 +97,10 @@ def main(args):
         renamed_skillvectors.append({k.replace(':linkedin:', ':{}:'.format(args.source)): vector[k] for k in vector})
 
     skillvectors = renamed_skillvectors
-
     skillvectors = dict(zip(titles, skillvectors))
-    mappings = {}
 
-    with open(args.clusters_file, 'r') as inputfile:
-        csvreader = csv.reader(inputfile)
-        for row in csvreader:
-            if not row:
-                continue
-            sector, title, _, mapped_title, _ = row
-            mappings[normalized_title(args.source, 'en', title)] = (normalized_title(args.source, 'en', mapped_title), mapped_title)
+    query = cndb.query(table.id)
 
-
-    query = cndb.query(table.id)#.filter(~table.nrm_title.in_(mappings.keys()))
     if args.from_id is not None:
         query = query.filter(table.id >= args.from_id)
     
@@ -130,7 +112,7 @@ def main(args):
         output_csv = csv.writer(open(args.output, 'w'))
 
     split_process(query, find_closest_cluster, args.batch_size,
-                njobs=njobs, args=[skillvectors, mappings, output_csv],
+                njobs=njobs, args=[skillvectors, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
 
@@ -147,16 +129,14 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--sector')
     parser.add_argument('--source',
-                    choices=['adzuna', 'indeedjob'],
-                    help=
-                    'Source type to process.')
+                        choices=['adzuna', 'indeedjob'],
+                        help='Source type to process.')
     parser.add_argument('skill_file', help=
                         'File containing skill vectors from clustering')
-    parser.add_argument('clusters_file', help=
-                        'File containing clusters')
     parser.add_argument('--output', help=
                         'File to save matches and distances to')
+    parser.add_argument('--mappings',
+                        help='CSV file holding entity mappings.')
     args = parser.parse_args()
-
 
     main(args)

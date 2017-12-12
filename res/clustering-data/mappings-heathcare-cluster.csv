@@ -90,11 +90,6 @@ title,en,,Dental,Dentist
 title,en,,General Dental Practitioner,Dentist
 title,en,,Specialist Orthodontist,Dentist
 title,en,,Consultant Orthodontist,Dentist
-title,en,,health care,health care
-title,en,,home care,health care
-title,en,,Dental Practice Manager,health care
-title,en,Healthcare,Activities Coordinator,health care
-title,en,Healthcare,career,health care
 title,en,,Care Manager,Care Manager
 title,en,Healthcare,Health Service Manager,Care Manager
 title,en,Healthcare,care,Care Manager
@@ -103,19 +98,27 @@ title,en,,Compliance Inspector,Care Manager
 title,en,Healthcare,Performance Manager,Care Manager
 title,en,,ECA,Care Manager
 title,en,Healthcare,Service Improvement Manager,Care Manager
-title,en,,Health Professional,Health Professional
-title,en,Healthcare,Pharmacist,Health Professional
-title,en,Healthcare,Team Leader,Health Professional
-title,en,,NHS,Health Professional
-title,en,,Healthcare,Health Professional
-title,en,,Healthcare Professional,Health Professional
-title,en,,Medicines Management Technician,Health Professional
-title,en,,Theatre Support Worker,Health Professional
-title,en,Healthcare,Technical Instructor,Health Professional
-title,en,Healthcare,Health Trainer,Health Professional
-title,en,Healthcare,Practice Administrator,Health Professional
-title,en,Healthcare,Pharmacy Intern,Health Professional
-title,en,Healthcare,doc,Health Professional
+title,en,,Healthcare Professional,Healthcare Professional
+title,en,,Health Professional,Healthcare Professional
+title,en,Healthcare,Pharmacist,Healthcare Professional
+title,en,Healthcare,Team Leader,Healthcare Professional
+title,en,,NHS,Healthcare Professional
+title,en,,Healthcare,Healthcare Professional
+title,en,,Medicines Management Technician,Healthcare Professional
+title,en,,Theatre Support Worker,Healthcare Professional
+title,en,Healthcare,Technical Instructor,Healthcare Professional
+title,en,Healthcare,Health Trainer,Healthcare Professional
+title,en,Healthcare,Practice Administrator,Healthcare Professional
+title,en,Healthcare,Pharmacy Intern,Healthcare Professional
+title,en,Healthcare,doc,Healthcare Professional
+title,en,,home care,Healthcare Professional
+title,en,,Dental Practice Manager,Healthcare Professional
+title,en,Healthcare,Activities Coordinator,Healthcare Professional
+title,en,Healthcare,career,Healthcare Professional
+title,en,,Hospital and health care professional,Healthcare Professional
+title,en,,Independent Hospital & Health Care Professional,Healthcare Professional
+title,en,,Med Sec,Healthcare Professional
+title,en,,Health Care Professional,Healthcare Professional
 title,en,,Physiotherapist,Physiotherapist
 title,en,,Musculoskeletal Physiotherapist,Physiotherapist
 title,en,Healthcare,Healthcare Administrator,Healthcare Administrator
@@ -136,10 +139,6 @@ title,en,Healthcare,Clerical,Healthcare Administrator
 title,en,,General Practitioner (GP),General Practitioner (GP)
 title,en,,Locum GP,General Practitioner (GP)
 title,en,,GP Locum,General Practitioner (GP)
-title,en,,Hospital and health care professional,Hospital and health care professional
-title,en,,Independent Hospital & Health Care Professional,Hospital and health care professional
-title,en,,Med Sec,Hospital and health care professional
-title,en,,Health Care Professional,Health Care Professional
 title,en,Healthcare,Care Worker,Care Worker
 title,en,Healthcare,Project Worker,Care Worker
 title,en,Healthcare,Mental Health Support Worker,Care Worker
