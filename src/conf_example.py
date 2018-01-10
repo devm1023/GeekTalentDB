@@ -30,6 +30,8 @@ DESCRIPTION_DB \
 WATSON_DB \
     = 'postgresql://geektalent:geektalent@localhost/watson'
 
+WHICHUNI_DB = 'postgresql://geektalent:geektalent@localhost/whichini'
+
 
 # paths for tor browser
 #
