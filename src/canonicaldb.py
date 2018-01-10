@@ -771,7 +771,7 @@ class ADZJobSkill(SQLBase):
     __tablename__ = 'adzjob_skill'
     id            = Column(BigInteger, primary_key=True)
     adzjob_id     = Column(BigInteger, ForeignKey('adzjob.id'), index=True)
-    language      = Column(String(20))
+    language      = Column(String(20), index=True)
     name          = Column(Unicode(STR_MAX))
     nrm_name      = Column(Unicode(STR_MAX), index=True)
     reenforced    = Column(Boolean)

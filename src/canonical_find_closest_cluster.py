@@ -12,7 +12,7 @@ from careerdefinition_cluster import get_skillvectors, distance
 from math import acos, sqrt
 
 
-def find_closest_cluster(jobid, fromid, toid, skill_vectors, output_csv):
+def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -42,35 +42,35 @@ def find_closest_cluster(jobid, fromid, toid, skill_vectors, output_csv):
     titles = list(set(titles))
 
     sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings)
-    title_skill_vectors = {}
+    jobs_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
-        title_skill_vectors[title[1]] = vector
+        jobs_skill_vectors[title[1]] = vector
 
     def find_closest_cluster(adzjob):
 
-        if adzjob.parsed_title not in title_skill_vectors:
+        if adzjob.parsed_title not in jobs_skill_vectors:
             # no skills?
             return
 
-        title_skill_vector = title_skill_vectors[adzjob.parsed_title]
+        job_skill_vector = jobs_skill_vectors[adzjob.parsed_title]
 
         closest = None
         closest_dist = 0
         skill_intersection = []
-        for cluster, vector in skill_vectors.items():
-            dist = distance(title_skill_vector, vector, 1)
+        for cluster, vector in people_skill_vectors.items():
+            dist = distance(job_skill_vector, vector, 1)
 
             if not closest or dist < closest_dist:
                 closest = cluster
                 closest_dist = dist
 
-            skill_intersection = list(set(vector.keys()) & set(title_skill_vector.keys()))
+            skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
 
         has_full_desc = adzjob.full_description is not None
 
         if output_csv is not None:
-            output_csv.writerow([adzjob.parsed_title, closest[1], closest_dist, has_full_desc, len(title_skill_vector), len(skill_intersection), ", ".join(skill_intersection)])
+            output_csv.writerow([adzjob.parsed_title, closest[1], closest_dist, has_full_desc, len(job_skill_vector), len(skill_intersection), ", ".join(skill_intersection)])
 
         adzjob.merged_title = closest[1]
 

@@ -137,6 +137,70 @@ def get_ladata():
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+
+@app.route('/merged-tittle-skills/', methods=['GET'])
+def get_mergedtitleskills():
+    start = datetime.now()
+    category = request.args.get('category')
+    mergedtitle = request.args.get('mergedtitle')
+    region = request.args.get('region')
+    region_type = request.args.get('region', 'la')
+
+    # build results
+    results = {}
+    total = 0
+
+    def build_results(q):
+        nonlocal total
+        nonlocal results
+
+        if q is None:
+            return
+
+        for region_id, region_code, region_name, job_title, count in q:
+            key = region_code
+
+            if job_title is None:
+                job_title = "unknown"
+
+            # new region
+            if key not in results:
+                results[key] = {}
+                if region_name is not None:
+                    results[key]['name'] = region_name
+                # leps for la
+                if leps is not None:
+                    if region_id in leps:
+                        results[key]['leps'] = leps[region_id]
+                    else:
+                        results[key]['leps'] = []
+                results[key]['count'] = 0
+                results[key]['merged_titles'] = {}
+
+            results[key]['count'] += count
+
+            # add title
+            if job_title not in results[key]['merged_titles']:
+                results[key]['merged_titles'][job_title] = 0
+            results[key]['merged_titles'][job_title] += count
+
+            total += count
+
+    build_results(get_breakdown_for_source(ADZJob, category, titles, region_type))
+    build_results(get_breakdown_for_source(INJob, category, titles, region_type))
+
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'total': total,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
 
