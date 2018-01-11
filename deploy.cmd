@@ -120,7 +120,7 @@ IF NOT EXIST "%DEPLOYMENT_TARGET%\env\azure.env.%PYTHON_RUNTIME%.txt" (
 
 REM install up to date pip
 echo Updating pip
-env\scripts\easy_install pip
+env\scripts\easy_install -U pip
 IF !ERRORLEVEL! NEQ 0 goto error
 
 :: 4. Install packages
