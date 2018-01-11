@@ -390,7 +390,7 @@ class WUStudiedBefore(SQLBase):
 
 # database session class
 class WhichUniDB(Session):
-    def __init__(self, url=conf.PARSE_DB,
+    def __init__(self, url=conf.WHICHUNI_DB,
                  engine_args=[], engine_kwargs={}, **kwargs):
         Session.__init__(self, url=url, metadata=SQLBase.metadata,
                          engine_args=engine_args, engine_kwargs=engine_kwargs,

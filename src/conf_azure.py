@@ -27,6 +27,7 @@ DESCRIPTION_DB = os.environ.get('CUSTOMCONNSTR_DESCRIPTION')
 # Watson Database
 WATSON_DB = os.environ.get('CUSTOMCONNSTR_WATSON')
 
+WHICHUNI_DB = os.environ.get('CUSTOMCONNSTR_WHICHUNI')
 
 # paths for tor browser
 #
