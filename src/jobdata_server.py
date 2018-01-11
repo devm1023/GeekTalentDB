@@ -137,7 +137,7 @@ def get_ladata():
     return response
 
 
-@app.route('/merged-tittle-skills/', methods=['GET'])
+@app.route('/merged-title-skills/', methods=['GET'])
 def get_mergedtitleskills():
     start = datetime.now()
     category = request.args.get('category')
