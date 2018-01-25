@@ -986,7 +986,6 @@ class Location(SQLBase):
 class SkillsIdf(SQLBase):
     __tablename__ = 'skills_idf'
     name          = Column(Unicode(STR_MAX), index=True, primary_key=True)
-    nrm_name      = Column(Unicode(STR_MAX), index=True)
     idf           = Column(Float)
 
 
@@ -1974,6 +1973,15 @@ class CanonicalDB(Session):
 
         return job_row
 
+    def add_skill_idf(self, skill_idf):
+        """"
+            NOTE: database must be empty as it does not yet handle skills already present in the table.
+        """
+
+        idf = deepcopy(skill_idf)
+        job_row = self.add_from_dict(idf, SkillsIdf)
+        self.flush()
+        return job_row
 
     def add_uwprofile(self, uwprofile):
         """Add a LinkedIn profile to the database (or update if it exists).
