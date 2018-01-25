@@ -31,6 +31,7 @@ __all__ = [
     'Word',
     'Location',
     'CanonicalDB',
+    'SkillsIdf',
     ]
 
 import conf
@@ -980,6 +981,13 @@ class Location(SQLBase):
     nuts1         = Column(String(20), index=True)
     nuts2         = Column(String(20), index=True)
     nuts3         = Column(String(20), index=True)
+
+
+class SkillsIdf(SQLBase):
+    __tablename__ = 'skills_idf'
+    name          = Column(Unicode(STR_MAX), index=True, primary_key=True)
+    nrm_name      = Column(Unicode(STR_MAX), index=True)
+    idf           = Column(Float)
 
 
 def _joinfields(*args):
