@@ -31,6 +31,7 @@ __all__ = [
     'Word',
     'Location',
     'CanonicalDB',
+    'SkillsIdf',
     ]
 
 import conf
@@ -980,6 +981,12 @@ class Location(SQLBase):
     nuts1         = Column(String(20), index=True)
     nuts2         = Column(String(20), index=True)
     nuts3         = Column(String(20), index=True)
+
+
+class SkillsIdf(SQLBase):
+    __tablename__ = 'skills_idf'
+    name          = Column(Unicode(STR_MAX), index=True, primary_key=True)
+    idf           = Column(Float)
 
 
 def _joinfields(*args):
@@ -1966,6 +1973,15 @@ class CanonicalDB(Session):
 
         return job_row
 
+    def add_skill_idf(self, skill_idf):
+        """"
+            NOTE: database must be empty as it does not yet handle skills already present in the table.
+        """
+
+        idf = deepcopy(skill_idf)
+        job_row = self.add_from_dict(idf, SkillsIdf)
+        self.flush()
+        return job_row
 
     def add_uwprofile(self, uwprofile):
         """Add a LinkedIn profile to the database (or update if it exists).
