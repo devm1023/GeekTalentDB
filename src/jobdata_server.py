@@ -8,7 +8,7 @@ from sqlalchemy import func, desc
 from sqlalchemy.sql.expression import literal_column
 
 import conf
-from canonicaldb import CanonicalDB, ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP
+from canonicaldb import CanonicalDB, ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf
 from dbtools import dict_from_row
 
 # Create application
@@ -194,14 +194,20 @@ def get_mergedtitleskills():
         for skill_name, count in q:
             results[skill_name] = count
 
+    def attach_tfidf(results):
+        idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(results.keys())))
+        print('idfs size: {0:d}'.format(len(idfs)))
+        return {skill: results[skill] * idfs[skill] for skill in results.keys()}
+
     build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type, limit))
     build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type, limit))
+    results = attach_tfidf(results)
 
     end = datetime.now()
-    response = jsonify({'results' : results,
+    response = jsonify({'results': results,
                         'total': total,
-                        'query_time' : (end-start).microseconds//1000,
-                        'status' : 'OK'})
+                        'query_time': (end-start).microseconds//1000,
+                        'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
