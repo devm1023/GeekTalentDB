@@ -143,7 +143,7 @@ def get_mergedtitleskills():
     category = request.args.get('category')
     mergedtitle = request.args.get('mergedtitle')
     region = request.args.get('region')
-    region_type = request.args.get('regiontype', 'la')
+    region_type = request.args.get('region_type', 'la')
     limit = request.args.get('limit', 20)
 
     if not category or not mergedtitle or not region or not region_type:
@@ -164,7 +164,7 @@ def get_mergedtitleskills():
             .filter(jobstable.merged_title == mergedtitle) \
 
         if region_type == 'la':
-            q = q.filter(jobstable.la_id == region)
+            q = q.filter(jobstable.lau118cd == region)
         elif region_type == 'lep':
             q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
                     .join(LEP, LAInLEP.lep_id == LEP.id) \
@@ -192,7 +192,9 @@ def get_mergedtitleskills():
             return
 
         for skill_name, count in q:
-            results[skill_name] = count
+            if skill_name not in results:
+                results[skill_name] = 0
+            results[skill_name] += count
 
     def attach_tfidf(results):
         idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(results.keys())))

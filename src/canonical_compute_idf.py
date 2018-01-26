@@ -25,7 +25,7 @@ def main(args):
 
     logger.log('Calculating idf values...\n')
     for skill_name, df in doc_freq.items():
-        idf = {'name': skill_name, 'idf': math.log(doc_count / df)}
+        idf = {'name': skill_name, 'idf': math.log10(doc_count / df)}
         logger.log('{0:s}, {1:f}\n'.format(idf['name'], idf['idf']))
         cndb.add_skill_idf(idf)
 
