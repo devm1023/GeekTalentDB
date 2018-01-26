@@ -13,10 +13,24 @@ def main(args):
 
     doc_count = cndb.query(ADZJob).count() + cndb.query(INJob).count()
     logger.log('Total jobs found {0:d}\n'.format(doc_count))
-
     countcol = func.count().label('counts')
-    adz_doc_freq = dict(cndb.query(ADZJobSkill.name, countcol).group_by(ADZJobSkill.name))
-    ind_doc_freq = dict(cndb.query(INJobSkill.name, countcol).group_by(INJobSkill.name))
+
+    q = cndb.query(ADZJobSkill.name, countcol).group_by(ADZJobSkill.name)
+
+    if args.uk_only:
+        q = q.join(ADZJob, ADZJob.id == ADZJobSkill.adzjob_id) \
+            .filter(ADZJob.nuts0 == 'UK')
+
+    adz_doc_freq = dict(q)
+
+    q = cndb.query(INJobSkill.name, countcol).group_by(INJobSkill.name)
+
+    if args.uk_only:
+        q = q.join(INJob, INJob.id == INJobSkill.adzjob_id) \
+            .filter(INJob.nuts0 == 'UK')
+
+    ind_doc_freq = dict(q)
+
     doc_freq = {k: adz_doc_freq.get(k, 0) + ind_doc_freq.get(k, 0) for k in set(adz_doc_freq) | set(ind_doc_freq)}
 
     logger.log('adz_doc_freq size {0:d}\n'.format(len(adz_doc_freq)))
@@ -34,10 +48,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # To be implemented.
-    # parser.add_argument('--all-sectors', action='store_true',
-    #                    help=Compute IDF values where document frequency is calculated within all sectors.')
+    parser.add_argument('--uk-only', action='store_true',
+                        help='Compute IDF values using UK jobs only.')
     args = parser.parse_args()
     main(args)
-
-
