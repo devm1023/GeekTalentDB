@@ -194,16 +194,11 @@ def get_mergedtitleskills():
                 results[skill_name] = 0
             results[skill_name] += count
 
-        print('recruiters tf: {0:f}'.format(results['recruiters']))
         total = len(results)
 
     def attach_tfidfs(res):
         idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(res.keys())))
         print('idfs size: {0:d}'.format(len(idfs)))
-
-        print('recruiters tf in attach_tfidfs: {0:f}'.format(res['recruiters']))
-        print('recruiters idf: {0:f}'.format(idfs['recruiters']))
-
         return {skill: res[skill] * idfs[skill] for skill in res.keys()}
 
     def sort_trim(res, size):
@@ -231,4 +226,3 @@ def get_mergedtitleskills():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
