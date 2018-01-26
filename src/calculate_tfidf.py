@@ -15,7 +15,7 @@ def get_idf(job_table, skill_table, category):
     logger.log('Counting total document count:\n')
 
     q = cndb.query(job_table.merged_title) \
-            .filter(job_table.language == 'en') \
+            .filter(job_table.nut == 'en') \
             .group_by(job_table.merged_title)
 
     if category is not None:

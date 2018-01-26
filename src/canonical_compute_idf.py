@@ -11,7 +11,9 @@ def main(args):
     logger = Logger(sys.stdout)
     cndb = CanonicalDB()
 
-    doc_count = cndb.query(ADZJob).count() + cndb.query(INJob).count()
+    doc_count = cndb.query(ADZJob).filter(ADZJob.nuts0 == 'UK' if args.uk_only else None).count() \
+        + cndb.query(INJob).filter(INJob.nuts0 == 'UK' if args.uk_only else None).count()
+
     logger.log('Total jobs found {0:d}\n'.format(doc_count))
     countcol = func.count().label('counts')
 
