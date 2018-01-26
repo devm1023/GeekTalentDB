@@ -1,9 +1,7 @@
+from collections import Counter
 from datetime import datetime
-
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-
 from sqlalchemy import func, desc
 from sqlalchemy.sql.expression import literal_column
 
@@ -143,7 +141,7 @@ def get_mergedtitleskills():
     category = request.args.get('category')
     mergedtitle = request.args.get('mergedtitle')
     region = request.args.get('region')
-    region_type = request.args.get('regiontype', 'la')
+    region_type = request.args.get('region_type', 'la')
     limit = request.args.get('limit', 20)
 
     if not category or not mergedtitle or not region or not region_type:
@@ -153,7 +151,7 @@ def get_mergedtitleskills():
     results = {}
     total = 0
 
-    def built_query(jobstable, skillstable ,category, mergedtitle, region, region_type, limit):
+    def built_query(jobstable, skillstable ,category, mergedtitle, region, region_type):
         countcol = func.count().label('counts')
 
         q = cndb.query(skillstable.name, countcol) \
@@ -164,7 +162,8 @@ def get_mergedtitleskills():
             .filter(jobstable.merged_title == mergedtitle) \
 
         if region_type == 'la':
-            q = q.filter(jobstable.la_id == region)
+            q = q.join(LA, jobstable.la_id == LA.gid) \
+                .filter(LA.lau118cd == region)
         elif region_type == 'lep':
             q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
                     .join(LEP, LAInLEP.lep_id == LEP.id) \
@@ -179,8 +178,7 @@ def get_mergedtitleskills():
             q = q.filter(jobstable.nuts3 == region)
 
         q = q.group_by(skillstable.name) \
-            .order_by(desc(countcol)) \
-            .limit(limit)
+            .order_by(desc(countcol))
 
         return q
 
@@ -192,16 +190,29 @@ def get_mergedtitleskills():
             return
 
         for skill_name, count in q:
-            results[skill_name] = count
+            if skill_name not in results:
+                results[skill_name] = 0
+            results[skill_name] += count
 
-    def attach_tfidf(results):
-        idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(results.keys())))
+        total = len(results)
+
+    def attach_tfidfs(res):
+        idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(res.keys())))
         print('idfs size: {0:d}'.format(len(idfs)))
-        return {skill: results[skill] * idfs[skill] for skill in results.keys()}
+        return {skill: res[skill] * idfs[skill] for skill in res.keys()}
 
-    build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type, limit))
-    build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type, limit))
-    results = attach_tfidf(results)
+    def sort_trim(res, size):
+        names = list()
+        tfidfs = list()
+        for skill, tfidf in Counter(res).most_common(size):
+            names.append(skill)
+            tfidfs.append(tfidf)
+        return {'skill_names': names, 'skill_tfidf': tfidfs}
+
+    build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type))
+    build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type))
+    results = attach_tfidfs(results)
+    results = sort_trim(results, limit)
 
     end = datetime.now()
     response = jsonify({'results': results,
