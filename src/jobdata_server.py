@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, desc
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import literal_column
 
 import conf
@@ -72,14 +73,22 @@ def get_ladata():
 
     # get leps
     leps = None
-    if region_type == 'la':
-        leps = {}
-        lepq = db.session.query(LAInLEP.la_id, LEP).join(LEP)
 
-        for la_id, lep in lepq:
-            if la_id not in leps:
-                leps[la_id] = []
-            leps[la_id].append(dict_from_row(lep))
+    try:
+        if region_type == 'la':
+            leps = {}
+            lepq = db.session.query(LAInLEP.la_id, LEP).join(LEP)
+
+            for la_id, lep in lepq:
+                if la_id not in leps:
+                    leps[la_id] = []
+                leps[la_id].append(dict_from_row(lep))
+
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
 
     # build results
     results = {}
@@ -121,8 +130,15 @@ def get_ladata():
 
             total += count
 
-    build_results(get_breakdown_for_source(ADZJob, category, titles, region_type))
-    build_results(get_breakdown_for_source(INJob, category, titles, region_type))
+    try:
+        build_results(get_breakdown_for_source(ADZJob, category, titles, region_type))
+        build_results(get_breakdown_for_source(INJob, category, titles, region_type))
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
 
     end = datetime.now()
     response = jsonify({'results' : results,
@@ -208,9 +224,16 @@ def get_mergedtitleskills():
             tfidfs.append(tfidf)
         return {'skill_names': names, 'skill_tfidf': tfidfs}
 
-    build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type))
-    build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type))
-    results = attach_tfidfs(results)
+    try:
+        build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type))
+        build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type))
+        results = attach_tfidfs(results)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
     results = sort_trim(results, limit)
 
     end = datetime.now()
