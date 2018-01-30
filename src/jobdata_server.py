@@ -2,34 +2,33 @@ from collections import Counter
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, desc
 from sqlalchemy.sql.expression import literal_column
 
 import conf
-from canonicaldb import CanonicalDB, ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf
+from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf
 from dbtools import dict_from_row
 
 # Create application
 app = Flask(__name__)
 CORS(app)
 
-# Create database sessions
-cndb = CanonicalDB()
-
 # Configure app and create database view
 app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
+db = SQLAlchemy(app)
 
 
 def get_breakdown_for_source(table, category, titles, region_type):
     countcol = func.count().label('counts')
 
     if region_type == 'la':
-        q = cndb.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol) \
+        q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol) \
                 .join(table)
         group_field = LA.gid
     elif region_type == 'lep':
-        q = cndb.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
+        q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
                 .join(LAInLEP).join(LA).join(table)
         group_field = LEP.id
     elif region_type == 'nuts0' or region_type == 'nuts1' \
@@ -45,7 +44,7 @@ def get_breakdown_for_source(table, category, titles, region_type):
             group_field = table.nuts3
 
         null_column = literal_column("NULL")
-        q = cndb.query(null_column, group_field, null_column, table.merged_title, countcol) \
+        q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
                 .filter(group_field.isnot(None))
     else:
         return None
@@ -75,7 +74,7 @@ def get_ladata():
     leps = None
     if region_type == 'la':
         leps = {}
-        lepq = cndb.query(LAInLEP.la_id, LEP).join(LEP)
+        lepq = db.session.query(LAInLEP.la_id, LEP).join(LEP)
 
         for la_id, lep in lepq:
             if la_id not in leps:
@@ -154,7 +153,7 @@ def get_mergedtitleskills():
     def built_query(jobstable, skillstable ,category, mergedtitle, region, region_type):
         countcol = func.count().label('counts')
 
-        q = cndb.query(skillstable.name, countcol) \
+        q = db.session.query(skillstable.name, countcol) \
             .join(jobstable) \
             .filter(skillstable.language == 'en') \
             .filter(jobstable.language == 'en') \
@@ -197,7 +196,7 @@ def get_mergedtitleskills():
         total = len(results)
 
     def attach_tfidfs(res):
-        idfs = dict(cndb.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(res.keys())))
+        idfs = dict(db.session.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(res.keys())))
         print('idfs size: {0:d}'.format(len(idfs)))
         return {skill: res[skill] * idfs[skill] for skill in res.keys()}
 
