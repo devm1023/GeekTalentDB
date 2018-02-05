@@ -154,13 +154,10 @@ def get_ladata():
 def get_mergedtitleskills():
     start = datetime.now()
     category = request.args.get('category')
-    mergedtitle = request.args.get('mergedtitle')
+    merged_title = request.args.get('mergedtitle')
     region = request.args.get('region')
     region_type = request.args.get('region_type', 'la')
     limit = request.args.get('limit', 20)
-
-    if not category or not mergedtitle or not region or not region_type:
-        return jsonify({'msg': 'insufficient query arguments', 'status': 'ERROR'})
 
     # build results
     results = {}
@@ -172,25 +169,29 @@ def get_mergedtitleskills():
         q = db.session.query(skillstable.name, countcol) \
             .join(jobstable) \
             .filter(skillstable.language == 'en') \
-            .filter(jobstable.language == 'en') \
-            .filter(jobstable.category == category) \
-            .filter(jobstable.merged_title == mergedtitle) \
+            .filter(jobstable.language == 'en')
 
-        if region_type == 'la':
-            q = q.join(LA, jobstable.la_id == LA.gid) \
-                .filter(LA.lau118cd == region)
-        elif region_type == 'lep':
-            q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
-                    .join(LEP, LAInLEP.lep_id == LEP.id) \
-                    .filter(LEP.name == region)
-        elif region_type == 'nuts0':
-            q = q.filter(jobstable.nuts0 == region)
-        elif region_type == 'nuts1':
-            q = q.filter(jobstable.nuts1 == region)
-        elif region_type == 'nuts2':
-            q = q.filter(jobstable.nuts2 == region)
-        elif region_type == 'nuts3':
-            q = q.filter(jobstable.nuts3 == region)
+        if category:
+            q = q.filter(jobstable.category == category)
+        if merged_title:
+            q = q.filter(jobstable.merged_title == merged_title)
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA, jobstable.la_id == LA.gid) \
+                    .filter(LA.lau118cd == region)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
+                        .join(LEP, LAInLEP.lep_id == LEP.id) \
+                        .filter(LEP.name == region)
+            elif region_type == 'nuts0':
+                q = q.filter(jobstable.nuts0 == region)
+            elif region_type == 'nuts1':
+                q = q.filter(jobstable.nuts1 == region)
+            elif region_type == 'nuts2':
+                q = q.filter(jobstable.nuts2 == region)
+            elif region_type == 'nuts3':
+                q = q.filter(jobstable.nuts3 == region)
 
         q = q.group_by(skillstable.name) \
             .order_by(desc(countcol))
@@ -225,8 +226,8 @@ def get_mergedtitleskills():
         return {'skill_names': names, 'skill_tfidf': tfidfs}
 
     try:
-        build_results(built_query(ADZJob, ADZJobSkill, category, mergedtitle, region, region_type))
-        build_results(built_query(INJob, INJobSkill, category, mergedtitle, region, region_type))
+        build_results(built_query(ADZJob, ADZJobSkill, category, merged_title, region, region_type))
+        build_results(built_query(INJob, INJobSkill, category, merged_title, region, region_type))
         results = attach_tfidfs(results)
     except SQLAlchemyError as e:
         return jsonify({
