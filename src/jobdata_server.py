@@ -214,7 +214,7 @@ def get_mergedtitleskills():
     def attach_tfidfs(res):
         idfs = dict(db.session.query(SkillsIdf.name, SkillsIdf.idf).filter(SkillsIdf.name.in_(res.keys())))
         print('idfs size: {0:d}'.format(len(idfs)))
-        return {skill: res[skill] * idfs[skill] for skill in res.keys()}
+        return {skill: res[skill] * idfs.get(skill, 0) for skill in res.keys()}
 
     def sort_trim(res, size):
         names = list()
