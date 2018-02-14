@@ -580,8 +580,8 @@ class DatoinDB(Session):
         """
 
         job_id = self.query(ADZJob.id) \
-                          .filter(ADZJob.adref \
-                                  == adzjobdict['adref']) \
+                          .filter(ADZJob.adz_id \
+                                  == adzjobdict['id']) \
                           .first()
 
         cat_tag = self.query(ADZCategory.tag) \
