@@ -1,5 +1,6 @@
 import requests
 import argparse
+from datetime import datetime
 import conf
 from datoindb import *
 
@@ -74,6 +75,7 @@ class _Api():
             raise StopIteration()
 
 def main(args):
+    start = datetime.now()
 
     dtdb = DatoinDB()
 
@@ -118,7 +120,8 @@ def main(args):
     #             continue
     #         outputfile.write('{0}\n'.format(skill))
 
-    print('\nDone!')
+    end = datetime.now()
+    print('\nDone (in {}s)!'.format((end - start).seconds))
 
 
 if __name__ == '__main__':
