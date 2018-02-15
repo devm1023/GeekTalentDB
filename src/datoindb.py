@@ -596,8 +596,7 @@ class DatoinDB(Session):
                         == adzjobdict['company']['display_name']) \
                 .first()
             if not com_tag:
-                adzcom = self.add_from_dict(adzjobdict['company'], ADZCompany, flush=True)
-                self.flush()
+                self.add_from_dict(adzjobdict['company'], ADZCompany, update=False, flush=True)
             adzjobdict['company'] = adzjobdict['company']['display_name']
         else:
             adzjobdict['company'] = None
@@ -605,8 +604,7 @@ class DatoinDB(Session):
 
         # Prepare category for 1-m
         if not cat_tag:
-            adzcat = self.add_from_dict(adzjobdict['category'], ADZCategory, flush=True)
-            self.flush()
+            self.add_from_dict(adzjobdict['category'], ADZCategory, update=False, flush=True)
 
         adzjobdict['category'] = adzjobdict['category']['tag']
 
@@ -641,10 +639,7 @@ class DatoinDB(Session):
         adzjobdict['crawled_date'] = timestamp.timestamp()
         adzjobdict['indexed_on']   = timestamp.timestamp()
 
-        adzjob = self.add_from_dict(adzjobdict, ADZJob,  flush=True)
-        self.commit()
-        self.flush()
-        self.commit()
+        adzjob = self.add_from_dict(adzjobdict, ADZJob, flush=job_id is None)
 
         return adzjob
 

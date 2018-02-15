@@ -80,14 +80,14 @@ class _Api():
 def main(args):
     start = datetime.now()
 
-    dtdb = DatoinDB()
+    dtdb = DatoinDB(autoflush=False)
 
     def extract_jobs(jobs):
         for job in jobs:
             dtdb.add_adzuna_job(job)
 
-    dtdb.flush()
-    dtdb.commit()
+        dtdb.flush()
+        dtdb.commit()
 
     api = _Api(args.country, args.location1, args.location2, args.category)
     init_api = api.getpage(1)
