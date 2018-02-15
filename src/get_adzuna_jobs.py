@@ -2,6 +2,7 @@ import requests
 import argparse
 from datetime import datetime
 import sys
+import traceback
 
 import conf
 from datoindb import *
@@ -115,6 +116,7 @@ def main(args):
                 extract_jobs(jobs)
             except Exception as e:
                 print('URL failed: {0}\n'.format(page), file=sys.stderr)
+                print(traceback.format_exc(), file=sys.stderr)
 
         if not args.quiet:
             print('Jobs found: {0:d}\n'.format(total))
