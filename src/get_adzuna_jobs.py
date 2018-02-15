@@ -104,16 +104,19 @@ def main(args):
         print('Total jobs to get: {0:d}\n'.format(total))
 
         for page in api:
-            print('Requesting: {0}'.format(page))
-            r = requests.get(page)
-            json = r.json()
-            jobs = json['results']
-            extract_jobs(jobs)
+            try:
+                print('Requesting: {0}'.format(page))
+                r = requests.get(page)
+                json = r.json()
+                jobs = json['results']
+                extract_jobs(jobs)
+            except Exception as e:
+                print('URL failed: {0}\n'.format(page), file=sys.stderr)
 
         print('Jobs found: {0:d}\n'.format(total))
 
     except Exception as e:
-        print('URL failed: {0}\n'.format(init_api), file=sys.stderr)
+        print('Initial URL failed: {0}\n'.format(init_api), file=sys.stderr)
 
     # with open('digital_tech_solr_skills.txt', 'w') as outputfile:
     #     for i, skill in enumerate(skills):
