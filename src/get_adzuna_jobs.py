@@ -1,6 +1,8 @@
 import requests
 import argparse
 from datetime import datetime
+import sys
+
 import conf
 from datoindb import *
 
@@ -111,8 +113,7 @@ def main(args):
         print('Jobs found: {0:d}\n'.format(total))
 
     except Exception as e:
-        print('URL failed: {0}\n'.format(init_api))
-        raise
+        print('URL failed: {0}\n'.format(init_api), file=sys.stderr)
 
     # with open('digital_tech_solr_skills.txt', 'w') as outputfile:
     #     for i, skill in enumerate(skills):
