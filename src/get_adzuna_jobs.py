@@ -91,7 +91,8 @@ def main(args):
     api = _Api(args.country, args.location1, args.location2, args.category)
     init_api = api.getpage(1)
 
-    print('Querying Adzuna with: {0}\n'.format(init_api))
+    if not args.quiet:
+        print('Querying Adzuna with: {0}\n'.format(init_api))
 
     try:
         r = requests.get(init_api)
@@ -101,11 +102,13 @@ def main(args):
         jobs = json['results']
         extract_jobs(jobs)
 
-        print('Total jobs to get: {0:d}\n'.format(total))
+        if not args.quiet:
+            print('Total jobs to get: {0:d}\n'.format(total))
 
         for page in api:
             try:
-                print('Requesting: {0}'.format(page))
+                if not args.quiet:
+                    print('Requesting: {0}'.format(page))
                 r = requests.get(page)
                 json = r.json()
                 jobs = json['results']
@@ -113,7 +116,8 @@ def main(args):
             except Exception as e:
                 print('URL failed: {0}\n'.format(page), file=sys.stderr)
 
-        print('Jobs found: {0:d}\n'.format(total))
+        if not args.quiet:
+            print('Jobs found: {0:d}\n'.format(total))
 
     except Exception as e:
         print('Initial URL failed: {0}\n'.format(init_api), file=sys.stderr)
@@ -125,7 +129,8 @@ def main(args):
     #         outputfile.write('{0}\n'.format(skill))
 
     end = datetime.now()
-    print('\nDone (in {}s)!'.format((end - start).seconds))
+    if not args.quiet:
+        print('\nDone (in {}s)!'.format((end - start).seconds))
 
 
 if __name__ == '__main__':
@@ -138,6 +143,8 @@ if __name__ == '__main__':
                         help='Adzuna category for jobs.')
     parser.add_argument('--country', type=str, default='gb',
                         help='ISO 3166-1 country code')
+    parser.add_argument('--quiet', action='store_true',
+                        help='Only print errors')
     args = parser.parse_args()
 
     if args.location2 and not args.location1:
