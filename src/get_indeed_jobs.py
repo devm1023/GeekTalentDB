@@ -88,6 +88,8 @@ def main(args):
 
     print('Locations read: {0}'.format(len(titles)))
 
+    session = requests.Session()
+
     for title in titles:
 
         if args.from_title is not None and title != url.quote_plus(args.from_title):
@@ -105,7 +107,7 @@ def main(args):
             print('Querying Indeed with: {0}'.format(init_api))
 
             try:
-                r = requests.get(init_api)
+                r = session.get(init_api)
                 json = r.json()
                 total = json['totalResults']
                 api.total = total
@@ -122,7 +124,7 @@ def main(args):
 
                 for page in api:
                     print('Requesting: {0:s}'.format(page))
-                    r = requests.get(page)
+                    r = session.get(page)
                     json = r.json()
                     jobs = json['results']
                     extract_jobs(jobs, page)

@@ -92,11 +92,13 @@ def main(args):
     api = _Api(args.country, args.location1, args.location2, args.category)
     init_api = api.getpage(1)
 
+    session = requests.Session()
+
     if not args.quiet:
         print('Querying Adzuna with: {0}\n'.format(init_api))
 
     try:
-        r = requests.get(init_api)
+        r = session.get(init_api)
         json = r.json()
         total = json['count']
         api.total = total
@@ -110,7 +112,7 @@ def main(args):
             try:
                 if not args.quiet:
                     print('Requesting: {0}'.format(page))
-                r = requests.get(page)
+                r = session.get(page)
                 json = r.json()
                 jobs = json['results']
                 extract_jobs(jobs)
