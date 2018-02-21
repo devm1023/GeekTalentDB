@@ -20,18 +20,18 @@ class _Api():
     """
     def __init__(self, country, loc1, loc2, cat):
         if loc2 is not None:
-            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
-                       '&location0=UK&location1={4}&location2={5}&category={6}&sort_by=date&sort_direction=down'
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
+                       '&location0=UK&location1={5}&location2={6}&sort_by=date&sort_direction=down'
             self.location2 = loc2.replace(' ', '+')
             self.location1 = loc1.replace(' ', '+')
         elif loc1 is not None:
-            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
-                       '&location0=UK&location1={4}&category={5}&sort_by=date&sort_direction=down'
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
+                       '&location0=UK&location1={5}&sort_by=date&sort_direction=down'
             self.location2 = None
             self.location1 = loc1.replace(' ', '+')
         else:
-            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50' \
-                       '&category={4}&sort_by=date&sort_direction=down'
+            self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
+                       '&sort_by=date&sort_direction=down'
             self.location1 = None
             self.location2 = None
 
@@ -45,30 +45,14 @@ class _Api():
         return self
 
     def getpage(self, p):
-        if self.location2:
-            return self.api.format(
-                conf.ADZUNA_SEARCH_API.format(self.country),
-                p,
-                conf.ADZUNA_APP_ID,
-                conf.ADZUNA_APP_KEY,
-                self.location1,
-                self.location2,
-                self.category)
-        elif self.location1:
-            return self.api.format(
-                conf.ADZUNA_SEARCH_API.format(self.country),
-                p,
-                conf.ADZUNA_APP_ID,
-                conf.ADZUNA_APP_KEY,
-                self.location1,
-                self.category)
-        else:
-            return self.api.format(
-                conf.ADZUNA_SEARCH_API.format(self.country),
-                p,
-                conf.ADZUNA_APP_ID,
-                conf.ADZUNA_APP_KEY,
-                self.category)
+        return self.api.format(
+            conf.ADZUNA_SEARCH_API.format(self.country),
+            p,
+            conf.ADZUNA_APP_ID,
+            conf.ADZUNA_APP_KEY,
+            self.category,
+            self.location1,
+            self.location2)
 
     def __next__(self):
         if self.page * self.step < self.total:
