@@ -18,25 +18,26 @@ class _Api():
     """
     Returns a formatted api request string.
     """
-    def __init__(self, country, loc1, loc2, cat):
+    def __init__(self, country, loc1, loc2, cat, max_age):
         if loc2 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
-                       '&location0=UK&location1={5}&location2={6}&sort_by=date&sort_direction=down'
+                       '&max_days_old={5}&location0=UK&location1={6}&location2={7}&sort_by=date&sort_direction=down'
             self.location2 = loc2.replace(' ', '+')
             self.location1 = loc1.replace(' ', '+')
         elif loc1 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
-                       '&location0=UK&location1={5}&sort_by=date&sort_direction=down'
+                       '&max_days_old={5}&location0=UK&location1={6}&sort_by=date&sort_direction=down'
             self.location2 = None
             self.location1 = loc1.replace(' ', '+')
         else:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
-                       '&sort_by=date&sort_direction=down'
+                       '&max_days_old={5}&sort_by=date&sort_direction=down'
             self.location1 = None
             self.location2 = None
 
         self.country = country
         self.category = cat
+        self.max_age = max_age
         self.page  = 1
         self.total = 1
         self.step  = 50
@@ -51,6 +52,7 @@ class _Api():
             conf.ADZUNA_APP_ID,
             conf.ADZUNA_APP_KEY,
             self.category,
+            self.max_age,
             self.location1,
             self.location2)
 
@@ -73,7 +75,7 @@ def main(args):
         dtdb.flush()
         dtdb.commit()
 
-    api = _Api(args.country, args.location1, args.location2, args.category)
+    api = _Api(args.country, args.location1, args.location2, args.category, args.max_age)
     init_api = api.getpage(1)
 
     session = requests.Session()
@@ -133,6 +135,8 @@ if __name__ == '__main__':
                         help='ISO 3166-1 country code')
     parser.add_argument('--quiet', action='store_true',
                         help='Only print errors')
+    parser.add_argument('--max-age', type=str,
+                        help='Maximum number of days ago to crawl.', default=0)
     args = parser.parse_args()
 
     if args.location2 and not args.location1:
