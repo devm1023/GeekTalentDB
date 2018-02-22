@@ -131,18 +131,22 @@ def main(args):
                     print('Total jobs to get: {0:d}'.format(total))
 
                 for page in api:
-                    if not args.quiet:
-                        print('Requesting: {0:s}'.format(page))
-                    r = session.get(page)
-                    json = r.json()
-                    jobs = json['results']
-                    extract_jobs(jobs, page)
+                    try:
+                        if not args.quiet:
+                            print('Requesting: {0:s}'.format(page))
+                        r = session.get(page)
+                        json = r.json()
+                        jobs = json['results']
+                        extract_jobs(jobs, page)
+                    except Exception as e:
+                        print('URL failed: {0}\n'.format(page), file=sys.stderr)
+                        print(traceback.format_exc(), file=sys.stderr)
 
                 if not args.quiet:
                     print('Jobs found: {0:d}'.format(total))
 
             except Exception as e:
-                print('URL failed: {0} {1}'.format(init_api, e), file=sys.stderr)
+                print('Initial URL failed: {0} {1}'.format(init_api, e), file=sys.stderr)
 
     if not not args.quiet:
         print('Done!')
