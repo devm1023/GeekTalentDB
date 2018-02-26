@@ -149,7 +149,7 @@ def main(args):
             except Exception as e:
                 print('Initial URL failed: {0} {1}'.format(init_api, e), file=sys.stderr)
 
-    if not not args.quiet:
+    if not args.quiet:
         print('Done!')
 
 
