@@ -2,6 +2,7 @@ import requests
 import argparse
 import csv
 import sys
+import traceback
 import conf
 import urllib.parse as url
 from datoindb import *
