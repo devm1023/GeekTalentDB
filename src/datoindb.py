@@ -638,6 +638,7 @@ class DatoinDB(Session):
         timestamp = datetime.utcnow()
         adzjobdict['crawled_date'] = timestamp.timestamp()
         adzjobdict['indexed_on']   = timestamp.timestamp()
+        adzjobdict['crawl_fail_count'] = 0
 
         adzjob = self.add_from_dict(adzjobdict, ADZJob, flush=job_id is None)
 
@@ -688,6 +689,7 @@ class DatoinDB(Session):
         timestamp = datetime.utcnow()
         injobdict['crawl_date'] = timestamp
         injobdict['indexed_on'] = timestamp
+        injobdict['crawl_fail_count'] = 0
 
         adzjob = self.add_from_dict(injobdict, IndeedJob, flush=True)
         self.commit()
