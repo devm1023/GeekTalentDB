@@ -687,7 +687,7 @@ class DatoinDB(Session):
         injobdict['crawl_url'] = crawl_url
 
         timestamp = datetime.utcnow()
-        injobdict['crawl_date'] = timestamp
+        injobdict['crawled_date'] = timestamp
         injobdict['indexed_on'] = timestamp
         injobdict['crawl_fail_count'] = 0
 
