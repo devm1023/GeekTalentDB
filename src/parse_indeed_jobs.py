@@ -1,5 +1,6 @@
 from crawldb import *
 from parsedb import ParseDB, INJob
+from datoindb import DatoinDB, IndeedJob
 from windowquery import split_process, process_db
 from phraseextract import PhraseExtractor
 from textnormalization import tokenized_skill
@@ -53,7 +54,7 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractors):
     return d
 
 
-def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors):
+def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, category, skillextractors):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'indeedjob',
@@ -61,7 +62,7 @@ def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors):
     if to_url is not None:
         filters.append(Webpage.redirect_url < to_url)
     
-    with CrawlDB() as crdb, ParseDB() as psdb:
+    with CrawlDB() as crdb, ParseDB() as psdb, DatoinDB() as dtdb:
         # construct query that retreives the latest version of each profile
         maxts = func.max(Webpage.timestamp) \
                     .over(partition_by=Webpage.redirect_url) \
@@ -79,6 +80,12 @@ def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors):
 
         # this function does the parsing
         def process_row(webpage):
+
+            if category is not None:
+                post_category = dtdb.query(IndeedJob.category).filter(IndeedJob.jobkey == webpage.tag).first()
+                if post_category is None or post_category[0] != category:
+                    return
+
             try:
                 doc = parse_html(webpage.html)
             except:
@@ -147,7 +154,7 @@ def main(args):
         q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_job_posts, args.batch_size,
-                      args=[from_ts, to_ts, skillextractors], njobs=args.jobs, logger=logger,
+                      args=[from_ts, to_ts, args.category, skillextractors], njobs=args.jobs, logger=logger,
                       workdir='jobs', prefix='parse_indeed_job')
             
 
@@ -167,6 +174,8 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--skills', help=
                         'Name of a CSV file holding skill tags.')
+    parser.add_argument('--category', type=str, default=None,
+                        help='Category for jobs. e.g. it-jobs')
     args = parser.parse_args()
     main(args)
     
