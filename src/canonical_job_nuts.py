@@ -34,6 +34,9 @@ def map_job_nuts(jobid, fromid, toid):
     if args.sector is not None:
         q = q.filter(table.category == args.sector)
 
+    if args.no_nuts_only:
+        q = q.filter(table.nuts0.is_(None))
+
     def map_nuts(tables):
         job, loc = tables
 
