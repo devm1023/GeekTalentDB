@@ -84,6 +84,11 @@ ADZUNA_APP_ID = '5f619739'
 ADZUNA_APP_KEY = 'da114b2c3ded37d8cc280d8841e5f7f6'
 ADZUNA_HISTOGRAM_API = 'https://api.adzuna.com/v1/api/jobs/gb/histogram'
 ADZUNA_HISTORY_API = 'https://api.adzuna.com/v1/api/jobs/gb/history'
+ADZUNA_SEARCH_API = 'https://api.adzuna.com/v1/api/jobs/{}/search/'
+
+# Indeed
+INDEED_SEARCH_API = 'https://api.indeed.com/ads/apisearch'
+INDEED_PUB_ID = 0
 
 # maximum number of failed crawls before profile gets deleted
 MAX_CRAWL_FAIL_COUNT = 3

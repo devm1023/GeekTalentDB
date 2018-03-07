@@ -745,6 +745,9 @@ def parse_profiles(njobs, batchsize,
     if fromid is not None:
         query = query.filter(table.id >= fromid)
 
+    if category is not None and (table == ADZJob or table == IndeedJob):
+        query = query.filter(table.category == category)
+
     split_process(query, parsefunc, batchsize,
                   njobs=1,
                   args=[from_ts, to_ts, by_indexed_on, skillextractors, category],

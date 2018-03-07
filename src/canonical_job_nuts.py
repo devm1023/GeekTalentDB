@@ -34,6 +34,9 @@ def map_job_nuts(jobid, fromid, toid):
     if args.sector is not None:
         q = q.filter(table.category == args.sector)
 
+    if args.no_nuts_only:
+        q = q.filter(table.nuts0.is_(None))
+
     def map_nuts(tables):
         job, loc = tables
 
@@ -68,7 +71,7 @@ def main(args):
     if args.sector is not None:
         query = query.filter(table.category == args.sector)
 
-    if args.new_only:
+    if args.no_nuts_only:
         query = query.filter(table.nuts0.is_(None))
 
     split_process(query, map_job_nuts, batchsize,
@@ -88,7 +91,7 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--sector', help="Sector filter.")
     parser.add_argument('--no-nuts-only', action='store_true', help=
-                        "Process only rows which have not yet been NUTs tagged.")
+                        "Process only rows which have not yet been NUTS tagged.")
     parser.add_argument('--source',
                     choices=['adzuna', 'indeedjob'],
                     help=

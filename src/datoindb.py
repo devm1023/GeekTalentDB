@@ -580,8 +580,8 @@ class DatoinDB(Session):
         """
 
         job_id = self.query(ADZJob.id) \
-                          .filter(ADZJob.adref \
-                                  == adzjobdict['adref']) \
+                          .filter(ADZJob.adz_id \
+                                  == adzjobdict['id']) \
                           .first()
 
         cat_tag = self.query(ADZCategory.tag) \
@@ -596,8 +596,7 @@ class DatoinDB(Session):
                         == adzjobdict['company']['display_name']) \
                 .first()
             if not com_tag:
-                adzcom = self.add_from_dict(adzjobdict['company'], ADZCompany, flush=True)
-                self.flush()
+                self.add_from_dict(adzjobdict['company'], ADZCompany, update=False, flush=True)
             adzjobdict['company'] = adzjobdict['company']['display_name']
         else:
             adzjobdict['company'] = None
@@ -605,8 +604,7 @@ class DatoinDB(Session):
 
         # Prepare category for 1-m
         if not cat_tag:
-            adzcat = self.add_from_dict(adzjobdict['category'], ADZCategory, flush=True)
-            self.flush()
+            self.add_from_dict(adzjobdict['category'], ADZCategory, update=False, flush=True)
 
         adzjobdict['category'] = adzjobdict['category']['tag']
 
@@ -640,11 +638,9 @@ class DatoinDB(Session):
         timestamp = datetime.utcnow()
         adzjobdict['crawled_date'] = timestamp.timestamp()
         adzjobdict['indexed_on']   = timestamp.timestamp()
+        adzjobdict['crawl_fail_count'] = 0
 
-        adzjob = self.add_from_dict(adzjobdict, ADZJob,  flush=True)
-        self.commit()
-        self.flush()
-        self.commit()
+        adzjob = self.add_from_dict(adzjobdict, ADZJob, flush=job_id is None)
 
         return adzjob
 
@@ -691,8 +687,9 @@ class DatoinDB(Session):
         injobdict['crawl_url'] = crawl_url
 
         timestamp = datetime.utcnow()
-        injobdict['crawl_date'] = timestamp
+        injobdict['crawled_date'] = timestamp
         injobdict['indexed_on'] = timestamp
+        injobdict['crawl_fail_count'] = 0
 
         adzjob = self.add_from_dict(injobdict, IndeedJob, flush=True)
         self.commit()
