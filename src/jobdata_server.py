@@ -21,7 +21,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
 
-def get_breakdown_for_source(table, category, titles, region_type):
+def get_breakdown_for_source(table, category, titles, region_type, start_date, end_date):
     countcol = func.count().label('counts')
 
     if region_type == 'la':
@@ -55,6 +55,11 @@ def get_breakdown_for_source(table, category, titles, region_type):
     if titles:
         q = q.filter(table.merged_title.in_(titles))
 
+    if start_date is not None:
+        q = q.filter(func.date(table.created) >= start_date)
+    if end_date is not None:
+        q = q.filter(func.date(table.created) <= end_date)
+
     q = q.group_by(group_field, table.merged_title)
     return q
 
@@ -70,6 +75,8 @@ def get_ladata():
     category = request.args.get('category')
     titles = request.args.getlist('title')
     region_type = request.args.get('region_type', 'la')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
     # get leps
     leps = None
@@ -131,8 +138,8 @@ def get_ladata():
             total += count
 
     try:
-        build_results(get_breakdown_for_source(ADZJob, category, titles, region_type))
-        build_results(get_breakdown_for_source(INJob, category, titles, region_type))
+        build_results(get_breakdown_for_source(ADZJob, category, titles, region_type, start_date, end_date))
+        build_results(get_breakdown_for_source(INJob, category, titles, region_type, start_date, end_date))
     except SQLAlchemyError as e:
         return jsonify({
             'error': 'Database error',
@@ -158,6 +165,8 @@ def get_mergedtitleskills():
     region = request.args.get('region')
     region_type = request.args.get('region_type', 'la')
     limit = request.args.get('limit', 20)
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
     # build results
     results = {}
@@ -175,6 +184,11 @@ def get_mergedtitleskills():
             q = q.filter(jobstable.category == category)
         if merged_title:
             q = q.filter(jobstable.merged_title == merged_title)
+
+        if start_date is not None:
+            q = q.filter(func.date(jobstable.created) >= start_date)
+        if end_date is not None:
+            q = q.filter(func.date(jobstable.created) <= end_date)
 
         if region:
             if region_type == 'la':
