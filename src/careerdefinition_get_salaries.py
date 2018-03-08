@@ -16,9 +16,9 @@ if __name__ == '__main__':
     
     q = cddb.query(Career, Sector.name) \
             .join(Sector) \
-            .order_by(Sector.name, Career.title)
+            .order_by(Sector.name, Career.adzuna_title)
     for career, sector_name in q:
-        logger.log('{0:s} | {1:s}\n'.format(sector_name, career.title))
+        logger.log('{0:s} | {1:s} | {2:s}\n'.format(sector_name, career.title, career.adzuna_title))
         # update salary histogram
         salary_q = cddb.query(SalaryBin) \
                        .filter(SalaryBin.career_id == career.id)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
                              params={'app_id' : conf.ADZUNA_APP_ID,
                                      'app_key' : conf.ADZUNA_APP_KEY,
                                      'location0' : 'UK',
-                                     'what' : career.title,
+                                     'what' : career.adzuna_title,
                                      'content-type' : 'application/json'}) \
                         .json()
             if 'histogram' in r:
@@ -58,7 +58,7 @@ if __name__ == '__main__':
                              params={'app_id' : conf.ADZUNA_APP_ID,
                                      'app_key' : conf.ADZUNA_APP_KEY,
                                      'location0' : 'UK',
-                                     'what' : career.title,
+                                     'what' : career.adzuna_title,
                                      'months' : '12',
                                      'content-type' : 'application/json'}) \
                         .json()
@@ -72,4 +72,3 @@ if __name__ == '__main__':
                                              salary=salary)
                     cddb.add(salary_history_point)
                 cddb.commit()
-

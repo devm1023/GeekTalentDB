@@ -21,7 +21,7 @@ app = Flask(__name__)
 cddb = CareerDefinitionDB()
 dscdb = DescriptionDB()
 
-# Create dummy secrey key so we can use sessions
+# Create dummy secret key so we can use sessions
 app.config['SECRET_KEY'] = '123456790'
 
 # Configure app and create database view
@@ -76,6 +76,8 @@ class Sector(db.Model):
     education_subjects_total = db.Column(db.BigInteger)
     education_institutes_total = db.Column(db.BigInteger)
     visible       = db.Column(db.Boolean, nullable=False)
+    parent        = db.Column(db.BigInteger,  db.ForeignKey('sector.id'))
+    datatype      = db.Column(db.Unicode(STR_MAX))
 
     skill_cloud = db.relationship(
         'SectorSkill', order_by='desc(SectorSkill.relevance_score)',
@@ -91,6 +93,8 @@ class Sector(db.Model):
         cascade='all, delete-orphan', backref='sector')
     careers = db.relationship(
         'Career', order_by='Career.title', cascade='all, delete-orphan')
+
+    parent_obj = db.relationship('Sector', remote_side=id, backref='child_sectors')
 
     def __str__(self):
         return self.name
@@ -155,6 +159,7 @@ class Career(db.Model):
     sector_id     = db.Column(db.BigInteger, db.ForeignKey('sector.id'),
                               index=True, nullable=False)
     title         = db.Column(db.Unicode(STR_MAX), nullable=False)
+    adzuna_title  = db.Column(db.Unicode(STR_MAX), index=True, nullable=False)
     count         = db.Column(db.BigInteger)
     education_subjects_total = db.Column(db.BigInteger)
     education_institutes_total = db.Column(db.BigInteger)
@@ -361,6 +366,8 @@ class SectorView(ModelView):
         'total_count' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},
         'education_institutes_total' : {'readonly' : True},
+        'parent' : {'readonly' : False},
+        'datatype' : {'readonly' : False}
     }
     inline_models = [
         (SectorSkill, {'form_widget_args' : {
@@ -417,6 +424,7 @@ class CareerView(ModelView):
     form_excluded_columns = ('salary_bins', 'salary_history_points')
     form_widget_args = {
         'title' : {'readonly' : True},
+        'adzuna_title': {'readonly': False},
         'count' : {'readonly' : True},
         'relevance_score' : {'readonly' : True},
         'education_subjects_total' : {'readonly' : True},

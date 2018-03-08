@@ -9,6 +9,7 @@ from entity_mapper import EntityMapper
 from sqlalchemy import func, or_
 import csv
 import argparse
+from adzuna_title_mapper import AdzunaMapper
 
 
 def _get_items(keys, d):
@@ -310,11 +311,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
-                        'Columns: type | lang | sector | name | mapped name')
+                        'Columns: type | lang | sector | name | mapped name', required=True)
     parser.add_argument('--careers',
                         help='Name of the CSV file holding the careers. '
                         'If absent, only sector-level stats are generated. '
-                        'Columns: sector,use sector filter (0/1),title')
+                        'Columns: sector,use sector filter (0/1),title', required=True)
+    parser.add_argument('--adzuna-titles', dest='adzuna_title',
+                        help='Name of a csv file holding Adzuna titles. '
+                             'Columns: sector, title, adzuna_title', required=True)
     parser.add_argument('--max-entities', type=int, default=50,
                         help='Maximum number of entities in clouds. (Default: 50)')
     parser.add_argument('--min-count', type=int, default=1,
@@ -376,7 +380,7 @@ if __name__ == '__main__':
     cndb = CanonicalDB()
     cddb = CareerDefinitionDB()
     mapper = EntityMapper(cndb, args.mappings)
-
+    adzuna_titles = AdzunaMapper(args.adzuna_title).get_mappings_for_secotr(args.sector)
     nrm_sector = normalized_entity('sector', 'linkedin', 'en', args.sector)
     sectors = mapper.inv(nrm_sector)
 
@@ -587,8 +591,14 @@ if __name__ == '__main__':
         # initialise career dict
         ch_sector_id = sector_id
         if ch_sector_name:
-            ch_sector_id = ch_sectors[ch_sector_name]['id']        
+            ch_sector_id = ch_sectors[ch_sector_name]['id']
+
+        adzuna_title = career
+        if career in adzuna_titles:
+            adzuna_title = adzuna_titles[career]
+
         careerdict = {'title' : career,
+                      'adzuna_title': adzuna_title,
                       'sector_id' : ch_sector_id,
                       'total_count' : profilec,
                       'sector_count' : None,

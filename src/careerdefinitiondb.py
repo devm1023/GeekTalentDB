@@ -56,6 +56,8 @@ class Sector(SQLBase):
     education_subjects_total = Column(BigInteger)
     education_institutes_total = Column(BigInteger)
     visible       = Column(Boolean, nullable=False)
+    parent        = Column(BigInteger)
+    datatype      = Column(Unicode(STR_MAX))
 
     skill_cloud = relationship('SectorSkill',
                                order_by='desc(SectorSkill.relevance_score)',
@@ -135,6 +137,7 @@ class Career(SQLBase):
     sector_id     = Column(BigInteger, ForeignKey('sector.id'),
                            index=True, nullable=False)
     title         = Column(Unicode(STR_MAX), index=True, nullable=False)
+    adzuna_title  = Column(Unicode(STR_MAX), index=True, nullable=False)
     count         = Column(BigInteger)
     education_subjects_total = Column(BigInteger)
     education_institutes_total = Column(BigInteger)
@@ -344,7 +347,7 @@ class CareerDefinitionDB(Session):
                 salary_bins = [dict_from_row(b) for b, in salary_bins \
                                if b is not None]
                 salary = _average_salary(salary_bins)
-                if salary is not None:
+                if salary is not None and count is not None:
                     wsum += count*salary
                     totalcount += count
                 sectordict['careers'].append(title)
@@ -380,6 +383,9 @@ class CareerDefinitionDB(Session):
         for career in q:
             careerdict = dict_from_row(career, pkeys=False, fkeys=False)
             careerdict = _remove_invisibles(careerdict)
+
+            # Added to resolve the 'Adzuna Title issue'
+            careerdict['adzuna_title'] = career.adzuna_title
 
             careerdict['average_salary'] = None
             if careerdict['salary_bins']:
