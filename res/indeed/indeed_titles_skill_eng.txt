@@ -29,7 +29,7 @@
 "Operations Director" (manufactur or manag or product develop or oper manag or lean manufactur)
 "Electrical Technician" (electrician or wire or engin or inspect or electr engin)
 "Electrical Supervisor" (electrician or electr engin or engin or commiss or power distribut)
-"Production Operator" (electron or microsoft word or solder or microsoft offic or test)
+"Production Operator"
 "Credit Controller" (custom servic or manag or negoti or account manag or account)
 "Electronics" (electron or c or matlab or custom servic or cplusplus)
 "Approved Electrician" (electr or inspect or electr engin or engin or electrician)
