@@ -24,7 +24,7 @@ class _Api:
     LIMIT = 1025  # Indeed limits pagination to 1024 objects.
 
     def __init__(self, country, title, l, max_age):
-        self.api = '{0}?publisher={1:d}&sort=date&radius=50&st&jt&start={2:d}&limit={3:d}' \
+        self.api = '{0}?publisher={1:d}&sort=date&radius=15&st&jt&start={2:d}&limit={3:d}' \
                    '&filter=1&latlong=1&co={4}&chnl&userip=1.2.3.4&useragent=Mozilla//4.0%28Firefox%29' \
                    '&v=2&format=json&latlong=1&q={5}&l={6}&fromage={7}'
 

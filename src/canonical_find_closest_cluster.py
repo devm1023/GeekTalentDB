@@ -35,6 +35,10 @@ def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
         q = q.filter(table.category == args.sector)
         all_titles = all_titles.filter(table.category == args.sector)
 
+    if args.test_id is not None:
+        q = q.filter(table.id == args.test_id)
+        all_titles = all_titles.filter(table.id == args.test_id)
+
     all_titles = all_titles.filter(table.parsed_title.isnot(None))
 
     logger.log('Querying titles...\n')
@@ -58,18 +62,23 @@ def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
         closest = None
         closest_dist = 0
         skill_intersection = []
+        has_full_desc = adzjob.full_description is not None
+
         for cluster, vector in people_skill_vectors.items():
             dist = distance(job_skill_vector, vector, 1)
 
             if not closest or dist < closest_dist:
                 closest = cluster
                 closest_dist = dist
+                skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
 
-            skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
+            # single id test output
+            if output_csv is not None and args.test_id is not None:
+                skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
+                output_csv.writerow([adzjob.parsed_title, cluster[1], dist, has_full_desc, len(job_skill_vector), len(skill_intersection), ", ".join(skill_intersection)])
 
-        has_full_desc = adzjob.full_description is not None
 
-        if output_csv is not None:
+        if output_csv is not None and args.test_id is None:
             output_csv.writerow([adzjob.parsed_title, closest[1], closest_dist, has_full_desc, len(job_skill_vector), len(skill_intersection), ", ".join(skill_intersection)])
 
         adzjob.merged_title = closest[1]
@@ -107,6 +116,9 @@ def main(args):
     if args.sector is not None:
         query = query.filter(table.category == args.sector)
 
+    if args.test_id is not None:
+        query = query.filter(table.id == args.test_id)
+
     output_csv = None
     if args.output is not None:
         output_csv = csv.writer(open(args.output, 'w'))
@@ -127,6 +139,8 @@ if __name__ == '__main__':
     parser.add_argument('--from-id', help=
                         'Start processing from this ID. Useful for '
                         'crash recovery.')
+    parser.add_argument('--test-id', help=
+                        'Only process this ID and log all matches')
     parser.add_argument('--sector')
     parser.add_argument('--source',
                         choices=['adzuna', 'indeedjob'],

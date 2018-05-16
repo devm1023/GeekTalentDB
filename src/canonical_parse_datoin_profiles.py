@@ -28,7 +28,7 @@ country_languages = {
     'Germany'        : 'de',
     'Deutschland'    : 'de',
     'Spain'          : 'es',
-    'Finland'        : 'fi',
+    #'Finland'        : 'fi',
     'France'         : 'fr',
     'Italy'          : 'it',
     'Italia'         : 'it',
