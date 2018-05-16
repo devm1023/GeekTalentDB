@@ -64,8 +64,8 @@ def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
             if not closest or dist < closest_dist:
                 closest = cluster
                 closest_dist = dist
+                skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
 
-            skill_intersection = list(set(vector.keys()) & set(job_skill_vector.keys()))
 
         has_full_desc = adzjob.full_description is not None
 
