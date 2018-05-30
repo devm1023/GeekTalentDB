@@ -53,7 +53,10 @@ def get_breakdown_for_source(table, category, titles, region_type, start_date, e
     if category:
         q = q.filter(table.category == category)
     if titles:
-        q = q.filter(table.merged_title.in_(titles))
+        if len(titles) == 1 and titles[0] == 'unknown':
+            q = q.filter(table.merged_title.is_(None))
+        else:
+            q = q.filter(table.merged_title.in_(titles))
 
     if start_date is not None:
         q = q.filter(func.date(table.created) >= start_date)
