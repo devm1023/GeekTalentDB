@@ -186,7 +186,10 @@ def get_mergedtitleskills():
         if category:
             q = q.filter(jobstable.category == category)
         if merged_title:
-            q = q.filter(jobstable.merged_title == merged_title)
+            if merged_title == 'unknown':
+                q = q.filter(jobstable.merged_title.is_(None))
+            else:
+                q = q.filter(jobstable.merged_title == merged_title)
 
         if start_date is not None:
             q = q.filter(func.date(jobstable.created) >= start_date)
