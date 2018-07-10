@@ -20,11 +20,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
-def get_region_field(table, region_type):
+def get_region_field(table, region_type, code=False):
     if region_type == 'la':
-        return LA.gid
+        return LA.lau118cd if code else LA.gid
     elif region_type == 'lep':
-        return LEP.id
+        return LEP.name if code else LEP.id
     elif region_type == 'nuts0':
         return table.nuts0
     elif region_type == 'nuts1':
@@ -207,7 +207,7 @@ def get_mergedtitleskills():
                 q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
                         .join(LEP, LAInLEP.lep_id == LEP.id)
 
-            region_field = get_region_field(jobstable, region_type)
+            region_field = get_region_field(jobstable, region_type, code=True)
             q = q.filter(region_field == region)
 
         q = q.group_by(skillstable.name) \
