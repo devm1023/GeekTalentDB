@@ -36,7 +36,21 @@ def get_region_field(table, region_type):
 
     return None
 
-def get_breakdown_for_source(table, category, titles, region_type, start_date, end_date):
+def apply_common_filters(q, table):
+    category = request.args.get('category')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    if category:
+        q = q.filter(table.category == category)
+    if start_date is not None:
+        q = q.filter(func.date(table.created) >= start_date)
+    if end_date is not None:
+        q = q.filter(func.date(table.created) <= end_date)
+
+    return q
+
+def get_breakdown_for_source(table, titles, region_type):
     countcol = func.count().label('counts')
 
     group_field = get_region_field(table, region_type)
@@ -55,18 +69,13 @@ def get_breakdown_for_source(table, category, titles, region_type, start_date, e
     else:
         return None
 
-    if category:
-        q = q.filter(table.category == category)
+    q = apply_common_filters(q, table)
+
     if titles:
         if len(titles) == 1 and titles[0] == 'unknown':
             q = q.filter(table.merged_title.is_(None))
         else:
             q = q.filter(table.merged_title.in_(titles))
-
-    if start_date is not None:
-        q = q.filter(func.date(table.created) >= start_date)
-    if end_date is not None:
-        q = q.filter(func.date(table.created) <= end_date)
 
     q = q.group_by(group_field, table.merged_title)
     return q
@@ -80,11 +89,8 @@ def index():
 @app.route('/regional-breakdown/', methods=['GET'])
 def get_ladata():
     start = datetime.now()
-    category = request.args.get('category')
     titles = request.args.getlist('title')
     region_type = request.args.get('region_type', 'la')
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
 
     # get leps
     leps = None
@@ -146,8 +152,8 @@ def get_ladata():
             total += count
 
     try:
-        build_results(get_breakdown_for_source(ADZJob, category, titles, region_type, start_date, end_date))
-        build_results(get_breakdown_for_source(INJob, category, titles, region_type, start_date, end_date))
+        build_results(get_breakdown_for_source(ADZJob, titles, region_type))
+        build_results(get_breakdown_for_source(INJob, titles, region_type))
     except SQLAlchemyError as e:
         return jsonify({
             'error': 'Database error',
@@ -173,14 +179,12 @@ def get_mergedtitleskills():
     region = request.args.get('region')
     region_type = request.args.get('region_type', 'la')
     limit = request.args.get('limit', 20)
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
 
     # build results
     results = {}
     total = 0
 
-    def built_query(jobstable, skillstable ,category, mergedtitle, region, region_type):
+    def built_query(jobstable, skillstable, mergedtitle, region, region_type):
         countcol = func.count().label('counts')
 
         q = db.session.query(skillstable.name, countcol) \
@@ -188,18 +192,13 @@ def get_mergedtitleskills():
             .filter(skillstable.language == 'en') \
             .filter(jobstable.language == 'en')
 
-        if category:
-            q = q.filter(jobstable.category == category)
+        q = apply_common_filters(q, jobstable)
+
         if merged_title:
             if merged_title == 'unknown':
                 q = q.filter(jobstable.merged_title.is_(None))
             else:
                 q = q.filter(jobstable.merged_title == merged_title)
-
-        if start_date is not None:
-            q = q.filter(func.date(jobstable.created) >= start_date)
-        if end_date is not None:
-            q = q.filter(func.date(jobstable.created) <= end_date)
 
         if region:
             if region_type == 'la':
@@ -244,8 +243,8 @@ def get_mergedtitleskills():
         return {'skill_names': names, 'skill_tfidf': tfidfs}
 
     try:
-        build_results(built_query(ADZJob, ADZJobSkill, category, merged_title, region, region_type))
-        build_results(built_query(INJob, INJobSkill, category, merged_title, region, region_type))
+        build_results(built_query(ADZJob, ADZJobSkill, merged_title, region, region_type))
+        build_results(built_query(INJob, INJobSkill, merged_title, region, region_type))
         results = attach_tfidfs(results)
     except SQLAlchemyError as e:
         return jsonify({
