@@ -20,30 +20,35 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
+def get_region_field(table, region_type):
+    if region_type == 'la':
+        return LA.gid
+    elif region_type == 'lep':
+        return LEP.id
+    elif region_type == 'nuts0':
+        return table.nuts0
+    elif region_type == 'nuts1':
+        return table.nuts1
+    elif region_type == 'nuts2':
+        return table.nuts2
+    elif region_type == 'nuts3':
+        return table.nuts3
+
+    return None
 
 def get_breakdown_for_source(table, category, titles, region_type, start_date, end_date):
     countcol = func.count().label('counts')
 
+    group_field = get_region_field(table, region_type)
+
+    # (id, code, name, ...)
     if region_type == 'la':
         q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol) \
                 .join(table)
-        group_field = LA.gid
     elif region_type == 'lep':
         q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
                 .join(LAInLEP).join(LA).join(table)
-        group_field = LEP.id
-    elif region_type == 'nuts0' or region_type == 'nuts1' \
-        or region_type == 'nuts2' or region_type == 'nuts3':
-
-        if region_type == 'nuts0':
-            group_field = table.nuts0
-        elif region_type == 'nuts1':
-            group_field = table.nuts1
-        elif region_type == 'nuts2':
-            group_field = table.nuts2
-        elif region_type == 'nuts3':
-            group_field = table.nuts3
-
+    elif group_field is not None:
         null_column = literal_column("NULL")
         q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
                 .filter(group_field.isnot(None))
@@ -198,20 +203,13 @@ def get_mergedtitleskills():
 
         if region:
             if region_type == 'la':
-                q = q.join(LA, jobstable.la_id == LA.gid) \
-                    .filter(LA.lau118cd == region)
+                q = q.join(LA, jobstable.la_id == LA.gid)
             elif region_type == 'lep':
                 q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
-                        .join(LEP, LAInLEP.lep_id == LEP.id) \
-                        .filter(LEP.name == region)
-            elif region_type == 'nuts0':
-                q = q.filter(jobstable.nuts0 == region)
-            elif region_type == 'nuts1':
-                q = q.filter(jobstable.nuts1 == region)
-            elif region_type == 'nuts2':
-                q = q.filter(jobstable.nuts2 == region)
-            elif region_type == 'nuts3':
-                q = q.filter(jobstable.nuts3 == region)
+                        .join(LEP, LAInLEP.lep_id == LEP.id)
+
+            region_field = get_region_field(jobstable, region_type)
+            q = q.filter(region_field == region)
 
         q = q.group_by(skillstable.name) \
             .order_by(desc(countcol))
