@@ -819,7 +819,10 @@ class INJob(SQLBase):
     latitude      = Column(Float)
     longitude     = Column(Float)
     location_name = Column(String(STR_MAX))
-    url  = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+    salary_max    = Column(BigInteger, index=True)
+    salary_min    = Column(BigInteger, index=True)
+    salary_period = Column(String(5), index=True)
 
     category = Column(String(STR_MAX), index=True)
     company = Column(String(STR_MAX), index=True)
