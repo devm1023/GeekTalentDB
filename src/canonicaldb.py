@@ -749,9 +749,12 @@ class ADZJob(SQLBase):
     coords_from_google = Column(Boolean)
     location_name = Column(String(STR_MAX))
     redirect_url  = Column(String(STR_MAX))
-    salary_is_predicted = Column(Boolean)
+    adz_salary_is_predicted = Column(Boolean)
+    adz_salary_max    = Column(BigInteger)
+    adz_salary_min    = Column(BigInteger)
     salary_max    = Column(BigInteger, index=True)
     salary_min    = Column(BigInteger, index=True)
+    salary_period = Column(String(5), index=True)
     # crawled_date  = Column(BigInteger, index=True)
 
     category = Column(String(STR_MAX), ForeignKey('adzcategory.tag'), index=True)
@@ -819,7 +822,10 @@ class INJob(SQLBase):
     latitude      = Column(Float)
     longitude     = Column(Float)
     location_name = Column(String(STR_MAX))
-    url  = Column(String(STR_MAX))
+    url           = Column(String(STR_MAX))
+    salary_max    = Column(BigInteger, index=True)
+    salary_min    = Column(BigInteger, index=True)
+    salary_period = Column(String(5), index=True)
 
     category = Column(String(STR_MAX), index=True)
     company = Column(String(STR_MAX), index=True)
@@ -1382,6 +1388,11 @@ def _make_inprofile(inprofile):
 
 def _make_adzjob(adzjob):
     adzjob = deepcopy(adzjob)
+
+    # remap salary
+    adzjob['adz_salary_min'] = adzjob.pop('salary_min')
+    adzjob['adz_salary_max'] = adzjob.pop('salary_max')
+    adzjob['adz_salary_is_predicted'] = adzjob.pop('salary_is_predicted')
 
     # get profile language
     language = adzjob.get('language', None)
