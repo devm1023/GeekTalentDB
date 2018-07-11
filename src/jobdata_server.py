@@ -263,6 +263,106 @@ def get_mergedtitleskills():
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+@app.route('/salaries/', methods=['GET'])
+def get_salaries():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    period = request.args.get('period')
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table):
+        nonlocal total
+        nonlocal results
+        nonlocal period
+
+        count_col = func.count()
+
+        q = db.session.query(table.merged_title, table.salary_period, count_col, func.min(table.salary_min),
+                             func.max(table.salary_max), func.avg(table.salary_min), func.avg(table.salary_max))
+
+        # filters
+        q = apply_common_filters(q, table)
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                     .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            q = q.filter(region_field == region)
+
+        if titles:
+            if len(titles) == 1 and titles[0] == 'unknown':
+                q = q.filter(table.merged_title.is_(None))
+            else:
+                q = q.filter(table.merged_title.in_(titles))
+
+        if period:
+            q = q.filter(table.salary_period == period)
+
+        q = q.group_by(table.merged_title, table.salary_period)
+
+        # format results
+        for title, period, count, salary_min, salary_max, salary_min_avg, salary_max_avg in q:
+            total += count
+
+            salary_min = round(float(salary_min), 2) if salary_min else None
+            salary_max = round(float(salary_max), 2) if salary_max else None
+
+            salary_min_avg = round(float(salary_min_avg), 2) if salary_min_avg else None
+            salary_max_avg = round(float(salary_max_avg), 2) if salary_max_avg else None
+
+            # merge with existing
+            found = False
+            for res in results:
+               if (res['merged_title'], res['period']) == (title, period):
+                   res['count'] += count
+                   res['min'] = min(res['min'], salary_min)
+                   res['max'] = max(res['max'], salary_max)
+                   # there are at most two results to merge
+                   res['min_avg'] = round((res['min_avg'] + salary_min_avg) / 2, 2)
+                   res['max_avg'] = round((res['max_avg'] + salary_max_avg) / 2, 2)
+                   found = True
+                   break
+
+            if found:
+                continue
+
+            results.append({
+                'merged_title': title,
+                'period': period,
+                'count': count,
+                'min': salary_min,
+                'max': salary_max,
+                'min_avg': salary_min_avg,
+                'max_avg': salary_max_avg
+            })
+
+    try:
+        build_results(ADZJob)
+        build_results(INJob)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'total': total,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
