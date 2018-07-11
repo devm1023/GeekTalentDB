@@ -620,8 +620,8 @@ class DatoinDB(Session):
 
         del adzjobdict['location']
 
-        # int to bool type change
-        if adzjobdict['salary_is_predicted']:
+        # string to int to bool type change
+        if int(adzjobdict['salary_is_predicted']):
             adzjobdict['salary_is_predicted'] = True
         else:
             adzjobdict['salary_is_predicted'] = False
