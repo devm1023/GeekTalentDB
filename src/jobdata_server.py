@@ -313,24 +313,24 @@ def get_salaries():
         for title, period, count, salary_min, salary_max, salary_min_avg, salary_max_avg in q:
             total += count
 
-            salary_min = round(float(salary_min), 2) if salary_min else None
-            salary_max = round(float(salary_max), 2) if salary_max else None
+            salary_min = round(float(salary_min), 2) if salary_min is not None else None
+            salary_max = round(float(salary_max), 2) if salary_max is not None else None
 
-            salary_min_avg = round(float(salary_min_avg), 2) if salary_min_avg else None
-            salary_max_avg = round(float(salary_max_avg), 2) if salary_max_avg else None
+            salary_min_avg = round(float(salary_min_avg), 2) if salary_min_avg is not None else None
+            salary_max_avg = round(float(salary_max_avg), 2) if salary_max_avg is not None else None
 
             # merge with existing
             found = False
             for res in results:
-               if (res['merged_title'], res['period']) == (title, period):
-                   res['count'] += count
-                   res['min'] = min(res['min'], salary_min)
-                   res['max'] = max(res['max'], salary_max)
-                   # there are at most two results to merge
-                   res['min_avg'] = round((res['min_avg'] + salary_min_avg) / 2, 2)
-                   res['max_avg'] = round((res['max_avg'] + salary_max_avg) / 2, 2)
-                   found = True
-                   break
+                if (res['merged_title'], res['period']) == (title, period):
+                    res['count'] += count
+                    res['min'] = min(res['min'], salary_min)
+                    res['max'] = max(res['max'], salary_max)
+                    # there are at most two results to merge
+                    res['min_avg'] = round((res['min_avg'] + salary_min_avg) / 2, 2)
+                    res['max_avg'] = round((res['max_avg'] + salary_max_avg) / 2, 2)
+                    found = True
+                    break
 
             if found:
                 continue
