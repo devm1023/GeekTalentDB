@@ -264,6 +264,9 @@ def extract_salary(text):
         min_salary, salary_period, _, _, _ = next(iter(salary_matches)) # get only element
         max_salary = min_salary
 
+        if salary_period is None and min_salary > 10000:
+            salary_period = 'year'
+
     # final salary
     # accept both min and max or one of the two, but only if there are no other values
     have_min_and_max = min_salary is not None and max_salary is not None
@@ -309,7 +312,7 @@ any. This is a permanent opportunity paying up to £50,000. As a Embedded Softwa
         # no range
         ('Salary £38000 Monday to Friday – 6am -2:30pm Famous Building Th', (38000.0, 38000.0, 'year')),
         # number - salary
-        ('Multi Skilled Maintenance Engineers x 2 - £38,500', (38500.0, 38500.0, None)),
+        ('Multi Skilled Maintenance Engineers x 2 - £38,500', (38500.0, 38500.0, 'year')),
         
         # "k" on min and max
         ('Welwyn Garden City. The role offers an attractive £45k-£55k salary with excellent benefits including 25 days ', (45000.0, 55000.0, 'year')),
