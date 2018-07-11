@@ -97,7 +97,7 @@ def extract_salary(text):
                 i += 1
 
             # check for currency prefix
-            if prev[0] != '£':
+            if prev.strip('-')[0] != '£':
                 continue
 
             # add the seperator back into the context
@@ -319,6 +319,7 @@ any. This is a permanent opportunity paying up to £50,000. As a Embedded Softwa
         ('£30,000 - £35,000k + excellent benefits & great company culture', (30000.0, 35000.0, 'year')),
         # "£" only on min
         ('iday 8.30am – 5pm. Salary depending on experience £15-23k. To apply for this position, please send your cv', (15000.0, 23000.0, 'year')),
+        ('Salary -£30-35k+ Outstanding Benefits', (30000.0, 35000.0, 'year')),
         # no "k"s then only on max
         (
             '''For this role we can offer £45,000 - 55,000 + company car or allowance
