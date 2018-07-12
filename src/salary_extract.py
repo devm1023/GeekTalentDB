@@ -66,6 +66,10 @@ def validate_salary_matches(matches):
             keyword_values.append(value)
 
     if min_salary and max_salary:
+        # if the min has a keyword the the max should too
+        if min_salary in keyword_values and max_salary not in keyword_values:
+            keyword_values.append(max_salary)
+
         # handle cases where the salary range was written as "£1-2k"
         if min_salary * 1000 <= max_salary:
             min_salary *= 1000
@@ -346,6 +350,13 @@ Technical Project Manager - £45-55k - Central Nottingham''',
 ...
 Salary: £50,000.00 to £55,000.00 /year''',
             (50000.0, 55000.0, 'year')
+        ),
+        # similar to above but the second mention has no keywords
+        (
+            ''' and a salary between £25-32K.
+My client will assist with relocation to Gloucestershire if required.
+£25000-32000 + pension +guaranteed bonus + relocation allowance if required''',
+            (25000.0, 32000.0, 'year')
         ),
 
         # "/hr"
