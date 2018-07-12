@@ -279,7 +279,7 @@ def extract_salary(text):
     have_min_or_max = min_salary is not None or max_salary is not None
 
     # handle cases where the salary range was written as "£1-2k"
-    if have_min_and_max and min_salary * 1000 < max_salary:
+    if have_min_and_max and min_salary * 1000 <= max_salary:
         min_salary *= 1000
 
     if not validation_error and (have_min_and_max or (have_min_or_max and len(salary_matches) == 1)):
@@ -324,6 +324,7 @@ any. This is a permanent opportunity paying up to £50,000. As a Embedded Softwa
         ('Welwyn Garden City. The role offers an attractive £45k-£55k salary with excellent benefits including 25 days ', (45000.0, 55000.0, 'year')),
         # "k" only on max
         (' a permanent staff basis with a salary banding of £35-£45k.', (35000.0, 45000.0, 'year')),
+        ('The basic salary is experience dependable around £30-30,000 however not limited to, with an additional bonus.', (30000.0, 30000.0, 'year')),
         # extra "k"
         ('£30,000 - £35,000k + excellent benefits & great company culture', (30000.0, 35000.0, 'year')),
         # "£" only on min
