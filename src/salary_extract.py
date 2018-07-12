@@ -38,6 +38,35 @@ def check_salary_range(words, is_pre, offset = 0):
     
     return False
 
+def validate_salary_matches(matches):
+    validation_error = False
+    min_salary = None
+    max_salary = None
+    salary_period = None
+    keyword_values = []
+
+    for value, period, is_min, is_max, has_keyword in matches:
+        if salary_period is None:
+            salary_period = period
+        elif period is not None and salary_period != period:
+            validation_error = True
+
+        # allow 1000x too small as we might be missing a "k"
+        if is_min and min_salary is None or min_salary == value * 1000:
+            min_salary = value
+        elif is_min and min_salary != value and min_salary * 1000 != value:
+            validation_error = True
+
+        if is_max and max_salary is None:
+            max_salary = value
+        elif is_max and max_salary != value:
+            validation_error = True
+
+        if has_keyword:
+            keyword_values.append(value)
+
+    return (min_salary, max_salary, salary_period, validation_error, keyword_values)
+
 def extract_salary(text):
     last_value = None
     last_was_min = False
@@ -195,34 +224,12 @@ def extract_salary(text):
         last_value = value
         last_was_min = is_min
 
+
     # validate
-    validation_error = False
-    min_salary = None
-    max_salary = None
-    salary_period = None
-    keyword_values = []
-
-    for value, period, is_min, is_max, has_keyword in salary_matches:
-        if salary_period is None:
-            salary_period = period
-        elif period is not None and salary_period != period:
-            validation_error = True
-
-        # allow 1000x too small as we might be missing a "k"
-        if is_min and min_salary is None or min_salary == value * 1000:
-            min_salary = value
-        elif is_min and min_salary != value and min_salary * 1000 != value:
-            validation_error = True
-
-        if is_max and max_salary is None:
-            max_salary = value
-        elif is_max and max_salary != value:
-            validation_error = True
-
-        if has_keyword:
-            keyword_values.append(value)
-
+    min_salary, max_salary, salary_period, validation_error, keyword_values = validate_salary_matches(salary_matches)
     min_max_has_kw = min_salary in keyword_values or max_salary in keyword_values
+
+
 
     # try only with a keyword it there are errors
     need_revalidate = False
@@ -246,24 +253,7 @@ def extract_salary(text):
             need_revalidate = True
 
     if need_revalidate:
-        validation_error = False
-        min_salary = max_salary = salary_period = None
-
-        for value, period, is_min, is_max, has_keyword in salary_matches:
-            if salary_period is None:
-                salary_period = period
-            elif period is not None and salary_period != period:
-                validation_error = True
-
-            if is_min and min_salary is None:
-                min_salary = value
-            elif is_min and min_salary != value:
-                validation_error = True
-
-            if is_max and max_salary is None:
-                max_salary = value
-            elif is_max and max_salary != value:
-                validation_error = True
+        min_salary, max_salary, salary_period, validation_error, keyword_values = validate_salary_matches(salary_matches)
 
     # use single value for both min and max
     if len(salary_matches) == 1 and min_salary is None and max_salary is None:
