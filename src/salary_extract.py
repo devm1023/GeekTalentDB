@@ -200,6 +200,7 @@ def extract_salary(text):
     min_salary = None
     max_salary = None
     salary_period = None
+    keyword_values = []
 
     for value, period, is_min, is_max, has_keyword in salary_matches:
         if salary_period is None:
@@ -218,11 +219,16 @@ def extract_salary(text):
         elif is_max and max_salary != value:
             validation_error = True
 
+        if has_keyword:
+            keyword_values.append(value)
+
+    min_max_has_kw = min_salary in keyword_values or max_salary in keyword_values
+
     # try only with a keyword it there are errors
     need_revalidate = False
     min_or_max_missing = min_salary is None or max_salary is None
 
-    if any_has_keyword and (validation_error or min_or_max_missing) and len(salary_matches) > 1:
+    if any_has_keyword and (validation_error or min_or_max_missing or not min_max_has_kw) and len(salary_matches) > 1:
         salary_matches = set([x for x in salary_matches if x[4]])
         need_revalidate = True
         found_periods = {x[1] for x in salary_matches}
@@ -410,6 +416,9 @@ In return you will receive the following:
 Salary: £50.00 to £55.00 /hour''',
             (50.0, 55.0, 'hour')
         ),
+
+        # non-salary range followed by salary
+        (' project budgets ranging between £50,000 and £100,000. ... offering a salary up to £25,000 for the perfect candidate.', (25000.0, 25000.0, 'year')),
 
         #misc
         ('Hourly Rate: Up to £8.20 P.A.Y.E\nSalary: £8.20 /hour', (8.20, 8.20, 'hour'))
