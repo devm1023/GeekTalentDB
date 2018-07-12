@@ -90,7 +90,16 @@ def extract_salary(text):
         if not number_regex.match(match.group(1).strip('.,')):
             continue
 
-        value = float(match.group(1).strip('.').replace(',', '').replace('\'', '').replace('’', ''))
+        value_str = match.group(1).strip('.')
+
+        # handle . as thousands seperator
+        if re.search(r'\.[0-9]{3}$', value_str):
+            value_str = value_str.replace('.', '')
+
+        # strip thousands seperators
+        value_str = value_str.replace(',', '').replace('\'', '').replace('’', '')
+
+        value = float(value_str)
 
         # multiply if ending in k
         if match.group(2).lower() == 'k' and value < 10000: # avoid unreasonably high salaries from typos like '35,000k'
@@ -414,6 +423,9 @@ Salary: £50.00 to £55.00 /hour''',
 
         # non-salary range followed by salary
         (' project budgets ranging between £50,000 and £100,000. ... offering a salary up to £25,000 for the perfect candidate.', (25000.0, 25000.0, 'year')),
+
+        # "." as thousands seperator
+        ('Salary: £16.000 per annum', (16000.0, 16000.0, 'year')),
 
         #misc
         ('Hourly Rate: Up to £8.20 P.A.Y.E\nSalary: £8.20 /hour', (8.20, 8.20, 'hour'))
