@@ -65,6 +65,15 @@ def validate_salary_matches(matches):
         if has_keyword:
             keyword_values.append(value)
 
+    if min_salary and max_salary:
+        # handle cases where the salary range was written as "£1-2k"
+        if min_salary * 1000 <= max_salary:
+            min_salary *= 1000
+
+        # invalidate if ratio is too large
+        if max_salary and max_salary / min_salary > 3:
+            validation_error = True
+
     return (min_salary, max_salary, salary_period, validation_error, keyword_values)
 
 def extract_salary(text):
@@ -229,8 +238,6 @@ def extract_salary(text):
     min_salary, max_salary, salary_period, validation_error, keyword_values = validate_salary_matches(salary_matches)
     min_max_has_kw = min_salary in keyword_values or max_salary in keyword_values
 
-
-
     # try only with a keyword it there are errors
     need_revalidate = False
     min_or_max_missing = min_salary is None or max_salary is None
@@ -268,9 +275,6 @@ def extract_salary(text):
     have_min_and_max = min_salary is not None and max_salary is not None
     have_min_or_max = min_salary is not None or max_salary is not None
 
-    # handle cases where the salary range was written as "£1-2k"
-    if have_min_and_max and min_salary * 1000 <= max_salary:
-        min_salary *= 1000
 
     if not validation_error and (have_min_and_max or (have_min_or_max and len(salary_matches) == 1)):
         return (min_salary, max_salary, salary_period)
