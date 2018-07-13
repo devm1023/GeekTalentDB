@@ -282,6 +282,16 @@ def extract_salary(text):
 
         if salary_period is None and min_salary > 10000:
             salary_period = 'year'
+        elif salary_period != 'year' and min_salary > 10000:
+            # catch range typos like "£400450"
+            min_half = min_salary // 1000
+            max_half = max_salary % 1000
+            if min_half < max_half and max_half / min_half < 2:
+                min_salary = min_half
+                max_salary = max_half
+            else:
+                validation_error = True
+
 
     # final salary
     # accept both min and max or one of the two, but only if there are no other values
@@ -326,6 +336,9 @@ any. This is a permanent opportunity paying up to £50,000. As a Embedded Softwa
         ('Salary £38000 Monday to Friday – 6am -2:30pm Famous Building Th', (38000.0, 38000.0, 'year')),
         # number - salary
         ('Multi Skilled Maintenance Engineers x 2 - £38,500', (38500.0, 38500.0, 'year')),
+        # missing "-"
+        ('Java Developer £400450 per day 6 months', (400.0, 450.0, 'day')),
+        ('Rate: £350450 per day', (350.0, 450.0, 'day')),
         
         # "k" on min and max
         ('Welwyn Garden City. The role offers an attractive £45k-£55k salary with excellent benefits including 25 days ', (45000.0, 55000.0, 'year')),
