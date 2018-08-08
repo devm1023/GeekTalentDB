@@ -311,6 +311,11 @@ def get_salaries():
 
         # format results
         for title, period, count, salary_min, salary_max, salary_min_avg, salary_max_avg in q:
+
+            # all null - no data
+            if salary_min is None and salary_max is None:
+                continue
+
             total += count
 
             salary_min = round(float(salary_min), 2) if salary_min is not None else None
@@ -324,11 +329,15 @@ def get_salaries():
             for res in results:
                 if (res['merged_title'], res['period']) == (title, period):
                     res['count'] += count
-                    res['min'] = min(res['min'], salary_min)
-                    res['max'] = max(res['max'], salary_max)
-                    # there are at most two results to merge
-                    res['min_avg'] = round((res['min_avg'] + salary_min_avg) / 2, 2)
-                    res['max_avg'] = round((res['max_avg'] + salary_max_avg) / 2, 2)
+
+                    if salary_min is not None:
+                        res['min'] = min(res['min'], salary_min)
+                        # there are at most two results to merge
+                        res['min_avg'] = round((res['min_avg'] + salary_min_avg) / 2, 2)
+                    if salary_max is not None:
+                        res['max'] = max(res['max'], salary_max)
+                        res['max_avg'] = round((res['max_avg'] + salary_max_avg) / 2, 2)
+
                     found = True
                     break
 
