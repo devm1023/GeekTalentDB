@@ -38,6 +38,48 @@ def check_salary_range(words, is_pre, offset = 0):
     
     return False
 
+def validate_salary_matches(matches):
+    validation_error = False
+    min_salary = None
+    max_salary = None
+    salary_period = None
+    keyword_values = []
+
+    for value, period, is_min, is_max, has_keyword in matches:
+        if salary_period is None:
+            salary_period = period
+        elif period is not None and salary_period != period:
+            validation_error = True
+
+        # allow 1000x too small as we might be missing a "k"
+        if is_min and min_salary is None or min_salary == value * 1000:
+            min_salary = value
+        elif is_min and min_salary != value and min_salary * 1000 != value:
+            validation_error = True
+
+        if is_max and max_salary is None:
+            max_salary = value
+        elif is_max and max_salary != value:
+            validation_error = True
+
+        if has_keyword:
+            keyword_values.append(value)
+
+    if min_salary and max_salary:
+        # if the min has a keyword the the max should too
+        if min_salary in keyword_values and max_salary not in keyword_values:
+            keyword_values.append(max_salary)
+
+        # handle cases where the salary range was written as "£1-2k"
+        if min_salary * 1000 <= max_salary:
+            min_salary *= 1000
+
+        # invalidate if ratio is too large
+        if max_salary and max_salary / min_salary > 3:
+            validation_error = True
+
+    return (min_salary, max_salary, salary_period, validation_error, keyword_values)
+
 def extract_salary(text):
     last_value = None
     last_was_min = False
@@ -52,7 +94,16 @@ def extract_salary(text):
         if not number_regex.match(match.group(1).strip('.,')):
             continue
 
-        value = float(match.group(1).strip('.').replace(',', '').replace('\'', '').replace('’', ''))
+        value_str = match.group(1).strip('.')
+
+        # handle . as thousands seperator
+        if re.search(r'\.[0-9]{3}$', value_str):
+            value_str = value_str.replace('.', '')
+
+        # strip thousands seperators
+        value_str = value_str.replace(',', '').replace('\'', '').replace('’', '')
+
+        value = float(value_str)
 
         # multiply if ending in k
         if match.group(2).lower() == 'k' and value < 10000: # avoid unreasonably high salaries from typos like '35,000k'
@@ -195,34 +246,16 @@ def extract_salary(text):
         last_value = value
         last_was_min = is_min
 
+
     # validate
-    validation_error = False
-    min_salary = None
-    max_salary = None
-    salary_period = None
-
-    for value, period, is_min, is_max, has_keyword in salary_matches:
-        if salary_period is None:
-            salary_period = period
-        elif period is not None and salary_period != period:
-            validation_error = True
-
-        # allow 1000x too small as we might be missing a "k"
-        if is_min and min_salary is None or min_salary == value * 1000:
-            min_salary = value
-        elif is_min and min_salary != value and min_salary * 1000 != value:
-            validation_error = True
-
-        if is_max and max_salary is None:
-            max_salary = value
-        elif is_max and max_salary != value:
-            validation_error = True
+    min_salary, max_salary, salary_period, validation_error, keyword_values = validate_salary_matches(salary_matches)
+    min_max_has_kw = min_salary in keyword_values or max_salary in keyword_values
 
     # try only with a keyword it there are errors
     need_revalidate = False
     min_or_max_missing = min_salary is None or max_salary is None
 
-    if any_has_keyword and (validation_error or min_or_max_missing) and len(salary_matches) > 1:
+    if any_has_keyword and (validation_error or min_or_max_missing or not min_max_has_kw) and len(salary_matches) > 1:
         salary_matches = set([x for x in salary_matches if x[4]])
         need_revalidate = True
         found_periods = {x[1] for x in salary_matches}
@@ -240,24 +273,7 @@ def extract_salary(text):
             need_revalidate = True
 
     if need_revalidate:
-        validation_error = False
-        min_salary = max_salary = salary_period = None
-
-        for value, period, is_min, is_max, has_keyword in salary_matches:
-            if salary_period is None:
-                salary_period = period
-            elif period is not None and salary_period != period:
-                validation_error = True
-
-            if is_min and min_salary is None:
-                min_salary = value
-            elif is_min and min_salary != value:
-                validation_error = True
-
-            if is_max and max_salary is None:
-                max_salary = value
-            elif is_max and max_salary != value:
-                validation_error = True
+        min_salary, max_salary, salary_period, validation_error, keyword_values = validate_salary_matches(salary_matches)
 
     # use single value for both min and max
     if len(salary_matches) == 1 and min_salary is None and max_salary is None:
@@ -266,15 +282,22 @@ def extract_salary(text):
 
         if salary_period is None and min_salary > 10000:
             salary_period = 'year'
+        elif salary_period != 'year' and min_salary > 10000:
+            # catch range typos like "£400450"
+            min_half = min_salary // 1000
+            max_half = max_salary % 1000
+            if min_half < max_half and max_half / min_half < 2:
+                min_salary = min_half
+                max_salary = max_half
+            else:
+                validation_error = True
+
 
     # final salary
     # accept both min and max or one of the two, but only if there are no other values
     have_min_and_max = min_salary is not None and max_salary is not None
     have_min_or_max = min_salary is not None or max_salary is not None
 
-    # handle cases where the salary range was written as "£1-2k"
-    if have_min_and_max and min_salary * 1000 < max_salary:
-        min_salary *= 1000
 
     if not validation_error and (have_min_and_max or (have_min_or_max and len(salary_matches) == 1)):
         return (min_salary, max_salary, salary_period)
@@ -313,11 +336,15 @@ any. This is a permanent opportunity paying up to £50,000. As a Embedded Softwa
         ('Salary £38000 Monday to Friday – 6am -2:30pm Famous Building Th', (38000.0, 38000.0, 'year')),
         # number - salary
         ('Multi Skilled Maintenance Engineers x 2 - £38,500', (38500.0, 38500.0, 'year')),
+        # missing "-"
+        ('Java Developer £400450 per day 6 months', (400.0, 450.0, 'day')),
+        ('Rate: £350450 per day', (350.0, 450.0, 'day')),
         
         # "k" on min and max
         ('Welwyn Garden City. The role offers an attractive £45k-£55k salary with excellent benefits including 25 days ', (45000.0, 55000.0, 'year')),
         # "k" only on max
         (' a permanent staff basis with a salary banding of £35-£45k.', (35000.0, 45000.0, 'year')),
+        ('The basic salary is experience dependable around £30-30,000 however not limited to, with an additional bonus.', (30000.0, 30000.0, 'year')),
         # extra "k"
         ('£30,000 - £35,000k + excellent benefits & great company culture', (30000.0, 35000.0, 'year')),
         # "£" only on min
@@ -336,6 +363,13 @@ Technical Project Manager - £45-55k - Central Nottingham''',
 ...
 Salary: £50,000.00 to £55,000.00 /year''',
             (50000.0, 55000.0, 'year')
+        ),
+        # similar to above but the second mention has no keywords
+        (
+            ''' and a salary between £25-32K.
+My client will assist with relocation to Gloucestershire if required.
+£25000-32000 + pension +guaranteed bonus + relocation allowance if required''',
+            (25000.0, 32000.0, 'year')
         ),
 
         # "/hr"
@@ -410,6 +444,12 @@ In return you will receive the following:
 Salary: £50.00 to £55.00 /hour''',
             (50.0, 55.0, 'hour')
         ),
+
+        # non-salary range followed by salary
+        (' project budgets ranging between £50,000 and £100,000. ... offering a salary up to £25,000 for the perfect candidate.', (25000.0, 25000.0, 'year')),
+
+        # "." as thousands seperator
+        ('Salary: £16.000 per annum', (16000.0, 16000.0, 'year')),
 
         #misc
         ('Hourly Rate: Up to £8.20 P.A.Y.E\nSalary: £8.20 /hour', (8.20, 8.20, 'hour'))
