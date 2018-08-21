@@ -86,6 +86,58 @@ def index():
     return ''
 
 
+@app.route('/valid-dates/', methods=['GET'])
+def get_valid_dates():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+
+    def do_query(table):
+        q = db.session.query(func.min(table.created), func.max(table.created))
+
+        # filters
+        q = apply_common_filters(q, table)
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                     .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            q = q.filter(region_field == region)
+
+        return q.one()
+
+    results = {}
+
+    try:
+        adz_min, adz_max = do_query(ADZJob)
+        in_min, in_max = do_query(INJob)
+
+        min_valid = max(adz_min, in_min)
+        max_valid = min(adz_max, in_max)
+
+        results = {
+            'min': min_valid.isoformat(),
+            'max': max_valid.isoformat()
+        }
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
 @app.route('/regional-breakdown/', methods=['GET'])
 def get_ladata():
     start = datetime.now()
