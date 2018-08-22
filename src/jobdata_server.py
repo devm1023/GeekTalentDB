@@ -450,5 +450,103 @@ def get_salaries():
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+@app.route('/history/', methods=['GET'])
+def get_history():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    group_period = request.args.get('group_period')
+
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table):
+        nonlocal total
+        nonlocal results
+
+        count_col = func.count()
+
+        if group_period == 'month':
+            date_cols = (func.extract('month', table.created), func.extract('year', table.created))
+        elif group_period == 'quarter':
+            date_cols = (func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+        else:
+            null_column = literal_column("NULL")
+            date_cols = (null_column, null_column)
+
+        q = db.session.query(table.merged_title, count_col, *date_cols)
+
+        # filters
+        q = apply_common_filters(q, table)
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                     .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            q = q.filter(region_field == region)
+
+        if titles:
+            if len(titles) == 1 and titles[0] == 'unknown':
+                q = q.filter(table.merged_title.is_(None))
+            else:
+                q = q.filter(table.merged_title.in_(titles))
+
+            q = q.group_by(table.merged_title)
+
+        if group_period:
+            q = q.group_by(*date_cols)
+
+        # format results
+        for title, count, month, year in q:
+
+            total += count
+
+            # merge with existing
+            found = False
+            for res in results:
+                if (res['merged_title'], res['year'], res['month_quarter']) == (title, year, month):
+                    res['count'] += count
+
+                    found = True
+                    break
+
+            if found:
+                continue
+
+            results.append({
+                'merged_title': title,
+                'count': count,
+                'year': year,
+                'month_quarter': month
+            })
+
+    try:
+        build_results(ADZJob)
+        build_results(INJob)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+
+    end = datetime.now()
+    response = jsonify({'results' : results,
+                        'total': total,
+                        'query_time' : (end-start).microseconds//1000,
+                        'status' : 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
