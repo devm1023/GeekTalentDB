@@ -322,6 +322,10 @@ def get_salaries():
     region_type = request.args.get('region_type', 'la')
     region = request.args.get('region')
     period = request.args.get('period')
+    group_period = request.args.get('group_period')
+
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
 
     # build results
     results = []
@@ -334,8 +338,17 @@ def get_salaries():
 
         count_col = func.count()
 
+        if group_period == 'month':
+            date_cols = (func.extract('month', table.created), func.extract('year', table.created))
+        elif group_period == 'quarter':
+            date_cols = (func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+        else:
+            null_column = literal_column("NULL")
+            date_cols = (null_column, null_column)
+
         q = db.session.query(table.merged_title, table.salary_period, count_col, func.min(table.salary_min),
-                             func.max(table.salary_max), func.avg(table.salary_min), func.avg(table.salary_max))
+                             func.max(table.salary_max), func.avg(table.salary_min), func.avg(table.salary_max),
+                             *date_cols)
 
         # filters
         q = apply_common_filters(q, table)
@@ -361,8 +374,11 @@ def get_salaries():
 
         q = q.group_by(table.merged_title, table.salary_period)
 
+        if group_period:
+            q = q.group_by(*date_cols)
+
         # format results
-        for title, period, count, salary_min, salary_max, salary_min_avg, salary_max_avg in q:
+        for title, period, count, salary_min, salary_max, salary_min_avg, salary_max_avg, month, year in q:
 
             # all null - no data
             if salary_min is None and salary_max is None:
@@ -379,7 +395,7 @@ def get_salaries():
             # merge with existing
             found = False
             for res in results:
-                if (res['merged_title'], res['period']) == (title, period):
+                if (res['merged_title'], res['period'], res['year'], res['month_quarter']) == (title, period, year, month):
                     res['count'] += count
 
                     if res['min'] is None:
@@ -410,7 +426,9 @@ def get_salaries():
                 'min': salary_min,
                 'max': salary_max,
                 'min_avg': salary_min_avg,
-                'max_avg': salary_max_avg
+                'max_avg': salary_max_avg,
+                'year': year,
+                'month_quarter': month
             })
 
     try:
