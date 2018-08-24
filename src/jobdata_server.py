@@ -470,16 +470,18 @@ def get_history():
         nonlocal results
 
         count_col = func.count()
+        null_column = literal_column("NULL")
 
         if group_period == 'month':
             date_cols = (func.extract('month', table.created), func.extract('year', table.created))
         elif group_period == 'quarter':
             date_cols = (func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
         else:
-            null_column = literal_column("NULL")
             date_cols = (null_column, null_column)
 
-        q = db.session.query(table.merged_title, count_col, *date_cols)
+        title_col = table.merged_title if titles else null_column
+
+        q = db.session.query(title_col, count_col, *date_cols)
 
         # filters
         q = apply_common_filters(q, table)
