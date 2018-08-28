@@ -80,6 +80,11 @@ def get_breakdown_for_source(table, titles, region_type):
     q = q.group_by(group_field, table.merged_title)
     return q
 
+@app.after_request
+def add_cache_headers(response):
+    response.cache_control.max_age = 60 * 60 * 12
+    return response
+
 # Flask views
 @app.route('/')
 def index():
