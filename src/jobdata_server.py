@@ -136,8 +136,9 @@ def get_valid_dates():
         }), 500
 
     end = datetime.now()
+    time_taken = end - start
     response = jsonify({'results' : results,
-                        'query_time' : (end-start).microseconds//1000,
+                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
                         'status' : 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
@@ -219,9 +220,10 @@ def get_ladata():
 
 
     end = datetime.now()
+    time_taken = end - start
     response = jsonify({'results' : results,
                         'total': total,
-                        'query_time' : (end-start).microseconds//1000,
+                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
                         'status' : 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
@@ -312,9 +314,10 @@ def get_mergedtitleskills():
     results = sort_trim(results, limit)
 
     end = datetime.now()
+    time_taken = end - start
     response = jsonify({'results': results,
                         'total': total,
-                        'query_time': (end-start).microseconds//1000,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds//1000,
                         'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
@@ -447,9 +450,10 @@ def get_salaries():
 
 
     end = datetime.now()
+    time_taken = end - start
     response = jsonify({'results' : results,
                         'total': total,
-                        'query_time' : (end-start).microseconds//1000,
+                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
                         'status' : 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
@@ -547,9 +551,10 @@ def get_history():
 
 
     end = datetime.now()
+    time_taken = end - start
     response = jsonify({'results' : results,
                         'total': total,
-                        'query_time' : (end-start).microseconds//1000,
+                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
                         'status' : 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
