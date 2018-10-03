@@ -30,6 +30,7 @@
 "Electrical Technician" (electrician or wire or engin or inspect or electr engin)
 "Electrical Supervisor" (electrician or electr engin or engin or commiss or power distribut)
 "Production Operator"
+"Production Operative"
 "Credit Controller" (custom servic or manag or negoti or account manag or account)
 "Electronics" (electron or c or matlab or custom servic or cplusplus)
 "Approved Electrician" (electr or inspect or electr engin or engin or electrician)
