@@ -77,6 +77,13 @@ def make_adzuna_location(adzjob):
 
     return location
 
+def make_date_time_seconds(ts, offset=0):
+    if ts:
+        result = timestamp0 + timedelta(seconds=ts+offset)
+    else:
+        result = None
+    return result
+
 def make_date_time(ts, offset=0):
     if ts:
         result = timestamp0 + timedelta(milliseconds=ts+offset)
@@ -387,8 +394,8 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['title']            = jobdict.pop('title')
         jobdict['category']         = jobdict.pop('category')
         jobdict['company']          = jobdict.pop('company')
-        jobdict['indexed_on'] = make_date_time(jobdict.pop('indexed_on', None))
-        jobdict['crawled_on'] = make_date_time(jobdict.pop('crawled_date', None))
+        jobdict['indexed_on'] = make_date_time_seconds(jobdict.pop('indexed_on', None))
+        jobdict['crawled_on'] = make_date_time_seconds(jobdict.pop('crawled_date', None))
 
         jobdict['skills'] = []
 
@@ -650,8 +657,8 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['title']            = jobdict.pop('jobtitle')
         jobdict['category']         = jobdict.pop('category')
         jobdict['company']          = jobdict.pop('company')
-        jobdict['indexed_on'] = make_date_time(jobdict.pop('indexed_on', None))
-        jobdict['crawled_on'] = make_date_time(jobdict.pop('crawled_date', None))
+        jobdict['indexed_on'] = make_date_time_seconds(jobdict.pop('indexed_on', None))
+        jobdict['crawled_on'] = make_date_time_seconds(jobdict.pop('crawled_date', None))
 
         jobdict['skills'] = []
 
@@ -778,6 +785,11 @@ def main(args):
 
     from_ts = int((fromdate - timestamp0).total_seconds())*1000
     to_ts   = int((todate   - timestamp0).total_seconds())*1000
+
+    # job timestamps are seconds
+    if args.source == 'adzuna' or args.source == 'indeedjob':
+        from_ts /= 1000
+        to_ts /= 1000
 
     skillextractors = None
     if skillfile is not None:
