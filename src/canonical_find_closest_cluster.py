@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import argparse
 import sys
 from textnormalization import normalized_title
@@ -12,7 +13,7 @@ from careerdefinition_cluster import get_skillvectors, distance
 from math import acos, sqrt
 
 
-def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
+def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date, people_skill_vectors, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -38,6 +39,13 @@ def find_closest_cluster(jobid, fromid, toid, people_skill_vectors, output_csv):
     if args.test_id is not None:
         q = q.filter(table.id == args.test_id)
         all_titles = all_titles.filter(table.id == args.test_id)
+
+    if by_index_date:
+        q = q.filter(table.indexed_on >= from_date,
+                     table.indexed_on < to_date)
+    else:
+        q = q.filter(table.crawled_on >= from_date,
+                     table.crawled_on < args.to_date)
 
     all_titles = all_titles.filter(table.parsed_title.isnot(None))
 
@@ -90,6 +98,16 @@ def main(args):
     njobs = max(args.jobs, 1)
     batchsize = args.batch_size
 
+    try:
+        args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d')
+        if not args.to_date:
+            args.to_date = datetime.now()
+        else:
+            args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d')
+    except ValueError:
+        sys.stderr.write('Error: Invalid date.\n')
+        exit(1)
+
     cndb = CanonicalDB()
     logger = Logger()
 
@@ -119,12 +137,19 @@ def main(args):
     if args.test_id is not None:
         query = query.filter(table.id == args.test_id)
 
+    if args.by_index_date:
+        query = query.filter(table.indexed_on >= args.from_date,
+                             table.indexed_on < args.to_date)
+    else:
+        query = query.filter(table.crawled_on >= args.from_date,
+                             table.crawled_on < args.to_date)
+
     output_csv = None
     if args.output is not None:
         output_csv = csv.writer(open(args.output, 'w'))
 
     split_process(query, find_closest_cluster, args.batch_size,
-                njobs=njobs, args=[skillvectors, output_csv],
+                njobs=njobs, args=[args.from_date, args.to_date, args.by_index_date, skillvectors, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
 
@@ -136,6 +161,18 @@ if __name__ == '__main__':
                         help='Number of parallel jobs.')
     parser.add_argument('--batch-size', type=int, default=1000,
                         help='Number of rows per batch.')
+    parser.add_argument('--from-date', help=
+                        'Only process profiles crawled or indexed on or after '
+                        'this date. Format: YYYY-MM-DD',
+                        default='1970-01-01')
+    parser.add_argument('--to-date', help=
+                        'Only process profiles crawled or indexed before\n'
+                        'this date. Format: YYYY-MM-DD')
+    parser.add_argument('--by-index-date', help=
+                        'Indicates that the dates specified with --fromdate '
+                        'and --todate are index dates. Otherwise they are '
+                        'interpreted as crawl dates.',
+                        action='store_true')
     parser.add_argument('--from-id', help=
                         'Start processing from this ID. Useful for '
                         'crash recovery.')
