@@ -91,6 +91,9 @@ def add_skills(batchsize, source_id):
     elif source_id == 'adzuna':
         nrmcol = ADZJobSkill.nrm_name
         rawcol = ADZJobSkill.name
+    elif source_id == 'indeedjob':
+        nrmcol = INJobSkill.nrm_name
+        rawcol = INJobSkill.name
     else:
         raise ValueError('Invalid source type `{0:s}`.'.format(source_id))
 
@@ -124,7 +127,7 @@ def add_skills(batchsize, source_id):
         jointable = INProfileSkill
         nrmcol    = INProfileSkill.nrm_name
         idcol     = INExperienceSkill.inexperience_id
-    elif source_id == 'adzuna':
+    elif source_id == 'adzuna' or source_id == 'indeedjob':
         # no experiences
         return
     else:
@@ -164,6 +167,11 @@ def add_titles(batchsize, source_id):
     elif source_id == 'adzuna':
         nrmcol1    = ADZJob.nrm_title
         parsedcol1 = ADZJob.parsed_title
+        nrmcol2    = None
+        parsedcol2 = None
+    elif source_id == 'indeedjob':
+        nrmcol1    = INJob.nrm_title
+        parsedcol1 = INJob.parsed_title
         nrmcol2    = None
         parsedcol2 = None
     else:
@@ -218,6 +226,11 @@ def add_companies(batchsize, source_id):
     elif source_id == 'adzuna':
         nrmcol1 = ADZJob.nrm_company
         rawcol1 = ADZJob.company
+        nrmcol2 = None
+        rawcol2 = None
+    elif source_id == 'indeedjob':
+        nrmcol1 = INJob.nrm_company
+        rawcol1 = INJob.company
         nrmcol2 = None
         rawcol2 = None
     else:
@@ -292,7 +305,7 @@ def add_institutes(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_institute
         rawcol = INEducation.institute
-    elif source_id == 'adzuna':
+    elif source_id == 'adzuna' or source_id == 'indeedjob':
         # no institutes
         return
     else:
@@ -329,7 +342,7 @@ def add_degrees(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_degree
         rawcol = INEducation.degree
-    elif source_id == 'adzuna':
+    elif source_id == 'adzuna' or source_id == 'indeedjob':
         # no degrees
         return
     else:
@@ -366,7 +379,7 @@ def add_subjects(batchsize, source_id):
     elif source_id == 'indeed':
         nrmcol = INEducation.nrm_subject
         rawcol = INEducation.subject
-    elif source_id == 'adzuna':
+    elif source_id == 'adzuna' or source_id == 'indeedjob':
         # no subjects
         return
     else:
@@ -403,7 +416,7 @@ allcatalogs = OrderedDict([
     ('subjects'   , add_subjects),
 ])
 
-allsources = ['linkedin', 'indeed', 'adzuna']
+allsources = ['linkedin', 'indeed', 'adzuna', 'indeedjob']
 
     
 def main(args):
