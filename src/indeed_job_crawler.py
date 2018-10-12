@@ -25,6 +25,9 @@ class IndeedJobCrawler(Crawler):
 
         job_summary = doc.xpath('//*[@id="job_summary"]')
 
+        if not job_summary:
+            job_summary = doc.xpath('//*[contains(@class, "jobsearch-JobComponent ")]')
+
         valid = False
 
         if len(job_summary) > 0:

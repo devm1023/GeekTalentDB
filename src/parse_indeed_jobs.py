@@ -23,6 +23,7 @@ import langdetect
 
 # job post xpaths
 xp_job_description = '//*[@id="job_summary"]'
+xp_job_description2 = '//*[contains(@class, "jobsearch-JobComponent ")]'
 
 def check_job_post(url, redirect_url, timestamp, doc, logger=Logger(None)):
 
@@ -40,6 +41,9 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractors):
          'description': None}
 
     d['description'] = extract(doc, xp_job_description, format_content)
+
+    if d['description'] is None:
+        d['description'] = extract(doc, xp_job_description2, format_content)
 
     language = langdetect.detect(d['description'])
 
