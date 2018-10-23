@@ -57,8 +57,8 @@ if __name__ == '__main__':
         ['crawl_indeed_jobs.py', '--jobs', '4', '--crawl-rate', '1']
     ]
 
-    countries = ['gb', 'fr', 'de']
-    categories = ['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs', 'manufacturing-jobs']
+    countries = ['gb', 'fr', 'de', 'at', 'it', 'nl', 'pl', 'us']
+    categories = ['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs', 'manufacturing-jobs', 'customer-services-jobs', 'admin-jobs', 'sales-jobs', 'hr-jobs', 'accounting-finance-jobs', 'part-time-jobs']
 
     title_lists = {
         'it-jobs|gb': 'indeed_titles_skill_it.txt',
