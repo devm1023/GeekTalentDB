@@ -151,7 +151,6 @@ soa
 ajax
 user experience
 git
-recruiters
 hardware
 coaching
 marketing communication
