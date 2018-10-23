@@ -151,7 +151,6 @@ en,soa
 en,ajax
 en,user experience
 en,git
-en,recruiters
 en,hardware
 en,coaching
 en,marketing communication
@@ -2151,7 +2150,6 @@ fr,SOA
 fr,Ajax
 fr,expérience utilisateur
 fr,git
-fr,recruteurs
 fr,matériel
 fr,Coaching
 fr,communication marketing
@@ -4151,7 +4149,6 @@ de,SOA
 de,Ajax
 de,Benutzererfahrung
 de,Git
-de,Recruiter
 de,Hardware
 de,Coaching
 de,Marketing-Kommunikation

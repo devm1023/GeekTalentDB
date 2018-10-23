@@ -151,7 +151,6 @@ SOA
 Ajax
 expérience utilisateur
 git
-recruteurs
 matériel
 Coaching
 communication marketing

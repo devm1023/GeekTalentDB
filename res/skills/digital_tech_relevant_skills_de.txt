@@ -151,7 +151,6 @@ SOA
 Ajax
 Benutzererfahrung
 Git
-Recruiter
 Hardware
 Coaching
 Marketing-Kommunikation
