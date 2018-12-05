@@ -17,10 +17,7 @@ def _iter_items(keys, d):
             yield key, d[key]
 
 
-def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=1):
-    cndb = CanonicalDB()
-    logger = Logger()
-    mapper = EntityMapper(cndb, mappings)
+def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
 
     is_job = profile_table is ADZJob or profile_table is INJob
 
@@ -80,6 +77,18 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
         skillcounts_sf = dict(q)
+
+    return (totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf)
+
+def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=1):
+    cndb = CanonicalDB()
+    logger = Logger()
+    mapper = EntityMapper(cndb, mappings)
+
+    is_job = profile_table is ADZJob or profile_table is INJob
+
+    # get totals
+    totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = get_total_counts(cndb, logger, profile_table, skill_table, mincount)
 
     skillvectors = []
     newtitles = []
