@@ -20,11 +20,14 @@ def _iter_items(keys, d):
 def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
 
     is_job = profile_table is ADZJob or profile_table is INJob
+    # job location data is inline
+    loc_table = profile_table if is_job else Location
 
     logger.log('Counting profiles.\n')
 
     common_filters = [
-        profile_table.language == 'en'
+        profile_table.language == 'en',
+        loc_table.nuts0 == 'UK'
     ]
 
     if is_job:
@@ -37,15 +40,13 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
         totalc_nosf = cndb.query(profile_table.id) \
                           .join(Location,
                                 Location.nrm_name == profile_table.nrm_location) \
-                          .filter(*common_filters,
-                                  Location.nuts0 == 'UK') \
+                          .filter(*common_filters) \
                           .count()
         totalc_sf = cndb.query(profile_table.id) \
                         .join(Location,
                             Location.nrm_name == profile_table.nrm_location) \
                         .filter(profile_table.nrm_sector != None,
-                                *common_filters,
-                                Location.nuts0 == 'UK') \
+                                *common_filters) \
                         .count()
 
     logger.log('Counting skills.\n')
@@ -64,8 +65,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
                 .join(profile_table) \
                 .join(Location,
                       Location.nrm_name == profile_table.nrm_location) \
-                .filter(Location.nuts0 == 'UK',
-                        *common_filters) \
+                .filter(*common_filters) \
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
         skillcounts_nosf = dict(q)
@@ -74,8 +74,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
                 .join(profile_table) \
                 .join(Location,
                     Location.nrm_name == profile_table.nrm_location) \
-                .filter(Location.nuts0 == 'UK',
-                        *common_filters,
+                .filter(*common_filters,
                         profile_table.nrm_sector != None) \
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
@@ -89,6 +88,8 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     mapper = EntityMapper(cndb, mappings)
 
     is_job = profile_table is ADZJob or profile_table is INJob
+    # job location data is inline
+    loc_table = profile_table if is_job else Location
 
     # get totals
     totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = get_total_counts(cndb, logger, profile_table, skill_table, mincount)
@@ -99,7 +100,8 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
 
     # filters used by all queries
     common_filters = [
-        profile_table.language == 'en'
+        profile_table.language == 'en',
+        loc_table.nuts0 == 'UK'
     ]
 
     for sector, title, sector_filter in titles:
@@ -149,7 +151,6 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
                          .join(Location,
                                Location.nrm_name == profile_table.nrm_location) \
                          .filter(*common_filters,
-                                 Location.nuts0 == 'UK',
                                  in_values(profile_table.nrm_curr_title,
                                            similar_titles)
                                  ) \
@@ -159,7 +160,6 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
                                .join(Location,
                                      Location.nrm_name == profile_table.nrm_location) \
                                .filter(*common_filters,
-                                       Location.nuts0 == 'UK',
                                        in_values(profile_table.nrm_curr_title,
                                                  similar_titles)
                                        )
