@@ -77,7 +77,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     return (totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf)
 
-def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1):
+def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1, total_counts = None):
     cndb = CanonicalDB()
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
@@ -88,8 +88,10 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
     title_field = profile_table.nrm_title if is_job else profile_table.nrm_curr_title
 
     # get totals
-    totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = get_total_counts(
-        cndb, logger, profile_table, skill_table, language, nuts0, mincount)
+    if total_counts is None:
+        total_counts = get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount)
+
+    totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = total_counts
 
     skillvectors = []
     newtitles = []
