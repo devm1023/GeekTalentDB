@@ -117,8 +117,13 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
         if sector_filter:
             totalc = totalc_sf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_sf)
-            common_filters.append(
-                profile_table.nrm_sector.in_(mapper.inv(nrm_sector)))
+
+            if is_job:
+                common_filters.append(
+                    profile_table.category == sector)
+            else:
+                common_filters.append(
+                    profile_table.nrm_sector.in_(mapper.inv(nrm_sector)))
         else:
             totalc = totalc_nosf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_nosf)
