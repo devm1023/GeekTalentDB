@@ -23,10 +23,13 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
 
     logger.log('Counting profiles.\n')
 
+    common_filters = [
+        profile_table.language == 'en'
+    ]
 
     if is_job:
         totalc_nosf = cndb.query(profile_table.id) \
-                          .filter(profile_table.language == 'en') \
+                          .filter(*common_filters) \
                           .count()
         # every Adzuna job has a category
         totalc_sf = totalc_nosf
@@ -34,14 +37,14 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
         totalc_nosf = cndb.query(profile_table.id) \
                           .join(Location,
                                 Location.nrm_name == profile_table.nrm_location) \
-                          .filter(profile_table.language == 'en',
+                          .filter(*common_filters,
                                   Location.nuts0 == 'UK') \
                           .count()
         totalc_sf = cndb.query(profile_table.id) \
                         .join(Location,
                             Location.nrm_name == profile_table.nrm_location) \
                         .filter(profile_table.nrm_sector != None,
-                                profile_table.language == 'en',
+                                *common_filters,
                                 Location.nuts0 == 'UK') \
                         .count()
 
@@ -51,7 +54,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
     if is_job:
         q = cndb.query(skill_table.nrm_name, countcol) \
                 .join(profile_table) \
-                .filter(profile_table.language == 'en') \
+                .filter(*common_filters) \
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
         skillcounts_nosf = dict(q)
@@ -62,7 +65,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
                 .join(Location,
                       Location.nrm_name == profile_table.nrm_location) \
                 .filter(Location.nuts0 == 'UK',
-                        profile_table.language == 'en') \
+                        *common_filters) \
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
         skillcounts_nosf = dict(q)
@@ -72,7 +75,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
                 .join(Location,
                     Location.nrm_name == profile_table.nrm_location) \
                 .filter(Location.nuts0 == 'UK',
-                        profile_table.language == 'en',
+                        *common_filters,
                         profile_table.nrm_sector != None) \
                 .group_by(skill_table.nrm_name) \
                 .having(countcol >= mincount)
@@ -94,6 +97,11 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     newtitles = []
     titlecounts = []
 
+    # filters used by all queries
+    common_filters = [
+        profile_table.language == 'en'
+    ]
+
     for sector, title, sector_filter in titles:
         logger.log('Processing: {0:s}\n'.format(title))
 
@@ -107,12 +115,11 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
         if sector_filter:
             totalc = totalc_sf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_sf)
-            sector_clause = (
-                profile_table.nrm_sector.in_(mapper.inv(nrm_sector)),)
+            common_filters.append(
+                profile_table.nrm_sector.in_(mapper.inv(nrm_sector)))
         else:
             totalc = totalc_nosf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_nosf)
-            sector_clause = tuple()
 
         # get job titles to scan for skills
         similar_titles = set()
@@ -126,36 +133,36 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
         
         if is_job:
             titlec = cndb.query(profile_table.id) \
-                         .filter(profile_table.language == 'en',
+                         .filter(*common_filters,
                                  in_values(profile_table.nrm_title,
-                                           similar_titles),
-                                 *sector_clause) \
+                                           similar_titles)
+                                 ) \
                          .count()
             coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
                                .join(profile_table) \
-                               .filter(profile_table.language == 'en',
+                               .filter(*common_filters,
                                        in_values(profile_table.nrm_title,
-                                                 similar_titles),
-                                       *sector_clause)
+                                                 similar_titles)
+                                       )
         else:
             titlec = cndb.query(profile_table.id) \
                          .join(Location,
                                Location.nrm_name == profile_table.nrm_location) \
-                         .filter(profile_table.language == 'en',
+                         .filter(*common_filters,
                                  Location.nuts0 == 'UK',
                                  in_values(profile_table.nrm_curr_title,
-                                           similar_titles),
-                                 *sector_clause) \
+                                           similar_titles)
+                                 ) \
                          .count()
             coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
                                .join(profile_table) \
                                .join(Location,
                                      Location.nrm_name == profile_table.nrm_location) \
-                               .filter(profile_table.language == 'en',
+                               .filter(*common_filters,
                                        Location.nuts0 == 'UK',
                                        in_values(profile_table.nrm_curr_title,
-                                                 similar_titles),
-                                       *sector_clause)
+                                                 similar_titles)
+                                       )
         
         skillvector = {}
         for nrm_skill, skillc, titleskillc, _, _ in \
