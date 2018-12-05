@@ -17,7 +17,7 @@ def _iter_items(keys, d):
             yield key, d[key]
 
 
-def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
+def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount):
 
     is_job = profile_table is ADZJob or profile_table is INJob
     # job location data is inline
@@ -26,8 +26,8 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
     logger.log('Counting profiles.\n')
 
     common_filters = [
-        profile_table.language == 'en',
-        loc_table.nuts0 == 'UK'
+        profile_table.language == language,
+        loc_table.nuts0 == nuts0
     ]
 
     if is_job:
@@ -82,7 +82,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, mincount):
 
     return (totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf)
 
-def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=1):
+def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1):
     cndb = CanonicalDB()
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
@@ -92,7 +92,8 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
     loc_table = profile_table if is_job else Location
 
     # get totals
-    totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = get_total_counts(cndb, logger, profile_table, skill_table, mincount)
+    totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = get_total_counts(
+        cndb, logger, profile_table, skill_table, language, nuts0, mincount)
 
     skillvectors = []
     newtitles = []
@@ -100,19 +101,19 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, mincount=
 
     # filters used by all queries
     common_filters = [
-        profile_table.language == 'en',
-        loc_table.nuts0 == 'UK'
+        profile_table.language == language,
+        loc_table.nuts0 == nuts0
     ]
 
     for sector, title, sector_filter in titles:
         logger.log('Processing: {0:s}\n'.format(title))
 
-        nrm_title = normalized_entity('job_title' if is_job else 'title', source, 'en', title)
+        nrm_title = normalized_entity('job_title' if is_job else 'title', source, language, title)
 
         if nrm_title is None:
             continue
 
-        nrm_sector = normalized_entity('sector', source, 'en', sector)
+        nrm_sector = normalized_entity('sector', source, language, sector)
         
         if sector_filter:
             totalc = totalc_sf
@@ -223,7 +224,7 @@ if __name__ == '__main__':
         skill_table = ADZJobSkill
 
     titles, titlecounts, skillvectors \
-        = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, args.min_count)
+        = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, 'en', 'UK', args.min_count)
 
     with open(args.output_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
