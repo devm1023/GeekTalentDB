@@ -788,8 +788,8 @@ def main(args):
 
     # job timestamps are seconds
     if args.source == 'adzuna' or args.source == 'indeedjob':
-        from_ts /= 1000
-        to_ts /= 1000
+        from_ts //= 1000
+        to_ts //= 1000
 
     skillextractors = None
     if skillfile is not None:
