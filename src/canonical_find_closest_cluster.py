@@ -7,13 +7,13 @@ from canonicaldb import *
 from logger import Logger
 from windowquery import split_process, process_db
 
-from careerdefinition_get_skillvectors import skillvectors
+from careerdefinition_get_skillvectors import skillvectors, get_total_counts
 from careerdefinition_cluster import get_skillvectors, distance
 
 from math import acos, sqrt
 
 
-def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date, people_skill_vectors, output_csv):
+def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date, people_skill_vectors, sv_totals, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -53,7 +53,7 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings)
+    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings, 'en', 'UK', 1, sv_totals)
     jobs_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
@@ -113,10 +113,15 @@ def main(args):
 
     if args.source == 'adzuna':
         table = ADZJob
+        skill_table = ADZJobSkill
     elif args.source == 'indeedjob':
         table = INJob
+        skill_table = INJobSkill
 
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
+
+    # precalculate totals (args must be the same as the call to skillvectors)
+    sv_totals = get_total_counts(cndb, logger, table, skill_table, 'en', 'UK', 1)
 
     # workaround for applying linkedin clusters
     renamed_skillvectors = []
@@ -149,7 +154,7 @@ def main(args):
         output_csv = csv.writer(open(args.output, 'w'))
 
     split_process(query, find_closest_cluster, args.batch_size,
-                njobs=njobs, args=[args.from_date, args.to_date, args.by_index_date, skillvectors, output_csv],
+                njobs=njobs, args=[args.from_date, args.to_date, args.by_index_date, skillvectors, sv_totals, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
 
