@@ -125,7 +125,7 @@ def main(args):
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
 
     # precalculate totals (args must be the same as the call to skillvectors)
-    sv_totals = get_total_counts(cndb, logger, table, skill_table, args.language, args.nuts0, 1)
+    sv_totals = get_total_counts(cndb, logger, table, skill_table, args.language, args.nuts0, 1, [])
 
     # workaround for applying linkedin clusters
     renamed_skillvectors = []

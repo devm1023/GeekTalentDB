@@ -17,7 +17,7 @@ def _iter_items(keys, d):
             yield key, d[key]
 
 
-def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount):
+def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount, additional_filters):
 
     # handle differences between jobs and profiles
     is_job = profile_table is ADZJob or profile_table is INJob
@@ -30,7 +30,8 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     common_filters = [
         profile_table.language == language,
-        loc_table.nuts0 == nuts0
+        loc_table.nuts0 == nuts0,
+        *additional_filters
     ]
 
     # total number of profiles
@@ -77,7 +78,7 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     return (totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf)
 
-def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1, total_counts = None):
+def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1, total_counts=None, additional_filters=[]):
     cndb = CanonicalDB()
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
@@ -89,7 +90,7 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
 
     # get totals
     if total_counts is None:
-        total_counts = get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount)
+        total_counts = get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount, additional_filters)
 
     totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = total_counts
 
@@ -100,7 +101,8 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
     # filters used by all queries
     common_filters = [
         profile_table.language == language,
-        loc_table.nuts0 == nuts0
+        loc_table.nuts0 == nuts0,
+        *additional_filters
     ]
 
     for sector, title, sector_filter in titles:
