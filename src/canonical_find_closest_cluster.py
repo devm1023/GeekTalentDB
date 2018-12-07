@@ -45,11 +45,13 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
         all_titles = all_titles.filter(table.id == args.test_id)
 
     if by_index_date:
-        q = q.filter(table.indexed_on >= from_date,
-                     table.indexed_on < to_date)
+        date_filter = (table.indexed_on >= from_date,
+                       table.indexed_on < to_date)
     else:
-        q = q.filter(table.crawled_on >= from_date,
-                     table.crawled_on < args.to_date)
+        date_filter = (table.crawled_on >= from_date,
+                       table.crawled_on < to_date)
+
+    q = q.filter(*date_filter)
 
     all_titles = all_titles.filter(table.parsed_title.isnot(None))
 
@@ -57,7 +59,7 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings, language, nuts0, 1, sv_totals)
+    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings, language, nuts0, 1, sv_totals, date_filter)
     jobs_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
@@ -124,9 +126,6 @@ def main(args):
 
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
 
-    # precalculate totals (args must be the same as the call to skillvectors)
-    sv_totals = get_total_counts(cndb, logger, table, skill_table, args.language, args.nuts0, 1, [])
-
     # workaround for applying linkedin clusters
     renamed_skillvectors = []
     for vector in skillvectors:
@@ -149,11 +148,16 @@ def main(args):
         query = query.filter(table.id == args.test_id)
 
     if args.by_index_date:
-        query = query.filter(table.indexed_on >= args.from_date,
-                             table.indexed_on < args.to_date)
+        date_filter = (table.indexed_on >= args.from_date,
+                       table.indexed_on < args.to_date)
     else:
-        query = query.filter(table.crawled_on >= args.from_date,
-                             table.crawled_on < args.to_date)
+        date_filter = (table.crawled_on >= args.from_date,
+                       table.crawled_on < args.to_date)
+
+    query = query.filter(*date_filter)
+
+    # precalculate totals (args must be the same as the call to skillvectors)
+    sv_totals = get_total_counts(cndb, logger, table, skill_table, args.language, args.nuts0, 1, date_filter)
 
     output_csv = None
     if args.output is not None:
