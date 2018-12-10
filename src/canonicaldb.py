@@ -721,11 +721,6 @@ class ADZJob(SQLBase):
     adref         = Column(String(STR_MAX), index=True, nullable=False)
     language      = Column(String(20))
     nrm_location  = Column(Unicode(STR_MAX), index=True)
-    location0     = Column(String(STR_MAX), index=True, nullable=False)
-    location1     = Column(String(STR_MAX), index=True)
-    location2     = Column(String(STR_MAX), index=True)
-    location3     = Column(String(STR_MAX), index=True)
-    location4     = Column(String(STR_MAX), index=True)
     title         = Column(Unicode(STR_MAX))
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
@@ -799,11 +794,6 @@ class INJob(SQLBase):
     jobkey        = Column(String(STR_MAX), index=True, nullable=False)
     language      = Column(String(20))
     nrm_location  = Column(Unicode(STR_MAX), index=True)
-    location0     = Column(String(STR_MAX), index=True, nullable=False)
-    location1     = Column(String(STR_MAX), index=True)
-    location2     = Column(String(STR_MAX), index=True)
-    location3     = Column(String(STR_MAX), index=True)
-    location4     = Column(String(STR_MAX), index=True)
     title         = Column(Unicode(STR_MAX))
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
@@ -857,11 +847,6 @@ class INJobReject(SQLBase):
     jobkey = Column(String(STR_MAX), index=True, nullable=False)
     language = Column(String(20))
     nrm_location = Column(Unicode(STR_MAX), index=True)
-    location0 = Column(String(STR_MAX), index=True, nullable=False)
-    location1 = Column(String(STR_MAX), index=True)
-    location2 = Column(String(STR_MAX), index=True)
-    location3 = Column(String(STR_MAX), index=True)
-    location4 = Column(String(STR_MAX), index=True)
     title = Column(Unicode(STR_MAX))
     parsed_title = Column(Unicode(STR_MAX))
     nrm_title = Column(Unicode(STR_MAX), index=True)
@@ -2275,11 +2260,6 @@ class CanonicalDB(Session):
               description
               latitude
               longitude
-              location0
-              location1
-              location2
-              location3
-              location4
               location_name
               url
               title
