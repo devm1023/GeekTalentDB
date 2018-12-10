@@ -1,8 +1,21 @@
 #Current file to be used for mappings
 # sector mappings
+#Utilities
+sector,en,,Utilities,Utilities
+sector,en,,Renewables & Environment,Utilities
+sector,en,,Oil & Energy,Utilities
+#Construction
+sector,en,,Construction,Construction
+sector,en,,Civil Engineering,Construction
+sector,en,,Architecture & Planning,Construction
+sector,en,,Building Materials,Construction
+#Military
+sector,en,,Defense & Space,Military
+sector,en,,Military,Military
 #Biosciences
 sector,en,,Biotechnology,Biosciences
 sector,en,,Nanotechnology,BioSciences
+sector,en,,Pharmaceuticals,BioSciences
 #Mechanical Engineering
 sector,en,,Machinery,Mechanical Engineering
 sector,en,,Industrial Automation,Mechanical Engineering
