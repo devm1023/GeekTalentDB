@@ -468,6 +468,7 @@ class ADZJob(SQLBase):
     adz_id           = Column(BigInteger, index=True)
     latitude         = Column(Float)
     longitude        = Column(Float)
+    country          = Column(String(2), index=True, nullable=False)
     location0        = Column(String(STR_MAX), nullable=False)
     location1        = Column(String(STR_MAX))
     location2        = Column(String(STR_MAX))
