@@ -140,7 +140,7 @@ def lastvalidjob(q):
         yield currentrow
 
 def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -239,7 +239,7 @@ def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_liprofile, cndb, logger=logger)
 
 def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -349,7 +349,7 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
 
 def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -357,7 +357,8 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     q = dtdb.query(ADZJob) \
         .filter(ADZJob.id >= fromid)
 
-    q = q.filter(ADZJob.category == category)
+    q = q.filter(ADZJob.category == category,
+                 ADZJob.country == country)
 
     if by_indexed_on:
         q = q.filter(ADZJob.indexed_on >= from_ts,
@@ -429,7 +430,7 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    s, category):
+                    s, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -491,7 +492,7 @@ def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_uwprofile, cndb, logger=logger)
 
 def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -563,7 +564,7 @@ def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -614,7 +615,7 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category):
+                    skillextractors, category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -622,7 +623,8 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     q = dtdb.query(IndeedJob) \
         .filter(IndeedJob.id >= fromid)
 
-    q = q.filter(IndeedJob.category == category)
+    q = q.filter(IndeedJob.category == category,
+                 IndeedJob.country == country)
 
     if by_indexed_on:
         q = q.filter(IndeedJob.indexed_on >= from_ts,
@@ -682,7 +684,7 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
-                   skillextractors, category):
+                   skillextractors, category, country):
     logger = Logger(sys.stdout)
 
     # Process all sources if source is not specified.
@@ -755,9 +757,12 @@ def parse_profiles(njobs, batchsize,
     if category is not None and (table == ADZJob or table == IndeedJob):
         query = query.filter(table.category == category)
 
+    if table == ADZJob or table == IndeedJob:
+        query = query.filter(table.country == country)
+
     split_process(query, parsefunc, batchsize,
                   njobs=1,
-                  args=[from_ts, to_ts, by_indexed_on, skillextractors, category],
+                  args=[from_ts, to_ts, by_indexed_on, skillextractors, category, country],
                   logger=logger, workdir='jobs', prefix=prefix)
 
 
@@ -782,6 +787,7 @@ def main(args):
     skillfile = args.skills
     source_id = args.source
     category  = args.category
+    country = args.country
 
     from_ts = int((fromdate - timestamp0).total_seconds())*1000
     to_ts   = int((todate   - timestamp0).total_seconds())*1000
@@ -822,7 +828,7 @@ def main(args):
         del skills
 
     parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,
-                   by_indexed_on, skillextractors, category)
+                   by_indexed_on, skillextractors, category, country)
     
     
 if __name__ == '__main__':
@@ -858,6 +864,8 @@ if __name__ == '__main__':
                         'when processing Indeed CVs or Adzuna jobs')
     parser.add_argument('--category', help=
                         'Name of an Adzuna category for which skills file contains '
-                        'skills. Only needed Adzuna jobs')
+                        'skills. Only needed for jobs')
+    parser.add_argument('--country', type=str, default='gb',
+                        help='ISO 3166-1 country code. Only supported for jobs.')
     args = parser.parse_args()
     main(args)
