@@ -57,8 +57,6 @@ from sqlalchemy import \
     func
 from sqlalchemy.orm import relationship, aliased
 from geoalchemy2 import Geometry
-from geoalchemy2.shape import to_shape
-from shapely.geometry import Point
 from phraseextract import PhraseExtractor
 from textnormalization import tokenized_skill
 import time
@@ -2338,6 +2336,11 @@ class CanonicalDB(Session):
           The Location object that was added to the database.
 
         """
+
+        #imported here as these are not availiable in the container for the apis
+        from geoalchemy2.shape import to_shape
+        from shapely.geometry import Point
+
         location = self.query(Location) \
                        .filter(Location.nrm_name == nrm_name) \
                        .first()
