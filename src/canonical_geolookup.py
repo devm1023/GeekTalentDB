@@ -6,6 +6,7 @@ from windowquery import split_process, process_db
 from nuts import NutsRegions
 from datetime import datetime
 import argparse
+from sqlalchemy import func
 
 
 def process_locations(jobid, fromlocation, tolocation,
@@ -72,7 +73,7 @@ def process_locations(jobid, fromlocation, tolocation,
 
         if source == 'adzuna':
             # and without enough location details
-            q1 = q1.filter(profile_tab.location1.isnot(None))
+            q1 = q1.filter(func.length(profile_tab.nrm_location) > 5)
 
         if experience_tab is None:
             q = q1

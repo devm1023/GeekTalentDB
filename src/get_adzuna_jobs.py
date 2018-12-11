@@ -70,6 +70,7 @@ def main(args):
 
     def extract_jobs(jobs):
         for job in jobs:
+            job['country'] = args.country
             dtdb.add_adzuna_job(job)
 
         dtdb.flush()

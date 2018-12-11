@@ -7,13 +7,13 @@ from canonicaldb import *
 from logger import Logger
 from windowquery import split_process, process_db
 
-from careerdefinition_get_skillvectors import skillvectors
+from careerdefinition_get_skillvectors import skillvectors, get_total_counts
 from careerdefinition_cluster import get_skillvectors, distance
 
 from math import acos, sqrt
 
 
-def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date, people_skill_vectors, output_csv):
+def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date, language, nuts0, people_skill_vectors, sv_totals, output_csv):
     logger = Logger()
     cndb = CanonicalDB()
 
@@ -24,9 +24,13 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
         table = INJob
         skill_table = INJobSkill
 
-    q = cndb.query(table).filter(table.id >= fromid)
+    q = cndb.query(table).filter(table.id >= fromid,
+                                 table.language == language,
+                                 table.nuts0 == nuts0)
     all_titles = cndb.query(table.category, table.parsed_title) \
-                     .filter(table.id >= fromid)
+                     .filter(table.id >= fromid,
+                             table.language == language,
+                             table.nuts0 == nuts0)
 
     if toid is not None:
         q = q.filter(table.id < toid)
@@ -41,11 +45,13 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
         all_titles = all_titles.filter(table.id == args.test_id)
 
     if by_index_date:
-        q = q.filter(table.indexed_on >= from_date,
-                     table.indexed_on < to_date)
+        date_filter = (table.indexed_on >= from_date,
+                       table.indexed_on < to_date)
     else:
-        q = q.filter(table.crawled_on >= from_date,
-                     table.crawled_on < args.to_date)
+        date_filter = (table.crawled_on >= from_date,
+                       table.crawled_on < to_date)
+
+    q = q.filter(*date_filter)
 
     all_titles = all_titles.filter(table.parsed_title.isnot(None))
 
@@ -53,7 +59,7 @@ def find_closest_cluster(jobid, fromid, toid, from_date, to_date, by_index_date,
     titles = [(row[0], row[1], False) for row in all_titles]
     titles = list(set(titles))
 
-    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings)
+    sv_titles, _, tmp_svs = skillvectors(table, skill_table, args.source, titles, args.mappings, language, nuts0, 1, sv_totals, date_filter)
     jobs_skill_vectors = {}
 
     for title, vector in zip(sv_titles, tmp_svs):
@@ -113,8 +119,10 @@ def main(args):
 
     if args.source == 'adzuna':
         table = ADZJob
+        skill_table = ADZJobSkill
     elif args.source == 'indeedjob':
         table = INJob
+        skill_table = INJobSkill
 
     titles, titlecounts, skillvectors = get_skillvectors(args.skill_file, None)
 
@@ -134,22 +142,29 @@ def main(args):
     if args.sector is not None:
         query = query.filter(table.category == args.sector)
 
+    query = query.filter(table.language == args.language, table.nuts0 == args.nuts0)
+
     if args.test_id is not None:
         query = query.filter(table.id == args.test_id)
 
     if args.by_index_date:
-        query = query.filter(table.indexed_on >= args.from_date,
-                             table.indexed_on < args.to_date)
+        date_filter = (table.indexed_on >= args.from_date,
+                       table.indexed_on < args.to_date)
     else:
-        query = query.filter(table.crawled_on >= args.from_date,
-                             table.crawled_on < args.to_date)
+        date_filter = (table.crawled_on >= args.from_date,
+                       table.crawled_on < args.to_date)
+
+    query = query.filter(*date_filter)
+
+    # precalculate totals (args must be the same as the call to skillvectors)
+    sv_totals = get_total_counts(cndb, logger, table, skill_table, args.language, args.nuts0, 1, date_filter)
 
     output_csv = None
     if args.output is not None:
         output_csv = csv.writer(open(args.output, 'w'))
 
     split_process(query, find_closest_cluster, args.batch_size,
-                njobs=njobs, args=[args.from_date, args.to_date, args.by_index_date, skillvectors, output_csv],
+                njobs=njobs, args=[args.from_date, args.to_date, args.by_index_date, args.language, args.nuts0, skillvectors, sv_totals, output_csv],
                 logger=logger, workdir='jobs',
                 prefix='canonical_find_closest_clusters')
 
@@ -182,6 +197,10 @@ if __name__ == '__main__':
     parser.add_argument('--source',
                         choices=['adzuna', 'indeedjob'],
                         help='Source type to process.')
+    parser.add_argument('--language', type=str, default='en',
+                        help='ISO 639-1 language code')
+    parser.add_argument('--nuts0', type=str, default='UK', #TODO: add a country flag when we have the field
+                        help='NUTS0 code')
     parser.add_argument('skill_file', help=
                         'File containing skill vectors from clustering')
     parser.add_argument('--output', help=

@@ -468,6 +468,7 @@ class ADZJob(SQLBase):
     adz_id           = Column(BigInteger, index=True)
     latitude         = Column(Float)
     longitude        = Column(Float)
+    country          = Column(String(2), index=True, nullable=False)
     location0        = Column(String(STR_MAX), nullable=False)
     location1        = Column(String(STR_MAX))
     location2        = Column(String(STR_MAX))
@@ -640,7 +641,8 @@ class DatoinDB(Session):
         adzjobdict['indexed_on']   = timestamp.timestamp()
         adzjobdict['crawl_fail_count'] = 0
 
-        adzjobdict['full_description'] = adzjobdict['full_description'][:STR_MAX]
+        if 'full_description' in adzjobdict:
+            adzjobdict['full_description'] = adzjobdict['full_description'][:STR_MAX]
 
         adzjob = self.add_from_dict(adzjobdict, ADZJob, flush=job_id is None)
 
