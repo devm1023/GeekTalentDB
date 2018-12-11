@@ -35,7 +35,6 @@ __all__ = [
     ]
 
 import conf
-import numpy as np
 import requests
 from copy import deepcopy
 from dbtools import *

@@ -6,6 +6,5 @@ Flask-Cors==3.0.3
 Flask-SQLAlchemy==2.2
 GeoAlchemy2==0.4.0
 nltk==3.2.4
-numpy==1.13.1
 psycopg2==2.7.3
 requests==2.18.3
