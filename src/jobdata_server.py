@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -44,9 +44,10 @@ def apply_common_filters(q, table):
     if category:
         q = q.filter(table.category == category)
     if start_date is not None:
-        q = q.filter(func.date(table.created) >= start_date)
+        q = q.filter(table.created >= start_date)
     if end_date is not None:
-        q = q.filter(func.date(table.created) <= end_date)
+        end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+        q = q.filter(table.created < end_date)
 
     return q
 
