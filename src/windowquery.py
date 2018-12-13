@@ -67,7 +67,6 @@ import sqlalchemy
 from sqlalchemy import and_, func, text
 import numpy as np
 from logger import Logger
-from parallelize import ParallelFunction
 from datetime import datetime
 from math import ceil
 
@@ -241,6 +240,8 @@ def split_process(query, f, batchsize, njobs=1, args=[],
             _log_batchend(logger, starttime, endtime, firststart,
                           fromrow, torow, nrows)
     else:
+        from parallelize import ParallelFunction
+
         pargs = []
         fromid_batch = None
         toid_batch = None
