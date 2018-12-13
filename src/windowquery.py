@@ -65,7 +65,6 @@ __all__ = [
 
 import sqlalchemy
 from sqlalchemy import and_, func, text
-import numpy as np
 from logger import Logger
 from parallelize import ParallelFunction
 from datetime import datetime
