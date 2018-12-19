@@ -8,6 +8,7 @@ from flask_admin.babel import lazy_gettext, gettext, ngettext
 from flask_admin.actions import action
 
 from flask import request, Response, jsonify
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.exceptions import HTTPException
 
 import conf
@@ -45,9 +46,18 @@ def get_descriptions():
     tpe = request.args.get('type')
     if tpe not in ['sector', 'career', 'skill']:
         return jsonify({'message' : 'Invalid or missing `type` parameter.'})
+
     sector = request.args.get('sector')
     queries = request.args.getlist('q')
-    results = dscdb.find_descriptions(tpe, queries, sector=sector)
+
+    try:
+        results = dscdb.find_descriptions(tpe, queries, sector=sector)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
     end = datetime.now()
     response = jsonify({'results' : results,
                         'query_time' : (end-start).microseconds//1000,
