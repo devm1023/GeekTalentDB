@@ -1010,13 +1010,12 @@ class ReportDimDatePeriod(SQLBase):
 
 class ReportFactJobs(SQLBase):
     __tablename__ = 'report_fact_jobs'
-    date_period   = Column(String(20), primary_key=True, ForeignKey('report_dim_date_period.period_name'))
-    category      = Column(Unicode(1000), primary_key=True, ForeignKey('report_dim_category.category_name'))
+    date_period   = Column(String(20), ForeignKey('report_dim_date_period.period_name'), primary_key=True)
+    category      = Column(Unicode(1000), ForeignKey('report_dim_category.category_name'), primary_key=True)
     merged_title  = Column(String(1000), primary_key=True)
-    region_code   = Column(String(1000), primary_key=True, ForeignKey('report_dim_region_code.region_name'))
-    region_type   = Column(String(100), primary_key=True, ForeignKey('report_dim_region_type.region_type_name'))
+    region_code   = Column(String(1000), ForeignKey('report_dim_region_code.region_name'), primary_key=True)
+    region_type   = Column(String(100), ForeignKey('report_dim_region_type.region_type_name'), primary_key=True)
     total_jobs    = Column(Integer)
-
 
 
 def _joinfields(*args):
