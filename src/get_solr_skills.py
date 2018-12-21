@@ -24,10 +24,34 @@ def main(args):
 
     if sector == 'eng':
         sector = '"Machinery" OR "Industrial Automation" OR "Machines" OR ' \
-                 '"Mechanical or Industrial Engineering" OR "Electrical/Eelectronic manufacturing" OR ' \
+                 '"Mechanical or Industrial Engineering" OR "Electrical/Electronic manufacturing" OR ' \
                  '"Consumer Electronics" OR "Semiconductors"'
     elif sector == 'healthcare':
-        sector = '"healthcare"'
+        sector = '"Biotechnology" OR "Hospital & Health Care" OR "Medical Practice" OR "Mental Health Care" OR ' \
+                 '"Pharmaceuticals"'
+    elif sector == 'construction':
+        sector = '"construction"'
+    elif sector ==  'finance':
+        sector = '"Capital Markets" OR "Financial Services" OR "Insurance" OR "Investment Banking" OR ' \
+                 '"Investment Management" OR "Venture Capital & Private Equity"'
+    elif sector == 'legal':
+        sector = '"Alternative Dispute Resolution" OR "Judiciary" OR "Law Practice" OR "Legal Services" OR' \
+                 '"Legislative Office"'
+    elif sector == 'hr':
+        sector = '"Human Resources" OR "Staffing and Recruiting"'
+    elif sector == 'goods':
+        sector = '"Consumer Goods" OR "Consumer Services" OR "Apparel & Fashion" OR "Cosmetics" OR "Furniture" OR' \
+                ' "Luxury Goods & Jewelry" OR "Real Estate" OR "Retail" OR "Sporting Goods" OR "Supermarkets" OR ' \
+                ' "Tobacco" OR "Wholesale" OR "Wines and Spirits"'
+    elif sector == 'logistics':
+        sector = '"Logistics and Supply Chain" OR "Maritime" OR "Package/Freight Delivery" OR' \
+                 '"Transportation/Trucking/Railroad" OR "Warehousing"'
+    elif sector == 'manufacturing':
+        sector = '"Chemicals" OR "Food Production" OR "Glass, Ceramics & Concrete" OR "Mining & Metals" OR ' \
+                 '"Nanotechnology" OR "Packaging and Containers" OR Paper & Forest Products" OR "Plastics" OR ' \
+                 '"Railroad Manufacture" OR "Textiles"'
+
+    #TODO Previous cluster sectors required to be update along with new sectors to be processed - should match mappings file
 
     url = SOLR_REQ.format(SOLR_HOST, SOLR_CORE, sector, limit)
 
@@ -53,7 +77,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sector', choices=['it', 'eng', 'healthcare'], default='it',
+    parser.add_argument('--sector', choices=['it', 'eng', 'healthcare', 'finance', 'construction', 'manufacturing', 'retail', 'hr', 'legal', 'logistics', 'goods'], default='it',
                         help='Merged sector to get skill from.')
     parser.add_argument('--limit', type=int, default=1000,
                         help='Number of skills to be obtained.')
