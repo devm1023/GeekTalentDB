@@ -1,5 +1,11 @@
 #Current file to be used for mappings
 # sector mappings
+#Legal
+sector,en,,Alternative Dispute Resolution,Legal
+sector,en,,Judiciary,Legal
+sector,en,,Law Practice,Legal
+sector,en,,Legal Services,Legal
+sector,en,,Legislative Office,Legal
 #Utilities
 sector,en,,Utilities,Utilities
 sector,en,,Renewables & Environment,Utilities
