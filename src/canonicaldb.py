@@ -990,7 +990,7 @@ class ReportDimCategory(SQLBase):
 
 class ReportDimRegionCode(SQLBase):
     __tablename__ = 'report_dim_region_code'
-    region_name   = Column(String(1000), primary_key=True)
+    region_code   = Column(String(1000), primary_key=True)
     region_type   = Column(String(20), primary_key=True)
     region_ref    = Column(String(1000), primary_key=True)
 
