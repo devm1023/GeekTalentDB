@@ -1001,7 +1001,7 @@ class ReportDimRegionType(SQLBase):
 
 
 class ReportDimDatePeriod(SQLBase):
-    __tablename__ = 'report_dim_category'
+    __tablename__ = 'report_dim_date_period'
     period_name   = Column(String(20), primary_key=True)
     start_date    = Column(DateTime)
     end_date      = Column(DateTime)
