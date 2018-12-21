@@ -32,6 +32,11 @@ __all__ = [
     'Location',
     'CanonicalDB',
     'SkillsIdf',
+    'ReportFactJobs',
+    'ReportDimCategory',
+    'ReportDimRegionCode',
+    'ReportDimRegionType',
+    'ReportDimDatePeriod',
     ]
 
 import conf
@@ -973,8 +978,45 @@ class Location(SQLBase):
 
 class SkillsIdf(SQLBase):
     __tablename__ = 'skills_idf'
-    name          = Column(Unicode(STR_MAX), index=True, primary_key=True)
+    name          = Column(Unicode(STR_MAX), primary_key=True)
     idf           = Column(Float)
+
+# Report Dimensions
+
+class ReportDimCategory(SQLBase):
+    __tablename__ = 'report_dim_category'
+    category_name  = Column(Unicode(1000), primary_key=True)
+
+
+class ReportDimRegionCode(SQLBase):
+    __tablename__ = 'report_dim_region_code'
+    region_name   = Column(String(1000), primary_key=True)
+    region_type   = Column(String(20), primary_key=True)
+    region_ref    = Column(String(1000), primary_key=True)
+
+
+class ReportDimRegionType(SQLBase):
+    __tablename__ = 'report_dim_region_type'
+    region_type_name =  Column(String(20), primary_key=True)
+
+
+class ReportDimDatePeriod(SQLBase):
+    __tablename__ = 'report_dim_category'
+    period_name   = Column(String(20), primary_key=True)
+    start_date    = Column(DateTime)
+    end_date      = Column(DateTime)
+
+# ReportFactJobs
+
+class ReportFactJobs(SQLBase):
+    __tablename__ = 'report_fact_jobs'
+    date_period   = Column(String(20), primary_key=True, ForeignKey('report_dim_date_period.period_name'))
+    category      = Column(Unicode(1000), primary_key=True, ForeignKey('report_dim_category.category_name'))
+    merged_title  = Column(String(1000), primary_key=True)
+    region_code   = Column(String(1000), primary_key=True, ForeignKey('report_dim_region_code.region_name'))
+    region_type   = Column(String(100), primary_key=True, ForeignKey('report_dim_region_type.region_type_name'))
+    total_jobs    = Column(Integer)
+
 
 
 def _joinfields(*args):
