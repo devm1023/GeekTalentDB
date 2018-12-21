@@ -1,9 +1,32 @@
 #Current file to be used for mappings
 # sector mappings
+#Legal
+sector,en,,Alternative Dispute Resolution,Legal
+sector,en,,Judiciary,Legal
+sector,en,,Law Practice,Legal
+sector,en,,Legal Services,Legal
+sector,en,,Legislative Office,Legal
+#HR
+sector,en,,Human Resources,HR and Recruiting
+sector,en,,Staffing and Recruiting,HR and Recruiting
 #Utilities
 sector,en,,Utilities,Utilities
 sector,en,,Renewables & Environment,Utilities
 sector,en,,Oil & Energy,Utilities
+#Goods & Services
+sector,en,,Apparel & Fashion,Goods and Services
+sector,en,,Consumer Goods,Goods and Services
+sector,en,,Consumer Services,Goods and Services
+sector,en,,Cosmetics,Goods and Services
+sector,en,,Furniture,Goods and Services
+sector,en,,Luxury Goods & Jewelry,Goods and Services
+sector,en,,Real Estate,Goods and Services
+sector,en,,Retail,Goods and Services
+sector,en,,Sporting Goods,Goods and Services
+sector,en,,Supermarkets,Goods and Services
+sector,en,,Tobacco,Goods and Services
+sector,en,,Wholesale,Goods and Services
+sector,en,,Wine and Spirits,Goods and Services
 #Construction
 sector,en,,Construction,Construction
 sector,en,,Civil Engineering,Construction
