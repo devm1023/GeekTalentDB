@@ -987,6 +987,8 @@ class ReportDimCategory(SQLBase):
     __tablename__ = 'report_dim_category'
     category_name  = Column(Unicode(1000), primary_key=True)
 
+    __table_args__ = (UniqueConstraint('category_name'),)
+
 
 class ReportDimRegionCode(SQLBase):
     __tablename__ = 'report_dim_region_code'
@@ -994,10 +996,13 @@ class ReportDimRegionCode(SQLBase):
     region_type   = Column(String(20))
     region_ref    = Column(String(1000))
 
+    __table_args__ = (UniqueConstraint('region_code'),)
 
 class ReportDimRegionType(SQLBase):
     __tablename__ = 'report_dim_region_type'
     region_type_name =  Column(String(20), primary_key=True)
+
+    __table_args__ = (UniqueConstraint('region_type_name'),)
 
 
 class ReportDimDatePeriod(SQLBase):
@@ -1005,6 +1010,8 @@ class ReportDimDatePeriod(SQLBase):
     period_name   = Column(String(20), primary_key=True)
     start_date    = Column(DateTime)
     end_date      = Column(DateTime)
+
+    __table_args__ = (UniqueConstraint('period_name'),)
 
 # ReportFactJobs
 
