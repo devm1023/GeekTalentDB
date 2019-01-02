@@ -12,7 +12,7 @@ import argparse
    &facet=true&facet.field=skills&facet.limit=2000
 """
 
-SOLR_HOST = 'http://52.19.175.216:8983/solr/'
+SOLR_HOST = 'http://130.211.99.149:8983/solr/'
 SOLR_CORE = 'aphrodite'
 SOLR_REQ = '{0}{1}/select?q=content_type+%3A+main_profile&fq=merged_sector+%3A+({2})+&rows=0&wt=json' \
            '&indent=true&facet=true&facet.field=skills&facet.limit={3}'
