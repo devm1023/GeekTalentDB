@@ -648,7 +648,8 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['location_name']    = ', '.join([
             jobdict.pop('formattedLocation'),
             jobdict.pop('state'),
-            jobdict.pop('country'))
+            jobdict.pop('country')
+        ])
         jobdict['url']              = jobdict.pop('url')
         jobdict['title']            = jobdict.pop('jobtitle')
         jobdict['category']         = jobdict.pop('category')
