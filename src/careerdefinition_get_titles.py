@@ -93,7 +93,23 @@ if __name__ == '__main__':
             sector = nrm_sector
 
             sectorc = cndb.query(profile_table.id) \
-                        .filter(profile_table.category == nrm_sector) \
+                        .filter(profile_table.category ==
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                ==)  \
                         .count()
 
             # build title cloud
