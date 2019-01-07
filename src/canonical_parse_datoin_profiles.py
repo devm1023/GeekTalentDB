@@ -640,11 +640,6 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['full_description'] = ''
         jobdict['latitude']         = jobdict.pop('latitude')
         jobdict['longitude']        = jobdict.pop('longitude')
-        jobdict['location0']        = jobdict.pop('location0')
-        jobdict['location1']        = jobdict.pop('location1')
-        jobdict['location2']        = jobdict.pop('location2')
-        jobdict['location3']        = jobdict.pop('location3')
-        jobdict['location4']        = jobdict.pop('location4')
         jobdict['location_name']    = ', '.join([
             jobdict.pop('formattedLocation'),
             jobdict.pop('state'),
