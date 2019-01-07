@@ -409,8 +409,11 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['language'] = language
 
         # extract skills
+        if jobdict['full_description'] is not None:
+            stripped_description = strip_tags(jobdict['full_description'])
+        else:
+            stripped_description = strip_tags(jobdict['description'])
 
-        stripped_description = strip_tags(jobdict['full_description'])
         if skillextractors is not None and language in skillextractors:
             text = ' '.join(s for s in [jobdict['title'], stripped_description] if s)
             jobdict['skills'] = list(set(skillextractors[language](text)))
