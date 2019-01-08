@@ -55,6 +55,7 @@ if __name__ == '__main__':
     jobs = [
         # description crawler
         ['crawl_indeed_jobs.py', '--jobs', '4', '--crawl-rate', '1']
+        ['crawl_adzuna.py', '--jobs', '4', '--crawl-rate', '1']
     ]
 
     countries = ['gb', 'fr', 'de', 'at', 'it', 'nl', 'pl', 'us']
