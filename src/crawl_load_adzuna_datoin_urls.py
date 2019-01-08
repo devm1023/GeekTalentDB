@@ -42,7 +42,7 @@ if __name__ == '__main__':
         for redirect_url, adz_id in q:
 
             # jobkey already exists, skip
-            if crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == str(adz_id)).first() is not None:
+            if crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == adz_id).first() is not None:
                 continue
 
             count += 1
