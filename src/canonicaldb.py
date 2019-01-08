@@ -740,7 +740,7 @@ class ADZJob(SQLBase):
     contract_time = Column(String(STR_MAX))
     contract_type = Column(String(STR_MAX))
     created       = Column(DateTime, index=True)
-    adz_id        = Column(BigInteger, unique=True)
+    adz_id        = Column(String(STR_MAX), unique=True)
     latitude      = Column(Float)
     longitude     = Column(Float)
     coords_from_google = Column(Boolean)
