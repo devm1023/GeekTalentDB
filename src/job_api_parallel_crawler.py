@@ -63,7 +63,8 @@ if __name__ == '__main__':
                   'customer-services-jobs', 'admin-jobs', 'sales-jobs', 'hr-jobs', 'accounting-finance-jobs',
                   'part-time-jobs', 'hospitality-catering-jobs', 'logistics-warehouse-jobs', 'legal-jobs',
                   'teaching-jobs', 'retail-jobs', 'social-work-jobs', 'trade-construction-jobs',
-                  'pr-advertising-marketing-jobs', 'creative-design-jobs', 'energy-oil-gas-jobs', 'scientific-qa-jobs']
+                  'pr-advertising-marketing-jobs', 'creative-design-jobs', 'energy-oil-gas-jobs', 'scientific-qa-jobs',
+                  'goods-jobs']
 
     title_lists = {
         'it-jobs|gb': 'indeed_titles_skill_it.txt',
