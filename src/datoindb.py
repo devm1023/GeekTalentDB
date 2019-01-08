@@ -465,7 +465,7 @@ class ADZJob(SQLBase):
     created          = Column(DateTime)
     description      = Column(Unicode(STR_MAX))
     full_description = Column(Unicode(STR_MAX))
-    adz_id           = Column(BigInteger, index=True)
+    adz_id           = Column(String(STR_MAX), index=True)
     latitude         = Column(Float)
     longitude        = Column(Float)
     country          = Column(String(2), index=True, nullable=False)
