@@ -26,4 +26,4 @@ except Exception as e:
     print('URL failed: {0}\n'.format(url))
     raise
 
-print('\nDone!')
+print('\nFinished!')
