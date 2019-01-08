@@ -59,7 +59,11 @@ if __name__ == '__main__':
     ]
 
     countries = ['gb', 'fr', 'de', 'at', 'it', 'nl', 'pl', 'us']
-    categories = ['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs', 'manufacturing-jobs', 'customer-services-jobs', 'admin-jobs', 'sales-jobs', 'hr-jobs', 'accounting-finance-jobs', 'part-time-jobs', 'hospitality-catering-jobs', 'logistics-warehouse-jobs', 'legal-jobs', 'teaching-jobs', 'retail-jobs', 'social-work-jobs', 'trade-construction-jobs', 'pr-advertising-marketing-jobs', 'creative-design-jobs', 'energy-oil-gas-jobs', 'scientific-qa-jobs']
+    categories = ['it-jobs', 'engineering-jobs', 'healthcare-nursing-jobs', 'manufacturing-jobs',
+                  'customer-services-jobs', 'admin-jobs', 'sales-jobs', 'hr-jobs', 'accounting-finance-jobs',
+                  'part-time-jobs', 'hospitality-catering-jobs', 'logistics-warehouse-jobs', 'legal-jobs',
+                  'teaching-jobs', 'retail-jobs', 'social-work-jobs', 'trade-construction-jobs',
+                  'pr-advertising-marketing-jobs', 'creative-design-jobs', 'energy-oil-gas-jobs', 'scientific-qa-jobs']
 
     title_lists = {
         'it-jobs|gb': 'indeed_titles_skill_it.txt',
@@ -68,7 +72,13 @@ if __name__ == '__main__':
 
         'it-jobs|fr': 'indeed_titles_skill_it_fr.txt',
 
-        'it-jobs|de': 'indeed_titles_skill_it_de.txt'
+        'it-jobs|de': 'indeed_titles_skill_it_de.txt',
+
+        'accounting-finance-jobs|gb': 'indeed_titles_skill_finance.txt',
+        'hr-jobs|gb': 'indeed_titles_skill_hr.txt',
+        'legal-jobs|gb': 'indeed_titles_skill_legal.txt',
+        'trade-construction-jobs|gb': 'indeed_titles_skill_construction.txt',
+        'goods-jobs|gb': 'indeed_titles_skill_goods.txt'
     }
 
     for country in countries:
