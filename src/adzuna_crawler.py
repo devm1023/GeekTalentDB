@@ -14,7 +14,7 @@ class AdzunaCrawler(Crawler):
 
     def __init__(self, site='adzuna', **kwargs):
         Crawler.__init__(self, site, **kwargs)
-    
+
     @classmethod
     def parse(cls, site, url, redirect_url, doc):
         valid = False
@@ -26,7 +26,7 @@ class AdzunaCrawler(Crawler):
 
         landing_link = doc.xpath('//a[.="view ad here"]')
         adzuna_job_details = doc.xpath('//div[@class="ad_details_contents"]')
-        
+
         valid = True
 
         if len(landing_link) > 0:
