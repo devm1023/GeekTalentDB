@@ -7,10 +7,13 @@ import traceback
 import conf
 from datoindb import *
 
+from full_description import full_description
 
 """
    Script extracts job postings from Adzuna using their API and populates Datoin DB on the fly.
 """
+
+
 # http://api.adzuna.com:80/v1/api/jobs/gb/search/1?app_id=5f619739&app_key=da114b2c3ded37d8cc280d8841e5f7f6
 # &results_per_page=50&location0=UK&location1=North%20East%20England&category=it-jobs
 
@@ -18,6 +21,7 @@ class _Api():
     """
     Returns a formatted api request string.
     """
+
     def __init__(self, country, loc1, loc2, cat, max_age):
         if loc2 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
@@ -38,9 +42,9 @@ class _Api():
         self.country = country
         self.category = cat
         self.max_age = max_age
-        self.page  = 1
+        self.page = 1
         self.total = 1
-        self.step  = 50
+        self.step = 50
 
     def __iter__(self):
         return self
@@ -63,6 +67,7 @@ class _Api():
         else:
             raise StopIteration()
 
+
 def main(args):
     start = datetime.now()
 
@@ -70,6 +75,10 @@ def main(args):
 
     def extract_jobs(jobs):
         for job in jobs:
+            # TODO: Get full description from redirect url
+            if job['redirect_url'] is not None and job['full_description'] is not None:
+                job['full_description'] = full_description(job['redirect_url'])
+
             job['country'] = args.country
             dtdb.add_adzuna_job(job)
 
@@ -90,6 +99,7 @@ def main(args):
         total = json['count']
         api.total = total
         jobs = json['results']
+
         extract_jobs(jobs)
 
         if not args.quiet:
