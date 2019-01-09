@@ -77,7 +77,6 @@ def main(args):
         for job in jobs:
             # TODO: Get full description from redirect url
             if job['redirect_url'] is not None and job['full_description'] is not None:
-
                 job['full_description'] = full_description(job['redirect_url'])
 
             job['country'] = args.country
