@@ -1,7 +1,7 @@
 import argparse
 import csv
 from datetime import datetime
-
+import math
 from crawldb import *
 from datoindb import DatoinDB, IndeedJob
 from logger import Logger
@@ -19,14 +19,17 @@ if __name__ == '__main__':
 
     # parse dates
     try:
-        args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d')
+        args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d').timestamp()
         if not args.to_date:
-            args.to_date = datetime.now()
+            args.to_date = datetime.now().timestamp()
         else:
-            args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d')
+            args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d').timestamp()
     except ValueError:
         sys.stderr.write('Error: Invalid date.\n')
         exit(1)
+
+    args.from_date = math.floor(args.from_date)
+    args.to_date = math.floor(args.to_date)
 
     logger = Logger()
     batch_size = 10000
@@ -35,8 +38,8 @@ if __name__ == '__main__':
 
     with CrawlDB() as crdb, DatoinDB() as dtdb:
         q = dtdb.query(IndeedJob.url, IndeedJob.jobkey) \
-                .filter(IndeedJob.date >= args.from_date,
-                        IndeedJob.date < args.to_date)
+                .filter(IndeedJob.crawled_date >= args.from_date,
+                        IndeedJob.crawled_date < args.to_date)
 
         count = 0
         for url, jobkey in q:
