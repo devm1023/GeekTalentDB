@@ -1971,7 +1971,7 @@ class CanonicalDB(Session):
         del adzjob['id']
 
         adzjob_id = self.query(ADZJob.id) \
-                        .filter(ADZJob.adz_id == adzjob['adz_id']) \
+                        .filter(ADZJob.adz_id == str(adzjob['adz_id'])) \
                         .first()
 
         cat_tag = self.query(ADZCategory.tag) \
