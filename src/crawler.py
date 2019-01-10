@@ -89,8 +89,12 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
                            .format(time_to_microsec(timestamp))
                 with open(filename, 'w') as htmlfile:
                     htmlfile.write(html)
-
-    valid, type, links = parsefunc(site, url, redirect_url, parsed_html)
+    try:
+        valid, type, links, cleantext = parsefunc(site, url, redirect_url, parsed_html)
+    except:
+        valid, type, links, cleantext =''
+        pass
+    # valid, type, links = parsefunc(site, url, redirect_url, parsed_html)
     if parsed_html is None:
         valid = False
         links = []
@@ -112,7 +116,8 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
         redirect_url=redirect_url,
         timestamp=timestamp,
         fail_count=1 if not valid and timestamp is not None else 0,
-        html=html if html else None,
+        html=cleantext if html else None,
+        # html=html if html else None,
         type=type,
         valid=valid,
         tag=tag,
