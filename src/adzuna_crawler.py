@@ -24,7 +24,7 @@ class AdzunaCrawler(Crawler):
         links = []
         page_type = None
         if doc is None:
-            return False, None, []
+            return False, None, [], ''
 
         landing_link = doc.xpath('//a[.="view ad here"]')
 
@@ -42,7 +42,14 @@ class AdzunaCrawler(Crawler):
             print("#################################")
             landing_link = landing_link[0].get('href')
             print(landing_link)
-            page = requests.get(landing_link, verify=False, timeout=10)
+            while True:
+                try:
+                    page = requests.get(landing_link, verify=False, timeout=10)
+                except:
+                    continue
+                else:
+                    break
+
             doc = html.fromstring(page.content)
             cv_library_job = doc.xpath('//div[@class="jd-details jobview-desc"]')
             railway_job = doc.xpath('//div[@class="job-description clearfix"]')
@@ -125,3 +132,5 @@ class AdzunaCrawler(Crawler):
         # fill_description = cleantext
 
         return valid, page_type, links, cleantext
+
+
