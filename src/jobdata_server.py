@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import literal_column
 
 import conf
-from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf
+from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf, ReportFactJobs, ReportDimDatePeriod, ReportDimRegionCode
 from dbtools import dict_from_row
 
 # Create application
@@ -41,34 +41,53 @@ def apply_common_filters(q, table):
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
-    if category:
-        q = q.filter(table.category == category)
-    if start_date is not None:
-        q = q.filter(table.created >= start_date)
-    if end_date is not None:
-        end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
-        q = q.filter(table.created < end_date)
+    qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
+                                                                   datetime.strptime(start_date, '%Y-%m-%d')) \
+        .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
+
+    if not qtr:
+       if start_date is not None:
+          q = q.filter(table.created >= start_date)
+       if end_date is not None:
+          end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+          q = q.filter(table.created < end_date)
+       if category is not None:
+           q = q.filter(table.category == category)
+    else:
+        q = q.filter(ReportFactJobs.date_period == qtr[0])
+        q = q.filter(ReportFactJobs.category == category)
 
     return q
 
-def get_breakdown_for_source(table, titles, region_type):
+def get_breakdown_for_source(table, titles, region_type, qtr_param):
     countcol = func.count().label('counts')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
-    group_field = get_region_field(table, region_type)
+    if qtr_param is None:  # For Quarterly Queries use the Fact Table - otherwise use core data tables ADZJob and INDJob
+        group_field = get_region_field(table, region_type)
 
-    # (id, code, name, ...)
-    if region_type == 'la':
-        q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol) \
-                .join(table)
-    elif region_type == 'lep':
-        q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
-                .join(LAInLEP).join(LA).join(table)
-    elif group_field is not None:
-        null_column = literal_column("NULL")
-        q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
-                .filter(group_field.isnot(None))
+        # (id, code, name, ...)
+        if region_type == 'la':
+             q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
+        elif region_type == 'lep':
+            q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
+                    .join(LAInLEP).join(LA).join(table)
+        elif group_field is not None:
+            null_column = literal_column("NULL")
+            q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
+                    .filter(group_field.isnot(None))
+        else:
+            return None
     else:
-        return None
+        q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                             ReportFactJobs.region_code.label("region_code"), \
+                             ReportDimRegionCode.region_name.label("region_name"), \
+                             ReportFactJobs.merged_title.label("job_title"), \
+                             ReportFactJobs.total_jobs.label("count")) \
+                             .filter(ReportFactJobs.region_type == region_type.upper()) \
+                             .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+
 
     q = apply_common_filters(q, table)
 
@@ -78,7 +97,9 @@ def get_breakdown_for_source(table, titles, region_type):
         else:
             q = q.filter(table.merged_title.in_(titles))
 
-    q = q.group_by(group_field, table.merged_title)
+    if qtr_param is None:
+      q = q.group_by(group_field, table.merged_title)
+
     return q
 
 @app.after_request
@@ -150,6 +171,8 @@ def get_ladata():
     start = datetime.now()
     titles = request.args.getlist('title')
     region_type = request.args.get('region_type', 'la')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
 
     # get leps
     leps = None
@@ -157,9 +180,9 @@ def get_ladata():
     try:
         if region_type == 'la':
             leps = {}
-            lepq = db.session.query(LAInLEP.la_id, LEP).join(LEP)
+            lepquery = db.session.query(LAInLEP.la_id, LEP).join(LEP)
 
-            for la_id, lep in lepq:
+            for la_id, lep in lepquery:
                 if la_id not in leps:
                     leps[la_id] = []
                 leps[la_id].append(dict_from_row(lep))
@@ -194,8 +217,8 @@ def get_ladata():
                     results[key]['name'] = region_name
                 # leps for la
                 if leps is not None:
-                    if region_id in leps:
-                        results[key]['leps'] = leps[region_id]
+                    if int(region_id) in leps:
+                        results[key]['leps'] = leps[int(region_id)]
                     else:
                         results[key]['leps'] = []
                 results[key]['count'] = 0
@@ -211,12 +234,21 @@ def get_ladata():
             total += count
 
     try:
-        build_results(get_breakdown_for_source(ADZJob, titles, region_type))
-        build_results(get_breakdown_for_source(INJob, titles, region_type))
+        # parameter check for Quarterly Data which will use Fact Tables ReportFactJobs due to performance issues
+        qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
+                                                                       datetime.strptime(start_date, '%Y-%m-%d')) \
+            .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
+
+        if not qtr:
+           build_results(get_breakdown_for_source(ADZJob, titles, region_type, None))
+           build_results(get_breakdown_for_source(INJob, titles, region_type, None))
+        else:
+           build_results(get_breakdown_for_source(ReportFactJobs, titles, region_type, qtr[0]))
+
     except SQLAlchemyError as e:
         return jsonify({
             'error': 'Database error',
-            'exception': repr(e) if app.debug else None
+                'exception': repr(e) if app.debug else None
         }), 500
 
 
@@ -481,6 +513,7 @@ def get_history():
 
         count_col = func.count()
         null_column = literal_column("NULL")
+
 
         if group_period == 'month':
             date_cols = (func.extract('month', table.created), func.extract('year', table.created))
