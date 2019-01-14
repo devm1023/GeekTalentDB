@@ -36,7 +36,7 @@ def get_region_field(table, region_type, code=False):
 
     return None
 
-def apply_common_filters(q, table):
+def apply_common_filters(q, table, source):
     category = request.args.get('category')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
@@ -45,17 +45,17 @@ def apply_common_filters(q, table):
                                                                    datetime.strptime(start_date, '%Y-%m-%d')) \
         .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
 
-    if not qtr:
-       if start_date is not None:
-          q = q.filter(table.created >= start_date)
-       if end_date is not None:
-          end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
-          q = q.filter(table.created < end_date)
-       if category is not None:
+    if not qtr or source is not "regional_breakdown":
+        if start_date is not None:
+           q = q.filter(table.created >= start_date)
+        if end_date is not None:
+           end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+           q = q.filter(table.created < end_date)
+        if category is not None:
            q = q.filter(table.category == category)
-    else:
-        q = q.filter(ReportFactJobs.date_period == qtr[0])
-        q = q.filter(ReportFactJobs.category == category)
+    elif qtr and source is "regional_breakdown":
+         q = q.filter(ReportFactJobs.date_period == qtr[0])
+         q = q.filter(ReportFactJobs.category == category)
 
     return q
 
@@ -69,7 +69,7 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
 
         # (id, code, name, ...)
         if region_type == 'la':
-             q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
+            q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
         elif region_type == 'lep':
             q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
                     .join(LAInLEP).join(LA).join(table)
@@ -89,7 +89,7 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
                              .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
 
 
-    q = apply_common_filters(q, table)
+    q = apply_common_filters(q, table, "regional_breakdown")
 
     if titles:
         if len(titles) == 1 and titles[0] == 'unknown':
@@ -124,7 +124,7 @@ def get_valid_dates():
         q = db.session.query(func.min(table.created), func.max(table.created))
 
         # filters
-        q = apply_common_filters(q, table)
+        q = apply_common_filters(q, table, "valid_dates")
 
         if region:
             if region_type == 'la':
@@ -284,7 +284,7 @@ def get_mergedtitleskills():
             .filter(skillstable.language == 'en') \
             .filter(jobstable.language == 'en')
 
-        q = apply_common_filters(q, jobstable)
+        q = apply_common_filters(q, jobstable, "skills")
 
         if merged_title:
             if merged_title == 'unknown':
@@ -392,7 +392,7 @@ def get_salaries():
                              *date_cols)
 
         # filters
-        q = apply_common_filters(q, table)
+        q = apply_common_filters(q, table, "salaries")
 
         if region:
             if region_type == 'la':
@@ -527,7 +527,7 @@ def get_history():
         q = db.session.query(title_col, count_col, *date_cols)
 
         # filters
-        q = apply_common_filters(q, table)
+        q = apply_common_filters(q, table, "history")
 
         if region:
             if region_type == 'la':
