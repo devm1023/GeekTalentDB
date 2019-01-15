@@ -31,7 +31,6 @@ from parallelize import ParallelFunction
 from pgvalues import in_values
 from windowquery import split_process, collapse
 
-
 EXCESS = 5
 EPOCH = datetime(1970, 1, 1)
 
@@ -48,7 +47,7 @@ def equipartition(l, p):
         raise ValueError('Number of partitions must be greater than zero.')
     if p == 1:
         return [l]
-    bounds = np.linspace(0, len(l), p+1, dtype=int)
+    bounds = np.linspace(0, len(l), p + 1, dtype=int)
     return [l[lb:ub] for lb, ub in zip(bounds[:-1], bounds[1:])]
 
 
@@ -58,7 +57,7 @@ def time_to_microsec(t):
     Returns the number of microseconds after Jan 1, 1970.
 
     """
-    return int((t - EPOCH).total_seconds()*1e6)
+    return int((t - EPOCH).total_seconds() * 1e6)
 
 
 def _in_range(ts, from_ts, to_ts):
@@ -84,9 +83,9 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
             if require_valid_html:
                 raise CrawlDBCheckError(msg)
             else:
-                logger.log(msg+'.\n')
+                logger.log(msg + '.\n')
                 filename = 'parsefail-{0:d}.html' \
-                           .format(time_to_microsec(timestamp))
+                    .format(time_to_microsec(timestamp))
                 with open(filename, 'w') as htmlfile:
                     htmlfile.write(html)
 
@@ -114,12 +113,13 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
         redirect_url=redirect_url,
         timestamp=timestamp,
         fail_count=1 if not valid and timestamp is not None else 0,
-        html=cleantext if cleantext else None,
-        # html=html if html else None,
+        # html=cleantext if cleantext else None,
+        html=html if html else None,
         type=type,
         valid=valid,
         tag=tag,
-        links=[]
+        links=[],
+        full_description=cleantext if cleantext else None,
     )
 
     added_links = {}
@@ -141,7 +141,7 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
             else:
                 raise RuntimeError(
                     'Inconsistent link type for link URL {0:s}' \
-                    .format(link_url))
+                        .format(link_url))
         link = dict(
             url=link_url,
             type=link_type,
@@ -158,8 +158,8 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
     logger = Logger()
     with CrawlDB() as crdb:
         q = crdb.query(Webpage.url, Webpage) \
-                .filter(Webpage.site == site,
-                        Webpage.url >= from_url)
+            .filter(Webpage.site == site,
+                    Webpage.url >= from_url)
         if to_url is not None:
             q = q.filter(Webpage.url < to_url)
         q = q.order_by(Webpage.url, Webpage.timestamp)
@@ -209,7 +209,7 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 wdict = make_webpage(
                     w.id, w.site, w.url, w.redirect_url, w.timestamp, w.html, w.tag,
                     parsefunc, require_valid_html=require_valid_html,
-                    logger=logger)
+                    logger=logger, full_description=full_description)
                 wdict['id'] = w.id
                 if w.timestamp and not wdict['valid'] and not w.valid:
                     wdict['fail_count'] = w.fail_count
@@ -217,27 +217,27 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 if w.valid != wdict['valid']:
                     msg = ('Wrong `valid` field for ID {0:d}. '
                            'Is {1:s}, should be {2:s}.') \
-                           .format(w.id, str(w.valid), str(wdict['valid']))
+                        .format(w.id, str(w.valid), str(wdict['valid']))
                     if repair:
-                        logger.log(msg+' Repairing.\n')
+                        logger.log(msg + ' Repairing.\n')
                         needs_repair = True
                     else:
                         raise CrawlDBCheckError(msg)
                 if w.fail_count != wdict['fail_count']:
                     msg = ('Wrong `fail_count` field for ID {0:d}. '
                            'Is {1:d}, should be {2:d}.') \
-                           .format(w.id, w.fail_count, wdict['fail_count'])
+                        .format(w.id, w.fail_count, wdict['fail_count'])
                     if repair:
-                        logger.log(msg+' Repairing.\n')
+                        logger.log(msg + ' Repairing.\n')
                         needs_repair = True
                     else:
                         raise CrawlDBCheckError(msg)
                 if w.type != wdict['type']:
                     msg = ('Wrong `type` field for ID {0:d}. '
                            'Is {1:s}, should be {2:s}.') \
-                           .format(w.id, repr(w.type), repr(wdict['type']))
+                        .format(w.id, repr(w.type), repr(wdict['type']))
                     if repair:
-                        logger.log(msg+' Repairing.\n')
+                        logger.log(msg + ' Repairing.\n')
                         needs_repair = True
                     else:
                         raise CrawlDBCheckError(msg)
@@ -247,18 +247,18 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
                 for link in old_links:
                     if link not in new_links:
                         msg = 'Spurious link {0:s} for ID {1:d}.' \
-                              .format(str(link), w.id)
+                            .format(str(link), w.id)
                         if repair:
-                            logger.log(msg+' Repairing.\n')
+                            logger.log(msg + ' Repairing.\n')
                             needs_repair = True
                         else:
                             raise CrawlDBCheckError(msg)
                 for link in new_links:
                     if link not in old_links:
                         msg = 'Missing link {0:s} for ID {1:d}.' \
-                              .format(str(link), w.id)
+                            .format(str(link), w.id)
                         if repair:
-                            logger.log(msg+' Repairing.\n')
+                            logger.log(msg + ' Repairing.\n')
                             needs_repair = True
                         else:
                             raise CrawlDBCheckError(msg)
@@ -269,14 +269,14 @@ def check_urls(jobid, from_url, to_url, site, parsefunc,
 
             # check conditions for multiple crawls again
             if len(webpages) > 1:
-               if any(w.timestamp is None for w in webpages):
-                   raise RuntimeError(
-                       'Found multiple crawls and a missing timestamp for '
-                       'URL {0:s} after repair'.format(url))
-               if any(w.valid is None for w in webpages):
-                   raise RuntimeError(
-                       'Found multiple crawls and valid = null for '
-                       'URL {0:s} after repair'.format(url))
+                if any(w.timestamp is None for w in webpages):
+                    raise RuntimeError(
+                        'Found multiple crawls and a missing timestamp for '
+                        'URL {0:s} after repair'.format(url))
+                if any(w.valid is None for w in webpages):
+                    raise RuntimeError(
+                        'Found multiple crawls and valid = null for '
+                        'URL {0:s} after repair'.format(url))
 
             # combine subsequent failed crawls
             if webpages and repair:
@@ -323,12 +323,12 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
     logger = Logger()
     nproxies = len(proxies)
     if crawl_rate is not None:
-        mean_request_time = 1/crawl_rate
+        mean_request_time = 1 / crawl_rate
     else:
         mean_request_time = 0
     if proxy_states is None:
-        proxy_states = [None]*nproxies
-    
+        proxy_states = [None] * nproxies
+
     with CrawlDB() as crdb:
         count = 0
         valid_count = 0
@@ -338,14 +338,12 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
             if timestamp > deadline:
                 break
 
-            min_request_time = random.uniform(0.5*mean_request_time,
-                                              1.5*mean_request_time)
-            
-                
+            min_request_time = random.uniform(0.5 * mean_request_time,
+                                              1.5 * mean_request_time)
 
             current_request_args = request_args.copy()
             if proxies:
-                iproxy = random.randint(0, nproxies-1)
+                iproxy = random.randint(0, nproxies - 1)
                 proxy = proxies[iproxy]
                 current_request_args['proxies'] \
                     = {'http': proxy[0], 'https': proxy[1]}
@@ -356,19 +354,19 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
                            .format(str(timestamp), url))
             current_request_args['timeout'] = timeout
             response = requestfunc(url, current_request_args, logger)
-            
+
             html = None
             redirect_url = None
             if response is not None:
                 html = response.text
-                redirect_url=response.url
+                redirect_url = response.url
 
             # retrieve last crawl from database
             webpage = crdb.query(Webpage) \
-                          .filter(Webpage.site == site,
-                                  Webpage.url == url) \
-                          .order_by(Webpage.timestamp.desc()) \
-                          .first()
+                .filter(Webpage.site == site,
+                        Webpage.url == url) \
+                .order_by(Webpage.timestamp.desc()) \
+                .first()
             if webpage is None:
                 raise IOError('URL {0:s} not found for site {1:s}.' \
                               .format(url, repr(site)))
@@ -391,7 +389,7 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
             count += 1
             if webpage_dict['valid']:
                 valid_count += 1
-            
+
             # Update proxy state.
             if proxies and hook is not None:
                 proxy_states[iproxy] \
@@ -408,7 +406,7 @@ def crawl_urls(site, urls, parsefunc, requestfunc, deadline, crawl_rate,
 
 class Crawler(ConfigurableObject):
     """Basic web crawler.
-    
+
     Args:
       site (str): String ID of the site to crawl.
       crawl_rate (float, optional): Desired number of requests/sec. Defaults to
@@ -422,7 +420,7 @@ class Crawler(ConfigurableObject):
         Defaults to 30.
       urls_from (iterable or None, optional): The URLs to crawl. Defaults to
         ``None``, in which case all pages from the database are crawled
-        (subject to constraints defined by the `recrawl`, `limit`, 
+        (subject to constraints defined by the `recrawl`, `limit`,
         `max_fail_count`, `types` and `exclude_types` arguments).
       recrawl (datetime or None, optional): Recrawl URLs whose latest timestamp
         is earlier than `recrawl`. Defaults to ``None``, in which case only
@@ -458,6 +456,7 @@ class Crawler(ConfigurableObject):
         defaults to ``Logger(None)``, which does not generate any output.
 
     """
+
     def check_config(self, config):
         if not isinstance(config['site'], str) or not config['site']:
             raise ValueError('Config option `site` must be non-empy string.')
@@ -465,7 +464,7 @@ class Crawler(ConfigurableObject):
             raise ConfigError("'proxies' option must be a list.")
         if not isinstance(config['jobs'], int) or config['jobs'] < 1:
             raise ValueError('Number of jobs must an int be greater than 0.')
-        
+
     def __init__(self, site, **kwargs):
         self.share_proxies = kwargs.pop('share_proxies', False)
         ConfigurableObject.__init__(
@@ -485,8 +484,8 @@ class Crawler(ConfigurableObject):
             batch_size=500,
             batch_time=600,
             batch_time_tolerance=1,
-            workdir = 'crawljobs',
-            prefix = 'crawljob',
+            workdir='crawljobs',
+            prefix='crawljob',
             logger=Logger(None))
         self.set_config(**kwargs)
 
@@ -501,7 +500,7 @@ class Crawler(ConfigurableObject):
 
         """
         nproxies = len(config['proxies'])
-        return [None]*nproxies
+        return [None] * nproxies
 
     def finish_proxies(self, config, proxy_states):
         """User-definable method for closing proxies.
@@ -538,7 +537,7 @@ class Crawler(ConfigurableObject):
         Args:
           url (str): The URL to visit.
           request_args (dict): Keyword arguments for the call to
-            ``requests.get``. 
+            ``requests.get``.
           logger (Logger object): Object for writing log messages.
 
         Returns:
@@ -555,10 +554,10 @@ class Crawler(ConfigurableObject):
         except Exception as e:
             if 'proxies' in request_args:
                 logger.log('Failed getting URL {0:s} via {1:s}\n{2:s}\n' \
-                        .format(url, request_args['proxies']['http'], str(e)))
+                           .format(url, request_args['proxies']['http'], str(e)))
             else:
                 logger.log('Failed getting URL {0:s}\n{1:s}\n' \
-                        .format(url, str(e)))
+                           .format(url, str(e)))
         if not success:
             return None
         return result
@@ -599,13 +598,12 @@ class Crawler(ConfigurableObject):
 
     def _check_proxy_states(self, proxy_states, proxies):
         if self.share_proxies:
-            proxy_states = [None]*len(proxies)
+            proxy_states = [None] * len(proxies)
         if len(proxy_states) != len(proxies):
             raise RuntimeError('List of proxy states and list of proxies '
                                'must have the same length.')
         return proxy_states
-        
-    
+
     def crawl(self, **kwargs):
         """Crawl a webpage.
 
@@ -640,26 +638,26 @@ class Crawler(ConfigurableObject):
         with CrawlDB() as crdb:
             batch_time = timedelta(seconds=batch_time)
             if crawl_rate is not None:
-                crawl_rate = crawl_rate/jobs
+                crawl_rate = crawl_rate / jobs
             nproxies = len(proxies)
 
             # construct query for retreiving URLs
             Webpage2 = aliased(Webpage)
             subq = crdb.query(Webpage2.url,
                               func.max(Webpage2.timestamp).label('maxts')) \
-                       .filter(Webpage2.site == site)
+                .filter(Webpage2.site == site)
             if urls_from:
                 with open(urls_from, 'r') as inputfile:
                     urls = [line.strip() for line in inputfile]
                 subq = subq.filter(in_values(Webpage2.url, urls))
             subq = subq.group_by(Webpage2.url) \
-                       .subquery('subq')
+                .subquery('subq')
             q = crdb.query(Webpage.url) \
-                    .join(subq, Webpage.url == subq.c.url) \
-                    .filter(((Webpage.timestamp == None) \
-                             & (subq.c.maxts == None)) \
-                            | (Webpage.timestamp == subq.c.maxts),
-                            Webpage.fail_count <= max_fail_count)
+                .join(subq, Webpage.url == subq.c.url) \
+                .filter(((Webpage.timestamp == None) \
+                         & (subq.c.maxts == None)) \
+                        | (Webpage.timestamp == subq.c.maxts),
+                        Webpage.fail_count <= max_fail_count)
             if recrawl is not None:
                 q = q.filter(Webpage.timestamp < recrawl_date)
             else:
@@ -668,12 +666,12 @@ class Crawler(ConfigurableObject):
                 q = q.filter(Webpage.type.in_(types))
             if exclude_types:
                 q = q.filter(~Webpage.type.in_(exclude_types))
-            q = q.limit(batch_size*jobs*EXCESS)
+            q = q.limit(batch_size * jobs * EXCESS)
 
             proxy_states = self._check_proxy_states(self.init_proxies(config),
                                                     proxies)
             try:
-                tstart = datetime.utcnow()            
+                tstart = datetime.utcnow()
                 total_count = 0
                 firstbatch = True
                 while True:
@@ -688,8 +686,8 @@ class Crawler(ConfigurableObject):
                         break
                     if limit is not None and len(urls) > limit - total_count:
                         urls = urls[:limit - total_count]
-                    urls = urls[:batch_size*jobs]
-                        
+                    urls = urls[:batch_size * jobs]
+
                     tcrawlstart = datetime.utcnow()
                     logger.log('Retreived URLs at {0:s}.\n' \
                                .format(datetime.utcnow() \
@@ -721,8 +719,8 @@ class Crawler(ConfigurableObject):
                                                                 jobs)
                         pargs = []
                         for url_batch, proxy_batch, proxy_state_batch \
-                            in zip(url_batches, proxy_batches,
-                                   proxy_state_batches):
+                                in zip(url_batches, proxy_batches,
+                                       proxy_state_batches):
                             pargs.append(
                                 (site, url_batch, parsefunc, requestfunc,
                                  deadline, crawl_rate, request_args,
@@ -731,8 +729,8 @@ class Crawler(ConfigurableObject):
                         pfunc = ParallelFunction(
                             crawl_urls, batchsize=1, workdir=workdir,
                             prefix=prefix, cleanup=1, append=not firstbatch,
-                            timeout=(1+batch_time_tolerance) \
-                            *batch_time.total_seconds())
+                            timeout=(1 + batch_time_tolerance) \
+                                    * batch_time.total_seconds())
                         success = False
                         firstbatch = False
                         try:
@@ -742,12 +740,11 @@ class Crawler(ConfigurableObject):
                             proxy_states = []
                             for batch_count, batch_valid_count, \
                                 proxy_state_batch in results:
-                                
                                 count += batch_count
                                 valid_count += batch_valid_count
                                 proxy_states.extend(proxy_state_batch)
                             if self.share_proxies:
-                                proxy_states = [None]*len(proxies)
+                                proxy_states = [None] * len(proxies)
                             success = True
                         except TimeoutError:
                             count = 0
@@ -758,16 +755,16 @@ class Crawler(ConfigurableObject):
                     if not success:
                         logger.log(
                             'Crawl timed out at {0:s}.\n' \
-                            .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
+                                .format(tfinish.strftime('%Y-%m-%d %H:%M:%S')))
                         proxy_states = self._check_proxy_states(
                             self.on_timeout(config, proxy_states), proxies)
                     else:
                         logger.log(
                             'Crawled {0:d} URLs. Success rate: {1:3.0f}%, '
                             'Crawl rate: {2:5.3f} URLs/sec.\n' \
-                            .format(valid_count, valid_count/count*100,
-                                    valid_count/ \
-                                    (tfinish-tstart).total_seconds()))
+                                .format(valid_count, valid_count / count * 100,
+                                        valid_count / \
+                                        (tfinish - tstart).total_seconds()))
                     tstart = tfinish
 
                     total_count += count
@@ -775,7 +772,6 @@ class Crawler(ConfigurableObject):
                         break
             finally:
                 self.finish_proxies(config, proxy_states)
-        
 
     def check_db(self, repair=False, from_timestamp=None, to_timestamp=None,
                  **kwargs):
@@ -790,7 +786,7 @@ class Crawler(ConfigurableObject):
 
         with CrawlDB() as crdb:
             q = crdb.query(Webpage.url) \
-                    .filter(Webpage.site == site)
+                .filter(Webpage.site == site)
 
             split_process(q, check_urls, batch_size, njobs=jobs,
                           args=[site, self.parse,

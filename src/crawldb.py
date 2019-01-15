@@ -42,7 +42,7 @@ class Webpage(SQLBase):
     valid         = Column(Boolean, nullable=False)
     fail_count    = Column(Integer, nullable=False)
     tag           = Column(String(STR_MAX))
-
+    full_description = Column(Text)
     links         = relationship('Link',
                                  cascade='all, delete-orphan')
 
