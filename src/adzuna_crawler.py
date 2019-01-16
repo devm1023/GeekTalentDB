@@ -39,7 +39,7 @@ class AdzunaCrawler(Crawler):
             page_type = 'redirect'
 
             links = [(landing_link[0].get('href'), '')]
-            print("#################################")
+            print("=========LANDING LINK=================")
             landing_link = landing_link[0].get('href')
             print(landing_link)
             while True:

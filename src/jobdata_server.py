@@ -80,14 +80,23 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
         else:
             return None
     else:
-        q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
-                             ReportFactJobs.region_code.label("region_code"), \
-                             ReportDimRegionCode.region_name.label("region_name"), \
-                             ReportFactJobs.merged_title.label("job_title"), \
-                             ReportFactJobs.total_jobs.label("count")) \
-                             .filter(ReportFactJobs.region_type == region_type.upper()) \
-                             .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
-
+        null_column = literal_column("NULL")
+        if region_type == 'la' or region_type == 'lep':
+           q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                 ReportFactJobs.region_code.label("region_code"), \
+                 ReportDimRegionCode.region_name.label("region_name"), \
+                 ReportFactJobs.merged_title.label("job_title"), \
+                 ReportFactJobs.total_jobs.label("count")) \
+                 .filter(ReportFactJobs.region_type == region_type.upper()) \
+                 .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+        else:
+           q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                 ReportFactJobs.region_code.label("region_code"), \
+                 null_column, \
+                 ReportFactJobs.merged_title.label("job_title"), \
+                 ReportFactJobs.total_jobs.label("count")) \
+                 .filter(ReportFactJobs.region_type == region_type.upper()) \
+                 .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
 
     q = apply_common_filters(q, table, "regional_breakdown")
 
