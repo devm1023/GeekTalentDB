@@ -89,9 +89,17 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
                 with open(filename, 'w') as htmlfile:
                     htmlfile.write(html)
 
-    valid, type, links, cleantext = parsefunc(site, url, redirect_url, parsed_html)
+    valid = True
+    type = ''
+    links = []
+    cleantext = ''
 
-    # valid, type, links = parsefunc(site, url, redirect_url, parsed_html)
+    if site is 'adzuna':
+        valid, type, links, cleantext = parsefunc(site, url, redirect_url, parsed_html)
+    elif site is 'indeedjob':
+        logger.log(str(site))
+        valid, type, links = parsefunc(site, url, redirect_url, parsed_html)
+
     if parsed_html is None:
         valid = False
         links = []
