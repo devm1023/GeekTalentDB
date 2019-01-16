@@ -80,7 +80,6 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
         else:
             return None
     else:
-        null_column = literal_column("NULL")
         if region_type == 'la' or region_type == 'lep':
            q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
                  ReportFactJobs.region_code.label("region_code"), \
@@ -90,7 +89,8 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
                  .filter(ReportFactJobs.region_type == region_type.upper()) \
                  .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
         else:
-           q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+           null_column = literal_column("NULL")
+           q = db.session.query(null_column, \
                  ReportFactJobs.region_code.label("region_code"), \
                  null_column, \
                  ReportFactJobs.merged_title.label("job_title"), \
