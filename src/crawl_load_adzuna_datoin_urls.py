@@ -1,6 +1,8 @@
 import argparse
 import csv
 from datetime import datetime
+import time
+import math
 
 from crawldb import *
 from datoindb import DatoinDB, ADZJob
@@ -20,10 +22,11 @@ if __name__ == '__main__':
     # parse dates
     try:
         args.from_date = datetime.strptime(args.from_date, '%Y-%m-%d')
+        args.from_date = time.mktime(args.from_date.timetuple())
         if not args.to_date:
-            args.to_date = datetime.now()
+            args.to_date = time.mktime(datetime.now().timetuple())
         else:
-            args.to_date = datetime.strptime(args.to_date, '%Y-%m-%d')
+            args.to_date = time.mktime(datetime.strptime(args.to_date, '%Y-%m-%d').timetuple())
     except ValueError:
         sys.stderr.write('Error: Invalid date.\n')
         exit(1)
@@ -35,15 +38,17 @@ if __name__ == '__main__':
 
     with CrawlDB() as crdb, DatoinDB() as dtdb:
         q = dtdb.query(ADZJob.redirect_url, ADZJob.adz_id) \
-            .filter(ADZJob.created >= args.from_date,
-                    ADZJob.created < args.to_date)
-
+            .filter(ADZJob.crawled_date >= math.floor(args.from_date),
+                    ADZJob.crawled_date < math.floor(args.to_date))
+        logger.log(str(math.floor(args.from_date)))
+        logger.log(str(math.floor(args.to_date)))
         count = 0
         for redirect_url, adz_id in q:
 
             # jobkey already exists, skip
-            if crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == adz_id).first() is not None:
-                continue
+            subq = crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == adz_id).first()
+            if subq is not None:
+               continue
 
             count += 1
 
