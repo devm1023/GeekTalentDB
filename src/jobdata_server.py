@@ -40,10 +40,12 @@ def apply_common_filters(q, table, source):
     category = request.args.get('category')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
+    qtr = None
 
-    qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
+    if start_date is not None and end_date is not None:
+       qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
                                                                    datetime.strptime(start_date, '%Y-%m-%d')) \
-        .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
+           .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
 
     if not qtr or source is not "regional_breakdown":
         if start_date is not None:
