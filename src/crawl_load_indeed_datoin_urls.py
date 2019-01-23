@@ -15,6 +15,10 @@ if __name__ == '__main__':
     parser.add_argument('--to-date', help=
                         'Only load urls from posts created before this date'
                         '. Format: YYYY-MM-DD')
+    parser.add_argument('--category', help=
+                        'categories to load specific URLs', default=None)
+    parser.add_argument('--country', help=
+                        'countries to load specific URLs', default=None)
     args = parser.parse_args()
 
     # parse dates
@@ -40,6 +44,11 @@ if __name__ == '__main__':
         q = dtdb.query(IndeedJob.url, IndeedJob.jobkey, IndeedJob.category, IndeedJob.country) \
                 .filter(IndeedJob.crawled_date >= args.from_date,
                         IndeedJob.crawled_date < args.to_date)
+
+        if args.category is not None:
+            q = q.filter(IndeedJob.category == args.category)
+        if args.country is not None:
+            q - q.filter(IndeedJob.country == args.country)
 
         count = 0
         for url, jobkey, category, country in q:

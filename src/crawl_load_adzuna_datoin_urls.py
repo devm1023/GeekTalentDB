@@ -11,12 +11,16 @@ from logger import Logger
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--from-date', help=
-    'Only load urls from posts created after this date'
-    '. Format: YYYY-MM-DD',
+                        'Only load urls from posts created after this date'
+                         '. Format: YYYY-MM-DD',
                         default='1970-01-01')
     parser.add_argument('--to-date', help=
-    'Only load urls from posts created before this date'
-    '. Format: YYYY-MM-DD')
+                        'Only load urls from posts created before this date'
+                        '. Format: YYYY-MM-DD')
+    parser.add_argument('--category', help=
+                        'categories to load specific URLs', default=None)
+    parser.add_argument('--country', help=
+                        'countries to load specific URLs', default=None)
     args = parser.parse_args()
 
     # parse dates
@@ -40,8 +44,12 @@ if __name__ == '__main__':
         q = dtdb.query(ADZJob.redirect_url, ADZJob.adz_id, ADZJob.category, ADZJob.country) \
             .filter(ADZJob.crawled_date >= math.floor(args.from_date),
                     ADZJob.crawled_date < math.floor(args.to_date))
-        logger.log(str(math.floor(args.from_date)))
-        logger.log(str(math.floor(args.to_date)))
+
+        if args.category is not None:
+            q = q.filter(ADZJob.category == args.category)
+        if args.country is not None:
+            q - q.filter(ADZJob.country == args.country)
+
         count = 0
         for redirect_url, adz_id, category, country in q:
 
