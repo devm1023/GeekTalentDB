@@ -48,7 +48,7 @@ if __name__ == '__main__':
         if args.category is not None:
             q = q.filter(IndeedJob.category == args.category)
         if args.country is not None:
-            q - q.filter(IndeedJob.country == args.country)
+            q = q.filter(IndeedJob.country == args.country)
 
         count = 0
         for url, jobkey, category, country in q:

@@ -48,7 +48,7 @@ if __name__ == '__main__':
         if args.category is not None:
             q = q.filter(ADZJob.category == args.category)
         if args.country is not None:
-            q - q.filter(ADZJob.country == args.country)
+            q = q.filter(ADZJob.country == args.country)
 
         count = 0
         for redirect_url, adz_id, category, country in q:
