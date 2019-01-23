@@ -79,13 +79,13 @@ class CrawlDB(Session):
                          engine_args=engine_args, engine_kwargs=engine_kwargs,
                          **kwargs)
 
-    def add_url(self, site, type, url, tag):
+    def add_url(self, site, type, url, tag, category, country):
         q = self.query(Webpage.id) \
                 .filter(Webpage.site == site,
                         Webpage.url == url)
         webpage = None
         if q.first() is None:
             webpage = Webpage(site=site, url=url,
-                              type=type, tag=tag, fail_count=0, valid=False)
+                              type=type, tag=tag, fail_count=0, category=category, country=country, valid=False)
             self.add(webpage)
         return webpage

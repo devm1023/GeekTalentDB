@@ -162,12 +162,18 @@ def make_webpage(id, site, url, redirect_url, timestamp, html, tag,
 
 
 def check_urls(jobid, from_url, to_url, site, parsefunc,
-               repair, from_ts, to_ts):
+               repair, from_ts, to_ts, category, country):
     logger = Logger()
     with CrawlDB() as crdb:
         q = crdb.query(Webpage.url, Webpage) \
             .filter(Webpage.site == site,
                     Webpage.url >= from_url)
+
+        if category is not None:
+            q = q.filter(Webpage.category == category)
+        if country is not None:
+            q=q.filter(Webpage.country == country)
+
         if to_url is not None:
             q = q.filter(Webpage.url < to_url)
         q = q.order_by(Webpage.url, Webpage.timestamp)
@@ -642,6 +648,8 @@ class Crawler(ConfigurableObject):
         prefix = config['prefix']
         logger = config['logger']
         recrawl_date = config['recrawl']
+        category = config['category']
+        country = config['country']
 
         with CrawlDB() as crdb:
             batch_time = timedelta(seconds=batch_time)
@@ -666,6 +674,12 @@ class Crawler(ConfigurableObject):
                          & (subq.c.maxts == None)) \
                         | (Webpage.timestamp == subq.c.maxts),
                         Webpage.fail_count <= max_fail_count)
+            if category is not None:
+                q = q.filter(Webpage.category == category)
+
+            if country is not None:
+                q = q.filter(Webpage.country == country)
+
             if recrawl is not None:
                 q = q.filter(Webpage.timestamp < recrawl_date)
             else:
@@ -791,12 +805,19 @@ class Crawler(ConfigurableObject):
         workdir = config['workdir']
         prefix = config['prefix']
         logger = config['logger']
+        category = config['category']
+        country = config['country']
 
         with CrawlDB() as crdb:
             q = crdb.query(Webpage.url) \
                 .filter(Webpage.site == site)
 
+            if category is not None:
+                q = q.filter(Webpage.category == category)
+            if country is not None:
+                q = q.filter(Webpage.country == country)
+
             split_process(q, check_urls, batch_size, njobs=jobs,
                           args=[site, self.parse,
-                                repair, from_timestamp, to_timestamp],
+                                repair, from_timestamp, to_timestamp, category, country],
                           logger=logger, workdir=workdir, prefix=prefix)
