@@ -45,24 +45,27 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractors):
     if d['description'] is None:
         d['description'] = extract(doc, xp_job_description2, format_content)
 
-    language = langdetect.detect(d['description'])
+    if d['description'] is not None:
+        language = langdetect.detect(d['description'])
 
-    # extract skills
-    if skillextractors is not None and language in skillextractors:
-        text = ' '.join(s for s in [d['description']] \
+        # extract skills
+        if skillextractors is not None and language in skillextractors:
+            text = ' '.join(s for s in [d['description']] \
                         if s)
-        extracted_skills = list(set(skillextractors[language](text)))
+            extracted_skills = list(set(skillextractors[language](text)))
 
-        d['skills'] = [{'name': s} for s in extracted_skills]
+            d['skills'] = [{'name': s} for s in extracted_skills]
 
     return d
 
 
-def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, category, skillextractors):
+def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, category, skillextractors, country):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'indeedjob',
-               Webpage.redirect_url >= from_url]
+               Webpage.redirect_url >= from_url,
+               Webpage.country == country,
+               Webpage.category == category]
     if to_url is not None:
         filters.append(Webpage.redirect_url < to_url)
     
@@ -85,10 +88,11 @@ def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, category, skillextr
         # this function does the parsing
         def process_row(webpage):
 
-            if category is not None:
-                post_category = dtdb.query(IndeedJob.category).filter(IndeedJob.jobkey == webpage.tag).first()
-                if post_category is None or post_category[0] != category:
-                    return
+            # category must be passed in now - removed section for testing
+            #if category is not None:
+            #    post_category = dtdb.query(IndeedJob.category).filter(IndeedJob.jobkey == webpage.tag).first()
+            #    if post_category is None or post_category[0] != category:
+            #        return
 
             try:
                 doc = parse_html(webpage.html)
@@ -180,6 +184,8 @@ if __name__ == '__main__':
                         'Name of a CSV file holding skill tags.')
     parser.add_argument('--category', type=str, default=None,
                         help='Category for jobs. e.g. it-jobs')
+    parser.add_argument('--country', type=str, default=None,
+                        help='Country for jobs. e.g. gb')
     args = parser.parse_args()
     main(args)
     

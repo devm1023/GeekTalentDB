@@ -721,7 +721,7 @@ class ADZJob(SQLBase):
     __tablename__ = 'adzjob'
     id            = Column(BigInteger, primary_key=True)
     adref         = Column(String(STR_MAX), index=True, nullable=False)
-    language      = Column(String(20))
+    language      = Column(String(20), index=True)
     nrm_location  = Column(Unicode(STR_MAX), index=True)
     title         = Column(Unicode(STR_MAX))
     parsed_title  = Column(Unicode(STR_MAX))
@@ -794,7 +794,7 @@ class INJob(SQLBase):
     __tablename__ = 'injob'
     id            = Column(BigInteger, primary_key=True)
     jobkey        = Column(String(STR_MAX), index=True, nullable=False)
-    language      = Column(String(20))
+    language      = Column(String(20), index=True)
     nrm_location  = Column(Unicode(STR_MAX), index=True)
     title         = Column(Unicode(STR_MAX))
     parsed_title  = Column(Unicode(STR_MAX))
