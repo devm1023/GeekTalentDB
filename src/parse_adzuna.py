@@ -75,10 +75,12 @@ def parse_job_post(url, redirect_url, timestamp, tag, doc, skillextractors):
     return d
 
 
-def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors):
+def parse_job_posts(jobid, from_url, to_url, from_ts, to_ts, skillextractors, category, country):
     logger = Logger()
     filters = [Webpage.valid,
                Webpage.site == 'adzuna',
+               Webpage.category == category,
+               Webpage.country == country,
                Webpage.redirect_url >= from_url]
     if to_url is not None:
         filters.append(Webpage.redirect_url < to_url)
@@ -125,7 +127,9 @@ def main(args):
     logger = Logger()
     batch_size = args.batch_size
     filters = [Webpage.valid,
-               Webpage.site == 'adzuna']
+               Webpage.site == 'adzuna',
+               Webpage.category == args.category,
+               Webpage.country == args.country]
     from_ts = parse_datetime(args.from_timestamp)
     skillfile = args.skills
 
@@ -170,7 +174,7 @@ def main(args):
         q = crdb.query(Webpage.redirect_url).filter(*filters)
 
         split_process(q, parse_job_posts, args.batch_size,
-                      args=[from_ts, to_ts, skillextractors], njobs=args.jobs, logger=logger,
+                      args=[from_ts, to_ts, skillextractors,args.category, args.country], njobs=args.jobs, logger=logger,
                       workdir='jobs', prefix='parse_adzuna')
             
 
@@ -190,6 +194,10 @@ if __name__ == '__main__':
                         'crash recovery.')
     parser.add_argument('--skills', help=
                         'Name of a CSV file holding skill tags.')
+    parser.add_argument('--category', type=str, default=None,
+                        help='Category for jobs. e.g. it-jobs')
+    parser.add_argument('--country', type=str, default=None,
+                        help='Country for jobs. e.g. gb')
     args = parser.parse_args()
     main(args)
     
