@@ -37,12 +37,12 @@ if __name__ == '__main__':
     type = None
 
     with CrawlDB() as crdb, DatoinDB() as dtdb:
-        q = dtdb.query(IndeedJob.url, IndeedJob.jobkey) \
+        q = dtdb.query(IndeedJob.url, IndeedJob.jobkey, IndeedJob.category, IndeedJob.country) \
                 .filter(IndeedJob.crawled_date >= args.from_date,
                         IndeedJob.crawled_date < args.to_date)
 
         count = 0
-        for url, jobkey in q:
+        for url, jobkey, category, country in q:
 
             # jobkey already exists, skip
             if crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == jobkey).first() is not None:
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
             count += 1
 
-            crdb.add_url(site, type, url, jobkey)
+            crdb.add_url(site, type, url, jobkey, category, country)
             if count % batch_size == 0:
                 crdb.commit()
                 logger.log('{0:d} URLs loaded.\n'.format(count))

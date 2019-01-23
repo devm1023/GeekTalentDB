@@ -37,13 +37,13 @@ if __name__ == '__main__':
     type = None
 
     with CrawlDB() as crdb, DatoinDB() as dtdb:
-        q = dtdb.query(ADZJob.redirect_url, ADZJob.adz_id) \
+        q = dtdb.query(ADZJob.redirect_url, ADZJob.adz_id, ADZJob.category, ADZJob.country) \
             .filter(ADZJob.crawled_date >= math.floor(args.from_date),
                     ADZJob.crawled_date < math.floor(args.to_date))
         logger.log(str(math.floor(args.from_date)))
         logger.log(str(math.floor(args.to_date)))
         count = 0
-        for redirect_url, adz_id in q:
+        for redirect_url, adz_id, category, country in q:
 
             # jobkey already exists, skip
             subq = crdb.query(Webpage.id).filter(Webpage.site == site, Webpage.tag == adz_id).first()
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
             count += 1
 
-            crdb.add_url(site, type, redirect_url, adz_id)
+            crdb.add_url(site, type, redirect_url, adz_id, category, country)
             if count % batch_size == 0:
                 crdb.commit()
                 logger.log('{0:d} URLs loaded.\n'.format(count))
