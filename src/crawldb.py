@@ -43,6 +43,8 @@ class Webpage(SQLBase):
     fail_count    = Column(Integer, nullable=False)
     tag           = Column(String(STR_MAX))
     full_description = Column(Text)
+    category      = Column(String(100))
+    country       = Column(String(100))
     links         = relationship('Link',
                                  cascade='all, delete-orphan')
 
@@ -52,6 +54,7 @@ class Webpage(SQLBase):
         Index('ix_webpage_site_type', 'site', 'type'),
         Index('ix_webpage_site_valid', 'site', 'valid'),
         Index('ix_webpage_site_fail_count', 'site', 'fail_count'),
+        Index('ix_webpage_country_category', 'country', 'category'),
     )
 
 
