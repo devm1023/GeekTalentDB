@@ -1,6 +1,6 @@
 from collections import Counter
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, logging
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, desc
@@ -292,7 +292,6 @@ def get_mergedtitleskills():
 
         q = db.session.query(skillstable.name, countcol) \
             .join(jobstable) \
-            .filter(skillstable.language == 'en') \
             .filter(jobstable.language == 'en')
 
         q = apply_common_filters(q, jobstable, "skills")
@@ -327,7 +326,7 @@ def get_mergedtitleskills():
 
         for skill_name, count in q:
             if skill_name not in results:
-                results[skill_name] = 0
+                  results[skill_name] = 0
             results[skill_name] += count
 
         total = len(results)
@@ -607,3 +606,4 @@ def get_history():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+    logging.getLogger('flask_cors').level = logging.DEBUG

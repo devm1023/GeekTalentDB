@@ -582,7 +582,7 @@ class DatoinDB(Session):
 
         job_id = self.query(ADZJob.id) \
                           .filter(ADZJob.adz_id \
-                                  == adzjobdict['id']) \
+                                  == str(adzjobdict['id'])) \
                           .first()
 
         cat_tag = self.query(ADZCategory.tag) \
@@ -609,7 +609,7 @@ class DatoinDB(Session):
 
         adzjobdict['category'] = adzjobdict['category']['tag']
 
-        adzjobdict['adz_id'] = adzjobdict['id']
+        adzjobdict['adz_id'] = str(adzjobdict['id'])
 
         # Format location
         location = adzjobdict['location']
@@ -631,7 +631,7 @@ class DatoinDB(Session):
         if job_id is not None:
             adzjobdict['id'] = job_id[0]
         else:
-            adzjobdict['adz_id'] = adzjobdict['id']
+            adzjobdict['adz_id'] = str(adzjobdict['id'])
             del adzjobdict['id']
 
         del adzjobdict['__CLASS__']
