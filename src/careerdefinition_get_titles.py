@@ -115,7 +115,7 @@ if __name__ == '__main__':
             sectorc = cndb.query(profile_table.id) \
                         .join(Location,
                                 Location.nrm_name == profile_table.nrm_location) \
-                        .filter(profile_table.nrm_sector.in_(lisectors),
+                        .filter(profile_table.analysis_sector.in_(lisectors),
                                 profile_table.language == 'en',
                                 Location.nuts0 == 'UK') \
                         .count()
@@ -133,7 +133,7 @@ if __name__ == '__main__':
             coincidenceq = cndb.query(profile_table.nrm_curr_title, countcol) \
                             .join(Location,
                                     Location.nrm_name == profile_table.nrm_location) \
-                            .filter(profile_table.nrm_sector.in_(lisectors),
+                            .filter(profile_table.analysis_sector.in_(lisectors),
                                     profile_table.language == 'en',
                                     Location.nuts0 == 'UK')
             entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
