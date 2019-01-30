@@ -89,6 +89,7 @@ class LIProfile(SQLBase):
     nrm_location  = Column(Unicode(STR_MAX), index=True)
     sector        = Column(Unicode(STR_MAX))
     nrm_sector    = Column(Unicode(STR_MAX), index=True)
+    analysis_sector = Column(Unicode(100), index=True)
     title         = Column(Unicode(STR_MAX))
     parsed_title  = Column(Unicode(STR_MAX))
     nrm_title     = Column(Unicode(STR_MAX), index=True)
