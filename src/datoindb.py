@@ -715,4 +715,3 @@ class DatoinDB(Session):
         self.flush()
 
         return row
-

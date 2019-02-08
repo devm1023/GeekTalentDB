@@ -17,14 +17,18 @@ def _iter_items(keys, d):
             yield key, d[key]
 
 
-def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount, additional_filters):
-
+def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount, analysis_sector,
+                     additional_filters):
     # handle differences between jobs and profiles
     is_job = profile_table is ADZJob or profile_table is INJob
     # job location data is inline
     loc_table = profile_table if is_job else Location
     # closest thing we have to a sector field for jobs
-    sector_field = profile_table.category if is_job else profile_table.nrm_sector
+    sector_field = profile_table.analysis_category if is_job else profile_table.nrm_sector
+
+    # bespoke field for subset ana;ysis of people (LinkedIn)
+    if analysis_sector is not None:
+        sector_field = profile_table.analysis_category
 
     logger.log('Counting profiles.\n')
 
@@ -36,11 +40,12 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     # total number of profiles
     totalq_nosf = cndb.query(profile_table.id) \
-                      .filter(*common_filters)
+        .filter(*common_filters)
 
     # total number of profiles with a non-null sector
     totalq_sf = cndb.query(profile_table.id) \
-                    .filter(sector_field != None, *common_filters)
+        .filter(sector_field != None,
+                *common_filters)
 
     # join location if needed
     if loc_table is not profile_table:
@@ -55,18 +60,18 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     # total counts of skills
     skillq_nosf = cndb.query(skill_table.nrm_name, countcol) \
-                      .join(profile_table) \
-                      .filter(*common_filters) \
-                      .group_by(skill_table.nrm_name) \
-                      .having(countcol >= mincount)
+        .join(profile_table) \
+        .filter(*common_filters) \
+        .group_by(skill_table.nrm_name) \
+        .having(countcol >= mincount)
 
     # total counts of skills with a non-null sector
     skillq_sf = cndb.query(skill_table.nrm_name, countcol) \
-                    .join(profile_table) \
-                    .filter(*common_filters,
-                            sector_field != None) \
-                    .group_by(skill_table.nrm_name) \
-                    .having(countcol >= mincount)
+        .join(profile_table) \
+        .filter(*common_filters,
+                sector_field != None) \
+        .group_by(skill_table.nrm_name) \
+        .having(countcol >= mincount)
 
     # join location if needed
     if loc_table is not profile_table:
@@ -78,7 +83,10 @@ def get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, 
 
     return (totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf)
 
-def skillvectors(profile_table, skill_table, source, titles, mappings, language = 'en', nuts0 = 'UK', mincount=1, total_counts=None, additional_filters=[]):
+
+def skillvectors(profile_table, skill_table, source, titles, mappings, language='en', nuts0='UK', mincount=1,
+                 analysis_sector=None, total_counts=None, additional_filters=[]):
+    logger = Logger()
     cndb = CanonicalDB()
     logger = Logger()
     mapper = EntityMapper(cndb, mappings)
@@ -90,7 +98,8 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
 
     # get totals
     if total_counts is None:
-        total_counts = get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount, additional_filters)
+        total_counts = get_total_counts(cndb, logger, profile_table, skill_table, language, nuts0, mincount,
+                                        analysis_sector, additional_filters)
 
     totalc_sf, totalc_nosf, skillcounts_sf, skillcounts_nosf = total_counts
 
@@ -113,18 +122,23 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
         if nrm_title is None:
             continue
 
-        nrm_sector = normalized_entity('sector', source, language, sector)
-        
+        nrm_sector = analysis_sector if is_job else normalized_entity('sector', source, language, sector)
+        logger.log('\nNormalised Sector : ' + str(nrm_sector))
         if sector_filter:
             totalc = totalc_sf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_sf)
 
             if is_job:
                 common_filters.append(
-                    profile_table.category == sector)
+                    profile_table.analysis_category == analysis_sector)
             else:
-                common_filters.append(
-                    profile_table.nrm_sector.in_(mapper.inv(nrm_sector)))
+                # Analysis sector for bespoke analysis where data is not within one nrm_sector
+                if analysis_sector is not None:
+                    common_filters.append(
+                        profile_table.analysis_sector == analysis_sector)
+                else:
+                    common_filters.append(
+                        profile_table.nrm_sector.in_(mapper.inv(nrm_sector)))
         else:
             totalc = totalc_nosf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_nosf)
@@ -141,41 +155,42 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language 
 
         # get count for this title
         titleq = cndb.query(profile_table.id) \
-                     .filter(*common_filters,
-                             in_values(title_field,
-                                       similar_titles)
-                             )
-
+            .filter(*common_filters,
+                    in_values(title_field,
+                              similar_titles)
+                    )
         # get counts for skills for this titls
         coincidenceq = cndb.query(skill_table.nrm_name, func.count()) \
-                           .join(profile_table) \
-                           .filter(*common_filters,
-                                   in_values(title_field,
-                                             similar_titles)
-                                   )
-
-        # join location if needed
+            .join(profile_table) \
+            .filter(*common_filters,
+                    in_values(title_field,
+                              similar_titles)
+                    )
+        # join location if needed from Profile (job) or Location table (linkedin)
         if loc_table is not profile_table:
             titleq = titleq.join(Location, Location.nrm_name == profile_table.nrm_location)
             coincidenceq = coincidenceq.join(Location, Location.nrm_name == profile_table.nrm_location)
 
         titlec = titleq.count()
-
+        logger.log('\nTotal Count : ' + str(totalc))
+        logger.log('\nTitle Count : ' + str(titlec))
+        logger.log('\nEntitesq : ' + str(entitiesq))
+        logger.log('\nCoincidenceq : ' + str(coincidenceq))
         skillvector = {}
         for nrm_skill, skillc, titleskillc, _, _ in \
-            relevance_scores(totalc, titlec, entitiesq, coincidenceq,
-                             entitymap=mapper):
+                relevance_scores(totalc, titlec, entitiesq, coincidenceq,
+                                 entitymap=mapper):
             if skillc < mincount:
                 continue
             # skillvector[nrm_skill] = titleskillc/totalc*log(totalc/skillc)
-            skillvector[nrm_skill] = titleskillc/totalc
+            skillvector[nrm_skill] = titleskillc / totalc
+
         if skillvector:
-            norm = sqrt(sum(v**2 for v in skillvector.values()))
-            skillvector = dict((s, v/norm) for s, v in skillvector.items())
+            norm = sqrt(sum(v ** 2 for v in skillvector.values()))
+            skillvector = dict((s, v / norm) for s, v in skillvector.items())
             newtitles.append((sector, title, sector_filter))
             titlecounts.append(titlec)
             skillvectors.append(skillvector)
-
     return newtitles, titlecounts, skillvectors
 
 
@@ -184,17 +199,19 @@ if __name__ == '__main__':
     parser.add_argument('input_file',
                         help='CSV file with sectors and job titles.')
     parser.add_argument('output_file',
-                        help='Name of the CSV file to generate.')    
-    parser.add_argument('--mappings', 
+                        help='Name of the CSV file to generate.')
+    parser.add_argument('--mappings',
                         help='CSV file holding entity mappings.')
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for skills.')
     parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], default='linkedin',
                         help='The data source to process.')
+    parser.add_argument('--analysis-sector', default=None,
+                        help='Bespoke Analysis')
     args = parser.parse_args()
 
     logger = Logger()
-    
+
     titles = []
     with open(args.input_file, 'r') as input_file:
         csvreader = csv.reader(input_file)
@@ -215,11 +232,13 @@ if __name__ == '__main__':
         skill_table = ADZJobSkill
 
     titles, titlecounts, skillvectors \
-        = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, 'en', 'UK', args.min_count)
+        = skillvectors(profile_table, skill_table, args.source, titles, args.mappings, 'en', 'UK', args.min_count,
+                       args.analysis_sector)
 
     with open(args.output_file, 'w') as outputfile:
         csvwriter = csv.writer(outputfile)
         for title, count, skillvector in zip(titles, titlecounts, skillvectors):
+            logger.log(str(title[1]))
             csvwriter.writerow([
                 't', title[0], title[1], int(title[2]), count])
             skillvector = list(skillvector.items())
