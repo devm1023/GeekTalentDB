@@ -7,6 +7,7 @@ from pgvalues import in_values
 import sys
 import csv
 import argparse
+from logger import Logger
 
 
 def get_sectors(sectors, filename, mapper, norm):
@@ -24,28 +25,31 @@ def get_sectors(sectors, filename, mapper, norm):
                     sectors.append(sector)
     return sectors
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--min-count', type=int, default=1,
                         help='Minimum count for a job title to be included. '
-                        'Default: 1')
+                             'Default: 1')
     parser.add_argument('--max-titles', type=int, default=20,
                         help='Maximum number of titles per sector. '
-                        'Default: 20')
+                             'Default: 20')
     parser.add_argument('--sigma', type=int, default=3,
                         help='Minimal significance of relevance scores. '
-                        'Default: 3')
+                             'Default: 3')
     parser.add_argument('--sector-filter-fraction', type=float, default=0.5,
                         help='Apply sector filter for job titles where the '
-                        'fraction of people coming from other sectors is '
-                        'larger than SECTOR_FILTER_FRACTION.')
+                             'fraction of people coming from other sectors is '
+                             'larger than SECTOR_FILTER_FRACTION.')
     parser.add_argument('--sectors-from',
                         help='Name of file holding sector names.')
     parser.add_argument('--mappings',
                         help='Name of a csv file holding entity mappings. '
-                        'Columns: type | lang | sector | name | mapped name')
+                             'Columns: type | lang | sector | name | mapped name')
     parser.add_argument('--source', choices=['linkedin', 'indeed', 'adzuna'], default='linkedin',
                         help='The data source to process.')
+    parser.add_argument('--analysis-sector', default=None,
+                        help='Analysis sector for be-spoke analysis by project')
     parser.add_argument('sector', nargs='*', default=[],
                         help='The merged sectors to scan.')
     args = parser.parse_args()
@@ -59,6 +63,7 @@ if __name__ == '__main__':
     else:
         norm_sector = normalized_sector
     sectors = get_sectors(args.sector, args.sectors_from, mapper, norm_sector)
+    logger = Logger()
 
     if not sectors:
         sys.stderr.write('You must specify at least one sector.\n')
@@ -74,16 +79,17 @@ if __name__ == '__main__':
 
     totalc = cndb.query(profile_table.id)
 
+    logger = Logger()
     # Adzuna jobs have categories instead of sectors, should always be in the uk and always
     # have a category
     if args.source != 'adzuna':
         totalc = totalc.join(Location,
                              Location.nrm_name == profile_table.nrm_location) \
-                       .filter(profile_table.nrm_sector != None,
-                               profile_table.language == 'en',
-                               Location.nuts0 == 'UK')
-    totalc = totalc.count()
+            .filter(profile_table.nrm_sector != None,
+                    profile_table.language == 'en',
+                    Location.nuts0 == 'UK')
 
+    totalc = totalc.count()
     joblists = {}
     sectorcounts = {}
     countcol = func.count().label('counts')
@@ -93,17 +99,17 @@ if __name__ == '__main__':
             sector = nrm_sector
 
             sectorc = cndb.query(profile_table.id) \
-                        .filter(profile_table.category == nrm_sector)  \
-                        .count()
+                .filter(profile_table.analysis_category == nrm_sector) \
+                .count()
 
             # build title cloud
             entityq = lambda entities: \
-                    cndb.query(profile_table.nrm_title, countcol) \
-                        .filter(in_values(profile_table.nrm_title, entities)) \
-                        .group_by(profile_table.nrm_title)
+                cndb.query(profile_table.nrm_title, countcol) \
+                    .filter(in_values(profile_table.nrm_title, entities)) \
+                    .group_by(profile_table.nrm_title)
 
             coincidenceq = cndb.query(profile_table.nrm_title, countcol) \
-                            .filter(profile_table.category == nrm_sector)
+                .filter(profile_table.analysis_category == nrm_sector)
 
             entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
             jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
@@ -112,40 +118,44 @@ if __name__ == '__main__':
         else:
             sector = mapper.name(nrm_sector)
             lisectors = mapper.inv(nrm_sector)
-            sectorc = cndb.query(profile_table.id) \
-                        .join(Location,
-                                Location.nrm_name == profile_table.nrm_location) \
-                        .filter(profile_table.analysis_sector.in_(lisectors),
-                                profile_table.language == 'en',
-                                Location.nuts0 == 'UK') \
-                        .count()
 
+            sectorc = cndb.query(profile_table.id) \
+                .join(Location,
+                      Location.nrm_name == profile_table.nrm_location) \
+                .filter(profile_table.analysis_sector.in_(lisectors),
+                        profile_table.language == 'en',
+                        Location.nuts0 == 'UK') \
+                .count()
             # build title cloud
+            # Larger Number - Find all people who are in similar location with similar titles but in all sectors (not null)
             entityq = lambda entities: \
-                    cndb.query(profile_table.nrm_curr_title, countcol) \
-                        .join(Location,
-                                Location.nrm_name == profile_table.nrm_location) \
-                        .filter(in_values(profile_table.nrm_curr_title, entities),
-                                profile_table.nrm_sector != None,
-                                profile_table.language == 'en',
-                                Location.nuts0 == 'UK') \
-                        .group_by(profile_table.nrm_curr_title)
+                cndb.query(profile_table.nrm_curr_title, countcol) \
+                    .join(Location,
+                          Location.nrm_name == profile_table.nrm_location) \
+                    .filter(in_values(profile_table.nrm_curr_title, entities),
+                            profile_table.language == 'en',
+                            Location.nuts0 == 'UK') \
+                    .group_by(profile_table.nrm_curr_title)
+
+            # Smaller Number -Find all people who are in chosen sector and location
             coincidenceq = cndb.query(profile_table.nrm_curr_title, countcol) \
-                            .join(Location,
-                                    Location.nrm_name == profile_table.nrm_location) \
-                            .filter(profile_table.analysis_sector.in_(lisectors),
-                                    profile_table.language == 'en',
-                                    Location.nuts0 == 'UK')
+                .join(Location,
+                      Location.nrm_name == profile_table.nrm_location) \
+                .filter(profile_table.analysis_sector.in_(lisectors),
+                        profile_table.language == 'en',
+                        Location.nuts0 == 'UK')
+
             entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
+
             jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,
                                 entitymap=entitymap, limit=args.max_titles,
                                 mincount=args.min_count, sigma=args.sigma)
 
         for nrm_title, titlec, sectortitlec, score, error in jobs:
             title = mapper.name(nrm_title)
-            frac1 = sectortitlec/sectorc
-            frac2 = (titlec-sectortitlec)/(totalc-sectorc)
-            sector_fraction = (titlec - sectortitlec)/titlec
+            frac1 = sectortitlec / sectorc
+            frac2 = (titlec - sectortitlec) / (totalc - sectorc)
+            sector_fraction = (titlec - sectortitlec) / titlec
             sector_filter = 0
             if sector_fraction > args.sector_filter_fraction:
                 sector_filter = 1
