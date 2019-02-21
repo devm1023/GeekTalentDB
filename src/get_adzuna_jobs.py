@@ -22,7 +22,7 @@ class _Api():
     Returns a formatted api request string.
     """
 
-    def __init__(self, country, loc1, loc2, cat, max_age):
+    def __init__(self, country, loc1, loc2, cat, max_days_old):
         if loc2 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
                        '&max_days_old={5}&location0=UK&location1={6}&location2={7}&sort_by=date&sort_direction=down'
@@ -30,7 +30,7 @@ class _Api():
             self.location1 = loc1.replace(' ', '+')
         elif loc1 is not None:
             self.api = '{0}{1:d}?app_id={2}&app_key={3}&results_per_page=50&category={4}' \
-                       '&max_days_old={5}&location0=UK&location1={6}&sort_by=date&sort_direction=down'
+                       '&max_days_old={5}&location0=UK&location1={5}&sort_by=date&sort_direction=down'
             self.location2 = None
             self.location1 = loc1.replace(' ', '+')
         else:
@@ -41,9 +41,9 @@ class _Api():
 
         self.country = country
         self.category = cat
-        self.max_age = max_age
         self.page = 1
         self.total = 1
+        self.max_days_old = 2
         self.step = 50
 
     def __iter__(self):
@@ -56,7 +56,7 @@ class _Api():
             conf.ADZUNA_APP_ID,
             conf.ADZUNA_APP_KEY,
             self.category,
-            self.max_age,
+            self.max_days_old,
             self.location1,
             self.location2)
 
@@ -75,9 +75,11 @@ def main(args):
 
     def extract_jobs(jobs):
         for job in jobs:
+            print(str(job))
             # TODO: Get full description from redirect url
-            if job['redirect_url'] is not None and job['full_description'] is not None:
-                job['full_description'] = full_description(job['redirect_url'])
+           # if job['redirect_url'] is not None and 'full_description' not in job:
+            #    print(str(job['redirect_url']))
+            #    job['full_description'] = full_description(job['redirect_url'])
 
             job['country'] = args.country
             dtdb.add_adzuna_job(job)
@@ -85,7 +87,7 @@ def main(args):
         dtdb.flush()
         dtdb.commit()
 
-    api = _Api(args.country, args.location1, args.location2, args.category, args.max_age)
+    api = _Api(args.country, args.location1, args.location2, args.category, args.max_days_old)
     init_api = api.getpage(1)
 
     session = requests.Session()
@@ -121,6 +123,7 @@ def main(args):
             print('Jobs found: {0:d}\n'.format(total))
 
     except Exception as e:
+        print(str(e))
         print('Initial URL failed: {0}\n'.format(init_api), file=sys.stderr)
 
     # with open('digital_tech_solr_skills.txt', 'w') as outputfile:
@@ -146,8 +149,8 @@ if __name__ == '__main__':
                         help='ISO 3166-1 country code')
     parser.add_argument('--quiet', action='store_true',
                         help='Only print errors')
-    parser.add_argument('--max-age', type=str,
-                        help='Maximum number of days ago to crawl.', default=0)
+    parser.add_argument('--max-days-old', type=int, default=2,
+                        help='Only return jobs withing this period')
     args = parser.parse_args()
 
     if args.location2 and not args.location1:

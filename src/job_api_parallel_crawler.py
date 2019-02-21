@@ -6,8 +6,10 @@ import subprocess
 import sys
 import time
 
+
 def get_script_dir():
     return str(Path(__file__).resolve().parent)
+
 
 def run_parallel_jobs(jobs, num_parallel_jobs):
     ran_jobs = 0
@@ -20,7 +22,8 @@ def run_parallel_jobs(jobs, num_parallel_jobs):
             ret = sp.poll()
 
             if ret is not None:
-                print('Subprocess {} finished with code {} at {}'.format(id, ret, datetime.now().strftime('%d/%m/%Y %H:%M:%S')))
+                print('Subprocess {} finished with code {} at {}'.format(id, ret,
+                                                                         datetime.now().strftime('%d/%m/%Y %H:%M:%S')))
                 running_subprocesses.remove(job)
                 sp.communicate()
                 out.close()
@@ -36,20 +39,21 @@ def run_parallel_jobs(jobs, num_parallel_jobs):
 
             # prepend python executable
             args = [sys.executable, path] + jobs[ran_jobs][1:]
-        
-            print ('Starting subprocess', ran_jobs, args, 'at', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
+
+            print('Starting subprocess', ran_jobs, args, 'at', datetime.now().strftime('%d/%m/%Y %H:%M:%S'))
             sp = subprocess.Popen(args, stdout=out, stderr=err)
             running_subprocesses.append((ran_jobs, sp, out, err))
             ran_jobs += 1
 
         time.sleep(1)
 
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--jobs', type=int, default=1, help='Number of jobs to run in parallel')
     parser.add_argument('--max-age', type=int, default=2)
-    
+
     args = parser.parse_args()
 
     jobs = [
@@ -64,7 +68,7 @@ if __name__ == '__main__':
                   'part-time-jobs', 'hospitality-catering-jobs', 'logistics-warehouse-jobs', 'legal-jobs',
                   'teaching-jobs', 'retail-jobs', 'social-work-jobs', 'trade-construction-jobs',
                   'pr-advertising-marketing-jobs', 'creative-design-jobs', 'energy-oil-gas-jobs', 'scientific-qa-jobs',
-                  'goods-jobs']
+                  'goods-jobs', 'trade-construction-jobs']
 
     title_lists = {
         'it-jobs|gb': 'indeed_titles_skill_it.txt',
@@ -85,7 +89,9 @@ if __name__ == '__main__':
     for country in countries:
         for category in categories:
             # adzuna
-            jobs.append(['get_adzuna_jobs.py', '--category', category, '--country', country, '--quiet', '--max-age', str(args.max_age)])
+            jobs.append(
+                ['get_adzuna_jobs.py', '--category', category, '--country', country, '--quiet', '--max-days-old',
+                 str(args.max_age)])
 
             # indeed
             title_list_key = '{}|{}'.format(category, country)
@@ -96,8 +102,9 @@ if __name__ == '__main__':
             title_list_path = os.path.join(get_script_dir(), '../res/indeed/', title_lists[title_list_key])
             location_list_path = os.path.join(get_script_dir(), '../res/indeed/indeed_locations.csv')
 
-            jobs.append(['get_indeed_jobs.py', '--category', category, '--country', country, '--titles-from', title_list_path,
-                         '--locations-from', location_list_path, '--quiet', '--max-age', str(args.max_age)])
+            jobs.append(
+                ['get_indeed_jobs.py', '--category', category, '--country', country, '--titles-from', title_list_path,
+                 '--locations-from', location_list_path, '--quiet', '--max-age', str(args.max_age)])
 
     # TODO: description URL import
 
