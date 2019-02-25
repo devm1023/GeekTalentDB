@@ -64,7 +64,6 @@ if __name__ == '__main__':
         norm_sector = normalized_sector
     sectors = get_sectors(args.sector, args.sectors_from, mapper, norm_sector)
     logger = Logger()
-
     if not sectors:
         sys.stderr.write('You must specify at least one sector.\n')
         sys.stderr.flush()
@@ -97,11 +96,9 @@ if __name__ == '__main__':
     for nrm_sector in sectors:
         if args.source == 'adzuna':
             sector = nrm_sector
-
             sectorc = cndb.query(profile_table.id) \
-                .filter(profile_table.analysis_category == nrm_sector) \
+                .filter(profile_table.analysis_category == args.analysis_sector if args.analysis_sector else nrm_sector) \
                 .count()
-
             # build title cloud
             entityq = lambda entities: \
                 cndb.query(profile_table.nrm_title, countcol) \
@@ -109,7 +106,7 @@ if __name__ == '__main__':
                     .group_by(profile_table.nrm_title)
 
             coincidenceq = cndb.query(profile_table.nrm_title, countcol) \
-                .filter(profile_table.analysis_category == nrm_sector)
+                .filter(profile_table.analysis_category == args.analysis_sector if args.analysis_sector else nrm_sector)
 
             entitymap = lambda s: mapper(s, nrm_sector=nrm_sector)
             jobs = entity_cloud(totalc, sectorc, entityq, coincidenceq,

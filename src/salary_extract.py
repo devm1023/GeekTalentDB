@@ -2,9 +2,9 @@ import re
 
 from textnormalization import clean
 
-salary_regex = re.compile(r'[£\-–] ?([0-9,.\'’]+)(k?)', re.IGNORECASE) # match both values in something like "£1-2k"
-salary_range_regex_pre = re.compile(r'[£0-9]+(p.|k|p/.)?-?$', re.IGNORECASE) # comma and . are handled by clean
-salary_range_regex_post = re.compile(r'^[£0-9]+')
+salary_regex = re.compile(r'[(€|£|$)\-–] ?([0-9,.\'’]+)(k?)', re.IGNORECASE) # match both values in something like "£1-2k"
+salary_range_regex_pre = re.compile(r'[(€|£|$)0-9]+(p.|k|p/.)?-?$', re.IGNORECASE) # comma and . are handled by clean
+salary_range_regex_post = re.compile(r'^[(€|£|$)0-9]+')
 
 number_regex = re.compile(r'^\d+([,\'’]\d{3})*(\.\d+)?$')
 
@@ -21,7 +21,7 @@ def check_salary_range(words, is_pre, offset = 0):
     # "£1234 to £2345", "between £1234 and £2345"
     if delim == 'to' or delim == 'and':
         # avoid marking "salary: £1234 to apply..." as a min salary
-        if next is not None and (is_pre or next[0] == '£') and regex.match(next):
+        if next is not None and (is_pre or (next[0] == '£' or next[0] == '$' or next[0] == '€')) and regex.match(next):
             return True
 
         return False
@@ -115,8 +115,8 @@ def extract_salary(text):
         min_ctx = max(0, span[0] - 50)
         max_ctx = span[1] + 50
 
-        context_pre = clean(text[min_ctx:span[0]].replace('–', '-'), lowercase=True, tokenize=True, keep='-/£')
-        context_post = clean(text[span[1]:max_ctx].replace('–', '-'), lowercase=True, tokenize=True, keep='-/£')
+        context_pre = clean(text[min_ctx:span[0]].replace('–', '-'), lowercase=True, tokenize=True, keep='-/(£|€|$)')
+        context_post = clean(text[span[1]:max_ctx].replace('–', '-'), lowercase=True, tokenize=True, keep='-/(£|€|$)')
 
         # remove first word as it's likely truncated
         if min_ctx > 0:
@@ -135,7 +135,7 @@ def extract_salary(text):
         has_keyword = 'salary' in context_pre or 'pay' in context_pre or 'paying' in context_pre or 'remuneration' in context_pre
 
         # make sure trailing value is actually part of a salary range
-        if match.group(0)[0] != '£':
+        if match.group(0)[0] != '£' and match.group(0)[0] != '€' and match.group(0)[0] != '$':
             # nothing before
             if not context_pre_rev:
                 continue
@@ -148,7 +148,7 @@ def extract_salary(text):
                 i += 1
 
             # check for currency prefix
-            if prev.strip('-')[0] != '£':
+            if prev.strip('-')[0] != '£' and prev.strip('-')[0] != '$' and prev.strip('-')[0] != '€':
                 continue
 
             # add the seperator back into the context
@@ -311,10 +311,10 @@ if __name__ == '__main__':
     test_cases = [
         ('', None),
         # "-" without spaces 
-        ('Location: Warwick, West Midlands, UK Job Salary: £20-£22 per hour (dependent upon experience) Position Des', (20.0, 22.0, 'hour')),
-        ('Location: Bristol £30,000-40,000 Key Skills: Software, embedded, C, GUI, LabWindow', (30000.0, 40000.0, 'year')),
+        ('Location: Warwick, West Midlands, UK Job Salary: €20-€22 per hour (dependent upon experience) Position Des', (20.0, 22.0, 'hour')),
+        ('Location: Bristol €30,000-40,000 Key Skills: Software, embedded, C, GUI, LabWindow', (30000.0, 40000.0, 'year')),
         # "-" with spaces
-        ('Salary: £28,000 - £31,500 plus local government pension, training, generous', (28000.0, 31500.0, 'year')),
+        ('Salary: $28,000 - €31,500 plus local government pension, training, generous', (28000.0, 31500.0, 'year')),
         # "x to y"
         (
             '''011633

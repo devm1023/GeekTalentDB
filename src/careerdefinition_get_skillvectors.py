@@ -123,7 +123,6 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language=
             continue
 
         nrm_sector = analysis_sector if is_job else normalized_entity('sector', source, language, sector)
-        logger.log('\nNormalised Sector : ' + str(nrm_sector))
         if sector_filter:
             totalc = totalc_sf
             entitiesq = lambda entities: _iter_items(entities, skillcounts_sf)
@@ -172,10 +171,6 @@ def skillvectors(profile_table, skill_table, source, titles, mappings, language=
             coincidenceq = coincidenceq.join(Location, Location.nrm_name == profile_table.nrm_location)
 
         titlec = titleq.count()
-        logger.log('\nTotal Count : ' + str(totalc))
-        logger.log('\nTitle Count : ' + str(titlec))
-        logger.log('\nEntitesq : ' + str(entitiesq))
-        logger.log('\nCoincidenceq : ' + str(coincidenceq))
         skillvector = {}
         for nrm_skill, skillc, titleskillc, _, _ in \
                 relevance_scores(totalc, titlec, entitiesq, coincidenceq,

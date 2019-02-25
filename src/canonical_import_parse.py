@@ -300,6 +300,8 @@ def main(args):
             query = query.filter(ADZJob.timestamp < to_ts)
         if args.from_id is not None:
             query = query.filter(ADZJob.id >= args.from_id)
+        if args.category is not None:
+            query = query.filter(ADZJob.category == args.category)
 
         split_process(query, import_adzjobs, args.batch_size,
                     njobs=njobs, args=[from_ts, to_ts],
@@ -317,6 +319,8 @@ def main(args):
             query = query.filter(INJob.timestamp < to_ts)
         if args.from_id is not None:
             query = query.filter(INJob.id >= args.from_id)
+        if args.category is not None:
+            query = query.filter(INJob.category == args.category)
 
         split_process(query, import_injobs, args.batch_size,
                     njobs=njobs, args=[from_ts, to_ts],
@@ -346,5 +350,7 @@ if __name__ == '__main__':
     parser.add_argument('--from-id', help=
                         'Start processing from this datoin ID. Useful for '
                         'crash recovery.')
+    parser.add_argument('--category',default=None,help=
+                        'Category to process ')
     args = parser.parse_args()
     main(args)
