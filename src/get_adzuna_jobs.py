@@ -43,7 +43,7 @@ class _Api():
         self.category = cat
         self.page = 1
         self.total = 1
-        self.max_days_old = 2
+        self.max_days_old = max_days_old
         self.step = 50
 
     def __iter__(self):
