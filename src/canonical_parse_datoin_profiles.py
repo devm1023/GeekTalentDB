@@ -140,7 +140,7 @@ def lastvalidjob(q):
         yield currentrow
 
 def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -239,7 +239,7 @@ def parse_liprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_liprofile, cndb, logger=logger)
 
 def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -349,7 +349,7 @@ def parse_inprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_inprofile, cndb, logger=logger)
 
 def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -388,7 +388,7 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         jobdict['salary_max']       = jobdict.pop('salary_max')
         jobdict['salary_min']       = jobdict.pop('salary_min')
         jobdict['title']            = jobdict.pop('title')
-        jobdict['category']         = jobdict.pop('category')
+        jobdict['category']         = jobdict.pop('category') if parent_category is None else parent_category
         jobdict['company']          = jobdict.pop('company')
         jobdict['indexed_on'] = make_date_time_seconds(jobdict.pop('indexed_on', None))
         jobdict['crawled_on'] = make_date_time_seconds(jobdict.pop('crawled_date', None))
@@ -428,7 +428,7 @@ def parse_adzjobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    s, category, country):
+                    s, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -490,7 +490,7 @@ def parse_uwprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
     process_db(lastvalid(q), add_uwprofile, cndb, logger=logger)
 
 def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -562,7 +562,7 @@ def parse_muprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -613,7 +613,7 @@ def parse_ghprofiles(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 
 def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
-                    skillextractors, category, country):
+                    skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
     dtdb = DatoinDB()
     cndb = nf.CanonicalDB()
@@ -650,7 +650,7 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
         ])
         jobdict['url']              = jobdict.pop('url')
         jobdict['title']            = jobdict.pop('jobtitle')
-        jobdict['category']         = jobdict.pop('category')
+        jobdict['category']         = jobdict.pop('category') if parent_category is None else parent_category
         jobdict['company']          = jobdict.pop('company')
         jobdict['indexed_on'] = make_date_time_seconds(jobdict.pop('indexed_on', None))
         jobdict['crawled_on'] = make_date_time_seconds(jobdict.pop('crawled_date', None))
@@ -677,7 +677,7 @@ def parse_injobs(jobid, fromid, toid, from_ts, to_ts, by_indexed_on,
 
 def parse_profiles(njobs, batchsize,
                    from_ts, to_ts, fromid, source_id, by_indexed_on,
-                   skillextractors, category, country):
+                   skillextractors, category, parent_category, country):
     logger = Logger(sys.stdout)
 
     # Process all sources if source is not specified.
@@ -755,7 +755,7 @@ def parse_profiles(njobs, batchsize,
 
     split_process(query, parsefunc, batchsize,
                   njobs=1,
-                  args=[from_ts, to_ts, by_indexed_on, skillextractors, category, country],
+                  args=[from_ts, to_ts, by_indexed_on, skillextractors, category, parent_category, country],
                   logger=logger, workdir='jobs', prefix=prefix)
 
 
@@ -780,6 +780,7 @@ def main(args):
     skillfile = args.skills
     source_id = args.source
     category  = args.category
+    parent_category  = args.parent_category
     country = args.country
 
     from_ts = int((fromdate - timestamp0).total_seconds())*1000
@@ -821,7 +822,7 @@ def main(args):
         del skills
 
     parse_profiles(njobs, batchsize, from_ts, to_ts, fromid, source_id,
-                   by_indexed_on, skillextractors, category, country)
+                   by_indexed_on, skillextractors, category, parent_category, country)
     
     
 if __name__ == '__main__':
@@ -857,6 +858,9 @@ if __name__ == '__main__':
                         'when processing Indeed CVs or Adzuna jobs')
     parser.add_argument('--category', help=
                         'Name of an Adzuna category for which skills file contains '
+                        'skills. Only needed for jobs')
+    parser.add_argument('--parent-category', help=
+                        'Name of an Adzuna Parent Category for which skills file contains '
                         'skills. Only needed for jobs')
     parser.add_argument('--country', type=str, default='gb',
                         help='ISO 3166-1 country code. Only supported for jobs.')
