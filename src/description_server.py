@@ -29,7 +29,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.DESCRIPTION_DB
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['ADMIN_CREDENTIALS'] = ('geektalent', 'PythonRulez')
 db = SQLAlchemy(app)
-db.init_app(app)
 
 STR_MAX = 100000
 
@@ -42,6 +41,7 @@ def index():
 @app.route('/api/', methods=['GET'])
 def get_descriptions():
     try:
+        db.init_app(app)
         start = datetime.now()
         tpe = request.args.get('type')
         if tpe not in ['sector', 'career', 'skill']:
@@ -224,5 +224,6 @@ admin.add_view(CareerDescriptionView(CareerDescription, db.session))
 admin.add_view(SkillDescriptionView(SkillDescription, db.session))
 
 if __name__ == '__main__':
+    db.init_app(app)
     app.run(host='0.0.0.0', port=5100, debug=True)
 
