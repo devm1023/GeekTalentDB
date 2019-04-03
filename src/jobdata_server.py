@@ -19,6 +19,7 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
+db.init_app(app)
 
 def get_region_field(table, region_type, code=False):
     if region_type == 'la':
@@ -605,5 +606,5 @@ def get_history():
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8081, debug=True)
     logging.getLogger('flask_cors').level = logging.DEBUG
