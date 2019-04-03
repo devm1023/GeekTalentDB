@@ -1,5 +1,5 @@
 runtime: python37
-
+entrypoint: gunicorn -b :$PORT jobdata_server:app --pythonpath ./src
 handlers:
   # This configures Google App Engine to serve the files in the app's static
   # directory.

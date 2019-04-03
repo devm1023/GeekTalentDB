@@ -19,6 +19,7 @@ CORS(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
+db.init_app(app)
 
 def get_region_field(table, region_type, code=False):
     if region_type == 'la':

@@ -29,6 +29,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.DESCRIPTION_DB
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['ADMIN_CREDENTIALS'] = ('geektalent', 'PythonRulez')
 db = SQLAlchemy(app)
+db.init_app(app)
 
 STR_MAX = 100000
 
@@ -53,7 +54,7 @@ def get_descriptions():
                             'query_time': (end - start).microseconds // 1000,
                             'message': 'OK'})
     except Exception as e:
-        response = jsonify({'message': str(e.message)})
+        response = jsonify({'message': repr(e)})
     return response
 
 
