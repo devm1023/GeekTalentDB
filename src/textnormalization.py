@@ -1,3 +1,7 @@
+import os
+import nltk
+nltk.data.path.append(os.environ.get('NLTK_DATA'))
+
 import nltk.stem.snowball
 import nltk.corpus
 import unicodedata
