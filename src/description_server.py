@@ -29,6 +29,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.DESCRIPTION_DB
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['ADMIN_CREDENTIALS'] = ('geektalent', 'PythonRulez')
 db = SQLAlchemy(app)
+db.init_app(app)
 
 STR_MAX = 100000
 
@@ -40,8 +41,7 @@ def index():
 
 @app.route('/api/', methods=['GET'])
 def get_descriptions():
-    try:
-        db.init_app(app)
+    try:        
         start = datetime.now()
         tpe = request.args.get('type')
         if tpe not in ['sector', 'career', 'skill']:
@@ -55,6 +55,8 @@ def get_descriptions():
                             'message': 'OK'})
     except Exception as e:
         response = jsonify({'message': repr(e)})
+    finally:
+        dscdb.close()
     return response
 
 
