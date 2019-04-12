@@ -1,3 +1,7 @@
 runtime: python37
 service: descriptionserver
 entrypoint: gunicorn -b :$PORT description_server:app --chdir ./src
+
+instance_class: B1
+manual_scaling:
+  instances: 1
