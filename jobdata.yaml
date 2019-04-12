@@ -1,0 +1,6 @@
+runtime: python37
+service: jobdataserver
+entrypoint: gunicorn -b :$PORT jobdata_server:app --chdir ./src
+
+env_variables:
+  NLTK_DATA: '../lib/nltk_data'
