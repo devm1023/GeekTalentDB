@@ -216,6 +216,8 @@ def get_ladata():
         if q is None:
             return
 
+        results['merged_titles_count'] = {}
+
         for region_id, region_code, region_name, job_title, count in q:
             key = region_code
 
@@ -235,6 +237,7 @@ def get_ladata():
                         results[key]['leps'] = []
                 results[key]['count'] = 0
                 results[key]['merged_titles'] = {}
+                results[key]['location_quotient'] = {}
 
             results[key]['count'] += count
 
@@ -243,7 +246,26 @@ def get_ladata():
                 results[key]['merged_titles'][job_title] = 0
             results[key]['merged_titles'][job_title] += count
 
+            if job_title not in results['merged_titles_count']:
+                results['merged_titles_count'][job_title] = 0
+            results['merged_titles_count'][job_title] += count
+
             total += count
+
+        for region_id, region_code, region_name, job_title, count in q:
+            key = region_code
+            if job_title is None:
+                job_title="unknown"
+
+            if (job_title not in results[key]['location_quotient'] and
+                    results[key]['count'] != 0 and
+                    results['merged_titles_count'][job_title] != 0 and
+                    total != 0):
+                results[key]['location_quotient'][job_title] = \
+                    (results[key]['merged_titles'][job_title]/results[key]['count'])/ \
+                    (results['merged_titles_count'][job_title]/total)
+
+        del results['merged_titles_count']
 
     try:
         # parameter check for Quarterly Data which will use Fact Tables ReportFactJobs due to performance issues
