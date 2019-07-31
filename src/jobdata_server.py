@@ -573,7 +573,7 @@ def get_all_salaries():
         #                     *date_cols)
 
         # filters
-        q = apply_common_filters(q, table, "all-salaries")
+        q = apply_common_filters(q, table, "all_salaries")
 
         if region:
             if region_type == 'la':
