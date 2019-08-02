@@ -568,10 +568,6 @@ def get_all_salaries():
 
         q = db.session.query(table.salary_min, table.salary_max, table.salary_period)
 
-        # q = db.session.query(table.merged_title, table.salary_period, count_col, func.min(table.salary_min),
-        #                     func.max(table.salary_max), func.avg(table.salary_min), func.avg(table.salary_max),
-        #                     *date_cols)
-
         # filters
         q = apply_common_filters(q, table, "all_salaries")
 
@@ -602,15 +598,13 @@ def get_all_salaries():
         # format results
         if len(results) == 0:
             results.append({
-                'min': 999999,
-                'min-value':0,
-                'quarter': 0,
-                'quarter-value': 0,
-                'mid': 0,
-                'mid-value':0,
-                'three-quarter': 0,
-                'max-value':0,
-                'max': 0
+                '<10k': 0,
+                '20k': 0,
+                '30k': 0,
+                '40k': 0,
+                '50k': 0,
+                '60k': 0,
+                '>70k': 0
             })
         for salary_min, salary_max, period in q:
 
@@ -620,45 +614,59 @@ def get_all_salaries():
             if period != 'year':
                 continue
 
+            salary_measured = 0
+
             if salary_min is not None and salary_max is None:
-                results[0]['min'] = min(salary_min, results[0]['min'])
-                results[0]['max'] = max(salary_min, results[0]['max'])
+                salary_measured = salary_min
             else:
-                salaryMid = (salary_max + salary_min) / 2
-                results[0]['min'] = min(salaryMid, results[0]['min'])
-                results[0]['max'] = max(salaryMid, results[0]['max'])
+                salary_measured = (salary_max + salary_min) / 2
 
-        results[0]['mid'] = (results[0]['min']+results[0]['max'])/2
-        results[0]['quarter'] = (results[0]['min']+results[0]['mid'])/2
-        results[0]['three-quarter'] = (results[0]['mid']+results[0]['max'])/2
+            if salary_measured < 10000:
+                results[0]['<10k'] += 1
+            elif salary_measured <20000:
+                results[0]['20k'] += 1
+            elif salary_measured <30000:
+                results[0]['30k'] += 1
+            elif salary_measured < 40000:
+                results[0]['40k'] += 1
+            elif salary_measured < 50000:
+                results[0]['50k'] += 1
+            elif salary_measured < 60000:
+                results[0]['60k'] += 1
+            else:
+                results[0]['>70k']
 
-        for salary_min, salary_max, period in q:
+        #results[0]['mid'] = (results[0]['min']+results[0]['max'])/2
+        #results[0]['quarter'] = (results[0]['min']+results[0]['mid'])/2
+        #results[0]['three-quarter'] = (results[0]['mid']+results[0]['max'])/2
+
+        #for salary_min, salary_max, period in q:
 
             # all null - no data
-            if salary_min is None and salary_max is None:
-                continue
-            if period != 'year':
-                continue
+        #    if salary_min is None and salary_max is None:
+        #        continue
+        #    if period != 'year':
+        #        continue
 
-            if salary_min is not None and salary_max is None:
-                if salary_min < results[0]['quarter']:
-                    results[0]['min-value'] += 1
-                elif salary_min < results[0]['mid']:
-                    results[0]['quarter-value'] += 1
-                elif salary_min < results[0]['three-quarter']:
-                    results[0]['mid-value'] += 1
-                else:
-                    results[0]['max-value'] += 1
-            else:
-                salary_mid = (salary_max + salary_min) / 2
-                if salary_mid < results[0]['quarter']:
-                    results[0]['min-value'] += 1
-                elif salary_mid < results[0]['mid']:
-                    results[0]['quarter-value'] += 1
-                elif salary_mid < results[0]['three-quarter']:
-                    results[0]['mid-value'] += 1
-                else:
-                    results[0]['max-value'] += 1
+        #    if salary_min is not None and salary_max is None:
+        #        if salary_min < results[0]['quarter']:
+        #            results[0]['min-value'] += 1
+        #        elif salary_min < results[0]['mid']:
+        #            results[0]['quarter-value'] += 1
+        #        elif salary_min < results[0]['three-quarter']:
+        #            results[0]['mid-value'] += 1
+        #        else:
+        #            results[0]['max-value'] += 1
+        #    else:
+        #        salary_mid = (salary_max + salary_min) / 2
+        #        if salary_mid < results[0]['quarter']:
+        #            results[0]['min-value'] += 1
+        #        elif salary_mid < results[0]['mid']:
+        #            results[0]['quarter-value'] += 1
+        #        elif salary_mid < results[0]['three-quarter']:
+        #            results[0]['mid-value'] += 1
+        #        else:
+        #            results[0]['max-value'] += 1
 
     try:
         build_results(ADZJob)
