@@ -579,7 +579,8 @@ def get_all_salaries():
                     .join(LEP)
 
             region_field = get_region_field(table, region_type, code=True)
-            q = q.filter(region_field == region)
+            if region !='*':
+                q = q.filter(region_field == region)
 
         if titles:
             if len(titles) == 1 and titles[0] == 'unknown':
@@ -636,37 +637,97 @@ def get_all_salaries():
             else:
                 results[0]['>70k']
 
-        #results[0]['mid'] = (results[0]['min']+results[0]['max'])/2
-        #results[0]['quarter'] = (results[0]['min']+results[0]['mid'])/2
-        #results[0]['three-quarter'] = (results[0]['mid']+results[0]['max'])/2
+    try:
+        build_results(ADZJob)
+        build_results(INJob)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
 
-        #for salary_min, salary_max, period in q:
+    end = datetime.now()
+    time_taken = end - start
+    response = jsonify({'results': results,
+                        'total': total,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
 
-            # all null - no data
-        #    if salary_min is None and salary_max is None:
-        #        continue
-        #    if period != 'year':
-        #        continue
+@app.route('/top-advertisers/', methods=['GET'])
+def get_top_advertisers():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    period = request.args.get('period')
+    group_period = request.args.get('group_period')
 
-        #    if salary_min is not None and salary_max is None:
-        #        if salary_min < results[0]['quarter']:
-        #            results[0]['min-value'] += 1
-        #        elif salary_min < results[0]['mid']:
-        #            results[0]['quarter-value'] += 1
-        #        elif salary_min < results[0]['three-quarter']:
-        #            results[0]['mid-value'] += 1
-        #        else:
-        #            results[0]['max-value'] += 1
-        #    else:
-        #        salary_mid = (salary_max + salary_min) / 2
-        #        if salary_mid < results[0]['quarter']:
-        #            results[0]['min-value'] += 1
-        #        elif salary_mid < results[0]['mid']:
-        #            results[0]['quarter-value'] += 1
-        #        elif salary_mid < results[0]['three-quarter']:
-        #            results[0]['mid-value'] += 1
-        #        else:
-        #            results[0]['max-value'] += 1
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table):
+        nonlocal total
+        nonlocal results
+        nonlocal period
+
+        count_col = func.count()
+
+        q = db.session.query(table.company, table.salary_period, count_col)
+
+        # filters
+        q = apply_common_filters(q, table, "top_advertisers")
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                    .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            if region !='*':
+                q = q.filter(region_field == region)
+
+        if titles:
+            if len(titles) == 1 and titles[0] == 'unknown':
+                q = q.filter(table.merged_title.is_(None))
+            else:
+                q = q.filter(table.merged_title.in_(titles))
+
+        if period:
+            q = q.filter(table.salary_period == period)
+
+        q = q.group_by(table.company, table.salary_period)
+        q = q.order_by(desc(count_col))
+
+        # format results
+        for company, period, count in q:
+
+            total += count
+
+            # merge with existing
+            found = False
+            for res in results:
+                if res['company'] == company:
+                    res['count'] += count
+
+                    found = True
+                    break
+
+            if found:
+                continue
+
+            results.append({
+                'company': company,
+                'count': count
+            })
 
     try:
         build_results(ADZJob)
