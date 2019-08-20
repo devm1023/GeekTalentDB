@@ -8,7 +8,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql.expression import literal_column
 
 import conf
-from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf, ReportFactJobs, ReportDimDatePeriod, ReportDimRegionCode
+from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf, ReportFactJobs, \
+    ReportDimDatePeriod, ReportDimRegionCode
 from dbtools import dict_from_row
 
 # Create application
@@ -20,6 +21,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = conf.CANONICAL_DB
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 db.init_app(app)
+
 
 def get_region_field(table, region_type, code=False):
     if region_type == 'la':
@@ -37,6 +39,7 @@ def get_region_field(table, region_type, code=False):
 
     return None
 
+
 def apply_common_filters(q, table, source):
     category = request.args.get('category')
     start_date = request.args.get('start_date')
@@ -44,23 +47,24 @@ def apply_common_filters(q, table, source):
     qtr = None
 
     if start_date is not None and end_date is not None:
-       qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
-                                                                   datetime.strptime(start_date, '%Y-%m-%d')) \
-           .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
+        qtr = db.session.query(ReportDimDatePeriod.period_name).filter(ReportDimDatePeriod.start_date == \
+                                                                       datetime.strptime(start_date, '%Y-%m-%d')) \
+            .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
 
     if not qtr or source is not "regional_breakdown":
         if start_date is not None:
-           q = q.filter(table.created >= start_date)
+            q = q.filter(table.created >= start_date)
         if end_date is not None:
-           end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
-           q = q.filter(table.created < end_date)
+            end_date = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
+            q = q.filter(table.created < end_date)
         if category is not None:
-           q = q.filter(table.category == category)
+            q = q.filter(table.category == category)
     elif qtr and source is "regional_breakdown":
-         q = q.filter(ReportFactJobs.date_period == qtr[0])
-         q = q.filter(ReportFactJobs.category == category)
+        q = q.filter(ReportFactJobs.date_period == qtr[0])
+        q = q.filter(ReportFactJobs.category == category)
 
     return q
+
 
 def get_breakdown_for_source(table, titles, region_type, qtr_param):
     countcol = func.count().label('counts')
@@ -75,31 +79,31 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
             q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
         elif region_type == 'lep':
             q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
-                    .join(LAInLEP).join(LA).join(table)
+                .join(LAInLEP).join(LA).join(table)
         elif group_field is not None:
             null_column = literal_column("NULL")
             q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
-                    .filter(group_field.isnot(None))
+                .filter(group_field.isnot(None))
         else:
             return None
     else:
         if region_type == 'la' or region_type == 'lep':
-           q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
-                 ReportFactJobs.region_code.label("region_code"), \
-                 ReportDimRegionCode.region_name.label("region_name"), \
-                 ReportFactJobs.merged_title.label("job_title"), \
-                 ReportFactJobs.total_jobs.label("count")) \
-                 .filter(ReportFactJobs.region_type == region_type.upper()) \
-                 .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+            q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                                 ReportFactJobs.region_code.label("region_code"), \
+                                 ReportDimRegionCode.region_name.label("region_name"), \
+                                 ReportFactJobs.merged_title.label("job_title"), \
+                                 ReportFactJobs.total_jobs.label("count")) \
+                .filter(ReportFactJobs.region_type == region_type.upper()) \
+                .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
         else:
-           null_column = literal_column("NULL")
-           q = db.session.query(null_column, \
-                 ReportFactJobs.region_code.label("region_code"), \
-                 null_column, \
-                 ReportFactJobs.merged_title.label("job_title"), \
-                 ReportFactJobs.total_jobs.label("count")) \
-                 .filter(ReportFactJobs.region_type == region_type.upper()) \
-                 .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+            null_column = literal_column("NULL")
+            q = db.session.query(null_column, \
+                                 ReportFactJobs.region_code.label("region_code"), \
+                                 null_column, \
+                                 ReportFactJobs.merged_title.label("job_title"), \
+                                 ReportFactJobs.total_jobs.label("count")) \
+                .filter(ReportFactJobs.region_type == region_type.upper()) \
+                .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
 
     q = apply_common_filters(q, table, "regional_breakdown")
 
@@ -110,14 +114,16 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
             q = q.filter(table.merged_title.in_(titles))
 
     if qtr_param is None:
-      q = q.group_by(group_field, table.merged_title)
+        q = q.group_by(group_field, table.merged_title)
 
     return q
+
 
 @app.after_request
 def add_cache_headers(response):
     response.cache_control.max_age = 60 * 60 * 12
     return response
+
 
 # Flask views
 @app.route('/')
@@ -143,7 +149,7 @@ def get_valid_dates():
                 q = q.join(LA)
             elif region_type == 'lep':
                 q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
-                     .join(LEP)
+                    .join(LEP)
 
             region_field = get_region_field(table, region_type, code=True)
             q = q.filter(region_field == region)
@@ -171,12 +177,13 @@ def get_valid_dates():
 
     end = datetime.now()
     time_taken = end - start
-    response = jsonify({'results' : results,
-                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
-                        'status' : 'OK'})
+    response = jsonify({'results': results,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
+
 
 @app.route('/regional-breakdown/', methods=['GET'])
 def get_ladata():
@@ -216,6 +223,8 @@ def get_ladata():
         if q is None:
             return
 
+        results['merged_titles_count'] = {}
+
         for region_id, region_code, region_name, job_title, count in q:
             key = region_code
 
@@ -235,6 +244,7 @@ def get_ladata():
                         results[key]['leps'] = []
                 results[key]['count'] = 0
                 results[key]['merged_titles'] = {}
+                results[key]['location_quotient'] = {}
 
             results[key]['count'] += count
 
@@ -243,7 +253,26 @@ def get_ladata():
                 results[key]['merged_titles'][job_title] = 0
             results[key]['merged_titles'][job_title] += count
 
+            if job_title not in results['merged_titles_count']:
+                results['merged_titles_count'][job_title] = 0
+            results['merged_titles_count'][job_title] += count
+
             total += count
+
+        for region_id, region_code, region_name, job_title, count in q:
+            key = region_code
+            if job_title is None:
+                job_title = "unknown"
+
+            if (job_title not in results[key]['location_quotient'] and
+                    results[key]['count'] != 0 and
+                    results['merged_titles_count'][job_title] != 0 and
+                    total != 0):
+                results[key]['location_quotient'][job_title] = \
+                    (results[key]['merged_titles'][job_title] / results[key]['count']) / \
+                    (results['merged_titles_count'][job_title] / total)
+
+        del results['merged_titles_count']
 
     try:
         # parameter check for Quarterly Data which will use Fact Tables ReportFactJobs due to performance issues
@@ -252,24 +281,23 @@ def get_ladata():
             .filter(ReportDimDatePeriod.end_date == datetime.strptime(end_date, '%Y-%m-%d')).all()
 
         if not qtr:
-           build_results(get_breakdown_for_source(ADZJob, titles, region_type, None))
-           build_results(get_breakdown_for_source(INJob, titles, region_type, None))
+            build_results(get_breakdown_for_source(ADZJob, titles, region_type, None))
+            build_results(get_breakdown_for_source(INJob, titles, region_type, None))
         else:
-           build_results(get_breakdown_for_source(ReportFactJobs, titles, region_type, qtr[0]))
+            build_results(get_breakdown_for_source(ReportFactJobs, titles, region_type, qtr[0]))
 
     except SQLAlchemyError as e:
         return jsonify({
             'error': 'Database error',
-                'exception': repr(e) if app.debug else None
+            'exception': repr(e) if app.debug else None
         }), 500
-
 
     end = datetime.now()
     time_taken = end - start
-    response = jsonify({'results' : results,
+    response = jsonify({'results': results,
                         'total': total,
-                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
-                        'status' : 'OK'})
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
@@ -308,7 +336,7 @@ def get_mergedtitleskills():
                 q = q.join(LA, jobstable.la_id == LA.gid)
             elif region_type == 'lep':
                 q = q.join(LAInLEP, jobstable.la_id == LAInLEP.la_id) \
-                        .join(LEP, LAInLEP.lep_id == LEP.id)
+                    .join(LEP, LAInLEP.lep_id == LEP.id)
 
             region_field = get_region_field(jobstable, region_type, code=True)
             q = q.filter(region_field == region)
@@ -327,7 +355,7 @@ def get_mergedtitleskills():
 
         for skill_name, count in q:
             if skill_name not in results:
-                  results[skill_name] = 0
+                results[skill_name] = 0
             results[skill_name] += count
 
         total = len(results)
@@ -361,11 +389,12 @@ def get_mergedtitleskills():
     time_taken = end - start
     response = jsonify({'results': results,
                         'total': total,
-                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds//1000,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
                         'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
+
 
 @app.route('/salaries/', methods=['GET'])
 def get_salaries():
@@ -393,7 +422,8 @@ def get_salaries():
         if group_period == 'month':
             date_cols = (func.extract('month', table.created), func.extract('year', table.created))
         elif group_period == 'quarter':
-            date_cols = (func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+            date_cols = (
+            func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
         else:
             null_column = literal_column("NULL")
             date_cols = (null_column, null_column)
@@ -410,7 +440,7 @@ def get_salaries():
                 q = q.join(LA)
             elif region_type == 'lep':
                 q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
-                     .join(LEP)
+                    .join(LEP)
 
             region_field = get_region_field(table, region_type, code=True)
             if region != '*':
@@ -448,7 +478,8 @@ def get_salaries():
             # merge with existing
             found = False
             for res in results:
-                if (res['merged_title'], res['period'], res['year'], res['month_quarter']) == (title, period, year, month):
+                if (res['merged_title'], res['period'], res['year'], res['month_quarter']) == (
+                title, period, year, month):
                     res['count'] += count
 
                     if res['min'] is None:
@@ -493,16 +524,231 @@ def get_salaries():
             'exception': repr(e) if app.debug else None
         }), 500
 
-
     end = datetime.now()
     time_taken = end - start
-    response = jsonify({'results' : results,
+    response = jsonify({'results': results,
                         'total': total,
-                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
-                        'status' : 'OK'})
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
+
+
+@app.route('/all-salaries/', methods=['GET'])
+def get_all_salaries():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    period = request.args.get('period')
+    group_period = request.args.get('group_period')
+
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table):
+        nonlocal total
+        nonlocal results
+        nonlocal period
+
+        count_col = func.count()
+
+        if group_period == 'month':
+            date_cols = (func.extract('month', table.created), func.extract('year', table.created))
+        elif group_period == 'quarter':
+            date_cols = (
+            func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+        else:
+            null_column = literal_column("NULL")
+            date_cols = (null_column, null_column)
+
+        q = db.session.query(table.salary_min, table.salary_max, table.salary_period)
+
+        # filters
+        q = apply_common_filters(q, table, "all_salaries")
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                    .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            if region !='*':
+                q = q.filter(region_field == region)
+
+        if titles:
+            if len(titles) == 1 and titles[0] == 'unknown':
+                q = q.filter(table.merged_title.is_(None))
+            else:
+                q = q.filter(table.merged_title.in_(titles))
+
+        if period:
+            q = q.filter(table.salary_period == period)
+
+        # q = q.group_by(table.merged_title, table.salary_period)
+
+        # if group_period:
+        #    q = q.group_by(*date_cols)
+
+        # format results
+        if len(results) == 0:
+            results.append({
+                '<10k': 0,
+                '20k': 0,
+                '30k': 0,
+                '40k': 0,
+                '50k': 0,
+                '60k': 0,
+                '>70k': 0
+            })
+        for salary_min, salary_max, period in q:
+
+            # all null - no data
+            if salary_min is None and salary_max is None:
+                continue
+            if period != 'year':
+                continue
+
+            salary_measured = 0
+
+            if salary_min is not None and salary_max is None:
+                salary_measured = salary_min
+            else:
+                salary_measured = (salary_max + salary_min) / 2
+
+            if salary_measured < 10000:
+                results[0]['<10k'] += 1
+            elif salary_measured <20000:
+                results[0]['20k'] += 1
+            elif salary_measured <30000:
+                results[0]['30k'] += 1
+            elif salary_measured < 40000:
+                results[0]['40k'] += 1
+            elif salary_measured < 50000:
+                results[0]['50k'] += 1
+            elif salary_measured < 60000:
+                results[0]['60k'] += 1
+            else:
+                results[0]['>70k']
+
+    try:
+        build_results(ADZJob)
+        build_results(INJob)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+    end = datetime.now()
+    time_taken = end - start
+    response = jsonify({'results': results,
+                        'total': total,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
+@app.route('/top-advertisers/', methods=['GET'])
+def get_top_advertisers():
+    start = datetime.now()
+    titles = request.args.getlist('title')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    period = request.args.get('period')
+    group_period = request.args.get('group_period')
+
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table):
+        nonlocal total
+        nonlocal results
+        nonlocal period
+
+        count_col = func.count()
+
+        q = db.session.query(table.company, table.salary_period, count_col)
+
+        # filters
+        q = apply_common_filters(q, table, "top_advertisers")
+
+        if region:
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                    .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            if region !='*':
+                q = q.filter(region_field == region)
+
+        if titles:
+            if len(titles) == 1 and titles[0] == 'unknown':
+                q = q.filter(table.merged_title.is_(None))
+            else:
+                q = q.filter(table.merged_title.in_(titles))
+
+        if period:
+            q = q.filter(table.salary_period == period)
+
+        q = q.group_by(table.company, table.salary_period)
+        q = q.order_by(desc(count_col))
+
+        # format results
+        for company, period, count in q:
+
+            total += count
+
+            # merge with existing
+            found = False
+            for res in results:
+                if res['company'] == company:
+                    res['count'] += count
+
+                    found = True
+                    break
+
+            if found:
+                continue
+
+            results.append({
+                'company': company,
+                'count': count
+            })
+
+    try:
+        build_results(ADZJob)
+        build_results(INJob)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+    end = datetime.now()
+    time_taken = end - start
+    response = jsonify({'results': results,
+                        'total': total,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
 
 @app.route('/history/', methods=['GET'])
 def get_history():
@@ -526,11 +772,11 @@ def get_history():
         count_col = func.count()
         null_column = literal_column("NULL")
 
-
         if group_period == 'month':
             date_cols = (func.extract('month', table.created), func.extract('year', table.created))
         elif group_period == 'quarter':
-            date_cols = (func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+            date_cols = (
+            func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
         else:
             date_cols = (null_column, null_column)
 
@@ -546,7 +792,7 @@ def get_history():
                 q = q.join(LA)
             elif region_type == 'lep':
                 q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
-                     .join(LEP)
+                    .join(LEP)
 
             region_field = get_region_field(table, region_type, code=True)
             q = q.filter(region_field == region)
@@ -595,17 +841,18 @@ def get_history():
             'exception': repr(e) if app.debug else None
         }), 500
 
-
     end = datetime.now()
     time_taken = end - start
-    response = jsonify({'results' : results,
+    response = jsonify({'results': results,
                         'total': total,
-                        'query_time' : time_taken.seconds * 1000 + time_taken.microseconds//1000,
-                        'status' : 'OK'})
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
 
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8081, debug=True)
+    # http://127.0.0.1:8081/
     logging.getLogger('flask_cors').level = logging.DEBUG
