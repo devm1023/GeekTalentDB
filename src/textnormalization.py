@@ -1,5 +1,6 @@
 import os
 import nltk
+nltk.download('stopwords')
 nltk.data.path.append(os.environ.get('NLTK_DATA'))
 
 import nltk.stem.snowball

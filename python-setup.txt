@@ -6,7 +6,6 @@ sudo apt-get install python3-pip
 
 Install required python packages:
 ---------------------------------
-
 sudo apt-get install python3-matplotlib postgresql-server-dev-X.Y libgdal-dev libxml2-dev libxslt1-dev python-dev tor
 sudo systemctl disable tor.service
 sudo pip3 install nltk numpy sqlalchemy geoalchemy2 psycopg2 cloudpickle fiona shapely langdetect flask flask-admin flask-sqlalchemy stem pysocks lxml

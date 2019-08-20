@@ -413,7 +413,8 @@ def get_salaries():
                      .join(LEP)
 
             region_field = get_region_field(table, region_type, code=True)
-            q = q.filter(region_field == region)
+            if region != '*':
+                q = q.filter(region_field == region)
 
         if titles:
             if len(titles) == 1 and titles[0] == 'unknown':
