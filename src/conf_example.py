@@ -10,7 +10,7 @@ PARSE_DB      = 'postgresql://geektalent:geektalent@localhost/parse'
 DATOIN_DB     = 'postgresql://geektalent:geektalent@localhost/datoin'
 
 # Canonical Database
-CANONICAL_DB  = 'postgresql://geektalent:geektalent@localhost/canonical'
+CANONICAL_DB  = 'postgresql://geektalent:geektalent@localhost/canonical_dev'
 
 # Analytics Database
 ANALYTICS_DB  = 'postgresql://geektalent:geektalent@localhost/analytics'

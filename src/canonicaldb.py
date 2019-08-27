@@ -37,6 +37,7 @@ __all__ = [
     'ReportDimRegionCode',
     'ReportDimRegionType',
     'ReportDimDatePeriod',
+    'ReportJobSkill',
 ]
 
 import conf
@@ -750,7 +751,7 @@ class ADZJob(SQLBase):
     language = Column(String(20), index=True)
     nrm_location = Column(Unicode(STR_MAX), index=True)
     title = Column(Unicode(STR_MAX))
-    parsed_title = Column(Unicode(STR_MAX))
+    parsed_title = Column(Unicode(STR_MAX), index=True)
     nrm_title = Column(Unicode(STR_MAX), index=True)
     title_prefix = Column(Unicode(STR_MAX))
     merged_title = Column(Unicode(STR_MAX))
@@ -773,8 +774,8 @@ class ADZJob(SQLBase):
     location_name = Column(String(STR_MAX))
     redirect_url = Column(String(STR_MAX))
     adz_salary_is_predicted = Column(Boolean)
-    adz_salary_max = Column(BigInteger)
-    adz_salary_min = Column(BigInteger)
+    adz_salary_max = Column(BigInteger, index=True)
+    adz_salary_min = Column(BigInteger, index=True)
     salary_max = Column(BigInteger, index=True)
     salary_min = Column(BigInteger, index=True)
     salary_period = Column(String(5), index=True)
@@ -1043,6 +1044,20 @@ class ReportDimRegionType(SQLBase):
     region_type_name = Column(String(20), primary_key=True)
 
     __table_args__ = (UniqueConstraint('region_type_name'),)
+
+
+class ReportJobSkill(SQLBase):
+    __tablename__ = 'report_job_skill'
+    job_skill_id = Column(Integer, primary_key=True)
+    id = Column(BigInteger)
+    salary_max = Column(BigInteger)
+    salary_min = Column(BigInteger)
+    skill = Column(Unicode(STR_MAX), index=True)
+    la_id = Column(BigInteger, ForeignKey('la.gid'))
+    nuts0 = Column(String(2))
+    nuts1 = Column(String(3))
+    nuts2 = Column(String(4))
+    nuts3 = Column(String(5))
 
 
 class ReportDimDatePeriod(SQLBase):

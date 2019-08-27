@@ -9,7 +9,7 @@ from sqlalchemy.sql.expression import literal_column
 
 import conf
 from canonicaldb import ADZJob, ADZJobSkill, INJob, INJobSkill, LA, LEP, LAInLEP, SkillsIdf, ReportFactJobs, \
-    ReportDimDatePeriod, ReportDimRegionCode
+    ReportDimDatePeriod, ReportDimRegionCode, ReportJobSkill
 from dbtools import dict_from_row
 
 # Create application
@@ -551,26 +551,19 @@ def get_all_salaries():
     results = []
     total = 0
 
-    def build_results(table):
+    def build_results(table, adzOrIn):
         nonlocal total
         nonlocal results
         nonlocal period
 
-        count_col = func.count()
-
-        if group_period == 'month':
-            date_cols = (func.extract('month', table.created), func.extract('year', table.created))
-        elif group_period == 'quarter':
-            date_cols = (
-            func.floor((func.extract('month', table.created) - 1) / 3) + 1, func.extract('year', table.created))
+        if adzOrIn == 0:
+            q = db.session.query(table.adz_salary_min, table.adz_salary_max, table.salary_period)
         else:
-            null_column = literal_column("NULL")
-            date_cols = (null_column, null_column)
-
-        q = db.session.query(table.salary_min, table.salary_max, table.salary_period)
+            q = db.session.query(table.salary_min, table.salary_max, table.salary_period)
 
         # filters
         q = apply_common_filters(q, table, "all_salaries")
+        q = q.filter(table.salary_period == 'year')
 
         if region:
             if region_type == 'la':
@@ -585,9 +578,9 @@ def get_all_salaries():
 
         if titles:
             if len(titles) == 1 and titles[0] == 'unknown':
-                q = q.filter(table.merged_title.is_(None))
+                q = q.filter(table.parsed_title.is_(None))
             else:
-                q = q.filter(table.merged_title.in_(titles))
+                q = q.filter(table.parsed_title.in_(titles))
 
         if period:
             q = q.filter(table.salary_period == period)
@@ -620,6 +613,8 @@ def get_all_salaries():
 
             if salary_min is not None and salary_max is None:
                 salary_measured = salary_min
+            elif salary_min is None and salary_max is not None:
+                salary_measured = salary_max
             else:
                 salary_measured = (salary_max + salary_min) / 2
 
@@ -639,8 +634,8 @@ def get_all_salaries():
                 results[0]['>70k']
 
     try:
-        build_results(ADZJob)
-        build_results(INJob)
+        build_results(ADZJob, 0)
+        build_results(INJob, 1)
     except SQLAlchemyError as e:
         return jsonify({
             'error': 'Database error',
@@ -656,6 +651,111 @@ def get_all_salaries():
     print('response sent [{0:s}]' \
           .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
     return response
+
+
+@app.route('/all-salaries-by-skills/', methods=['GET'])
+def get_all_salaries_by_skills():
+    start = datetime.now()
+    skills = request.args.getlist('skill')
+    region_type = request.args.get('region_type', 'la')
+    region = request.args.get('region')
+    group_period = request.args.get('group_period')
+    provided_and_or = request.args.get('and_or')
+
+    if group_period is not None and group_period not in ['month', 'quarter']:
+        return jsonify({'error': 'Invalid group_period. Valid values: month, quarter'}), 400
+
+    # build results
+    results = []
+    total = 0
+
+    def build_results(table, andOr):
+        nonlocal total
+        nonlocal results
+
+        q = db.session.query(table.salary_min, table.salary_max)
+
+        # filters
+        q = apply_common_filters(q, table, "all_salaries_by_skill")
+
+        if region and region != '*':
+            if region_type == 'la':
+                q = q.join(LA)
+            elif region_type == 'lep':
+                q = q.join(LAInLEP, table.la_id == LAInLEP.la_id) \
+                    .join(LEP)
+
+            region_field = get_region_field(table, region_type, code=True)
+            q = q.filter(region_field == region)
+
+        if skills:
+            if len(skills) == 1 and skills[0] == 'unknown':
+                q = q.filter(table.skill.is_(None))
+            else:
+                q = q.filter(func.lower(table.skill).in_(skills))
+
+        q = q.group_by(table.id, table.salary_max, table.salary_min)
+        if andOr == 'and':
+            q = q.having(func.count() >= len(skills))
+
+        # format results
+        if len(results) == 0:
+            results.append({
+                '<10k': 0,
+                '20k': 0,
+                '30k': 0,
+                '40k': 0,
+                '50k': 0,
+                '60k': 0,
+                '>70k': 0
+            })
+        for salary_min, salary_max in q:
+
+            # all null - no data
+            if salary_min is None and salary_max is None:
+                continue
+
+            salary_measured = 0
+
+            if salary_min is not None and salary_max is None:
+                salary_measured = salary_min
+            elif salary_min is None and salary_max is not None:
+                salary_measured = salary_max
+            else:
+                salary_measured = (salary_max + salary_min) / 2
+
+            if salary_measured < 10000:
+                results[0]['<10k'] += 1
+            elif salary_measured <20000:
+                results[0]['20k'] += 1
+            elif salary_measured <30000:
+                results[0]['30k'] += 1
+            elif salary_measured < 40000:
+                results[0]['40k'] += 1
+            elif salary_measured < 50000:
+                results[0]['50k'] += 1
+            elif salary_measured < 60000:
+                results[0]['60k'] += 1
+            else:
+                results[0]['>70k']
+    try:
+        build_results(ReportJobSkill, provided_and_or)
+    except SQLAlchemyError as e:
+        return jsonify({
+            'error': 'Database error',
+            'exception': repr(e) if app.debug else None
+        }), 500
+
+    end = datetime.now()
+    time_taken = end - start
+    response = jsonify({'results': results,
+                        'total': total,
+                        'query_time': time_taken.seconds * 1000 + time_taken.microseconds // 1000,
+                        'status': 'OK'})
+    print('response sent [{0:s}]' \
+          .format(datetime.now().strftime('%d/%b/%Y %H:%M:%S')))
+    return response
+
 
 @app.route('/top-advertisers/', methods=['GET'])
 def get_top_advertisers():
