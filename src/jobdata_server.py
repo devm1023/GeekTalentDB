@@ -61,7 +61,8 @@ def apply_common_filters(q, table, source):
             q = q.filter(table.category == category)
     elif qtr and source is "regional_breakdown":
         q = q.filter(ReportFactJobs.date_period == qtr[0])
-        q = q.filter(ReportFactJobs.category == category)
+        if category is not None:
+            q = q.filter(ReportFactJobs.category == category)
 
     return q
 
