@@ -72,41 +72,77 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
 
-    if qtr_param is None:  # For Quarterly Queries use the Fact Table - otherwise use core data tables ADZJob and INDJob
-        group_field = get_region_field(table, region_type)
+    if request.args.get('category') == 'all_sectors':
+        if qtr_param is None:  # For Quarterly Queries use the Fact Table - otherwise use core data tables ADZJob and INDJob
+            group_field = get_region_field(table, region_type)
 
-        # (id, code, name, ...)
-        if region_type == 'la':
-            q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
-        elif region_type == 'lep':
-            q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
-                .join(LAInLEP).join(LA).join(table)
-        elif group_field is not None:
-            null_column = literal_column("NULL")
-            q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
-                .filter(group_field.isnot(None))
+            # (id, code, name, ...)
+            if region_type == 'la':
+                q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
+            elif region_type == 'lep':
+                q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
+                    .join(LAInLEP).join(LA).join(table)
+            elif group_field is not None:
+                null_column = literal_column("NULL")
+                q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
+                    .filter(group_field.isnot(None))
+            else:
+                return None
         else:
-            return None
+            if region_type == 'la' or region_type == 'lep':
+                q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                                     ReportFactJobs.region_code.label("region_code"), \
+                                     ReportDimRegionCode.region_name.label("region_name"), \
+                                     ReportFactJobs.merged_title.label("job_title"), \
+                                     ReportFactJobs.total_jobs.label("count")) \
+                    .filter(ReportFactJobs.region_type == region_type.upper()) \
+                    .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+            else:
+                null_column = literal_column("NULL")
+                q = db.session.query(null_column, \
+                                     ReportFactJobs.region_code.label("region_code"), \
+                                     null_column, \
+                                     ReportFactJobs.category.label("job_title"), \
+                                     func.sum(ReportFactJobs.total_jobs).label("count")) \
+                    .filter(ReportFactJobs.region_type == region_type.upper()) \
+                    .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+
+                q = q.group_by(ReportFactJobs.region_code, ReportFactJobs.category)
     else:
-        if region_type == 'la' or region_type == 'lep':
-            q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
-                                 ReportFactJobs.region_code.label("region_code"), \
-                                 ReportDimRegionCode.region_name.label("region_name"), \
-                                 ReportFactJobs.merged_title.label("job_title"), \
-                                 ReportFactJobs.total_jobs.label("count")) \
-                .filter(ReportFactJobs.region_type == region_type.upper()) \
-                .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
-        else:
-            null_column = literal_column("NULL")
-            q = db.session.query(null_column, \
-                                 ReportFactJobs.region_code.label("region_code"), \
-                                 null_column, \
-                                 ReportFactJobs.merged_title.label("job_title"), \
-                                 ReportFactJobs.total_jobs.label("count")) \
-                .filter(ReportFactJobs.region_type == region_type.upper()) \
-                .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+        if qtr_param is None:  # For Quarterly Queries use the Fact Table - otherwise use core data tables ADZJob and INDJob
+            group_field = get_region_field(table, region_type)
 
-    q = apply_common_filters(q, table, "regional_breakdown")
+            # (id, code, name, ...)
+            if region_type == 'la':
+                q = db.session.query(LA.gid, LA.lau118cd, LA.lau118nm, table.merged_title, countcol).join(table)
+            elif region_type == 'lep':
+                q = db.session.query(LEP.id, LEP.name, LEP.name, table.merged_title, countcol) \
+                    .join(LAInLEP).join(LA).join(table)
+            elif group_field is not None:
+                null_column = literal_column("NULL")
+                q = db.session.query(null_column, group_field, null_column, table.merged_title, countcol) \
+                    .filter(group_field.isnot(None))
+            else:
+                return None
+        else:
+            if region_type == 'la' or region_type == 'lep':
+                q = db.session.query(ReportDimRegionCode.region_ref.label("region_id"), \
+                                    ReportFactJobs.region_code.label("region_code"), \
+                                    ReportDimRegionCode.region_name.label("region_name"), \
+                                    ReportFactJobs.merged_title.label("job_title"), \
+                                    ReportFactJobs.total_jobs.label("count")) \
+                    .filter(ReportFactJobs.region_type == region_type.upper()) \
+                    .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+            else:
+                null_column = literal_column("NULL")
+                q = db.session.query(null_column, \
+                                    ReportFactJobs.region_code.label("region_code"), \
+                                    null_column, \
+                                    ReportFactJobs.merged_title.label("job_title"), \
+                                    ReportFactJobs.total_jobs.label("count")) \
+                    .filter(ReportFactJobs.region_type == region_type.upper()) \
+                    .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
+        q = apply_common_filters(q, table, "regional_breakdown")
 
     if titles:
         if len(titles) == 1 and titles[0] == 'unknown':
