@@ -98,6 +98,8 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
                     .filter(ReportFactJobs.region_type == region_type.upper()) \
                     .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
 
+                q = q.group_by(ReportDimRegionCode.region_ref, ReportFactJobs.region_code, ReportDimRegionCode.region_name, ReportFactJobs.category)
+
             else:
                 null_column = literal_column("NULL")
                 q = db.session.query(null_column, \
@@ -108,7 +110,7 @@ def get_breakdown_for_source(table, titles, region_type, qtr_param):
                     .filter(ReportFactJobs.region_type == region_type.upper()) \
                     .filter(ReportFactJobs.region_code == ReportDimRegionCode.region_code)
 
-            q = q.group_by(ReportFactJobs.region_code, ReportFactJobs.category)
+                q = q.group_by(ReportFactJobs.region_code, ReportFactJobs.category)
     else:
         if qtr_param is None:  # For Quarterly Queries use the Fact Table - otherwise use core data tables ADZJob and INDJob
             group_field = get_region_field(table, region_type)
