@@ -838,9 +838,9 @@ def get_top_advertisers():
 
         if titles:
             if len(titles) == 1 and titles[0] == 'unknown':
-                q = q.filter(table.merged_title.is_(None))
+                q = q.filter(table.parsed_title.is_(None))
             else:
-                q = q.filter(table.merged_title.in_(titles))
+                q = q.filter(table.parsed_title.in_(titles))
 
         if period:
             q = q.filter(table.salary_period == period)
