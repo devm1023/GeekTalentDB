@@ -7,6 +7,6 @@ Flask-SQLAlchemy==2.2
 GeoAlchemy2==0.4.0
 nltk==3.2.4
 psycopg2==2.7.3
-requests==2.18.3
+requests==2.20.0
 Gunicorn==19.7.1
 google-api-python-client
